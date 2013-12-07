@@ -104,6 +104,9 @@ platform_cmpxchg32_strong(T & expected, T desired, volatile T * ptr)
     return success;
 }
 
+}
+}
+
 class atomic_flag
 {
 private:
@@ -129,7 +132,7 @@ public:
         do {
             if (expected == 1)
                 break;
-        } while (!atomics::detail::platform_cmpxchg32(expected, (uint32_t)1, &v_));
+        } while (!atomics::detail::platform_cmpxchg32_strong(expected, (uint32_t)1, &v_));
         atomics::detail::platform_fence_after(order);
         return expected;
     }
@@ -137,8 +140,6 @@ public:
 
 #define BOOST_ATOMIC_FLAG_LOCK_FREE 2
 
-}
-}
 }
 
 #include <boost/atomic/detail/base.hpp>
@@ -148,9 +149,9 @@ public:
 #define BOOST_ATOMIC_CHAR_LOCK_FREE 2
 #define BOOST_ATOMIC_SHORT_LOCK_FREE 2
 #define BOOST_ATOMIC_INT_LOCK_FREE 2
-#define BOOST_ATOMIC_LONG_LOCK_FREE (sizeof(long) <= 4 ? 2 : 0)
-#define BOOST_ATOMIC_LLONG_LOCK_FREE (sizeof(long long) <= 4 ? 2 : 0)
-#define BOOST_ATOMIC_POINTER_LOCK_FREE (sizeof(void *) <= 4 ? 2 : 0)
+#define BOOST_ATOMIC_LONG_LOCK_FREE (__SIZEOF_LONG__ <= 4 ? 2 : 0)
+#define BOOST_ATOMIC_LLONG_LOCK_FREE (__SIZEOF_LONG_LONG__ <= 4 ? 2 : 0)
+#define BOOST_ATOMIC_POINTER_LOCK_FREE (__SIZEOF_POINTER__ <= 4 ? 2 : 0)
 #define BOOST_ATOMIC_BOOL_LOCK_FREE 2
 
 #include <boost/atomic/detail/cas32strong.hpp>
