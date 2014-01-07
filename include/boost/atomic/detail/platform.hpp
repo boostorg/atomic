@@ -57,9 +57,8 @@
 
     #include <boost/atomic/detail/windows.hpp>
 
-#elif 0 && defined(__GNUC__) /* currently does not work correctly */
+#elif defined(__GNUC__) && ((__GNUC__ * 100 + __GNUC_MINOR__) >= 401)
 
-    #include <boost/atomic/detail/base.hpp>
     #include <boost/atomic/detail/gcc-cas.hpp>
 
 #else

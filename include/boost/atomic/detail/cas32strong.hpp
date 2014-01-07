@@ -658,7 +658,7 @@ public:
     }
 
     void
-    store(value_type const& v, memory_order order = memory_order_seq_cst) ) volatile BOOST_NOEXCEPT
+    store(value_type const& v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
         storage_type tmp = 0;
         memcpy(&tmp, &v, sizeof(value_type));
@@ -679,7 +679,7 @@ public:
     }
 
     value_type
-    exchange(value_type const& v, memory_order order = memory_order_seq_cst) ) volatile BOOST_NOEXCEPT
+    exchange(value_type const& v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
         value_type original = load(memory_order_relaxed);
         do {
@@ -692,7 +692,7 @@ public:
         value_type & expected,
         value_type const& desired,
         memory_order success_order,
-        memory_order failure_order) ) volatile BOOST_NOEXCEPT
+        memory_order failure_order) volatile BOOST_NOEXCEPT
     {
         return compare_exchange_strong(expected, desired, success_order, failure_order);
     }
@@ -702,7 +702,7 @@ public:
         value_type & expected,
         value_type const& desired,
         memory_order success_order,
-        memory_order failure_order) ) volatile BOOST_NOEXCEPT
+        memory_order failure_order) volatile BOOST_NOEXCEPT
     {
         storage_type expected_s = 0, desired_s = 0;
         memcpy(&expected_s, &expected, sizeof(value_type));
@@ -755,7 +755,7 @@ public:
     }
 
     void
-    store(value_type const& v, memory_order order = memory_order_seq_cst) ) volatile BOOST_NOEXCEPT
+    store(value_type const& v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
         storage_type tmp = 0;
         memcpy(&tmp, &v, sizeof(value_type));
@@ -776,7 +776,7 @@ public:
     }
 
     value_type
-    exchange(value_type const& v, memory_order order = memory_order_seq_cst) ) volatile BOOST_NOEXCEPT
+    exchange(value_type const& v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
         value_type original = load(memory_order_relaxed);
         do {
