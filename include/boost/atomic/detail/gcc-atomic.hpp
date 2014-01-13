@@ -61,7 +61,7 @@ public:
 
     void clear(memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        __atomic_clear((bool*)&v_, atomics::detail::convert_memory_order_to_gcc(order));
+        __atomic_clear(const_cast<bool*>(&v_), atomics::detail::convert_memory_order_to_gcc(order));
     }
 };
 
