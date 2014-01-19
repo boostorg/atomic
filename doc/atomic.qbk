@@ -10,6 +10,7 @@
     [authors [Bahmann, Helge]]
     [copyright 2011 Helge Bahmann]
     [copyright 2012 Tim Blechmann]
+    [copyright 2013 Andrey Semashev]
     [id atomic]
     [dirname atomic]
     [purpose Atomic operations]
@@ -733,6 +734,12 @@ the following compilers/platforms:
 
 If you have an unsupported platform, contact me and I will
 work to add support for it.
+
+[endsect]
+
+[section:acknowledgements Acknowledgements]
+
+* Adam Wulkiewicz created the logo used on the [@https://github.com/boostorg/log GitHub project page]. The logo was taken from his [@https://github.com/awulkiew/boost-logos collection] of Boost logos.
 
 [endsect]
 
