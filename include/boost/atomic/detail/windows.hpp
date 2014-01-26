@@ -231,9 +231,9 @@ public:
     clear(memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
         if (order != memory_order_seq_cst) {
-            platform_fence_before_store(order);
+            atomics::detail::platform_fence_before_store(order);
             BOOST_ATOMIC_STORE32(&v_, 0);
-            platform_fence_after_store(order);
+            atomics::detail::platform_fence_after_store(order);
         } else {
             BOOST_ATOMIC_COMPILER_BARRIER();
             BOOST_ATOMIC_INTERLOCKED_EXCHANGE(&v_, 0);
