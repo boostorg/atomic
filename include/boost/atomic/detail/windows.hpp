@@ -44,6 +44,48 @@ extern "C" void _mm_mfence(void);
 #pragma intrinsic(_mm_mfence)
 #endif
 
+#if defined(BOOST_MSVC) && defined(_M_ARM)
+extern "C" void __dmb(unsigned int);
+#pragma intrinsic(__dmb)
+extern "C" __int8 __iso_volatile_load8(const volatile __int8*);
+#pragma intrinsic(__iso_volatile_load8)
+extern "C" __int16 __iso_volatile_load16(const volatile __int16*);
+#pragma intrinsic(__iso_volatile_load16)
+extern "C" __int32 __iso_volatile_load32(const volatile __int32*);
+#pragma intrinsic(__iso_volatile_load32)
+extern "C" __int64 __iso_volatile_load64(const volatile __int64*);
+#pragma intrinsic(__iso_volatile_load64)
+extern "C" void __iso_volatile_store8(volatile __int8*, __int8);
+#pragma intrinsic(__iso_volatile_store8)
+extern "C" void __iso_volatile_store16(volatile __int16*, __int16);
+#pragma intrinsic(__iso_volatile_store16)
+extern "C" void __iso_volatile_store32(volatile __int32*, __int32);
+#pragma intrinsic(__iso_volatile_store32)
+extern "C" void __iso_volatile_store64(volatile __int64*, __int64);
+#pragma intrinsic(__iso_volatile_store64)
+
+#define BOOST_ATOMIC_LOAD8(p) __iso_volatile_load8((const volatile __int8*)(p))
+#define BOOST_ATOMIC_LOAD16(p) __iso_volatile_load16((const volatile __int16*)(p))
+#define BOOST_ATOMIC_LOAD32(p) __iso_volatile_load32((const volatile __int32*)(p))
+#define BOOST_ATOMIC_LOAD64(p) __iso_volatile_load64((const volatile __int64*)(p))
+#define BOOST_ATOMIC_STORE8(p, v) __iso_volatile_store8((const volatile __int8*)(p), (__int8)(v))
+#define BOOST_ATOMIC_STORE16(p, v) __iso_volatile_store16((const volatile __int16*)(p), (__int16)(v))
+#define BOOST_ATOMIC_STORE32(p, v) __iso_volatile_store32((const volatile __int32*)(p), (__int32)(v))
+#define BOOST_ATOMIC_STORE64(p, v) __iso_volatile_store64((const volatile __int64*)(p), (__int64)(v))
+
+#else
+
+#define BOOST_ATOMIC_LOAD8(p) *p
+#define BOOST_ATOMIC_LOAD16(p) *p
+#define BOOST_ATOMIC_LOAD32(p) *p
+#define BOOST_ATOMIC_LOAD64(p) *p
+#define BOOST_ATOMIC_STORE8(p, v) *p = v
+#define BOOST_ATOMIC_STORE16(p, v) *p = v
+#define BOOST_ATOMIC_STORE32(p, v) *p = v
+#define BOOST_ATOMIC_STORE64(p, v) *p = v
+
+#endif
+
 // Define compiler barriers
 #if defined(__INTEL_COMPILER)
 #define BOOST_ATOMIC_COMPILER_BARRIER() __memory_barrier()
@@ -61,9 +103,11 @@ namespace boost {
 namespace atomics {
 namespace detail {
 
-BOOST_FORCEINLINE void hardware_full_fence(void)
+BOOST_FORCEINLINE void hardware_full_fence(void) BOOST_NOEXCEPT
 {
-#if defined(_MSC_VER) && (defined(_M_AMD64) || (defined(_M_IX86) && defined(_M_IX86_FP) && _M_IX86_FP >= 2))
+#if defined(BOOST_MSVC) && defined(_M_ARM)
+    __dmb(0xB); // _ARM_BARRIER_ISH, see armintr.h from MSVC 11 and later
+#elif defined(_MSC_VER) && (defined(_M_AMD64) || (defined(_M_IX86) && defined(_M_IX86_FP) && _M_IX86_FP >= 2))
     // Use mfence only if SSE2 is available
     _mm_mfence();
 #else
@@ -73,31 +117,65 @@ BOOST_FORCEINLINE void hardware_full_fence(void)
 }
 
 BOOST_FORCEINLINE void
-platform_fence_before(memory_order)
+platform_fence_before(memory_order order) BOOST_NOEXCEPT
 {
     BOOST_ATOMIC_COMPILER_BARRIER();
+
+#if defined(BOOST_MSVC) && defined(_M_ARM)
+    switch(order)
+    {
+    case memory_order_release:
+    case memory_order_acq_rel:
+    case memory_order_seq_cst:
+        hardware_full_fence();
+    case memory_order_consume:
+    default:;
+    }
+
+    BOOST_ATOMIC_COMPILER_BARRIER();
+#endif
 }
 
 BOOST_FORCEINLINE void
-platform_fence_after(memory_order)
+platform_fence_after(memory_order order) BOOST_NOEXCEPT
 {
     BOOST_ATOMIC_COMPILER_BARRIER();
+
+#if defined(BOOST_MSVC) && defined(_M_ARM)
+    switch(order)
+    {
+    case memory_order_acquire:
+    case memory_order_acq_rel:
+    case memory_order_seq_cst:
+        hardware_full_fence();
+    default:;
+    }
+
+    BOOST_ATOMIC_COMPILER_BARRIER();
+#endif
 }
 
 BOOST_FORCEINLINE void
-platform_fence_before_store(memory_order)
+platform_fence_before_store(memory_order order) BOOST_NOEXCEPT
 {
-    BOOST_ATOMIC_COMPILER_BARRIER();
+    platform_fence_before(order);
 }
 
 BOOST_FORCEINLINE void
-platform_fence_after_store(memory_order)
+platform_fence_after_store(memory_order order) BOOST_NOEXCEPT
 {
     BOOST_ATOMIC_COMPILER_BARRIER();
+
+#if defined(BOOST_MSVC) && defined(_M_ARM)
+    if (order == memory_order_seq_cst)
+        hardware_full_fence();
+
+    BOOST_ATOMIC_COMPILER_BARRIER();
+#endif
 }
 
 BOOST_FORCEINLINE void
-platform_fence_after_load(memory_order order)
+platform_fence_after_load(memory_order order) BOOST_NOEXCEPT
 {
     BOOST_ATOMIC_COMPILER_BARRIER();
 
@@ -132,33 +210,39 @@ atomic_signal_fence(memory_order)
     BOOST_ATOMIC_COMPILER_BARRIER();
 }
 
-#undef BOOST_ATOMIC_COMPILER_BARRIER
-
 class atomic_flag
 {
 private:
-    atomic_flag(const atomic_flag &) /* = delete */ ;
-    atomic_flag & operator=(const atomic_flag &) /* = delete */ ;
     uint32_t v_;
+
 public:
     BOOST_CONSTEXPR atomic_flag(void) BOOST_NOEXCEPT : v_(0) {}
 
     bool
     test_and_set(memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        atomics::detail::platform_fence_before(order);
+        BOOST_ATOMIC_COMPILER_BARRIER();
         const uint32_t old = (uint32_t)BOOST_ATOMIC_INTERLOCKED_EXCHANGE(&v_, 1);
-        atomics::detail::platform_fence_after(order);
+        BOOST_ATOMIC_COMPILER_BARRIER();
         return old != 0;
     }
 
     void
     clear(memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        atomics::detail::platform_fence_before_store(order);
-        BOOST_ATOMIC_INTERLOCKED_EXCHANGE(&v_, 0);
-        atomics::detail::platform_fence_after_store(order);
+        if (order != memory_order_seq_cst) {
+            platform_fence_before_store(order);
+            BOOST_ATOMIC_STORE32(&v_, 0);
+            platform_fence_after_store(order);
+        } else {
+            BOOST_ATOMIC_COMPILER_BARRIER();
+            BOOST_ATOMIC_INTERLOCKED_EXCHANGE(&v_, 0);
+            BOOST_ATOMIC_COMPILER_BARRIER();
+        }
     }
+
+    BOOST_DELETED_FUNCTION(atomic_flag(const atomic_flag&))
+    BOOST_DELETED_FUNCTION(atomic_flag & operator= (const atomic_flag&))
 };
 
 } // namespace boost
@@ -209,14 +293,15 @@ protected:
 
 public:
     BOOST_DEFAULTED_FUNCTION(base_atomic(void), {})
-    BOOST_CONSTEXPR explicit base_atomic(value_type v) BOOST_NOEXCEPT: v_(v) {}
+    BOOST_CONSTEXPR explicit base_atomic(value_type v) BOOST_NOEXCEPT : v_(v) {}
 
     void
     store(value_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
         if (order != memory_order_seq_cst) {
-            platform_fence_before(order);
-            v_ = static_cast< storage_type >(v);
+            platform_fence_before_store(order);
+            BOOST_ATOMIC_STORE8(&v_, static_cast< storage_type >(v));
+            platform_fence_after_store(order);
         } else {
             exchange(v, order);
         }
@@ -225,7 +310,7 @@ public:
     value_type
     load(memory_order order = memory_order_seq_cst) const volatile BOOST_NOEXCEPT
     {
-        value_type v = static_cast< value_type >(v_);
+        value_type v = static_cast< value_type >(BOOST_ATOMIC_LOAD8(&v_));
         platform_fence_after_load(order);
         return v;
     }
@@ -402,14 +487,15 @@ protected:
 
 public:
     BOOST_DEFAULTED_FUNCTION(base_atomic(void), {})
-    BOOST_CONSTEXPR explicit base_atomic(value_type v) BOOST_NOEXCEPT: v_(v) {}
+    BOOST_CONSTEXPR explicit base_atomic(value_type v) BOOST_NOEXCEPT : v_(v) {}
 
     void
     store(value_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
         if (order != memory_order_seq_cst) {
-            platform_fence_before(order);
-            v_ = static_cast< storage_type >(v);
+            platform_fence_before_store(order);
+            BOOST_ATOMIC_STORE16(&v_, static_cast< storage_type >(v));
+            platform_fence_after_store(order);
         } else {
             exchange(v, order);
         }
@@ -418,7 +504,7 @@ public:
     value_type
     load(memory_order order = memory_order_seq_cst) const volatile BOOST_NOEXCEPT
     {
-        value_type v = static_cast< value_type >(v_);
+        value_type v = static_cast< value_type >(BOOST_ATOMIC_LOAD16(&v_));
         platform_fence_after_load(order);
         return v;
     }
@@ -587,14 +673,15 @@ protected:
 
 public:
     BOOST_DEFAULTED_FUNCTION(base_atomic(void), {})
-    BOOST_CONSTEXPR explicit base_atomic(value_type v) BOOST_NOEXCEPT: v_(v) {}
+    BOOST_CONSTEXPR explicit base_atomic(value_type v) BOOST_NOEXCEPT : v_(v) {}
 
     void
     store(value_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
         if (order != memory_order_seq_cst) {
-            platform_fence_before(order);
-            v_ = static_cast< storage_type >(v);
+            platform_fence_before_store(order);
+            BOOST_ATOMIC_STORE32(&v_, static_cast< storage_type >(v));
+            platform_fence_after_store(order);
         } else {
             exchange(v, order);
         }
@@ -603,7 +690,7 @@ public:
     value_type
     load(memory_order order = memory_order_seq_cst) const volatile BOOST_NOEXCEPT
     {
-        value_type v = static_cast< value_type >(v_);
+        value_type v = static_cast< value_type >(BOOST_ATOMIC_LOAD32(&v_));
         platform_fence_after_load(order);
         return v;
     }
@@ -717,7 +804,7 @@ public:
     }
 
     bool
-    is_lock_free(void)const volatile BOOST_NOEXCEPT
+    is_lock_free(void) const volatile BOOST_NOEXCEPT
     {
         return true;
     }
@@ -747,22 +834,31 @@ protected:
 
 public:
     BOOST_DEFAULTED_FUNCTION(base_atomic(void), {})
-    BOOST_CONSTEXPR explicit base_atomic(value_type v) BOOST_NOEXCEPT: v_(v) {}
+    BOOST_CONSTEXPR explicit base_atomic(value_type v) BOOST_NOEXCEPT : v_(v) {}
 
     void
     store(value_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
         if (order != memory_order_seq_cst) {
-            platform_fence_before(order);
+            platform_fence_before_store(order);
+#if defined(BOOST_MSVC) && defined(_M_ARM)
+            BOOST_ATOMIC_STORE32(&v_, v);
+#else
             const_cast<volatile value_type &>(v_) = v;
+#endif
+            platform_fence_after_store(order);
         } else {
             exchange(v, order);
         }
     }
 
-    value_type load(memory_order order = memory_order_seq_cst)const volatile BOOST_NOEXCEPT
+    value_type load(memory_order order = memory_order_seq_cst) const volatile BOOST_NOEXCEPT
     {
+#if defined(BOOST_MSVC) && defined(_M_ARM)
+        value_type v = (value_type)BOOST_ATOMIC_LOAD32(&v_);
+#else
         value_type v = const_cast<const volatile value_type &>(v_);
+#endif
         platform_fence_after_load(order);
         return v;
     }
@@ -799,7 +895,7 @@ public:
     }
 
     bool
-    is_lock_free(void)const volatile BOOST_NOEXCEPT
+    is_lock_free(void) const volatile BOOST_NOEXCEPT
     {
         return true;
     }
@@ -841,23 +937,32 @@ protected:
 
 public:
     BOOST_DEFAULTED_FUNCTION(base_atomic(void), {})
-    BOOST_CONSTEXPR explicit base_atomic(value_type v) BOOST_NOEXCEPT: v_(v) {}
+    BOOST_CONSTEXPR explicit base_atomic(value_type v) BOOST_NOEXCEPT : v_(v) {}
 
     void
     store(value_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
         if (order != memory_order_seq_cst) {
-            platform_fence_before(order);
+            platform_fence_before_store(order);
+#if defined(BOOST_MSVC) && defined(_M_ARM)
+            BOOST_ATOMIC_STORE32(&v_, v);
+#else
             const_cast<volatile value_type &>(v_) = v;
+#endif
+            platform_fence_after_store(order);
         } else {
             exchange(v, order);
         }
     }
 
     value_type
-    load(memory_order order = memory_order_seq_cst)const volatile BOOST_NOEXCEPT
+    load(memory_order order = memory_order_seq_cst) const volatile BOOST_NOEXCEPT
     {
+#if defined(BOOST_MSVC) && defined(_M_ARM)
+        value_type v = (value_type)BOOST_ATOMIC_LOAD32(&v_);
+#else
         value_type v = const_cast<const volatile value_type &>(v_);
+#endif
         platform_fence_after_load(order);
         return v;
     }
@@ -917,7 +1022,7 @@ public:
     }
 
     bool
-    is_lock_free(void)const volatile BOOST_NOEXCEPT
+    is_lock_free(void) const volatile BOOST_NOEXCEPT
     {
         return true;
     }
@@ -967,8 +1072,9 @@ public:
         if (order != memory_order_seq_cst) {
             storage_type tmp = 0;
             memcpy(&tmp, &v, sizeof(value_type));
-            platform_fence_before(order);
-            const_cast<volatile storage_type &>(v_) = tmp;
+            platform_fence_before_store(order);
+            BOOST_ATOMIC_STORE8(&v_, tmp);
+            platform_fence_after_store(order);
         } else {
             exchange(v, order);
         }
@@ -977,7 +1083,7 @@ public:
     value_type
     load(memory_order order = memory_order_seq_cst) const volatile BOOST_NOEXCEPT
     {
-        storage_type tmp = const_cast<volatile storage_type &>(v_);
+        storage_type tmp = (storage_type)BOOST_ATOMIC_LOAD8(&v_);
         platform_fence_after_load(order);
         value_type v;
         memcpy(&v, &tmp, sizeof(value_type));
@@ -1086,17 +1192,18 @@ public:
         if (order != memory_order_seq_cst) {
             storage_type tmp = 0;
             memcpy(&tmp, &v, sizeof(value_type));
-            platform_fence_before(order);
-            const_cast<volatile storage_type &>(v_) = tmp;
+            platform_fence_before_store(order);
+            BOOST_ATOMIC_STORE16(&v_, tmp);
+            platform_fence_after_store(order);
         } else {
             exchange(v, order);
         }
     }
 
     value_type
-    load(memory_order order = memory_order_seq_cst)const volatile BOOST_NOEXCEPT
+    load(memory_order order = memory_order_seq_cst) const volatile BOOST_NOEXCEPT
     {
-        storage_type tmp = const_cast<volatile storage_type &>(v_);
+        storage_type tmp = (storage_type)BOOST_ATOMIC_LOAD16(&v_);
         platform_fence_after_load(order);
         value_type v;
         memcpy(&v, &tmp, sizeof(value_type));
@@ -1156,7 +1263,7 @@ public:
     }
 
     bool
-    is_lock_free(void)const volatile BOOST_NOEXCEPT
+    is_lock_free(void) const volatile BOOST_NOEXCEPT
     {
         return true;
     }
@@ -1194,17 +1301,18 @@ public:
         if (order != memory_order_seq_cst) {
             storage_type tmp = 0;
             memcpy(&tmp, &v, sizeof(value_type));
-            platform_fence_before(order);
-            const_cast<volatile storage_type &>(v_) = tmp;
+            platform_fence_before_store(order);
+            BOOST_ATOMIC_STORE32(&v_, tmp);
+            platform_fence_after_store(order);
         } else {
             exchange(v, order);
         }
     }
 
     value_type
-    load(memory_order order = memory_order_seq_cst)const volatile BOOST_NOEXCEPT
+    load(memory_order order = memory_order_seq_cst) const volatile BOOST_NOEXCEPT
     {
-        storage_type tmp = const_cast<volatile storage_type &>(v_);
+        storage_type tmp = (storage_type)BOOST_ATOMIC_LOAD32(&v_);
         platform_fence_after_load(order);
         value_type v;
         memcpy(&v, &tmp, sizeof(value_type));
@@ -1286,14 +1394,15 @@ protected:
 
 public:
     BOOST_DEFAULTED_FUNCTION(base_atomic(void), {})
-    BOOST_CONSTEXPR explicit base_atomic(value_type v) BOOST_NOEXCEPT: v_(v) {}
+    BOOST_CONSTEXPR explicit base_atomic(value_type v) BOOST_NOEXCEPT : v_(v) {}
 
     void
     store(value_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
         if (order != memory_order_seq_cst) {
-            platform_fence_before(order);
-            v_ = static_cast< storage_type >(v);
+            platform_fence_before_store(order);
+            BOOST_ATOMIC_STORE64(&v_, v);
+            platform_fence_after_store(order);
         } else {
             exchange(v, order);
         }
@@ -1302,7 +1411,7 @@ public:
     value_type
     load(memory_order order = memory_order_seq_cst) const volatile BOOST_NOEXCEPT
     {
-        value_type v = static_cast< value_type >(v_);
+        value_type v = static_cast< value_type >(BOOST_ATOMIC_LOAD64(&v_));
         platform_fence_after_load(order);
         return v;
     }
@@ -1416,7 +1525,7 @@ public:
     }
 
     bool
-    is_lock_free(void)const volatile BOOST_NOEXCEPT
+    is_lock_free(void) const volatile BOOST_NOEXCEPT
     {
         return true;
     }
@@ -1454,17 +1563,18 @@ public:
         if (order != memory_order_seq_cst) {
             storage_type tmp = 0;
             memcpy(&tmp, &v, sizeof(value_type));
-            platform_fence_before(order);
-            const_cast<volatile storage_type &>(v_) = tmp;
+            platform_fence_before_store(order);
+            BOOST_ATOMIC_STORE64(&v_, tmp);
+            platform_fence_after_store(order);
         } else {
             exchange(v, order);
         }
     }
 
     value_type
-    load(memory_order order = memory_order_seq_cst)const volatile BOOST_NOEXCEPT
+    load(memory_order order = memory_order_seq_cst) const volatile BOOST_NOEXCEPT
     {
-        storage_type tmp = const_cast<volatile storage_type &>(v_);
+        storage_type tmp = (storage_type)BOOST_ATOMIC_LOAD64(&v_);
         platform_fence_after_load(order);
         value_type v;
         memcpy(&v, &tmp, sizeof(value_type));
@@ -1516,7 +1626,7 @@ public:
     }
 
     bool
-    is_lock_free(void)const volatile BOOST_NOEXCEPT
+    is_lock_free(void) const volatile BOOST_NOEXCEPT
     {
         return true;
     }
@@ -1654,6 +1764,16 @@ platform_load64(const volatile T * p) BOOST_NOEXCEPT
 } // namespace detail
 } // namespace atomics
 } // namespace boost
+
+#undef BOOST_ATOMIC_COMPILER_BARRIER
+#undef BOOST_ATOMIC_LOAD8
+#undef BOOST_ATOMIC_LOAD16
+#undef BOOST_ATOMIC_LOAD32
+#undef BOOST_ATOMIC_LOAD64
+#undef BOOST_ATOMIC_STORE8
+#undef BOOST_ATOMIC_STORE16
+#undef BOOST_ATOMIC_STORE32
+#undef BOOST_ATOMIC_STORE64
 
 /* pull in 64-bit atomic type using cmpxchg8b above */
 #if defined(BOOST_ATOMIC_X86_HAS_CMPXCHG8B)
