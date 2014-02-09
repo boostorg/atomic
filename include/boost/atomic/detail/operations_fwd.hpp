@@ -6,13 +6,13 @@
  * Copyright (c) 2014 Andrey Semashev
  */
 /*!
- * \file   atomic/detail/atomic_traits_fwd.hpp
+ * \file   atomic/detail/operations_fwd.hpp
  *
- * This header contains forward declaration of the \c atomic_traits template.
+ * This header contains forward declaration of the \c operations template.
  */
 
-#ifndef BOOST_ATOMIC_DETAIL_ATOMIC_TRAITS_FWD_HPP_INCLUDED_
-#define BOOST_ATOMIC_DETAIL_ATOMIC_TRAITS_FWD_HPP_INCLUDED_
+#ifndef BOOST_ATOMIC_DETAIL_OPERATIONS_FWD_HPP_INCLUDED_
+#define BOOST_ATOMIC_DETAIL_OPERATIONS_FWD_HPP_INCLUDED_
 
 #include <boost/atomic/detail/config.hpp>
 
@@ -25,10 +25,10 @@ namespace atomics {
 namespace detail {
 
 template< unsigned int Size >
-struct atomic_traits;
+struct operations;
 
 } // namespace detail
 } // namespace atomics
 } // namespace boost
 
-#endif // BOOST_ATOMIC_DETAIL_ATOMIC_TRAITS_FWD_HPP_INCLUDED_
+#endif // BOOST_ATOMIC_DETAIL_OPERATIONS_FWD_HPP_INCLUDED_
