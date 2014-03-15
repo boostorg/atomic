@@ -1046,7 +1046,7 @@ protected:
 
 public:
     BOOST_DEFAULTED_FUNCTION(base_atomic(void), {})
-    BOOST_CONSTEXPR explicit base_atomic(value_type const& v) BOOST_NOEXCEPT : v_(0)
+    explicit base_atomic(value_type const& v) BOOST_NOEXCEPT : v_(0)
     {
         memcpy(&v_, &v, sizeof(value_type));
     }
@@ -1143,7 +1143,7 @@ protected:
 
 public:
     BOOST_DEFAULTED_FUNCTION(base_atomic(void), {})
-    BOOST_CONSTEXPR explicit base_atomic(value_type const& v) BOOST_NOEXCEPT : v_(0)
+    explicit base_atomic(value_type const& v) BOOST_NOEXCEPT : v_(0)
     {
         memcpy(&v_, &v, sizeof(value_type));
     }
@@ -1240,7 +1240,7 @@ protected:
 
 public:
     BOOST_DEFAULTED_FUNCTION(base_atomic(void), {})
-    BOOST_CONSTEXPR explicit base_atomic(value_type const& v) BOOST_NOEXCEPT : v_(0)
+    explicit base_atomic(value_type const& v) BOOST_NOEXCEPT : v_(0)
     {
         memcpy(&v_, &v, sizeof(value_type));
     }
