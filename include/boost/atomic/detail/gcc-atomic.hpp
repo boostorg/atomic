@@ -32,6 +32,12 @@ namespace detail {
 #define BOOST_ATOMIC_X86_HAS_CMPXCHG16B 1
 #endif
 
+#if defined(BOOST_ATOMIC_X86_HAS_CMPXCHG16B) && defined(__clang__)
+// Worraround for bug: http://llvm.org/bugs/show_bug.cgi?id=19149
+// Clang 3.4 does not implement 128-bit __atomic* intrinsics even though it defines __GCC_HAVE_SYNC_COMPARE_AND_SWAP_16
+#define BOOST_ATOMIC_X86_NO_GCC_128_BIT_ATOMIC_INTRINSICS
+#endif
+
 BOOST_FORCEINLINE BOOST_CONSTEXPR int convert_memory_order_to_gcc(memory_order order) BOOST_NOEXCEPT
 {
     return (order == memory_order_relaxed ? __ATOMIC_RELAXED : (order == memory_order_consume ? __ATOMIC_CONSUME :
@@ -830,7 +836,7 @@ private:
 
 #endif // defined(BOOST_ATOMIC_LLONG_LOCK_FREE) && BOOST_ATOMIC_LLONG_LOCK_FREE > 0
 
-#if defined(BOOST_ATOMIC_INT128_LOCK_FREE) && BOOST_ATOMIC_INT128_LOCK_FREE > 0
+#if defined(BOOST_ATOMIC_INT128_LOCK_FREE) && BOOST_ATOMIC_INT128_LOCK_FREE > 0 && !defined(BOOST_ATOMIC_X86_NO_GCC_128_BIT_ATOMIC_INTRINSICS)
 
 template<typename T, bool Sign>
 class base_atomic<T, int, 16, Sign>
@@ -1041,7 +1047,7 @@ private:
     storage_type v_;
 };
 
-#endif // defined(BOOST_ATOMIC_INT128_LOCK_FREE) && BOOST_ATOMIC_INT128_LOCK_FREE > 0
+#endif // defined(BOOST_ATOMIC_INT128_LOCK_FREE) && BOOST_ATOMIC_INT128_LOCK_FREE > 0 && !defined(BOOST_ATOMIC_X86_NO_GCC_128_BIT_ATOMIC_INTRINSICS)
 
 
 /* pointers */
@@ -1202,9 +1208,71 @@ private:
 
 #endif // defined(BOOST_ATOMIC_POINTER_LOCK_FREE) && BOOST_ATOMIC_POINTER_LOCK_FREE > 0
 
+#if defined(BOOST_ATOMIC_INT128_LOCK_FREE) && BOOST_ATOMIC_INT128_LOCK_FREE > 0 && defined(BOOST_ATOMIC_X86_NO_GCC_128_BIT_ATOMIC_INTRINSICS)
+
+template<typename T>
+inline bool platform_cmpxchg128_strong(T& expected, T desired, volatile T* ptr) BOOST_NOEXCEPT
+{
+    uint64_t const* p_desired = (uint64_t const*)&desired;
+    bool success;
+    __asm__ __volatile__
+    (
+        "lock; cmpxchg16b %[dest]\n\t"
+        "sete %[success]"
+        : "+A,A" (expected), [dest] "+m,m" (*ptr), [success] "=q,m" (success)
+        : "b,b" (p_desired[0]), "c,c" (p_desired[1])
+        : "memory", "cc"
+    );
+    return success;
+}
+
+template<typename T>
+inline void platform_store128(T value, volatile T* ptr) BOOST_NOEXCEPT
+{
+    uint64_t const* p_value = (uint64_t const*)&value;
+    __asm__ __volatile__
+    (
+        "movq 0(%[dest]), %%rax\n\t"
+        "movq 8(%[dest]), %%rdx\n\t"
+        ".align 16\n\t"
+        "1: lock; cmpxchg16b 0(%[dest])\n\t"
+        "jne 1b"
+        :
+        : "b" (p_value[0]), "c" (p_value[1]), [dest] "r" (ptr)
+        : "memory", "cc", "rax", "rdx"
+    );
+}
+
+template<typename T>
+inline T platform_load128(const volatile T* ptr) BOOST_NOEXCEPT
+{
+    T value;
+
+    // We don't care for comparison result here; the previous value will be stored into value anyway.
+    // Also we don't care for rbx and rcx values, they just have to be equal to rax and rdx before cmpxchg16b.
+    __asm__ __volatile__
+    (
+        "movq %%rbx, %%rax\n\t"
+        "movq %%rcx, %%rdx\n\t"
+        "lock; cmpxchg16b %[dest]"
+        : "=&A" (value)
+        : [dest] "m" (*ptr)
+        : "cc"
+    );
+
+    return value;
+}
+
+#endif // defined(BOOST_ATOMIC_INT128_LOCK_FREE) && BOOST_ATOMIC_INT128_LOCK_FREE > 0 && defined(BOOST_ATOMIC_X86_NO_GCC_128_BIT_ATOMIC_INTRINSICS)
+
 } // namespace detail
 } // namespace atomics
 } // namespace boost
+
+#if defined(BOOST_ATOMIC_INT128_LOCK_FREE) && BOOST_ATOMIC_INT128_LOCK_FREE > 0 && defined(BOOST_ATOMIC_X86_NO_GCC_128_BIT_ATOMIC_INTRINSICS)
+#undef BOOST_ATOMIC_X86_NO_GCC_128_BIT_ATOMIC_INTRINSICS
+#include <boost/atomic/detail/cas128strong.hpp>
+#endif // defined(BOOST_ATOMIC_INT128_LOCK_FREE) && BOOST_ATOMIC_INT128_LOCK_FREE > 0 && defined(BOOST_ATOMIC_X86_NO_GCC_128_BIT_ATOMIC_INTRINSICS)
 
 #endif // !defined(BOOST_ATOMIC_FORCE_FALLBACK)
 
