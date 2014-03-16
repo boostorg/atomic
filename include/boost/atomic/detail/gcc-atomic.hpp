@@ -53,8 +53,6 @@ BOOST_FORCEINLINE BOOST_CONSTEXPR int convert_memory_order_to_gcc(memory_order o
 class atomic_flag
 {
 private:
-    atomic_flag(const atomic_flag &) /* = delete */ ;
-    atomic_flag & operator=(const atomic_flag &) /* = delete */ ;
     bool v_;
 
 public:
@@ -69,6 +67,9 @@ public:
     {
         __atomic_clear(const_cast<bool*>(&v_), atomics::detail::convert_memory_order_to_gcc(order));
     }
+
+    BOOST_DELETED_FUNCTION(atomic_flag(atomic_flag const&))
+    BOOST_DELETED_FUNCTION(atomic_flag& operator= (atomic_flag const&))
 };
 
 #define BOOST_ATOMIC_FLAG_LOCK_FREE 2
@@ -1209,6 +1210,114 @@ private:
 #endif // defined(BOOST_ATOMIC_POINTER_LOCK_FREE) && BOOST_ATOMIC_POINTER_LOCK_FREE > 0
 
 #if defined(BOOST_ATOMIC_INT128_LOCK_FREE) && BOOST_ATOMIC_INT128_LOCK_FREE > 0 && defined(BOOST_ATOMIC_X86_NO_GCC_128_BIT_ATOMIC_INTRINSICS)
+
+inline void platform_fence_before(memory_order order)
+{
+    switch(order)
+    {
+    case memory_order_relaxed:
+    case memory_order_acquire:
+    case memory_order_consume:
+        break;
+    case memory_order_release:
+    case memory_order_acq_rel:
+        __asm__ __volatile__ ("" ::: "memory");
+        /* release */
+        break;
+    case memory_order_seq_cst:
+        __asm__ __volatile__ ("" ::: "memory");
+        /* seq */
+        break;
+    default:;
+    }
+}
+
+inline void platform_fence_after(memory_order order)
+{
+    switch(order)
+    {
+    case memory_order_relaxed:
+    case memory_order_release:
+        break;
+    case memory_order_acquire:
+    case memory_order_acq_rel:
+        __asm__ __volatile__ ("" ::: "memory");
+        /* acquire */
+        break;
+    case memory_order_consume:
+        /* consume */
+        break;
+    case memory_order_seq_cst:
+        __asm__ __volatile__ ("" ::: "memory");
+        /* seq */
+        break;
+    default:;
+    }
+}
+
+inline void platform_fence_after_load(memory_order order)
+{
+    switch(order)
+    {
+    case memory_order_relaxed:
+    case memory_order_release:
+        break;
+    case memory_order_acquire:
+    case memory_order_acq_rel:
+        __asm__ __volatile__ ("" ::: "memory");
+        break;
+    case memory_order_consume:
+        break;
+    case memory_order_seq_cst:
+        __asm__ __volatile__ ("" ::: "memory");
+        break;
+    default:;
+    }
+}
+
+inline void platform_fence_before_store(memory_order order)
+{
+    switch(order)
+    {
+    case memory_order_relaxed:
+    case memory_order_acquire:
+    case memory_order_consume:
+        break;
+    case memory_order_release:
+    case memory_order_acq_rel:
+        __asm__ __volatile__ ("" ::: "memory");
+        /* release */
+        break;
+    case memory_order_seq_cst:
+        __asm__ __volatile__ ("" ::: "memory");
+        /* seq */
+        break;
+    default:;
+    }
+}
+
+inline void platform_fence_after_store(memory_order order)
+{
+    switch(order)
+    {
+    case memory_order_relaxed:
+    case memory_order_release:
+        break;
+    case memory_order_acquire:
+    case memory_order_acq_rel:
+        __asm__ __volatile__ ("" ::: "memory");
+        /* acquire */
+        break;
+    case memory_order_consume:
+        /* consume */
+        break;
+    case memory_order_seq_cst:
+        __asm__ __volatile__ ("" ::: "memory");
+        /* seq */
+        break;
+    default:;
+    }
+}
 
 template<typename T>
 inline bool platform_cmpxchg128_strong(T& expected, T desired, volatile T* ptr) BOOST_NOEXCEPT
