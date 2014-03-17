@@ -1328,8 +1328,8 @@ inline bool platform_cmpxchg128_strong(T& expected, T desired, volatile T* ptr) 
     (
         "lock; cmpxchg16b %[dest]\n\t"
         "sete %[success]"
-        : "+A,A" (expected), [dest] "+m,m" (*ptr), [success] "=q,m" (success)
-        : "b,b" (p_desired[0]), "c,c" (p_desired[1])
+        : "+A" (expected), [dest] "+m" (*ptr), [success] "=q" (success)
+        : "b" (p_desired[0]), "c" (p_desired[1])
         : "memory", "cc"
     );
     return success;
