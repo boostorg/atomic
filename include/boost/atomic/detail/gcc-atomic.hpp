@@ -1322,17 +1322,9 @@ inline void platform_fence_after_store(memory_order order)
 template<typename T>
 inline bool platform_cmpxchg128_strong(T& expected, T desired, volatile T* ptr) BOOST_NOEXCEPT
 {
-    uint64_t const* p_desired = (uint64_t const*)&desired;
-    bool success;
-    __asm__ __volatile__
-    (
-        "lock; cmpxchg16b %[dest]\n\t"
-        "sete %[success]"
-        : "+A" (expected), [dest] "+m" (*ptr), [success] "=q" (success)
-        : "b" (p_desired[0]), "c" (p_desired[1])
-        : "memory", "cc"
-    );
-    return success;
+    T old_expected = expected;
+    expected = __sync_val_compare_and_swap(ptr, old_expected, desired);
+    return expected == old_expected;
 }
 
 template<typename T>
