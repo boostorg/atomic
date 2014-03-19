@@ -1347,21 +1347,8 @@ inline void platform_store128(T value, volatile T* ptr) BOOST_NOEXCEPT
 template<typename T>
 inline T platform_load128(const volatile T* ptr) BOOST_NOEXCEPT
 {
-    T value;
-
-    // We don't care for comparison result here; the previous value will be stored into value anyway.
-    // Also we don't care for rbx and rcx values, they just have to be equal to rax and rdx before cmpxchg16b.
-    __asm__ __volatile__
-    (
-        "movq %%rbx, %%rax\n\t"
-        "movq %%rcx, %%rdx\n\t"
-        "lock; cmpxchg16b %[dest]"
-        : "=&A" (value)
-        : [dest] "m" (*ptr)
-        : "cc"
-    );
-
-    return value;
+    T value = T();
+    return __sync_val_compare_and_swap(ptr, value, value);
 }
 
 #endif // defined(BOOST_ATOMIC_INT128_LOCK_FREE) && BOOST_ATOMIC_INT128_LOCK_FREE > 0 && defined(BOOST_ATOMIC_X86_NO_GCC_128_BIT_ATOMIC_INTRINSICS)
