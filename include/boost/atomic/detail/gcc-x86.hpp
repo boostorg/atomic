@@ -161,9 +161,8 @@ platform_fence_after_store(memory_order order)
 class atomic_flag
 {
 private:
-    atomic_flag(const atomic_flag &) /* = delete */ ;
-    atomic_flag & operator=(const atomic_flag &) /* = delete */ ;
     uint32_t v_;
+
 public:
     BOOST_CONSTEXPR atomic_flag(void) BOOST_NOEXCEPT : v_(0) {}
 
@@ -172,7 +171,8 @@ public:
     {
         uint32_t v = 1;
         atomics::detail::platform_fence_before(order);
-        __asm__ __volatile__ (
+        __asm__ __volatile__
+        (
             "xchgl %0, %1"
             : "+r" (v), "+m" (v_)
         );
@@ -185,7 +185,8 @@ public:
     {
         if (order == memory_order_seq_cst) {
             uint32_t v = 0;
-            __asm__ __volatile__ (
+            __asm__ __volatile__
+            (
                 "xchgl %0, %1"
                 : "+r" (v), "+m" (v_)
             );
@@ -194,6 +195,9 @@ public:
             v_ = 0;
         }
     }
+
+    BOOST_DELETED_FUNCTION(atomic_flag(atomic_flag const&))
+    BOOST_DELETED_FUNCTION(atomic_flag& operator= (atomic_flag const&))
 };
 
 } /* namespace boost */

@@ -110,9 +110,8 @@ platform_cmpxchg32_strong(T & expected, T desired, volatile T * ptr)
 class atomic_flag
 {
 private:
-    atomic_flag(const atomic_flag &) /* = delete */ ;
-    atomic_flag & operator=(const atomic_flag &) /* = delete */ ;
     uint32_t v_;
+
 public:
     BOOST_CONSTEXPR atomic_flag(void) BOOST_NOEXCEPT : v_(0) {}
 
@@ -136,6 +135,9 @@ public:
         atomics::detail::platform_fence_after(order);
         return expected;
     }
+
+    BOOST_DELETED_FUNCTION(atomic_flag(atomic_flag const&))
+    BOOST_DELETED_FUNCTION(atomic_flag& operator= (atomic_flag const&))
 };
 
 #define BOOST_ATOMIC_FLAG_LOCK_FREE 2

@@ -112,9 +112,8 @@ ppc_fence_after_store(memory_order order)
 class atomic_flag
 {
 private:
-    atomic_flag(const atomic_flag &) /* = delete */ ;
-    atomic_flag & operator=(const atomic_flag &) /* = delete */ ;
     uint32_t v_;
+
 public:
     BOOST_CONSTEXPR atomic_flag(void) BOOST_NOEXCEPT : v_(0) {}
 
@@ -143,6 +142,9 @@ public:
         atomics::detail::ppc_fence_after(order);
         return original;
     }
+
+    BOOST_DELETED_FUNCTION(atomic_flag(atomic_flag const&))
+    BOOST_DELETED_FUNCTION(atomic_flag& operator= (atomic_flag const&))
 };
 
 } /* namespace boost */
