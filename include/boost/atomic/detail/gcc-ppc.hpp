@@ -112,9 +112,8 @@ ppc_fence_after_store(memory_order order)
 class atomic_flag
 {
 private:
-    atomic_flag(const atomic_flag &) /* = delete */ ;
-    atomic_flag & operator=(const atomic_flag &) /* = delete */ ;
     uint32_t v_;
+
 public:
     BOOST_CONSTEXPR atomic_flag(void) BOOST_NOEXCEPT : v_(0) {}
 
@@ -131,7 +130,8 @@ public:
     {
         uint32_t original;
         atomics::detail::ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "lwarx %0,%y1\n"
             "stwcx. %2,%y1\n"
@@ -143,6 +143,9 @@ public:
         atomics::detail::ppc_fence_after(order);
         return original;
     }
+
+    BOOST_DELETED_FUNCTION(atomic_flag(atomic_flag const&))
+    BOOST_DELETED_FUNCTION(atomic_flag& operator= (atomic_flag const&))
 };
 
 } /* namespace boost */
@@ -167,32 +170,6 @@ public:
 #define BOOST_ATOMIC_LLONG_LOCK_FREE 0
 #endif
 #define BOOST_ATOMIC_BOOL_LOCK_FREE 2
-
-/* Would like to move the slow-path of failed compare_exchange
-(that clears the "success" bit) out-of-line. gcc can in
-principle do that using ".subsection"/".previous", but Apple's
-binutils seemingly does not understand that. Therefore wrap
-the "clear" of the flag in a macro and let it remain
-in-line for Apple
-*/
-
-#if !defined(__APPLE__)
-
-#define BOOST_ATOMIC_ASM_SLOWPATH_CLEAR \
-    "9:\n" \
-    ".subsection 2\n" \
-    "2: addi %1,0,0\n" \
-    "b 9b\n" \
-    ".previous\n" \
-
-#else
-
-#define BOOST_ATOMIC_ASM_SLOWPATH_CLEAR \
-    "b 9f\n" \
-    "2: addi %1,0,0\n" \
-    "9:\n" \
-
-#endif
 
 namespace boost {
 namespace atomics {
@@ -220,7 +197,8 @@ public:
     store(value_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "stw %1, %0\n"
             : "+m"(v_)
             : "r" (v)
@@ -232,7 +210,8 @@ public:
     load(memory_order order = memory_order_seq_cst) const volatile BOOST_NOEXCEPT
     {
         value_type v;
-        __asm__ __volatile__ (
+        __asm__ __volatile__
+        (
             "lwz %0, %1\n"
             "cmpw %0, %0\n"
             "bne- 1f\n"
@@ -249,7 +228,8 @@ public:
     {
         value_type original;
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "lwarx %0,%y1\n"
             "stwcx. %2,%y1\n"
@@ -271,15 +251,16 @@ public:
     {
         int success;
         ppc_fence_before(success_order);
-        __asm__(
+        __asm__ __volatile__
+        (
+            "li %1, 0\n"
             "lwarx %0,%y2\n"
             "cmpw %0, %3\n"
-            "bne- 2f\n"
+            "bne- 1f\n"
             "stwcx. %4,%y2\n"
-            "bne- 2f\n"
-            "addi %1,0,1\n"
+            "bne- 1f\n"
+            "li %1, 1\n"
             "1:"
-            BOOST_ATOMIC_ASM_SLOWPATH_CLEAR
             : "=&b" (expected), "=&b" (success), "+Z"(v_)
             : "b" (expected), "b" (desired)
             : "cr0"
@@ -300,16 +281,16 @@ public:
     {
         int success;
         ppc_fence_before(success_order);
-        __asm__(
+        __asm__ __volatile__
+        (
+            "li %1, 0\n"
             "0: lwarx %0,%y2\n"
             "cmpw %0, %3\n"
-            "bne- 2f\n"
+            "bne- 1f\n"
             "stwcx. %4,%y2\n"
             "bne- 0b\n"
-            "addi %1,0,1\n"
+            "li %1, 1\n"
             "1:"
-
-            BOOST_ATOMIC_ASM_SLOWPATH_CLEAR
             : "=&b" (expected), "=&b" (success), "+Z"(v_)
             : "b" (expected), "b" (desired)
             : "cr0"
@@ -326,7 +307,8 @@ public:
     {
         value_type original, tmp;
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "lwarx %0,%y2\n"
             "add %1,%0,%3\n"
@@ -335,7 +317,8 @@ public:
             "bne- 1b\n"
             : "=&b" (original), "=&b" (tmp), "+Z"(v_)
             : "b" (v)
-            : "cc");
+            : "cc"
+        );
         ppc_fence_after(order);
         return original;
     }
@@ -345,7 +328,8 @@ public:
     {
         value_type original, tmp;
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "lwarx %0,%y2\n"
             "sub %1,%0,%3\n"
@@ -354,7 +338,8 @@ public:
             "bne- 1b\n"
             : "=&b" (original), "=&b" (tmp), "+Z"(v_)
             : "b" (v)
-            : "cc");
+            : "cc"
+        );
         ppc_fence_after(order);
         return original;
     }
@@ -364,7 +349,8 @@ public:
     {
         value_type original, tmp;
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "lwarx %0,%y2\n"
             "and %1,%0,%3\n"
@@ -372,7 +358,8 @@ public:
             "bne- 1b\n"
             : "=&b" (original), "=&b" (tmp), "+Z"(v_)
             : "b" (v)
-            : "cc");
+            : "cc"
+        );
         ppc_fence_after(order);
         return original;
     }
@@ -382,7 +369,8 @@ public:
     {
         value_type original, tmp;
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "lwarx %0,%y2\n"
             "or %1,%0,%3\n"
@@ -390,7 +378,8 @@ public:
             "bne- 1b\n"
             : "=&b" (original), "=&b" (tmp), "+Z"(v_)
             : "b" (v)
-            : "cc");
+            : "cc"
+        );
         ppc_fence_after(order);
         return original;
     }
@@ -400,7 +389,8 @@ public:
     {
         value_type original, tmp;
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "lwarx %0,%y2\n"
             "xor %1,%0,%3\n"
@@ -408,7 +398,8 @@ public:
             "bne- 1b\n"
             : "=&b" (original), "=&b" (tmp), "+Z"(v_)
             : "b" (v)
-            : "cc");
+            : "cc"
+        );
         ppc_fence_after(order);
         return original;
     }
@@ -448,7 +439,8 @@ public:
     store(value_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "stw %1, %0\n"
             : "+m"(v_)
             : "r" (v)
@@ -460,7 +452,8 @@ public:
     load(memory_order order = memory_order_seq_cst) const volatile BOOST_NOEXCEPT
     {
         value_type v;
-        __asm__ __volatile__ (
+        __asm__ __volatile__
+        (
             "lwz %0, %1\n"
             "cmpw %0, %0\n"
             "bne- 1f\n"
@@ -477,7 +470,8 @@ public:
     {
         value_type original;
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "lwarx %0,%y1\n"
             "stwcx. %2,%y1\n"
@@ -499,16 +493,16 @@ public:
     {
         int success;
         ppc_fence_before(success_order);
-        __asm__(
+        __asm__ __volatile__
+        (
+            "li %1, 0\n"
             "lwarx %0,%y2\n"
             "cmpw %0, %3\n"
-            "bne- 2f\n"
+            "bne- 1f\n"
             "stwcx. %4,%y2\n"
-            "bne- 2f\n"
-            "addi %1,0,1\n"
+            "bne- 1f\n"
+            "li %1, 1\n"
             "1:"
-
-            BOOST_ATOMIC_ASM_SLOWPATH_CLEAR
             : "=&b" (expected), "=&b" (success), "+Z"(v_)
             : "b" (expected), "b" (desired)
             : "cr0"
@@ -529,16 +523,16 @@ public:
     {
         int success;
         ppc_fence_before(success_order);
-        __asm__(
+        __asm__ __volatile__
+        (
+            "li %1, 0\n"
             "0: lwarx %0,%y2\n"
             "cmpw %0, %3\n"
-            "bne- 2f\n"
+            "bne- 1f\n"
             "stwcx. %4,%y2\n"
             "bne- 0b\n"
-            "addi %1,0,1\n"
+            "li %1, 1\n"
             "1:"
-
-            BOOST_ATOMIC_ASM_SLOWPATH_CLEAR
             : "=&b" (expected), "=&b" (success), "+Z"(v_)
             : "b" (expected), "b" (desired)
             : "cr0"
@@ -555,7 +549,8 @@ public:
     {
         value_type original, tmp;
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "lwarx %0,%y2\n"
             "add %1,%0,%3\n"
@@ -564,7 +559,8 @@ public:
             "bne- 1b\n"
             : "=&b" (original), "=&b" (tmp), "+Z"(v_)
             : "b" (v)
-            : "cc");
+            : "cc"
+        );
         ppc_fence_after(order);
         return original;
     }
@@ -574,7 +570,8 @@ public:
     {
         value_type original, tmp;
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "lwarx %0,%y2\n"
             "sub %1,%0,%3\n"
@@ -583,7 +580,8 @@ public:
             "bne- 1b\n"
             : "=&b" (original), "=&b" (tmp), "+Z"(v_)
             : "b" (v)
-            : "cc");
+            : "cc"
+        );
         ppc_fence_after(order);
         return original;
     }
@@ -593,7 +591,8 @@ public:
     {
         value_type original, tmp;
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "lwarx %0,%y2\n"
             "and %1,%0,%3\n"
@@ -601,7 +600,8 @@ public:
             "bne- 1b\n"
             : "=&b" (original), "=&b" (tmp), "+Z"(v_)
             : "b" (v)
-            : "cc");
+            : "cc"
+        );
         ppc_fence_after(order);
         return original;
     }
@@ -611,7 +611,8 @@ public:
     {
         value_type original, tmp;
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "lwarx %0,%y2\n"
             "or %1,%0,%3\n"
@@ -619,7 +620,8 @@ public:
             "bne- 1b\n"
             : "=&b" (original), "=&b" (tmp), "+Z"(v_)
             : "b" (v)
-            : "cc");
+            : "cc"
+        );
         ppc_fence_after(order);
         return original;
     }
@@ -629,7 +631,8 @@ public:
     {
         value_type original, tmp;
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "lwarx %0,%y2\n"
             "xor %1,%0,%3\n"
@@ -637,7 +640,8 @@ public:
             "bne- 1b\n"
             : "=&b" (original), "=&b" (tmp), "+Z"(v_)
             : "b" (v)
-            : "cc");
+            : "cc"
+        );
         ppc_fence_after(order);
         return original;
     }
@@ -677,7 +681,8 @@ public:
     store(value_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "stw %1, %0\n"
             : "+m"(v_)
             : "r" (v)
@@ -689,7 +694,8 @@ public:
     load(memory_order order = memory_order_seq_cst) const volatile BOOST_NOEXCEPT
     {
         value_type v;
-        __asm__ __volatile__ (
+        __asm__ __volatile__
+        (
             "lwz %0, %1\n"
             "cmpw %0, %0\n"
             "bne- 1f\n"
@@ -706,7 +712,8 @@ public:
     {
         value_type original;
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "lwarx %0,%y1\n"
             "stwcx. %2,%y1\n"
@@ -728,16 +735,16 @@ public:
     {
         int success;
         ppc_fence_before(success_order);
-        __asm__(
+        __asm__ __volatile__
+        (
+            "li %1, 0\n"
             "lwarx %0,%y2\n"
             "cmpw %0, %3\n"
-            "bne- 2f\n"
+            "bne- 1f\n"
             "stwcx. %4,%y2\n"
-            "bne- 2f\n"
-            "addi %1,0,1\n"
+            "bne- 1f\n"
+            "li %1, 1\n"
             "1:"
-
-            BOOST_ATOMIC_ASM_SLOWPATH_CLEAR
             : "=&b" (expected), "=&b" (success), "+Z"(v_)
             : "b" (expected), "b" (desired)
             : "cr0"
@@ -758,16 +765,16 @@ public:
     {
         int success;
         ppc_fence_before(success_order);
-        __asm__(
+        __asm__ __volatile__
+        (
+            "li %1, 0\n"
             "0: lwarx %0,%y2\n"
             "cmpw %0, %3\n"
-            "bne- 2f\n"
+            "bne- 1f\n"
             "stwcx. %4,%y2\n"
             "bne- 0b\n"
-            "addi %1,0,1\n"
+            "li %1, 1\n"
             "1:"
-
-            BOOST_ATOMIC_ASM_SLOWPATH_CLEAR
             : "=&b" (expected), "=&b" (success), "+Z"(v_)
             : "b" (expected), "b" (desired)
             : "cr0"
@@ -784,7 +791,8 @@ public:
     {
         value_type original, tmp;
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "lwarx %0,%y2\n"
             "add %1,%0,%3\n"
@@ -793,7 +801,8 @@ public:
             "bne- 1b\n"
             : "=&b" (original), "=&b" (tmp), "+Z"(v_)
             : "b" (v)
-            : "cc");
+            : "cc"
+        );
         ppc_fence_after(order);
         return original;
     }
@@ -803,7 +812,8 @@ public:
     {
         value_type original, tmp;
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "lwarx %0,%y2\n"
             "sub %1,%0,%3\n"
@@ -812,7 +822,8 @@ public:
             "bne- 1b\n"
             : "=&b" (original), "=&b" (tmp), "+Z"(v_)
             : "b" (v)
-            : "cc");
+            : "cc"
+        );
         ppc_fence_after(order);
         return original;
     }
@@ -822,7 +833,8 @@ public:
     {
         value_type original, tmp;
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "lwarx %0,%y2\n"
             "and %1,%0,%3\n"
@@ -830,7 +842,8 @@ public:
             "bne- 1b\n"
             : "=&b" (original), "=&b" (tmp), "+Z"(v_)
             : "b" (v)
-            : "cc");
+            : "cc"
+        );
         ppc_fence_after(order);
         return original;
     }
@@ -840,7 +853,8 @@ public:
     {
         value_type original, tmp;
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "lwarx %0,%y2\n"
             "or %1,%0,%3\n"
@@ -848,7 +862,8 @@ public:
             "bne- 1b\n"
             : "=&b" (original), "=&b" (tmp), "+Z"(v_)
             : "b" (v)
-            : "cc");
+            : "cc"
+        );
         ppc_fence_after(order);
         return original;
     }
@@ -858,7 +873,8 @@ public:
     {
         value_type original, tmp;
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "lwarx %0,%y2\n"
             "xor %1,%0,%3\n"
@@ -866,7 +882,8 @@ public:
             "bne- 1b\n"
             : "=&b" (original), "=&b" (tmp), "+Z"(v_)
             : "b" (v)
-            : "cc");
+            : "cc"
+        );
         ppc_fence_after(order);
         return original;
     }
@@ -906,7 +923,8 @@ public:
     store(value_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "stw %1, %0\n"
             : "+m"(v_)
             : "r" (v)
@@ -918,7 +936,8 @@ public:
     load(memory_order order = memory_order_seq_cst) const volatile BOOST_NOEXCEPT
     {
         value_type v;
-        __asm__ __volatile__ (
+        __asm__ __volatile__
+        (
             "lwz %0, %1\n"
             "cmpw %0, %0\n"
             "bne- 1f\n"
@@ -935,7 +954,8 @@ public:
     {
         value_type original;
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "lwarx %0,%y1\n"
             "stwcx. %2,%y1\n"
@@ -957,16 +977,16 @@ public:
     {
         int success;
         ppc_fence_before(success_order);
-        __asm__(
+        __asm__ __volatile__
+        (
+            "li %1, 0\n"
             "lwarx %0,%y2\n"
             "cmpw %0, %3\n"
-            "bne- 2f\n"
+            "bne- 1f\n"
             "stwcx. %4,%y2\n"
-            "bne- 2f\n"
-            "addi %1,0,1\n"
+            "bne- 1f\n"
+            "li %1, 1\n"
             "1:"
-
-            BOOST_ATOMIC_ASM_SLOWPATH_CLEAR
             : "=&b" (expected), "=&b" (success), "+Z"(v_)
             : "b" (expected), "b" (desired)
             : "cr0"
@@ -987,16 +1007,16 @@ public:
     {
         int success;
         ppc_fence_before(success_order);
-        __asm__(
+        __asm__ __volatile__
+        (
+            "li %1, 0\n"
             "0: lwarx %0,%y2\n"
             "cmpw %0, %3\n"
-            "bne- 2f\n"
+            "bne- 1f\n"
             "stwcx. %4,%y2\n"
             "bne- 0b\n"
-            "addi %1,0,1\n"
+            "li %1, 1\n"
             "1:"
-
-            BOOST_ATOMIC_ASM_SLOWPATH_CLEAR
             : "=&b" (expected), "=&b" (success), "+Z"(v_)
             : "b" (expected), "b" (desired)
             : "cr0"
@@ -1013,7 +1033,8 @@ public:
     {
         value_type original, tmp;
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "lwarx %0,%y2\n"
             "add %1,%0,%3\n"
@@ -1022,7 +1043,8 @@ public:
             "bne- 1b\n"
             : "=&b" (original), "=&b" (tmp), "+Z"(v_)
             : "b" (v)
-            : "cc");
+            : "cc"
+        );
         ppc_fence_after(order);
         return original;
     }
@@ -1032,7 +1054,8 @@ public:
     {
         value_type original, tmp;
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "lwarx %0,%y2\n"
             "sub %1,%0,%3\n"
@@ -1041,7 +1064,8 @@ public:
             "bne- 1b\n"
             : "=&b" (original), "=&b" (tmp), "+Z"(v_)
             : "b" (v)
-            : "cc");
+            : "cc"
+        );
         ppc_fence_after(order);
         return original;
     }
@@ -1051,7 +1075,8 @@ public:
     {
         value_type original, tmp;
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "lwarx %0,%y2\n"
             "and %1,%0,%3\n"
@@ -1059,7 +1084,8 @@ public:
             "bne- 1b\n"
             : "=&b" (original), "=&b" (tmp), "+Z"(v_)
             : "b" (v)
-            : "cc");
+            : "cc"
+        );
         ppc_fence_after(order);
         return original;
     }
@@ -1069,7 +1095,8 @@ public:
     {
         value_type original, tmp;
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "lwarx %0,%y2\n"
             "or %1,%0,%3\n"
@@ -1077,7 +1104,8 @@ public:
             "bne- 1b\n"
             : "=&b" (original), "=&b" (tmp), "+Z"(v_)
             : "b" (v)
-            : "cc");
+            : "cc"
+        );
         ppc_fence_after(order);
         return original;
     }
@@ -1087,7 +1115,8 @@ public:
     {
         value_type original, tmp;
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "lwarx %0,%y2\n"
             "xor %1,%0,%3\n"
@@ -1095,7 +1124,8 @@ public:
             "bne- 1b\n"
             : "=&b" (original), "=&b" (tmp), "+Z"(v_)
             : "b" (v)
-            : "cc");
+            : "cc"
+        );
         ppc_fence_after(order);
         return original;
     }
@@ -1142,7 +1172,8 @@ public:
     load(memory_order order = memory_order_seq_cst) const volatile BOOST_NOEXCEPT
     {
         value_type v = const_cast<const volatile value_type &>(v_);
-        __asm__ __volatile__ (
+        __asm__ __volatile__
+        (
             "cmpw %0, %0\n"
             "bne- 1f\n"
             "1:\n"
@@ -1159,7 +1190,8 @@ public:
     {
         value_type original;
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "lwarx %0,%y1\n"
             "stwcx. %2,%y1\n"
@@ -1181,16 +1213,16 @@ public:
     {
         int success;
         ppc_fence_before(success_order);
-        __asm__(
+        __asm__ __volatile__
+        (
+            "li %1, 0\n"
             "lwarx %0,%y2\n"
             "cmpw %0, %3\n"
-            "bne- 2f\n"
+            "bne- 1f\n"
             "stwcx. %4,%y2\n"
-            "bne- 2f\n"
-            "addi %1,0,1\n"
+            "bne- 1f\n"
+            "li %1, 1\n"
             "1:"
-
-            BOOST_ATOMIC_ASM_SLOWPATH_CLEAR
             : "=&b" (expected), "=&b" (success), "+Z"(v_)
             : "b" (expected), "b" (desired)
             : "cr0"
@@ -1211,16 +1243,16 @@ public:
     {
         int success;
         ppc_fence_before(success_order);
-        __asm__(
+        __asm__ __volatile__
+        (
+            "li %1, 0\n"
             "0: lwarx %0,%y2\n"
             "cmpw %0, %3\n"
-            "bne- 2f\n"
+            "bne- 1f\n"
             "stwcx. %4,%y2\n"
             "bne- 0b\n"
-            "addi %1,0,1\n"
+            "li %1, 1\n"
             "1:"
-
-            BOOST_ATOMIC_ASM_SLOWPATH_CLEAR
             : "=&b" (expected), "=&b" (success), "+Z"(v_)
             : "b" (expected), "b" (desired)
             : "cr0"
@@ -1237,7 +1269,8 @@ public:
     {
         value_type original, tmp;
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "lwarx %0,%y2\n"
             "add %1,%0,%3\n"
@@ -1245,7 +1278,8 @@ public:
             "bne- 1b\n"
             : "=&b" (original), "=&b" (tmp), "+Z"(v_)
             : "b" (v)
-            : "cc");
+            : "cc"
+        );
         ppc_fence_after(order);
         return original;
     }
@@ -1255,7 +1289,8 @@ public:
     {
         value_type original, tmp;
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "lwarx %0,%y2\n"
             "sub %1,%0,%3\n"
@@ -1263,7 +1298,8 @@ public:
             "bne- 1b\n"
             : "=&b" (original), "=&b" (tmp), "+Z"(v_)
             : "b" (v)
-            : "cc");
+            : "cc"
+        );
         ppc_fence_after(order);
         return original;
     }
@@ -1273,7 +1309,8 @@ public:
     {
         value_type original, tmp;
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "lwarx %0,%y2\n"
             "and %1,%0,%3\n"
@@ -1281,7 +1318,8 @@ public:
             "bne- 1b\n"
             : "=&b" (original), "=&b" (tmp), "+Z"(v_)
             : "b" (v)
-            : "cc");
+            : "cc"
+        );
         ppc_fence_after(order);
         return original;
     }
@@ -1291,7 +1329,8 @@ public:
     {
         value_type original, tmp;
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "lwarx %0,%y2\n"
             "or %1,%0,%3\n"
@@ -1299,7 +1338,8 @@ public:
             "bne- 1b\n"
             : "=&b" (original), "=&b" (tmp), "+Z"(v_)
             : "b" (v)
-            : "cc");
+            : "cc"
+        );
         ppc_fence_after(order);
         return original;
     }
@@ -1309,7 +1349,8 @@ public:
     {
         value_type original, tmp;
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "lwarx %0,%y2\n"
             "xor %1,%0,%3\n"
@@ -1317,7 +1358,8 @@ public:
             "bne- 1b\n"
             : "=&b" (original), "=&b" (tmp), "+Z"(v_)
             : "b" (v)
-            : "cc");
+            : "cc"
+        );
         ppc_fence_after(order);
         return original;
     }
@@ -1366,7 +1408,8 @@ public:
     load(memory_order order = memory_order_seq_cst) const volatile BOOST_NOEXCEPT
     {
         value_type v = const_cast<const volatile value_type &>(v_);
-        __asm__ __volatile__ (
+        __asm__ __volatile__
+        (
             "cmpd %0, %0\n"
             "bne- 1f\n"
             "1:\n"
@@ -1383,7 +1426,8 @@ public:
     {
         value_type original;
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "ldarx %0,%y1\n"
             "stdcx. %2,%y1\n"
@@ -1405,16 +1449,16 @@ public:
     {
         int success;
         ppc_fence_before(success_order);
-        __asm__(
+        __asm__ __volatile__
+        (
+            "li %1, 0\n"
             "ldarx %0,%y2\n"
             "cmpd %0, %3\n"
-            "bne- 2f\n"
+            "bne- 1f\n"
             "stdcx. %4,%y2\n"
-            "bne- 2f\n"
-            "addi %1,0,1\n"
+            "bne- 1f\n"
+            "li %1, 1\n"
             "1:"
-
-            BOOST_ATOMIC_ASM_SLOWPATH_CLEAR
             : "=&b" (expected), "=&b" (success), "+Z"(v_)
             : "b" (expected), "b" (desired)
             : "cr0"
@@ -1435,16 +1479,16 @@ public:
     {
         int success;
         ppc_fence_before(success_order);
-        __asm__(
+        __asm__ __volatile__
+        (
+            "li %1, 0\n"
             "0: ldarx %0,%y2\n"
             "cmpd %0, %3\n"
-            "bne- 2f\n"
+            "bne- 1f\n"
             "stdcx. %4,%y2\n"
             "bne- 0b\n"
-            "addi %1,0,1\n"
+            "li %1, 1\n"
             "1:"
-
-            BOOST_ATOMIC_ASM_SLOWPATH_CLEAR
             : "=&b" (expected), "=&b" (success), "+Z"(v_)
             : "b" (expected), "b" (desired)
             : "cr0"
@@ -1461,7 +1505,8 @@ public:
     {
         value_type original, tmp;
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "ldarx %0,%y2\n"
             "add %1,%0,%3\n"
@@ -1469,7 +1514,8 @@ public:
             "bne- 1b\n"
             : "=&b" (original), "=&b" (tmp), "+Z"(v_)
             : "b" (v)
-            : "cc");
+            : "cc"
+        );
         ppc_fence_after(order);
         return original;
     }
@@ -1479,7 +1525,8 @@ public:
     {
         value_type original, tmp;
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "ldarx %0,%y2\n"
             "sub %1,%0,%3\n"
@@ -1487,7 +1534,8 @@ public:
             "bne- 1b\n"
             : "=&b" (original), "=&b" (tmp), "+Z"(v_)
             : "b" (v)
-            : "cc");
+            : "cc"
+        );
         ppc_fence_after(order);
         return original;
     }
@@ -1497,7 +1545,8 @@ public:
     {
         value_type original, tmp;
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "ldarx %0,%y2\n"
             "and %1,%0,%3\n"
@@ -1505,7 +1554,8 @@ public:
             "bne- 1b\n"
             : "=&b" (original), "=&b" (tmp), "+Z"(v_)
             : "b" (v)
-            : "cc");
+            : "cc"
+        );
         ppc_fence_after(order);
         return original;
     }
@@ -1515,7 +1565,8 @@ public:
     {
         value_type original, tmp;
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "ldarx %0,%y2\n"
             "or %1,%0,%3\n"
@@ -1523,7 +1574,8 @@ public:
             "bne- 1b\n"
             : "=&b" (original), "=&b" (tmp), "+Z"(v_)
             : "b" (v)
-            : "cc");
+            : "cc"
+        );
         ppc_fence_after(order);
         return original;
     }
@@ -1533,7 +1585,8 @@ public:
     {
         value_type original, tmp;
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "ldarx %0,%y2\n"
             "xor %1,%0,%3\n"
@@ -1541,7 +1594,8 @@ public:
             "bne- 1b\n"
             : "=&b" (original), "=&b" (tmp), "+Z"(v_)
             : "b" (v)
-            : "cc");
+            : "cc"
+        );
         ppc_fence_after(order);
         return original;
     }
@@ -1586,7 +1640,8 @@ public:
     store(value_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "stw %1, %0\n"
             : "+m" (v_)
             : "r" (v)
@@ -1598,7 +1653,8 @@ public:
     load(memory_order order = memory_order_seq_cst) const volatile BOOST_NOEXCEPT
     {
         value_type v;
-        __asm__ (
+        __asm__ __volatile__
+        (
             "lwz %0, %1\n"
             "cmpw %0, %0\n"
             "bne- 1f\n"
@@ -1616,7 +1672,8 @@ public:
     {
         value_type original;
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "lwarx %0,%y1\n"
             "stwcx. %2,%y1\n"
@@ -1638,16 +1695,16 @@ public:
     {
         int success;
         ppc_fence_before(success_order);
-        __asm__(
+        __asm__ __volatile__
+        (
+            "li %1, 0\n"
             "lwarx %0,%y2\n"
             "cmpw %0, %3\n"
-            "bne- 2f\n"
+            "bne- 1f\n"
             "stwcx. %4,%y2\n"
-            "bne- 2f\n"
-            "addi %1,0,1\n"
+            "bne- 1f\n"
+            "li %1, 1\n"
             "1:"
-
-            BOOST_ATOMIC_ASM_SLOWPATH_CLEAR
             : "=&b" (expected), "=&b" (success), "+Z"(v_)
             : "b" (expected), "b" (desired)
             : "cr0"
@@ -1668,16 +1725,16 @@ public:
     {
         int success;
         ppc_fence_before(success_order);
-        __asm__(
+        __asm__ __volatile__
+        (
+            "li %1, 0\n"
             "0: lwarx %0,%y2\n"
             "cmpw %0, %3\n"
-            "bne- 2f\n"
+            "bne- 1f\n"
             "stwcx. %4,%y2\n"
             "bne- 0b\n"
-            "addi %1,0,1\n"
+            "li %1, 1\n"
             "1:"
-
-            BOOST_ATOMIC_ASM_SLOWPATH_CLEAR
             : "=&b" (expected), "=&b" (success), "+Z"(v_)
             : "b" (expected), "b" (desired)
             : "cr0"
@@ -1700,7 +1757,8 @@ public:
     {
         value_type original, tmp;
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "lwarx %0,%y2\n"
             "add %1,%0,%3\n"
@@ -1708,7 +1766,8 @@ public:
             "bne- 1b\n"
             : "=&b" (original), "=&b" (tmp), "+Z"(v_)
             : "b" (v)
-            : "cc");
+            : "cc"
+        );
         ppc_fence_after(order);
         return original;
     }
@@ -1718,7 +1777,8 @@ public:
     {
         value_type original, tmp;
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "lwarx %0,%y2\n"
             "sub %1,%0,%3\n"
@@ -1726,7 +1786,8 @@ public:
             "bne- 1b\n"
             : "=&b" (original), "=&b" (tmp), "+Z"(v_)
             : "b" (v)
-            : "cc");
+            : "cc"
+        );
         ppc_fence_after(order);
         return original;
     }
@@ -1759,7 +1820,8 @@ public:
     store(value_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "stw %1, %0\n"
             : "+m" (v_)
             : "r" (v)
@@ -1771,7 +1833,8 @@ public:
     load(memory_order order = memory_order_seq_cst) const volatile BOOST_NOEXCEPT
     {
         value_type v;
-        __asm__ (
+        __asm__ __volatile__
+        (
             "lwz %0, %1\n"
             "cmpw %0, %0\n"
             "bne- 1f\n"
@@ -1789,7 +1852,8 @@ public:
     {
         value_type original;
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "lwarx %0,%y1\n"
             "stwcx. %2,%y1\n"
@@ -1811,16 +1875,16 @@ public:
     {
         int success;
         ppc_fence_before(success_order);
-        __asm__(
+        __asm__ __volatile__
+        (
+            "li %1, 0\n"
             "lwarx %0,%y2\n"
             "cmpw %0, %3\n"
-            "bne- 2f\n"
+            "bne- 1f\n"
             "stwcx. %4,%y2\n"
-            "bne- 2f\n"
-            "addi %1,0,1\n"
+            "bne- 1f\n"
+            "li %1, 1\n"
             "1:"
-
-            BOOST_ATOMIC_ASM_SLOWPATH_CLEAR
             : "=&b" (expected), "=&b" (success), "+Z"(v_)
             : "b" (expected), "b" (desired)
             : "cr0"
@@ -1841,16 +1905,16 @@ public:
     {
         int success;
         ppc_fence_before(success_order);
-        __asm__(
+        __asm__ __volatile__
+        (
+            "li %1, 0\n"
             "0: lwarx %0,%y2\n"
             "cmpw %0, %3\n"
-            "bne- 2f\n"
+            "bne- 1f\n"
             "stwcx. %4,%y2\n"
             "bne- 0b\n"
-            "addi %1,0,1\n"
+            "li %1, 1\n"
             "1:"
-
-            BOOST_ATOMIC_ASM_SLOWPATH_CLEAR
             : "=&b" (expected), "=&b" (success), "+Z"(v_)
             : "b" (expected), "b" (desired)
             : "cr0"
@@ -1868,7 +1932,8 @@ public:
         v = v * sizeof(*v_);
         value_type original, tmp;
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "lwarx %0,%y2\n"
             "add %1,%0,%3\n"
@@ -1876,7 +1941,8 @@ public:
             "bne- 1b\n"
             : "=&b" (original), "=&b" (tmp), "+Z"(v_)
             : "b" (v)
-            : "cc");
+            : "cc"
+        );
         ppc_fence_after(order);
         return original;
     }
@@ -1887,7 +1953,8 @@ public:
         v = v * sizeof(*v_);
         value_type original, tmp;
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "lwarx %0,%y2\n"
             "sub %1,%0,%3\n"
@@ -1895,7 +1962,8 @@ public:
             "bne- 1b\n"
             : "=&b" (original), "=&b" (tmp), "+Z"(v_)
             : "b" (v)
-            : "cc");
+            : "cc"
+        );
         ppc_fence_after(order);
         return original;
     }
@@ -1936,7 +2004,8 @@ public:
     store(value_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "std %1, %0\n"
             : "+m" (v_)
             : "r" (v)
@@ -1948,7 +2017,8 @@ public:
     load(memory_order order = memory_order_seq_cst) const volatile BOOST_NOEXCEPT
     {
         value_type v;
-        __asm__ (
+        __asm__ __volatile__
+        (
             "ld %0, %1\n"
             "cmpd %0, %0\n"
             "bne- 1f\n"
@@ -1966,7 +2036,8 @@ public:
     {
         value_type original;
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "ldarx %0,%y1\n"
             "stdcx. %2,%y1\n"
@@ -1988,16 +2059,16 @@ public:
     {
         int success;
         ppc_fence_before(success_order);
-        __asm__(
+        __asm__ __volatile__
+        (
+            "li %1, 0\n"
             "ldarx %0,%y2\n"
             "cmpd %0, %3\n"
-            "bne- 2f\n"
+            "bne- 1f\n"
             "stdcx. %4,%y2\n"
-            "bne- 2f\n"
-            "addi %1,0,1\n"
+            "bne- 1f\n"
+            "li %1, 1\n"
             "1:"
-
-            BOOST_ATOMIC_ASM_SLOWPATH_CLEAR
             : "=&b" (expected), "=&b" (success), "+Z"(v_)
             : "b" (expected), "b" (desired)
             : "cr0"
@@ -2018,16 +2089,16 @@ public:
     {
         int success;
         ppc_fence_before(success_order);
-        __asm__(
+        __asm__ __volatile__
+        (
+            "li %1, 0\n"
             "0: ldarx %0,%y2\n"
             "cmpd %0, %3\n"
-            "bne- 2f\n"
+            "bne- 1f\n"
             "stdcx. %4,%y2\n"
             "bne- 0b\n"
-            "addi %1,0,1\n"
+            "li %1, 1\n"
             "1:"
-
-            BOOST_ATOMIC_ASM_SLOWPATH_CLEAR
             : "=&b" (expected), "=&b" (success), "+Z"(v_)
             : "b" (expected), "b" (desired)
             : "cr0"
@@ -2050,7 +2121,8 @@ public:
     {
         value_type original, tmp;
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "ldarx %0,%y2\n"
             "add %1,%0,%3\n"
@@ -2058,7 +2130,8 @@ public:
             "bne- 1b\n"
             : "=&b" (original), "=&b" (tmp), "+Z"(v_)
             : "b" (v)
-            : "cc");
+            : "cc"
+        );
         ppc_fence_after(order);
         return original;
     }
@@ -2068,7 +2141,8 @@ public:
     {
         value_type original, tmp;
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "ldarx %0,%y2\n"
             "sub %1,%0,%3\n"
@@ -2076,7 +2150,8 @@ public:
             "bne- 1b\n"
             : "=&b" (original), "=&b" (tmp), "+Z"(v_)
             : "b" (v)
-            : "cc");
+            : "cc"
+        );
         ppc_fence_after(order);
         return original;
     }
@@ -2109,7 +2184,8 @@ public:
     store(value_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "std %1, %0\n"
             : "+m" (v_)
             : "r" (v)
@@ -2121,7 +2197,8 @@ public:
     load(memory_order order = memory_order_seq_cst) const volatile BOOST_NOEXCEPT
     {
         value_type v;
-        __asm__ (
+        __asm__ __volatile__
+        (
             "ld %0, %1\n"
             "cmpd %0, %0\n"
             "bne- 1f\n"
@@ -2139,7 +2216,8 @@ public:
     {
         value_type original;
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "ldarx %0,%y1\n"
             "stdcx. %2,%y1\n"
@@ -2161,16 +2239,16 @@ public:
     {
         int success;
         ppc_fence_before(success_order);
-        __asm__(
+        __asm__ __volatile__
+        (
+            "li %1, 0\n"
             "ldarx %0,%y2\n"
             "cmpd %0, %3\n"
-            "bne- 2f\n"
+            "bne- 1f\n"
             "stdcx. %4,%y2\n"
-            "bne- 2f\n"
-            "addi %1,0,1\n"
+            "bne- 1f\n"
+            "li %1, 1\n"
             "1:"
-
-            BOOST_ATOMIC_ASM_SLOWPATH_CLEAR
             : "=&b" (expected), "=&b" (success), "+Z"(v_)
             : "b" (expected), "b" (desired)
             : "cr0"
@@ -2191,16 +2269,16 @@ public:
     {
         int success;
         ppc_fence_before(success_order);
-        __asm__(
+        __asm__ __volatile__
+        (
+            "li %1, 0\n"
             "0: ldarx %0,%y2\n"
             "cmpd %0, %3\n"
-            "bne- 2f\n"
+            "bne- 1f\n"
             "stdcx. %4,%y2\n"
             "bne- 0b\n"
-            "addi %1,0,1\n"
+            "li %1, 1\n"
             "1:"
-
-            BOOST_ATOMIC_ASM_SLOWPATH_CLEAR
             : "=&b" (expected), "=&b" (success), "+Z"(v_)
             : "b" (expected), "b" (desired)
             : "cr0"
@@ -2218,7 +2296,8 @@ public:
         v = v * sizeof(*v_);
         value_type original, tmp;
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "ldarx %0,%y2\n"
             "add %1,%0,%3\n"
@@ -2226,7 +2305,8 @@ public:
             "bne- 1b\n"
             : "=&b" (original), "=&b" (tmp), "+Z"(v_)
             : "b" (v)
-            : "cc");
+            : "cc"
+        );
         ppc_fence_after(order);
         return original;
     }
@@ -2237,7 +2317,8 @@ public:
         v = v * sizeof(*v_);
         value_type original, tmp;
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "ldarx %0,%y2\n"
             "sub %1,%0,%3\n"
@@ -2245,7 +2326,8 @@ public:
             "bne- 1b\n"
             : "=&b" (original), "=&b" (tmp), "+Z"(v_)
             : "b" (v)
-            : "cc");
+            : "cc"
+        );
         ppc_fence_after(order);
         return original;
     }
@@ -2293,7 +2375,8 @@ public:
         storage_type tmp = 0;
         memcpy(&tmp, &v, sizeof(value_type));
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "stw %1, %0\n"
             : "+m" (v_)
             : "r" (tmp)
@@ -2305,7 +2388,8 @@ public:
     load(memory_order order = memory_order_seq_cst) const volatile BOOST_NOEXCEPT
     {
         storage_type tmp;
-        __asm__ __volatile__ (
+        __asm__ __volatile__
+        (
             "lwz %0, %1\n"
             "cmpw %0, %0\n"
             "bne- 1f\n"
@@ -2327,7 +2411,8 @@ public:
         storage_type tmp = 0, original;
         memcpy(&tmp, &v, sizeof(value_type));
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "lwarx %0,%y1\n"
             "stwcx. %2,%y1\n"
@@ -2355,16 +2440,16 @@ public:
 
         int success;
         ppc_fence_before(success_order);
-        __asm__(
+        __asm__ __volatile__
+        (
+            "li %1, 0\n"
             "lwarx %0,%y2\n"
             "cmpw %0, %3\n"
-            "bne- 2f\n"
+            "bne- 1f\n"
             "stwcx. %4,%y2\n"
-            "bne- 2f\n"
-            "addi %1,0,1\n"
+            "bne- 1f\n"
+            "li %1, 1\n"
             "1:"
-
-            BOOST_ATOMIC_ASM_SLOWPATH_CLEAR
             : "=&b" (expected_s), "=&b" (success), "+Z"(v_)
             : "b" (expected_s), "b" (desired_s)
             : "cr0"
@@ -2390,16 +2475,16 @@ public:
 
         int success;
         ppc_fence_before(success_order);
-        __asm__(
+        __asm__ __volatile__
+        (
+            "li %1, 0\n"
             "0: lwarx %0,%y2\n"
             "cmpw %0, %3\n"
-            "bne- 2f\n"
+            "bne- 1f\n"
             "stwcx. %4,%y2\n"
             "bne- 0b\n"
-            "addi %1,0,1\n"
+            "li %1, 1\n"
             "1:"
-
-            BOOST_ATOMIC_ASM_SLOWPATH_CLEAR
             : "=&b" (expected_s), "=&b" (success), "+Z"(v_)
             : "b" (expected_s), "b" (desired_s)
             : "cr0"
@@ -2451,7 +2536,8 @@ public:
         storage_type tmp = 0;
         memcpy(&tmp, &v, sizeof(value_type));
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "stw %1, %0\n"
             : "+m" (v_)
             : "r" (tmp)
@@ -2463,7 +2549,8 @@ public:
     load(memory_order order = memory_order_seq_cst) const volatile BOOST_NOEXCEPT
     {
         storage_type tmp;
-        __asm__ __volatile__ (
+        __asm__ __volatile__
+        (
             "lwz %0, %1\n"
             "cmpw %0, %0\n"
             "bne- 1f\n"
@@ -2485,7 +2572,8 @@ public:
         storage_type tmp = 0, original;
         memcpy(&tmp, &v, sizeof(value_type));
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "lwarx %0,%y1\n"
             "stwcx. %2,%y1\n"
@@ -2513,16 +2601,16 @@ public:
 
         int success;
         ppc_fence_before(success_order);
-        __asm__(
+        __asm__ __volatile__
+        (
+            "li %1, 0\n"
             "lwarx %0,%y2\n"
             "cmpw %0, %3\n"
-            "bne- 2f\n"
+            "bne- 1f\n"
             "stwcx. %4,%y2\n"
-            "bne- 2f\n"
-            "addi %1,0,1\n"
+            "bne- 1f\n"
+            "li %1, 1\n"
             "1:"
-
-            BOOST_ATOMIC_ASM_SLOWPATH_CLEAR
             : "=&b" (expected_s), "=&b" (success), "+Z"(v_)
             : "b" (expected_s), "b" (desired_s)
             : "cr0"
@@ -2548,16 +2636,16 @@ public:
 
         int success;
         ppc_fence_before(success_order);
-        __asm__(
+        __asm__ __volatile__
+        (
+            "li %1, 0\n"
             "0: lwarx %0,%y2\n"
             "cmpw %0, %3\n"
-            "bne- 2f\n"
+            "bne- 1f\n"
             "stwcx. %4,%y2\n"
             "bne- 0b\n"
-            "addi %1,0,1\n"
+            "li %1, 1\n"
             "1:"
-
-            BOOST_ATOMIC_ASM_SLOWPATH_CLEAR
             : "=&b" (expected_s), "=&b" (success), "+Z"(v_)
             : "b" (expected_s), "b" (desired_s)
             : "cr0"
@@ -2609,7 +2697,8 @@ public:
         storage_type tmp = 0;
         memcpy(&tmp, &v, sizeof(value_type));
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "stw %1, %0\n"
             : "+m" (v_)
             : "r" (tmp)
@@ -2621,7 +2710,8 @@ public:
     load(memory_order order = memory_order_seq_cst) const volatile BOOST_NOEXCEPT
     {
         storage_type tmp;
-        __asm__ __volatile__ (
+        __asm__ __volatile__
+        (
             "lwz %0, %1\n"
             "cmpw %0, %0\n"
             "bne- 1f\n"
@@ -2643,7 +2733,8 @@ public:
         storage_type tmp = 0, original;
         memcpy(&tmp, &v, sizeof(value_type));
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "lwarx %0,%y1\n"
             "stwcx. %2,%y1\n"
@@ -2671,16 +2762,16 @@ public:
 
         int success;
         ppc_fence_before(success_order);
-        __asm__(
+        __asm__ __volatile__
+        (
+            "li %1, 0\n"
             "lwarx %0,%y2\n"
             "cmpw %0, %3\n"
-            "bne- 2f\n"
+            "bne- 1f\n"
             "stwcx. %4,%y2\n"
-            "bne- 2f\n"
-            "addi %1,0,1\n"
+            "bne- 1f\n"
+            "li %1, 1\n"
             "1:"
-
-            BOOST_ATOMIC_ASM_SLOWPATH_CLEAR
             : "=&b" (expected_s), "=&b" (success), "+Z"(v_)
             : "b" (expected_s), "b" (desired_s)
             : "cr0"
@@ -2706,16 +2797,16 @@ public:
 
         int success;
         ppc_fence_before(success_order);
-        __asm__(
+        __asm__ __volatile__
+        (
+            "li %1, 0\n"
             "0: lwarx %0,%y2\n"
             "cmpw %0, %3\n"
-            "bne- 2f\n"
+            "bne- 1f\n"
             "stwcx. %4,%y2\n"
             "bne- 0b\n"
-            "addi %1,0,1\n"
+            "li %1, 1\n"
             "1:"
-
-            BOOST_ATOMIC_ASM_SLOWPATH_CLEAR
             : "=&b" (expected_s), "=&b" (success), "+Z"(v_)
             : "b" (expected_s), "b" (desired_s)
             : "cr0"
@@ -2769,7 +2860,8 @@ public:
         storage_type tmp;
         memcpy(&tmp, &v, sizeof(value_type));
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "std %1, %0\n"
             : "+m" (v_)
             : "r" (tmp)
@@ -2781,7 +2873,8 @@ public:
     load(memory_order order = memory_order_seq_cst) const volatile BOOST_NOEXCEPT
     {
         storage_type tmp;
-        __asm__ __volatile__ (
+        __asm__ __volatile__
+        (
             "ld %0, %1\n"
             "cmpd %0, %0\n"
             "bne- 1f\n"
@@ -2803,7 +2896,8 @@ public:
         storage_type tmp = 0, original;
         memcpy(&tmp, &v, sizeof(value_type));
         ppc_fence_before(order);
-        __asm__ (
+        __asm__ __volatile__
+        (
             "1:\n"
             "ldarx %0,%y1\n"
             "stdcx. %2,%y1\n"
@@ -2831,16 +2925,16 @@ public:
 
         int success;
         ppc_fence_before(success_order);
-        __asm__(
+        __asm__ __volatile__
+        (
+            "li %1, 0\n"
             "ldarx %0,%y2\n"
             "cmpd %0, %3\n"
-            "bne- 2f\n"
+            "bne- 1f\n"
             "stdcx. %4,%y2\n"
-            "bne- 2f\n"
-            "addi %1,0,1\n"
+            "bne- 1f\n"
+            "li %1, 1\n"
             "1:"
-
-            BOOST_ATOMIC_ASM_SLOWPATH_CLEAR
             : "=&b" (expected_s), "=&b" (success), "+Z"(v_)
             : "b" (expected_s), "b" (desired_s)
             : "cr0"
@@ -2866,16 +2960,16 @@ public:
 
         int success;
         ppc_fence_before(success_order);
-        __asm__(
+        __asm__ __volatile__
+        (
+            "li %1, 0\n"
             "0: ldarx %0,%y2\n"
             "cmpd %0, %3\n"
-            "bne- 2f\n"
+            "bne- 1f\n"
             "stdcx. %4,%y2\n"
             "bne- 0b\n"
-            "addi %1,0,1\n"
+            "li %1, 1\n"
             "1:"
-
-            BOOST_ATOMIC_ASM_SLOWPATH_CLEAR
             : "=&b" (expected_s), "=&b" (success), "+Z"(v_)
             : "b" (expected_s), "b" (desired_s)
             : "cr0"
