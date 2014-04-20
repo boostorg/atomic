@@ -30,24 +30,7 @@ namespace detail {
 typedef boost::uint8_t storage8_t;
 typedef boost::uint16_t storage16_t;
 typedef boost::uint32_t storage32_t;
-
-#if !defined(BOOST_NO_INT64_T)
 typedef boost::uint64_t storage64_t;
-#else
-struct BOOST_ALIGNMENT(8) storage64_t
-{
-    boost::uint32_t data[2];
-};
-
-BOOST_FORCEINLINE bool operator== (storage64_t const& left, storage64_t const& right) BOOST_NOEXCEPT
-{
-    return left.data[0] == right.data[0] && left.data[1] == right.data[1];
-}
-BOOST_FORCEINLINE bool operator!= (storage64_t const& left, storage64_t const& right) BOOST_NOEXCEPT
-{
-    return !(left == right);
-}
-#endif
 
 #if defined(BOOST_HAS_INT128)
 typedef boost::uint128_type storage128_t;
