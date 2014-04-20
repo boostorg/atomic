@@ -15,7 +15,11 @@ execution */
 static void
 test_flag_api(void)
 {
+#ifndef BOOST_ATOMIC_NO_ATOMIC_FLAG_INIT
+    boost::atomic_flag f = BOOST_ATOMIC_FLAG_INIT;
+#else
     boost::atomic_flag f;
+#endif
 
     BOOST_CHECK( !f.test_and_set() );
     BOOST_CHECK( f.test_and_set() );

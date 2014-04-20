@@ -49,7 +49,7 @@ BOOST_FORCEINLINE bool operator!= (storage64_t const& left, storage64_t const& r
 }
 #endif
 
-#if !defined(BOOST_HAS_INT128)
+#if defined(BOOST_HAS_INT128)
 typedef boost::uint128_type storage128_t;
 #else
 struct BOOST_ALIGNMENT(16) storage128_t

@@ -19,6 +19,8 @@
 
 #if !defined(BOOST_ATOMIC_EMULATED)
 #include BOOST_ATOMIC_DETAIL_HEADER(boost/atomic/detail/ops_)
+#else
+#include <boost/atomic/detail/operations_fwd.hpp>
 #endif
 
 #ifdef BOOST_HAS_PRAGMA_ONCE

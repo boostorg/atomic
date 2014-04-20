@@ -3,6 +3,8 @@
  * (See accompanying file LICENSE_1_0.txt or copy at
  * http://www.boost.org/LICENSE_1_0.txt)
  *
+ * Copyright (c) 2011 Helge Bahmann
+ * Copyright (c) 2013 Tim Blechmann
  * Copyright (c) 2014 Andrey Semashev
  */
 /*!
@@ -15,6 +17,7 @@
 #define BOOST_ATOMIC_DETAIL_ATOMIC_TEMPLATE_HPP_INCLUDED_
 
 #include <cstddef>
+#include <boost/cstdint.hpp>
 #include <boost/type_traits/is_integral.hpp>
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/union_cast.hpp>
@@ -56,7 +59,7 @@ private:
     typedef base_atomic this_type;
     typedef T value_type;
     typedef T difference_type;
-    typedef operations< storage_size_of< value_type >::value > operations;
+    typedef atomics::detail::operations< storage_size_of< value_type >::value > operations;
 
 protected:
     typedef value_type value_arg_type;
@@ -201,7 +204,7 @@ class base_atomic< T, void >
 private:
     typedef base_atomic this_type;
     typedef T value_type;
-    typedef operations< storage_size_of< value_type >::value > operations;
+    typedef atomics::detail::operations< storage_size_of< value_type >::value > operations;
 
 protected:
     typedef value_type const& value_arg_type;
@@ -279,7 +282,7 @@ private:
     typedef base_atomic this_type;
     typedef T* value_type;
     typedef std::ptrdiff_t difference_type;
-    typedef operations< storage_size_of< value_type >::value > operations;
+    typedef atomics::detail::operations< storage_size_of< value_type >::value > operations;
 
 protected:
     typedef value_type value_arg_type;
@@ -397,7 +400,7 @@ private:
     typedef base_atomic this_type;
     typedef void* value_type;
     typedef std::ptrdiff_t difference_type;
-    typedef operations< storage_size_of< value_type >::value > operations;
+    typedef atomics::detail::operations< storage_size_of< value_type >::value > operations;
 
 protected:
     typedef value_type value_arg_type;
@@ -426,12 +429,12 @@ public:
 
     value_type fetch_add(difference_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        return atomics::detail::union_cast< value_type >(operations::fetch_add(m_storage, static_cast< storage_type >(v * sizeof(T)), order));
+        return atomics::detail::union_cast< value_type >(operations::fetch_add(m_storage, static_cast< storage_type >(v), order));
     }
 
     value_type fetch_sub(difference_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        return atomics::detail::union_cast< value_type >(operations::fetch_sub(m_storage, static_cast< storage_type >(v * sizeof(T)), order));
+        return atomics::detail::union_cast< value_type >(operations::fetch_sub(m_storage, static_cast< storage_type >(v), order));
     }
 
     value_type exchange(value_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
@@ -510,17 +513,11 @@ public:
 
 template< typename T >
 class atomic :
-    public atomics::detail::base_atomic<
-        T,
-        typename atomics::detail::classify< T >::type
-    >
+    public atomics::detail::base_atomic< T, typename atomics::detail::classify< T >::type >
 {
 private:
     typedef T value_type;
-    typedef atomics::detail::base_atomic<
-        T,
-        typename atomics::detail::classify< T >::type
-    > base_type;
+    typedef atomics::detail::base_atomic< T, typename atomics::detail::classify< T >::type > base_type;
     typedef typename base_type::value_arg_type value_arg_type;
 
 public:
@@ -552,8 +549,67 @@ public:
     BOOST_FORCEINLINE storage_type const volatile& storage() const volatile BOOST_NOEXCEPT { return this->m_storage; }
 
     BOOST_DELETED_FUNCTION(atomic(atomic const&))
+    BOOST_DELETED_FUNCTION(atomic& operator= (atomic const&))
     BOOST_DELETED_FUNCTION(atomic& operator= (atomic const&) volatile)
 };
+
+typedef atomic<char> atomic_char;
+typedef atomic<unsigned char> atomic_uchar;
+typedef atomic<signed char> atomic_schar;
+typedef atomic<uint8_t> atomic_uint8_t;
+typedef atomic<int8_t> atomic_int8_t;
+typedef atomic<unsigned short> atomic_ushort;
+typedef atomic<short> atomic_short;
+typedef atomic<uint16_t> atomic_uint16_t;
+typedef atomic<int16_t> atomic_int16_t;
+typedef atomic<unsigned int> atomic_uint;
+typedef atomic<int> atomic_int;
+typedef atomic<uint32_t> atomic_uint32_t;
+typedef atomic<int32_t> atomic_int32_t;
+typedef atomic<unsigned long> atomic_ulong;
+typedef atomic<long> atomic_long;
+typedef atomic<uint64_t> atomic_uint64_t;
+typedef atomic<int64_t> atomic_int64_t;
+#ifdef BOOST_HAS_LONG_LONG
+typedef atomic<boost::ulong_long_type> atomic_ullong;
+typedef atomic<boost::long_long_type> atomic_llong;
+#endif
+typedef atomic<void*> atomic_address;
+typedef atomic<bool> atomic_bool;
+typedef atomic<wchar_t> atomic_wchar_t;
+#if !defined(BOOST_NO_CXX11_CHAR16_T)
+typedef atomic<char16_t> atomic_char16_t;
+#endif
+#if !defined(BOOST_NO_CXX11_CHAR32_T)
+typedef atomic<char32_t> atomic_char32_t;
+#endif
+
+typedef atomic<int_least8_t> atomic_int_least8_t;
+typedef atomic<uint_least8_t> atomic_uint_least8_t;
+typedef atomic<int_least16_t> atomic_int_least16_t;
+typedef atomic<uint_least16_t> atomic_uint_least16_t;
+typedef atomic<int_least32_t> atomic_int_least32_t;
+typedef atomic<uint_least32_t> atomic_uint_least32_t;
+typedef atomic<int_least64_t> atomic_int_least64_t;
+typedef atomic<uint_least64_t> atomic_uint_least64_t;
+typedef atomic<int_fast8_t> atomic_int_fast8_t;
+typedef atomic<uint_fast8_t> atomic_uint_fast8_t;
+typedef atomic<int_fast16_t> atomic_int_fast16_t;
+typedef atomic<uint_fast16_t> atomic_uint_fast16_t;
+typedef atomic<int_fast32_t> atomic_int_fast32_t;
+typedef atomic<uint_fast32_t> atomic_uint_fast32_t;
+typedef atomic<int_fast64_t> atomic_int_fast64_t;
+typedef atomic<uint_fast64_t> atomic_uint_fast64_t;
+typedef atomic<intmax_t> atomic_intmax_t;
+typedef atomic<uintmax_t> atomic_uintmax_t;
+
+typedef atomic<std::size_t> atomic_size_t;
+typedef atomic<std::ptrdiff_t> atomic_ptrdiff_t;
+
+#if defined(BOOST_HAS_INTPTR_T)
+typedef atomic<intptr_t> atomic_intptr_t;
+typedef atomic<uintptr_t> atomic_uintptr_t;
+#endif
 
 } // namespace atomics
 } // namespace boost
