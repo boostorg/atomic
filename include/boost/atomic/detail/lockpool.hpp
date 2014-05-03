@@ -33,12 +33,15 @@ struct lockpool
         void* m_lock;
 
     public:
-        explicit BOOST_ATOMIC_DECL scoped_lock(const volatile void* addr);
-        BOOST_ATOMIC_DECL ~scoped_lock();
+        explicit BOOST_ATOMIC_DECL scoped_lock(const volatile void* addr) BOOST_NOEXCEPT;
+        BOOST_ATOMIC_DECL ~scoped_lock() BOOST_NOEXCEPT;
 
         BOOST_DELETED_FUNCTION(scoped_lock(scoped_lock const&))
         BOOST_DELETED_FUNCTION(scoped_lock& operator=(scoped_lock const&))
     };
+
+    static BOOST_ATOMIC_DECL void thread_fence() BOOST_NOEXCEPT;
+    static BOOST_ATOMIC_DECL void signal_fence() BOOST_NOEXCEPT;
 };
 
 } // namespace detail

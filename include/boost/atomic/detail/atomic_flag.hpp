@@ -14,6 +14,7 @@
 #ifndef BOOST_ATOMIC_DETAIL_ATOMIC_FLAG_HPP_INCLUDED_
 #define BOOST_ATOMIC_DETAIL_ATOMIC_FLAG_HPP_INCLUDED_
 
+#include <boost/assert.hpp>
 #include <boost/memory_order.hpp>
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/operations_lockfree.hpp>
@@ -49,6 +50,8 @@ struct atomic_flag
 
     void clear(memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
+        BOOST_ASSERT(order != memory_order_acquire);
+        BOOST_ASSERT(order != memory_order_acq_rel);
         operations::clear(m_storage, order);
     }
 

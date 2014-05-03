@@ -35,19 +35,19 @@ struct emulated_operations
 {
     typedef T storage_type;
 
-    static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order = memory_order_seq_cst) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
         lockpool::scoped_lock lock(&storage);
         const_cast< storage_type& >(storage) = v;
     }
 
-    static BOOST_FORCEINLINE storage_type load(storage_type const volatile& storage, memory_order = memory_order_seq_cst) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type load(storage_type const volatile& storage, memory_order) BOOST_NOEXCEPT
     {
         lockpool::scoped_lock lock(&storage);
         return const_cast< storage_type const& >(storage);
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order = memory_order_seq_cst) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
         storage_type& s = const_cast< storage_type& >(storage);
         lockpool::scoped_lock lock(&storage);
@@ -56,7 +56,7 @@ struct emulated_operations
         return old_val;
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order = memory_order_seq_cst) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
         storage_type& s = const_cast< storage_type& >(storage);
         lockpool::scoped_lock lock(&storage);
@@ -65,7 +65,7 @@ struct emulated_operations
         return old_val;
     }
 
-    static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order = memory_order_seq_cst) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
         storage_type& s = const_cast< storage_type& >(storage);
         lockpool::scoped_lock lock(&storage);
@@ -94,7 +94,7 @@ struct emulated_operations
         return compare_exchange_strong(storage, expected, desired, success_order, failure_order);
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_and(storage_type volatile& storage, storage_type v, memory_order = memory_order_seq_cst) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_and(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
         storage_type& s = const_cast< storage_type& >(storage);
         lockpool::scoped_lock lock(&storage);
@@ -103,7 +103,7 @@ struct emulated_operations
         return old_val;
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_or(storage_type volatile& storage, storage_type v, memory_order = memory_order_seq_cst) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_or(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
         storage_type& s = const_cast< storage_type& >(storage);
         lockpool::scoped_lock lock(&storage);
@@ -112,7 +112,7 @@ struct emulated_operations
         return old_val;
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_xor(storage_type volatile& storage, storage_type v, memory_order = memory_order_seq_cst) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_xor(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
         storage_type& s = const_cast< storage_type& >(storage);
         lockpool::scoped_lock lock(&storage);
@@ -121,12 +121,12 @@ struct emulated_operations
         return old_val;
     }
 
-    static BOOST_FORCEINLINE bool test_and_set(storage_type volatile& storage, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE bool test_and_set(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
         return exchange(storage, (storage_type)1, order) != (storage_type)0;
     }
 
-    static BOOST_FORCEINLINE void clear(storage_type volatile& storage, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE void clear(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
         store(storage, (storage_type)0, order);
     }
@@ -195,27 +195,6 @@ struct operations :
 };
 
 } // namespace detail
-
-#if BOOST_ATOMIC_THREAD_FENCE == 0
-BOOST_FORCEINLINE void atomic_thread_fence(memory_order)
-{
-    // Emulate full fence by locking/unlocking a mutex
-    detail::lockpool::scoped_lock lock(0);
-}
-#endif
-
-#if BOOST_ATOMIC_SIGNAL_FENCE == 0
-BOOST_FORCEINLINE void atomic_signal_fence(memory_order)
-{
-    // We can't use pthread functions in signal handlers, so only use lock pool if it is based on atomic_flags.
-    // However, any reasonable backend with a lockfree atomic_flag should provide fence primitives already.
-    // So this condition is more for completeness sake.
-#if BOOST_ATOMIC_FLAG_LOCK_FREE == 2
-    detail::lockpool::scoped_lock lock(0);
-#endif
-}
-#endif
-
 } // namespace atomics
 } // namespace boost
 

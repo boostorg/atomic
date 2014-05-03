@@ -17,6 +17,7 @@
 #define BOOST_ATOMIC_ATOMIC_HPP_INCLUDED_
 
 #include <boost/atomic/capabilities.hpp>
+#include <boost/atomic/fences.hpp>
 #include <boost/atomic/atomic_flag.hpp>
 #include <boost/atomic/detail/atomic_template.hpp>
 #include <boost/atomic/detail/operations.hpp>

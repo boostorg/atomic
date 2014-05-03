@@ -90,7 +90,7 @@ static padded_lock g_lock_pool[41]
 #if !defined(BOOST_ATOMIC_USE_PTHREAD)
 
 // NOTE: This function must NOT be inline. Otherwise MSVC 9 will sometimes generate broken code for modulus operation which result in crashes.
-BOOST_ATOMIC_DECL lockpool::scoped_lock::scoped_lock(const volatile void* addr) :
+BOOST_ATOMIC_DECL lockpool::scoped_lock::scoped_lock(const volatile void* addr) BOOST_NOEXCEPT :
     m_lock(&g_lock_pool[reinterpret_cast< std::size_t >(addr) % (sizeof(g_lock_pool) / sizeof(*g_lock_pool))].lock)
 {
     while (padded_lock::operations::test_and_set(*static_cast< padded_lock::lock_type* >(m_lock), memory_order_acquire))
@@ -99,25 +99,45 @@ BOOST_ATOMIC_DECL lockpool::scoped_lock::scoped_lock(const volatile void* addr) 
     }
 }
 
-BOOST_ATOMIC_DECL lockpool::scoped_lock::~scoped_lock()
+BOOST_ATOMIC_DECL lockpool::scoped_lock::~scoped_lock() BOOST_NOEXCEPT
 {
     padded_lock::operations::clear(*static_cast< padded_lock::lock_type* >(m_lock), memory_order_release);
 }
 
+BOOST_ATOMIC_DECL void signal_fence() BOOST_NOEXCEPT;
+
 #else // !defined(BOOST_ATOMIC_USE_PTHREAD)
 
-BOOST_ATOMIC_DECL lockpool::scoped_lock::scoped_lock(const volatile void* addr) :
+BOOST_ATOMIC_DECL lockpool::scoped_lock::scoped_lock(const volatile void* addr) BOOST_NOEXCEPT :
     m_lock(&g_lock_pool[reinterpret_cast< std::size_t >(addr) % (sizeof(g_lock_pool) / sizeof(*g_lock_pool))].lock)
 {
     BOOST_VERIFY(pthread_mutex_lock(static_cast< pthread_mutex_t* >(m_lock)) == 0);
 }
 
-BOOST_ATOMIC_DECL lockpool::scoped_lock::~scoped_lock()
+BOOST_ATOMIC_DECL lockpool::scoped_lock::~scoped_lock() BOOST_NOEXCEPT
 {
     BOOST_VERIFY(pthread_mutex_unlock(static_cast< pthread_mutex_t* >(m_lock)) == 0);
 }
 
 #endif // !defined(BOOST_ATOMIC_USE_PTHREAD)
+
+BOOST_ATOMIC_DECL void lockpool::thread_fence() BOOST_NOEXCEPT
+{
+#if BOOST_ATOMIC_THREAD_FENCE > 0
+    atomics::detail::thread_fence(memory_order_seq_cst);
+#else
+    // Emulate full fence by locking/unlocking a mutex
+    scoped_lock lock(0);
+#endif
+}
+
+BOOST_ATOMIC_DECL void lockpool::signal_fence() BOOST_NOEXCEPT
+{
+    // This function is intentionally non-inline, even if empty. This forces the compiler to treat its call as a compiler barrier.
+#if BOOST_ATOMIC_SIGNAL_FENCE > 0
+    atomics::detail::signal_fence(memory_order_seq_cst);
+#endif
+}
 
 } // namespace detail
 } // namespace atomics

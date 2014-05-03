@@ -14,12 +14,13 @@
 #ifndef BOOST_ATOMIC_DETAIL_OPS_GCC_ATOMIC_HPP_INCLUDED_
 #define BOOST_ATOMIC_DETAIL_OPS_GCC_ATOMIC_HPP_INCLUDED_
 
-#include <boost/cstdint.hpp>
 #include <boost/memory_order.hpp>
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/storage_types.hpp>
 #include <boost/atomic/detail/operations_fwd.hpp>
+#include <boost/atomic/capabilities.hpp>
 #if defined(__clang__) && (defined(BOOST_ATOMIC_DETAIL_X86_HAS_CMPXCHG8B) || defined(BOOST_ATOMIC_DETAIL_X86_HAS_CMPXCHG16B))
+#include <boost/cstdint.hpp>
 #include <boost/atomic/detail/ops_cas_based.hpp>
 #endif
 
@@ -43,27 +44,27 @@ struct gcc_atomic_operations
 {
     typedef T storage_type;
 
-    static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
         __atomic_store_n(&storage, v, atomics::detail::convert_memory_order_to_gcc(order));
     }
 
-    static BOOST_FORCEINLINE storage_type load(storage_type const volatile& storage, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type load(storage_type const volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
         return __atomic_load_n(&storage, atomics::detail::convert_memory_order_to_gcc(order));
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
         return __atomic_fetch_add(&storage, v, atomics::detail::convert_memory_order_to_gcc(order));
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
         return __atomic_fetch_sub(&storage, v, atomics::detail::convert_memory_order_to_gcc(order));
     }
 
-    static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
         return __atomic_exchange_n(&storage, v, atomics::detail::convert_memory_order_to_gcc(order));
     }
@@ -90,27 +91,27 @@ struct gcc_atomic_operations
         );
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_and(storage_type volatile& storage, storage_type v, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_and(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
         return __atomic_fetch_and(&storage, v, atomics::detail::convert_memory_order_to_gcc(order));
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_or(storage_type volatile& storage, storage_type v, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_or(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
         return __atomic_fetch_or(&storage, v, atomics::detail::convert_memory_order_to_gcc(order));
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_xor(storage_type volatile& storage, storage_type v, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_xor(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
         return __atomic_fetch_xor(&storage, v, atomics::detail::convert_memory_order_to_gcc(order));
     }
 
-    static BOOST_FORCEINLINE bool test_and_set(storage_type volatile& storage, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE bool test_and_set(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
         return __atomic_test_and_set(&storage, atomics::detail::convert_memory_order_to_gcc(order));
     }
 
-    static BOOST_FORCEINLINE void clear(storage_type volatile& storage, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE void clear(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
         __atomic_clear(const_cast< storage_type* >(&storage), atomics::detail::convert_memory_order_to_gcc(order));
     }
@@ -153,7 +154,7 @@ struct clang_dcas_x86
 {
     typedef storage64_t storage_type;
 
-    static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
         if ((((uint32_t)&storage) & 0x00000007) == 0)
         {
@@ -202,7 +203,7 @@ struct clang_dcas_x86
         }
     }
 
-    static BOOST_FORCEINLINE storage_type load(storage_type const volatile& storage, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type load(storage_type const volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
         storage_type value;
 
@@ -288,7 +289,7 @@ struct clang_dcas_x86_64
 {
     typedef storage128_t storage_type;
 
-    static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
         uint64_t const* p_value = (uint64_t const*)&value;
         __asm__ __volatile__
@@ -299,12 +300,12 @@ struct clang_dcas_x86_64
             "1: lock; cmpxchg16b 0(%[dest])\n\t"
             "jne 1b"
             :
-            : "b" (p_value[0]), "c" (p_value[1]), [dest] "r" (ptr)
+            : "b" (p_value[0]), "c" (p_value[1]), [dest] "r" (&storage)
             : "memory", "cc", "rax", "rdx"
         );
     }
 
-    static BOOST_FORCEINLINE storage_type load(storage_type const volatile& storage, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type load(storage_type const volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
         storage_type value = storage_type();
         return __sync_val_compare_and_swap(&storage, value, value);
@@ -347,17 +348,17 @@ struct operations< 16u > :
 #endif
 #endif
 
-} // namespace detail
-
-BOOST_FORCEINLINE void atomic_thread_fence(memory_order order)
+BOOST_FORCEINLINE void thread_fence(memory_order order) BOOST_NOEXCEPT
 {
     __atomic_thread_fence(atomics::detail::convert_memory_order_to_gcc(order));
 }
 
-BOOST_FORCEINLINE void atomic_signal_fence(memory_order order)
+BOOST_FORCEINLINE void signal_fence(memory_order order) BOOST_NOEXCEPT
 {
     __atomic_signal_fence(atomics::detail::convert_memory_order_to_gcc(order));
 }
+
+} // namespace detail
 
 } // namespace atomics
 } // namespace boost
