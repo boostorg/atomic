@@ -26,7 +26,7 @@
 #define BOOST_ATOMIC_DETAIL_X86_HAS_CMPXCHG8B 1
 #endif
 
-#if defined(_M_AMD64) && !defined(BOOST_ATOMIC_NO_CMPXCHG16B)
+#if _MSC_VER >= 1500 && defined(_M_AMD64) && !defined(BOOST_ATOMIC_NO_CMPXCHG16B)
 #define BOOST_ATOMIC_DETAIL_X86_HAS_CMPXCHG16B 1
 #endif
 

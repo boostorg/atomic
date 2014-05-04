@@ -111,7 +111,7 @@ struct gcc_sync_operations
     {
         if ((order & memory_order_release) != 0)
             __sync_synchronize();
-        return __sync_lock_test_and_set(&storage, 1);
+        return __sync_lock_test_and_set(&storage, 1) != 0;
     }
 
     static BOOST_FORCEINLINE void clear(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT

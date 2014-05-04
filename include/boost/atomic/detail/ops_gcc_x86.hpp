@@ -142,7 +142,7 @@ struct gcc_x86_operations :
 
     static BOOST_FORCEINLINE bool test_and_set(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
-        return Derived::exchange(storage, (storage_type)1, order);
+        return Derived::exchange(storage, (storage_type)1, order) != 0;
     }
 
     static BOOST_FORCEINLINE void clear(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
