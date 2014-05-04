@@ -37,6 +37,12 @@ BOOST_FORCEINLINE BOOST_CONSTEXPR memory_order deduce_failure_order(memory_order
     return order == memory_order_acq_rel ? memory_order_acquire : (order == memory_order_release ? memory_order_relaxed : order);
 }
 
+BOOST_FORCEINLINE BOOST_CONSTEXPR bool cas_failure_order_must_not_be_stronger_than_success_order(memory_order success_order, memory_order failure_order) BOOST_NOEXCEPT
+{
+    return ((failure_order | success_order) & ~memory_order_consume) == (success_order & ~memory_order_consume)
+            && (failure_order & memory_order_consume) <= (success_order & memory_order_consume);
+}
+
 template< typename T, bool IsInt = boost::is_integral< T >::value >
 struct classify
 {
@@ -111,8 +117,7 @@ public:
     {
         BOOST_ASSERT(failure_order != memory_order_release);
         BOOST_ASSERT(failure_order != memory_order_acq_rel);
-        // failure_order must not be stronger than success_order
-        BOOST_ASSERT(((failure_order | success_order) & ~memory_order_consume) == (success_order & ~memory_order_consume) && (failure_order & memory_order_consume) <= (success_order & memory_order_consume));
+        BOOST_ASSERT(cas_failure_order_must_not_be_stronger_than_success_order(success_order, failure_order));
 
         storage_type old_value = static_cast< storage_type >(expected);
         const bool res = operations::compare_exchange_strong(m_storage, old_value, static_cast< storage_type >(desired), success_order, failure_order);
@@ -129,8 +134,7 @@ public:
     {
         BOOST_ASSERT(failure_order != memory_order_release);
         BOOST_ASSERT(failure_order != memory_order_acq_rel);
-        // failure_order must not be stronger than success_order
-        BOOST_ASSERT(((failure_order | success_order) & ~memory_order_consume) == (success_order & ~memory_order_consume) && (failure_order & memory_order_consume) <= (success_order & memory_order_consume));
+        BOOST_ASSERT(cas_failure_order_must_not_be_stronger_than_success_order(success_order, failure_order));
 
         storage_type old_value = static_cast< storage_type >(expected);
         const bool res = operations::compare_exchange_weak(m_storage, old_value, static_cast< storage_type >(desired), success_order, failure_order);
@@ -263,8 +267,7 @@ public:
     {
         BOOST_ASSERT(failure_order != memory_order_release);
         BOOST_ASSERT(failure_order != memory_order_acq_rel);
-        // failure_order must not be stronger than success_order
-        BOOST_ASSERT(((failure_order | success_order) & ~memory_order_consume) == (success_order & ~memory_order_consume) && (failure_order & memory_order_consume) <= (success_order & memory_order_consume));
+        BOOST_ASSERT(cas_failure_order_must_not_be_stronger_than_success_order(success_order, failure_order));
 
         storage_type old_value = atomics::detail::union_cast< storage_type >(expected);
         const bool res = operations::compare_exchange_strong(m_storage, old_value, atomics::detail::union_cast< storage_type >(desired), success_order, failure_order);
@@ -281,8 +284,7 @@ public:
     {
         BOOST_ASSERT(failure_order != memory_order_release);
         BOOST_ASSERT(failure_order != memory_order_acq_rel);
-        // failure_order must not be stronger than success_order
-        BOOST_ASSERT(((failure_order | success_order) & ~memory_order_consume) == (success_order & ~memory_order_consume) && (failure_order & memory_order_consume) <= (success_order & memory_order_consume));
+        BOOST_ASSERT(cas_failure_order_must_not_be_stronger_than_success_order(success_order, failure_order));
 
         storage_type old_value = atomics::detail::union_cast< storage_type >(expected);
         const bool res = operations::compare_exchange_weak(m_storage, old_value, atomics::detail::union_cast< storage_type >(desired), success_order, failure_order);
@@ -366,8 +368,7 @@ public:
     {
         BOOST_ASSERT(failure_order != memory_order_release);
         BOOST_ASSERT(failure_order != memory_order_acq_rel);
-        // failure_order must not be stronger than success_order
-        BOOST_ASSERT(((failure_order | success_order) & ~memory_order_consume) == (success_order & ~memory_order_consume) && (failure_order & memory_order_consume) <= (success_order & memory_order_consume));
+        BOOST_ASSERT(cas_failure_order_must_not_be_stronger_than_success_order(success_order, failure_order));
 
         storage_type old_value = atomics::detail::union_cast< storage_type >(expected);
         const bool res = operations::compare_exchange_strong(m_storage, old_value, atomics::detail::union_cast< storage_type >(desired), success_order, failure_order);
@@ -384,8 +385,7 @@ public:
     {
         BOOST_ASSERT(failure_order != memory_order_release);
         BOOST_ASSERT(failure_order != memory_order_acq_rel);
-        // failure_order must not be stronger than success_order
-        BOOST_ASSERT(((failure_order | success_order) & ~memory_order_consume) == (success_order & ~memory_order_consume) && (failure_order & memory_order_consume) <= (success_order & memory_order_consume));
+        BOOST_ASSERT(cas_failure_order_must_not_be_stronger_than_success_order(success_order, failure_order));
 
         storage_type old_value = atomics::detail::union_cast< storage_type >(expected);
         const bool res = operations::compare_exchange_weak(m_storage, old_value, atomics::detail::union_cast< storage_type >(desired), success_order, failure_order);
@@ -499,8 +499,7 @@ public:
     {
         BOOST_ASSERT(failure_order != memory_order_release);
         BOOST_ASSERT(failure_order != memory_order_acq_rel);
-        // failure_order must not be stronger than success_order
-        BOOST_ASSERT(((failure_order | success_order) & ~memory_order_consume) == (success_order & ~memory_order_consume) && (failure_order & memory_order_consume) <= (success_order & memory_order_consume));
+        BOOST_ASSERT(cas_failure_order_must_not_be_stronger_than_success_order(success_order, failure_order));
 
         storage_type old_value = atomics::detail::union_cast< storage_type >(expected);
         const bool res = operations::compare_exchange_strong(m_storage, old_value, atomics::detail::union_cast< storage_type >(desired), success_order, failure_order);
@@ -517,8 +516,7 @@ public:
     {
         BOOST_ASSERT(failure_order != memory_order_release);
         BOOST_ASSERT(failure_order != memory_order_acq_rel);
-        // failure_order must not be stronger than success_order
-        BOOST_ASSERT(((failure_order | success_order) & ~memory_order_consume) == (success_order & ~memory_order_consume) && (failure_order & memory_order_consume) <= (success_order & memory_order_consume));
+        BOOST_ASSERT(cas_failure_order_must_not_be_stronger_than_success_order(success_order, failure_order));
 
         storage_type old_value = atomics::detail::union_cast< storage_type >(expected);
         const bool res = operations::compare_exchange_weak(m_storage, old_value, atomics::detail::union_cast< storage_type >(desired), success_order, failure_order);
