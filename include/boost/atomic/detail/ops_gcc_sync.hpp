@@ -16,6 +16,7 @@
 #ifndef BOOST_ATOMIC_DETAIL_OPS_GCC_SYNC_HPP_INCLUDED_
 #define BOOST_ATOMIC_DETAIL_OPS_GCC_SYNC_HPP_INCLUDED_
 
+#include <boost/cstdint.hpp> // UINT64_C
 #include <boost/memory_order.hpp>
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/storage_types.hpp>
@@ -183,6 +184,20 @@ struct operations< 1u > :
 #endif
     >
 {
+#if !defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_1)
+    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    {
+        // We must resort to a CAS loop to handle overflows
+        storage_type res = storage;
+        while (!compare_exchange_strong(storage, res, (res + v) & 0x000000ff, order, memory_order_relaxed)) {}
+        return res;
+    }
+
+    static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    {
+        return fetch_add(storage, -v, order);
+    }
+#endif
 };
 #endif
 
@@ -201,6 +216,20 @@ struct operations< 2u > :
 #endif
     >
 {
+#if !defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_2)
+    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    {
+        // We must resort to a CAS loop to handle overflows
+        storage_type res = storage;
+        while (!compare_exchange_strong(storage, res, (res + v) & 0x0000ffff, order, memory_order_relaxed)) {}
+        return res;
+    }
+
+    static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    {
+        return fetch_add(storage, -v, order);
+    }
+#endif
 };
 #endif
 
@@ -217,6 +246,20 @@ struct operations< 4u > :
 #endif
     >
 {
+#if !defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_4)
+    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    {
+        // We must resort to a CAS loop to handle overflows
+        storage_type res = storage;
+        while (!compare_exchange_strong(storage, res, (res + v) & 0xffffffff, order, memory_order_relaxed)) {}
+        return res;
+    }
+
+    static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    {
+        return fetch_add(storage, -v, order);
+    }
+#endif
 };
 #endif
 
@@ -231,6 +274,20 @@ struct operations< 8u > :
 #endif
     >
 {
+#if !defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_8) && defined(BOOST_HAS_INT128)
+    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    {
+        // We must resort to a CAS loop to handle overflows
+        storage_type res = storage;
+        while (!compare_exchange_strong(storage, res, (res + v) & UINT64_C(0xffffffffffffffff), order, memory_order_relaxed)) {}
+        return res;
+    }
+
+    static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    {
+        return fetch_add(storage, -v, order);
+    }
+#endif
 };
 
 #endif
@@ -277,7 +334,6 @@ BOOST_FORCEINLINE void signal_fence(memory_order order) BOOST_NOEXCEPT
 }
 
 } // namespace detail
-
 } // namespace atomics
 } // namespace boost
 

@@ -359,7 +359,6 @@ BOOST_FORCEINLINE void signal_fence(memory_order order) BOOST_NOEXCEPT
 }
 
 } // namespace detail
-
 } // namespace atomics
 } // namespace boost
 
