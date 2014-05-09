@@ -15,8 +15,8 @@
  * This header contains implementation of the \c operations template.
  */
 
-#ifndef BOOST_ATOMIC_DETAIL_OPS_GCC_LINUX_ARM_HPP_INCLUDED_
-#define BOOST_ATOMIC_DETAIL_OPS_GCC_LINUX_ARM_HPP_INCLUDED_
+#ifndef BOOST_ATOMIC_DETAIL_OPS_LINUX_ARM_HPP_INCLUDED_
+#define BOOST_ATOMIC_DETAIL_OPS_LINUX_ARM_HPP_INCLUDED_
 
 #include <boost/memory_order.hpp>
 #include <boost/atomic/detail/config.hpp>
@@ -57,6 +57,39 @@ namespace detail {
 
 struct linux_arm_cas_base
 {
+    static BOOST_FORCEINLINE void fence_before_store(memory_order order) BOOST_NOEXCEPT
+    {
+        switch (order)
+        {
+        case memory_order_release:
+        case memory_order_acq_rel:
+        case memory_order_seq_cst:
+            hardware_full_fence();
+            break;
+        case memory_order_consume:
+        default:;
+        }
+    }
+
+    static BOOST_FORCEINLINE void fence_after_store(memory_order order) BOOST_NOEXCEPT
+    {
+        if (order == memory_order_seq_cst)
+            hardware_full_fence();
+    }
+
+    static BOOST_FORCEINLINE void fence_after_load(memory_order order) BOOST_NOEXCEPT
+    {
+        switch (order)
+        {
+        case memory_order_acquire:
+        case memory_order_acq_rel:
+        case memory_order_seq_cst:
+            hardware_full_fence();
+            break;
+        default:;
+        }
+    }
+
     static BOOST_FORCEINLINE void hardware_full_fence() BOOST_NOEXCEPT
     {
         typedef void (*kernel_dmb_t)(void);
@@ -120,40 +153,6 @@ struct linux_arm_cas :
     {
         return true;
     }
-
-private:
-    static BOOST_FORCEINLINE void fence_before_store(memory_order order) BOOST_NOEXCEPT
-    {
-        switch (order)
-        {
-        case memory_order_release:
-        case memory_order_acq_rel:
-        case memory_order_seq_cst:
-            hardware_full_fence();
-            break;
-        case memory_order_consume:
-        default:;
-        }
-    }
-
-    static BOOST_FORCEINLINE void fence_after_store(memory_order order) BOOST_NOEXCEPT
-    {
-        if (order == memory_order_seq_cst)
-            hardware_full_fence();
-    }
-
-    static BOOST_FORCEINLINE void fence_after_load(memory_order order) BOOST_NOEXCEPT
-    {
-        switch (order)
-        {
-        case memory_order_acquire:
-        case memory_order_acq_rel:
-        case memory_order_seq_cst:
-            hardware_full_fence();
-            break;
-        default:;
-        }
-    }
 };
 
 template< bool Signed >
@@ -211,4 +210,4 @@ BOOST_FORCEINLINE void signal_fence(memory_order order) BOOST_NOEXCEPT
 } // namespace atomics
 } // namespace boost
 
-#endif // BOOST_ATOMIC_DETAIL_OPS_GCC_LINUX_ARM_HPP_INCLUDED_
+#endif // BOOST_ATOMIC_DETAIL_OPS_LINUX_ARM_HPP_INCLUDED_

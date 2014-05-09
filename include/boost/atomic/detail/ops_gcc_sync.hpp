@@ -16,7 +16,6 @@
 #ifndef BOOST_ATOMIC_DETAIL_OPS_GCC_SYNC_HPP_INCLUDED_
 #define BOOST_ATOMIC_DETAIL_OPS_GCC_SYNC_HPP_INCLUDED_
 
-#include <boost/cstdint.hpp> // UINT64_C
 #include <boost/memory_order.hpp>
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/storage_types.hpp>
