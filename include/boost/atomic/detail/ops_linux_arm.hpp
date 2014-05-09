@@ -55,8 +55,18 @@ namespace detail {
 // emulated CAS is only good enough to provide compare_exchange_weak
 // semantics.
 
+struct linux_arm_cas_base
+{
+    static BOOST_FORCEINLINE void hardware_full_fence() BOOST_NOEXCEPT
+    {
+        typedef void (*kernel_dmb_t)(void);
+        ((kernel_dmb_t)0xffff0fa0)();
+    }
+};
+
 template< bool Signed >
-struct linux_arm_cas
+struct linux_arm_cas :
+    public linux_arm_cas_base
 {
     typedef typename make_storage_type< 4u, Signed >::type storage_type;
 
@@ -109,12 +119,6 @@ struct linux_arm_cas
     static BOOST_FORCEINLINE bool is_lock_free(storage_type const volatile&) BOOST_NOEXCEPT
     {
         return true;
-    }
-
-    static BOOST_FORCEINLINE void hardware_full_fence() BOOST_NOEXCEPT
-    {
-        typedef void (*kernel_dmb_t)(void);
-        ((kernel_dmb_t)0xffff0fa0)();
     }
 
 private:
@@ -181,7 +185,7 @@ BOOST_FORCEINLINE void thread_fence(memory_order order) BOOST_NOEXCEPT
     case memory_order_acquire:
     case memory_order_acq_rel:
     case memory_order_seq_cst:
-        linux_arm_cas::hardware_full_fence();
+        linux_arm_cas_base::hardware_full_fence();
         break;
     }
 }
