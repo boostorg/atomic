@@ -24,6 +24,7 @@
 #include <boost/atomic/detail/operations_fwd.hpp>
 #include <boost/atomic/capabilities.hpp>
 #include <boost/atomic/detail/ops_cas_based.hpp>
+#include <boost/atomic/detail/ops_extending_cas_based.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once
@@ -54,9 +55,10 @@ namespace detail {
 // emulated CAS is only good enough to provide compare_exchange_weak
 // semantics.
 
+template< bool Signed >
 struct linux_arm_cas
 {
-    typedef storage32_t storage_type;
+    typedef typename make_storage_type< 4u, Signed >::type storage_type;
 
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
@@ -150,45 +152,21 @@ private:
     }
 };
 
-template< >
-struct operations< 1u > :
-    public cas_based_operations< linux_arm_cas >
+template< bool Signed >
+struct operations< 1u, Signed > :
+    public extending_cas_based_operations< cas_based_operations< linux_arm_cas< Signed > >, 1u, Signed >
 {
-    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
-    {
-        // We must resort to a CAS loop to handle overflows
-        storage_type res = storage;
-        while (!compare_exchange_weak(storage, res, (res + v) & 0x000000ff, order, memory_order_relaxed)) {}
-        return res;
-    }
-
-    static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
-    {
-        return fetch_add(storage, -v, order);
-    }
 };
 
-template< >
-struct operations< 2u > :
-    public cas_based_operations< linux_arm_cas >
+template< bool Signed >
+struct operations< 2u, Signed > :
+    public extending_cas_based_operations< cas_based_operations< linux_arm_cas< Signed > >, 2u, Signed >
 {
-    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
-    {
-        // We must resort to a CAS loop to handle overflows
-        storage_type res = storage;
-        while (!compare_exchange_weak(storage, res, (res + v) & 0x0000ffff, order, memory_order_relaxed)) {}
-        return res;
-    }
-
-    static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
-    {
-        return fetch_add(storage, -v, order);
-    }
 };
 
-template< >
-struct operations< 4u > :
-    public cas_based_operations< linux_arm_cas >
+template< bool Signed >
+struct operations< 4u, Signed > :
+    public cas_based_operations< linux_arm_cas< Signed > >
 {
 };
 

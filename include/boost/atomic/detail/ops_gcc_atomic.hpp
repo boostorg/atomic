@@ -123,25 +123,25 @@ struct gcc_atomic_operations
 };
 
 #if BOOST_ATOMIC_INT8_LOCK_FREE > 0
-template< >
-struct operations< 1u > :
-    public gcc_atomic_operations< storage8_t >
+template< bool Signed >
+struct operations< 1u, Signed > :
+    public gcc_atomic_operations< typename make_storage_type< 1u, Signed >::type >
 {
 };
 #endif
 
 #if BOOST_ATOMIC_INT16_LOCK_FREE > 0
-template< >
-struct operations< 2u > :
-    public gcc_atomic_operations< storage16_t >
+template< bool Signed >
+struct operations< 2u, Signed > :
+    public gcc_atomic_operations< typename make_storage_type< 2u, Signed >::type >
 {
 };
 #endif
 
 #if BOOST_ATOMIC_INT32_LOCK_FREE > 0
-template< >
-struct operations< 4u > :
-    public gcc_atomic_operations< storage32_t >
+template< bool Signed >
+struct operations< 4u, Signed > :
+    public gcc_atomic_operations< typename make_storage_type< 4u, Signed >::type >
 {
 };
 #endif
@@ -150,9 +150,10 @@ struct operations< 4u > :
 #if defined(__clang__) && defined(BOOST_ATOMIC_DETAIL_X86_HAS_CMPXCHG8B)
 
 // Workaround for clang bug http://llvm.org/bugs/show_bug.cgi?id=19355
+template< bool Signed >
 struct clang_dcas_x86
 {
-    typedef storage64_t storage_type;
+    typedef typename make_storage_type< 8u, Signed >::type storage_type;
 
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
@@ -263,17 +264,17 @@ struct clang_dcas_x86
     }
 };
 
-template< >
-struct operations< 8u > :
-    public cas_based_operations< clang_dcas_x86 >
+template< bool Signed >
+struct operations< 8u, Signed > :
+    public cas_based_operations< clang_dcas_x86< Signed > >
 {
 };
 
 #else
 
-template< >
-struct operations< 8u > :
-    public gcc_atomic_operations< storage64_t >
+template< bool Signed >
+struct operations< 8u, Signed > :
+    public gcc_atomic_operations< typename make_storage_type< 8u, Signed >::type >
 {
 };
 
@@ -285,9 +286,10 @@ struct operations< 8u > :
 
 // Workaround for clang bug: http://llvm.org/bugs/show_bug.cgi?id=19149
 // Clang 3.4 does not implement 128-bit __atomic* intrinsics even though it defines __GCC_HAVE_SYNC_COMPARE_AND_SWAP_16
+template< bool Signed >
 struct clang_dcas_x86_64
 {
-    typedef storage128_t storage_type;
+    typedef typename make_storage_type< 16u, Signed >::type storage_type;
 
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
@@ -331,17 +333,17 @@ struct clang_dcas_x86_64
     }
 };
 
-template< >
-struct operations< 16u > :
-    public cas_based_operations< clang_dcas_x86_64 >
+template< bool Signed >
+struct operations< 16u, Signed > :
+    public cas_based_operations< clang_dcas_x86_64< Signed > >
 {
 };
 
 #else
 
-template< >
-struct operations< 16u > :
-    public gcc_atomic_operations< storage128_t >
+template< bool Signed >
+struct operations< 16u, Signed > :
+    public gcc_atomic_operations< typename make_storage_type< 16u, Signed >::type >
 {
 };
 

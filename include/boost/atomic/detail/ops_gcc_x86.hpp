@@ -156,41 +156,41 @@ struct gcc_x86_operations :
     }
 };
 
-template< >
-struct operations< 1u > :
-    public gcc_x86_operations< storage8_t, operations< 1u > >
+template< bool Signed >
+struct operations< 1u, Signed > :
+    public gcc_x86_operations< typename make_storage_type< 1u, Signed >::type, operations< 1u, Signed > >
 {
-    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    typedef gcc_x86_operations< typename make_storage_type< 1u, Signed >::type, operations< 1u, Signed > > base_type;
+    typedef typename base_type::storage_type storage_type;
+
+    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
-        fence_before(order);
         __asm__ __volatile__
         (
             "lock; xaddb %0, %1"
             : "+q" (v), "+m" (storage)
             :
-            : "cc"
+            : "cc", "memory"
         );
-        fence_after(order);
         return v;
     }
 
-    static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
-        fence_before(order);
         __asm__ __volatile__
         (
             "xchgb %0, %1"
             : "+q" (v), "+m" (storage)
+            :
+            : "memory"
         );
-        fence_after(order);
         return v;
     }
 
     static BOOST_FORCEINLINE bool compare_exchange_strong(
-        storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order success_order, memory_order failure_order) BOOST_NOEXCEPT
+        storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order, memory_order) BOOST_NOEXCEPT
     {
         storage_type previous = expected;
-        fence_before(success_order);
         bool success;
         __asm__ __volatile__
         (
@@ -198,12 +198,8 @@ struct operations< 1u > :
             "sete %2"
             : "+a" (previous), "+m" (storage), "=q" (success)
             : "q" (desired)
-            : "cc"
+            : "cc", "memory"
         );
-        if (success)
-            fence_after(success_order);
-        else
-            fence_after(failure_order);
         expected = previous;
         return success;
     }
@@ -246,41 +242,41 @@ struct operations< 1u > :
 #undef BOOST_ATOMIC_DETAIL_CAS_LOOP
 };
 
-template< >
-struct operations< 2u > :
-    public gcc_x86_operations< storage16_t, operations< 2u > >
+template< bool Signed >
+struct operations< 2u, Signed > :
+    public gcc_x86_operations< typename make_storage_type< 2u, Signed >::type, operations< 2u, Signed > >
 {
-    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    typedef gcc_x86_operations< typename make_storage_type< 2u, Signed >::type, operations< 2u, Signed > > base_type;
+    typedef typename base_type::storage_type storage_type;
+
+    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
-        fence_before(order);
         __asm__ __volatile__
         (
             "lock; xaddw %0, %1"
             : "+q" (v), "+m" (storage)
             :
-            : "cc"
+            : "cc", "memory"
         );
-        fence_after(order);
         return v;
     }
 
-    static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
-        fence_before(order);
         __asm__ __volatile__
         (
             "xchgw %0, %1"
             : "+q" (v), "+m" (storage)
+            :
+            : "memory"
         );
-        fence_after(order);
         return v;
     }
 
     static BOOST_FORCEINLINE bool compare_exchange_strong(
-        storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order success_order, memory_order failure_order) BOOST_NOEXCEPT
+        storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order, memory_order) BOOST_NOEXCEPT
     {
         storage_type previous = expected;
-        fence_before(success_order);
         bool success;
         __asm__ __volatile__
         (
@@ -288,12 +284,8 @@ struct operations< 2u > :
             "sete %2"
             : "+a" (previous), "+m" (storage), "=q" (success)
             : "q" (desired)
-            : "cc"
+            : "cc", "memory"
         );
-        if (success)
-            fence_after(success_order);
-        else
-            fence_after(failure_order);
         expected = previous;
         return success;
     }
@@ -336,41 +328,41 @@ struct operations< 2u > :
 #undef BOOST_ATOMIC_DETAIL_CAS_LOOP
 };
 
-template< >
-struct operations< 4u > :
-    public gcc_x86_operations< storage32_t, operations< 4u > >
+template< bool Signed >
+struct operations< 4u, Signed > :
+    public gcc_x86_operations< typename make_storage_type< 4u, Signed >::type, operations< 4u, Signed > >
 {
-    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    typedef gcc_x86_operations< typename make_storage_type< 4u, Signed >::type, operations< 4u, Signed > > base_type;
+    typedef typename base_type::storage_type storage_type;
+
+    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
-        fence_before(order);
         __asm__ __volatile__
         (
             "lock; xaddl %0, %1"
             : "+r" (v), "+m" (storage)
             :
-            : "cc"
+            : "cc", "memory"
         );
-        fence_after(order);
         return v;
     }
 
-    static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
-        fence_before(order);
         __asm__ __volatile__
         (
             "xchgl %0, %1"
             : "+r" (v), "+m" (storage)
+            :
+            : "memory"
         );
-        fence_after(order);
         return v;
     }
 
     static BOOST_FORCEINLINE bool compare_exchange_strong(
-        storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order success_order, memory_order failure_order) BOOST_NOEXCEPT
+        storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order, memory_order) BOOST_NOEXCEPT
     {
         storage_type previous = expected;
-        fence_before(success_order);
         bool success;
         __asm__ __volatile__
         (
@@ -378,12 +370,8 @@ struct operations< 4u > :
             "sete %2"
             : "+a" (previous), "+m" (storage), "=q" (success)
             : "r" (desired)
-            : "cc"
+            : "cc", "memory"
         );
-        if (success)
-            fence_after(success_order);
-        else
-            fence_after(failure_order);
         expected = previous;
         return success;
     }
@@ -428,9 +416,10 @@ struct operations< 4u > :
 
 #if defined(BOOST_ATOMIC_DETAIL_X86_HAS_CMPXCHG8B)
 
+template< bool Signed >
 struct gcc_dcas_x86
 {
-    typedef storage64_t storage_type;
+    typedef typename make_storage_type< 8u, Signed >::type storage_type;
 
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
@@ -476,7 +465,7 @@ struct gcc_dcas_x86
                 "movl %[scratch], %%ebx"
                 : [scratch] "=m,m" (scratch)
                 : [value_lo] "a,a" ((uint32_t)v), "c,c" ((uint32_t)(v >> 32)), [dest] "D,S" (&storage)
-                : "memory", "cc", "edx"
+                : "cc", "edx", "memory"
             );
         }
     }
@@ -585,49 +574,49 @@ struct gcc_dcas_x86
     }
 };
 
-template< >
-struct operations< 8u > :
-    public cas_based_operations< gcc_dcas_x86 >
+template< bool Signed >
+struct operations< 8u, Signed > :
+    public cas_based_operations< gcc_dcas_x86< Signed > >
 {
 };
 
 #elif defined(__x86_64__)
 
-template< >
-struct operations< 8u > :
-    public gcc_x86_operations< storage64_t, operations< 8u > >
+template< bool Signed >
+struct operations< 8u, Signed > :
+    public gcc_x86_operations< typename make_storage_type< 8u, Signed >::type, operations< 8u, Signed > >
 {
-    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    typedef gcc_x86_operations< typename make_storage_type< 8u, Signed >::type, operations< 8u, Signed > > base_type;
+    typedef typename base_type::storage_type storage_type;
+
+    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
-        fence_before(order);
         __asm__ __volatile__
         (
             "lock; xaddq %0, %1"
             : "+r" (v), "+m" (storage)
             :
-            : "cc"
+            : "cc", "memory"
         );
-        fence_after(order);
         return v;
     }
 
-    static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
-        fence_before(order);
         __asm__ __volatile__
         (
             "xchgq %0, %1"
             : "+r" (v), "+m" (storage)
+            :
+            : "memory"
         );
-        fence_after(order);
         return v;
     }
 
     static BOOST_FORCEINLINE bool compare_exchange_strong(
-        storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order success_order, memory_order failure_order) BOOST_NOEXCEPT
+        storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order, memory_order) BOOST_NOEXCEPT
     {
         storage_type previous = expected;
-        fence_before(success_order);
         bool success;
         __asm__ __volatile__
         (
@@ -635,12 +624,8 @@ struct operations< 8u > :
             "sete %2"
             : "+a" (previous), "+m" (storage), "=q" (success)
             : "r" (desired)
-            : "cc"
+            : "cc", "memory"
         );
-        if (success)
-            fence_after(success_order);
-        else
-            fence_after(failure_order);
         expected = previous;
         return success;
     }
@@ -687,9 +672,10 @@ struct operations< 8u > :
 
 #if defined(BOOST_ATOMIC_DETAIL_X86_HAS_CMPXCHG16B)
 
+template< bool Signed >
 struct gcc_dcas_x86_64
 {
-    typedef storage128_t storage_type;
+    typedef typename make_storage_type< 16u, Signed >::type storage_type;
 
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
@@ -703,7 +689,7 @@ struct gcc_dcas_x86_64
             "jne 1b"
             :
             : "b" (p_value[0]), "c" (p_value[1]), [dest] "r" (&storage)
-            : "memory", "cc", "rax", "rdx"
+            : "cc", "rax", "rdx", "memory"
         );
     }
 
@@ -754,9 +740,9 @@ struct gcc_dcas_x86_64
     }
 };
 
-template< >
-struct operations< 16u > :
-    public cas_based_operations< gcc_dcas_x86_64 >
+template< bool Signed >
+struct operations< 16u, Signed > :
+    public cas_based_operations< gcc_dcas_x86_64< Signed > >
 {
 };
 

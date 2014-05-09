@@ -16,6 +16,7 @@
 #ifndef BOOST_ATOMIC_DETAIL_STORAGE_TYPES_HPP_INCLUDED_
 #define BOOST_ATOMIC_DETAIL_STORAGE_TYPES_HPP_INCLUDED_
 
+#include <cstring>
 #include <boost/cstdint.hpp>
 #include <boost/atomic/detail/config.hpp>
 
@@ -27,17 +28,94 @@ namespace boost {
 namespace atomics {
 namespace detail {
 
-typedef boost::uint8_t storage8_t;
-typedef boost::uint16_t storage16_t;
-typedef boost::uint32_t storage32_t;
-typedef boost::uint64_t storage64_t;
+template< unsigned int Size >
+struct buffer_storage
+{
+    unsigned char data[Size];
+
+    bool operator== (buffer_storage const& that) const
+    {
+        return std::memcmp(data, that.data, Size) == 0;
+    }
+    bool operator!= (buffer_storage const& that) const
+    {
+        return std::memcmp(data, that.data, Size) != 0;
+    }
+};
+
+template< unsigned int Size, bool Signed >
+struct make_storage_type
+{
+    typedef buffer_storage< Size > type;
+};
+
+template< >
+struct make_storage_type< 1u, false >
+{
+    typedef boost::uint8_t type;
+};
+
+template< >
+struct make_storage_type< 1u, true >
+{
+    typedef boost::int8_t type;
+};
+
+template< >
+struct make_storage_type< 2u, false >
+{
+    typedef boost::uint16_t type;
+};
+
+template< >
+struct make_storage_type< 2u, true >
+{
+    typedef boost::int16_t type;
+};
+
+template< >
+struct make_storage_type< 4u, false >
+{
+    typedef boost::uint32_t type;
+};
+
+template< >
+struct make_storage_type< 4u, true >
+{
+    typedef boost::int32_t type;
+};
+
+template< >
+struct make_storage_type< 8u, false >
+{
+    typedef boost::uint64_t type;
+};
+
+template< >
+struct make_storage_type< 8u, true >
+{
+    typedef boost::int64_t type;
+};
 
 #if defined(BOOST_HAS_INT128)
-typedef boost::uint128_type storage128_t;
-#else
+
+template< >
+struct make_storage_type< 16u, false >
+{
+    typedef boost::uint128_type type;
+};
+
+template< >
+struct make_storage_type< 16u, true >
+{
+    typedef boost::int128_type type;
+};
+
+#elif !defined(BOOST_NO_ALIGNMENT)
+
 struct BOOST_ALIGNMENT(16) storage128_t
 {
-    storage64_t data[2];
+    boost::uint64_t data[2];
 };
 
 BOOST_FORCEINLINE bool operator== (storage128_t const& left, storage128_t const& right) BOOST_NOEXCEPT
@@ -48,6 +126,13 @@ BOOST_FORCEINLINE bool operator!= (storage128_t const& left, storage128_t const&
 {
     return !(left == right);
 }
+
+template< bool Signed >
+struct make_storage_type< 16u, Signed >
+{
+    typedef storage128_t type;
+};
+
 #endif
 
 template< typename T >

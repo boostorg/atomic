@@ -55,7 +55,7 @@ struct BOOST_ALIGNMENT(BOOST_ATOMIC_CACHE_LINE_SIZE) padded_lock
 #if defined(BOOST_ATOMIC_USE_PTHREAD)
     typedef pthread_mutex_t lock_type;
 #else
-    typedef atomics::detail::operations< 1u > operations;
+    typedef atomics::detail::operations< 1u, false > operations;
     typedef operations::storage_type lock_type;
 #endif
 

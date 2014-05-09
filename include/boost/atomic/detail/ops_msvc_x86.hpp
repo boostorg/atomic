@@ -17,7 +17,6 @@
 #define BOOST_ATOMIC_DETAIL_OPS_MSVC_X86_HPP_INCLUDED_
 
 #include <boost/memory_order.hpp>
-#include <boost/type_traits/make_signed.hpp>
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/interlocked.hpp>
 #include <boost/atomic/detail/storage_types.hpp>
@@ -28,6 +27,9 @@
 #include <boost/atomic/detail/ops_cas_based.hpp>
 #endif
 #include <boost/atomic/detail/ops_msvc_common.hpp>
+#if !defined(_M_IX86) && !(defined(BOOST_ATOMIC_INTERLOCKED_COMPARE_EXCHANGE8) && defined(BOOST_ATOMIC_INTERLOCKED_COMPARE_EXCHANGE16))
+#include <boost/atomic/detail/ops_extending_cas_based.hpp>
+#endif
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once
@@ -127,155 +129,131 @@ struct msvc_x86_operations :
     }
 };
 
-template< >
-struct operations< 4u > :
-    public msvc_x86_operations< storage32_t, operations< 4u > >
+template< bool Signed >
+struct operations< 4u, Signed > :
+    public msvc_x86_operations< typename make_storage_type< 4u, Signed >::type, operations< 4u, Signed > >
 {
-    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    typedef msvc_x86_operations< typename make_storage_type< 4u, Signed >::type, operations< 4u, Signed > > base_type;
+    typedef typename base_type::storage_type storage_type;
+
+    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
-        fence_before(order);
-        v = static_cast< storage_type >(BOOST_ATOMIC_INTERLOCKED_EXCHANGE_ADD(&storage, v));
-        fence_after(order);
-        return v;
+        return static_cast< storage_type >(BOOST_ATOMIC_INTERLOCKED_EXCHANGE_ADD(&storage, v));
     }
 
-    static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
-        fence_before(order);
-        v = static_cast< storage_type >(BOOST_ATOMIC_INTERLOCKED_EXCHANGE(&storage, v));
-        fence_after(order);
-        return v;
+        return static_cast< storage_type >(BOOST_ATOMIC_INTERLOCKED_EXCHANGE(&storage, v));
     }
 
     static BOOST_FORCEINLINE bool compare_exchange_strong(
-        storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order success_order, memory_order failure_order) BOOST_NOEXCEPT
+        storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order, memory_order) BOOST_NOEXCEPT
     {
         storage_type previous = expected;
-        fence_before(success_order);
         storage_type old_val = static_cast< storage_type >(BOOST_ATOMIC_INTERLOCKED_COMPARE_EXCHANGE(&storage, desired, previous));
-        bool success = (previous == old_val);
-        if (success)
-            fence_after(success_order);
-        else
-            fence_after(failure_order);
         expected = old_val;
-        return success;
+        return (previous == old_val);
     }
 
+#if defined(BOOST_ATOMIC_INTERLOCKED_AND)
+    static BOOST_FORCEINLINE storage_type fetch_and(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
+    {
+        return static_cast< storage_type >(BOOST_ATOMIC_INTERLOCKED_AND(&storage, v));
+    }
+#else
     static BOOST_FORCEINLINE storage_type fetch_and(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
-#if defined(BOOST_ATOMIC_INTERLOCKED_AND)
-        fence_before(order);
-        v = static_cast< storage_type >(BOOST_ATOMIC_INTERLOCKED_AND(&storage, v));
-        fence_after(order);
-        return v;
-#else
         storage_type res = storage;
         while (!compare_exchange_strong(storage, res, res & v, order, memory_order_relaxed)) {}
         return res;
-#endif
     }
+#endif
 
+#if defined(BOOST_ATOMIC_INTERLOCKED_OR)
+    static BOOST_FORCEINLINE storage_type fetch_or(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
+    {
+        return static_cast< storage_type >(BOOST_ATOMIC_INTERLOCKED_OR(&storage, v));
+    }
+#else
     static BOOST_FORCEINLINE storage_type fetch_or(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
-#if defined(BOOST_ATOMIC_INTERLOCKED_OR)
-        fence_before(order);
-        v = static_cast< storage_type >(BOOST_ATOMIC_INTERLOCKED_OR(&storage, v));
-        fence_after(order);
-        return v;
-#else
         storage_type res = storage;
         while (!compare_exchange_strong(storage, res, res | v, order, memory_order_relaxed)) {}
         return res;
-#endif
     }
+#endif
 
+#if defined(BOOST_ATOMIC_INTERLOCKED_XOR)
+    static BOOST_FORCEINLINE storage_type fetch_xor(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
+    {
+        return static_cast< storage_type >(BOOST_ATOMIC_INTERLOCKED_XOR(&storage, v));
+    }
+#else
     static BOOST_FORCEINLINE storage_type fetch_xor(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
-#if defined(BOOST_ATOMIC_INTERLOCKED_XOR)
-        fence_before(order);
-        v = static_cast< storage_type >(BOOST_ATOMIC_INTERLOCKED_XOR(&storage, v));
-        fence_after(order);
-        return v;
-#else
         storage_type res = storage;
         while (!compare_exchange_strong(storage, res, res ^ v, order, memory_order_relaxed)) {}
         return res;
-#endif
     }
+#endif
 };
 
 #if defined(BOOST_ATOMIC_INTERLOCKED_COMPARE_EXCHANGE8)
 
-template< >
-struct operations< 1u > :
-    public msvc_x86_operations< storage8_t, operations< 1u > >
+template< bool Signed >
+struct operations< 1u, Signed > :
+    public msvc_x86_operations< typename make_storage_type< 1u, Signed >::type, operations< 1u, Signed > >
 {
-    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    typedef msvc_x86_operations< typename make_storage_type< 1u, Signed >::type, operations< 1u, Signed > > base_type;
+    typedef typename base_type::storage_type storage_type;
+
+    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
-        fence_before(order);
-        v = static_cast< storage_type >(BOOST_ATOMIC_INTERLOCKED_EXCHANGE_ADD8(&storage, v));
-        fence_after(order);
-        return v;
+        return static_cast< storage_type >(BOOST_ATOMIC_INTERLOCKED_EXCHANGE_ADD8(&storage, v));
     }
 
-    static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
-        fence_before(order);
-        v = static_cast< storage_type >(BOOST_ATOMIC_INTERLOCKED_EXCHANGE8(&storage, v));
-        fence_after(order);
-        return v;
+        return static_cast< storage_type >(BOOST_ATOMIC_INTERLOCKED_EXCHANGE8(&storage, v));
     }
 
     static BOOST_FORCEINLINE bool compare_exchange_strong(
         storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order success_order, memory_order failure_order) BOOST_NOEXCEPT
     {
         storage_type previous = expected;
-        fence_before(success_order);
         storage_type old_val = static_cast< storage_type >(BOOST_ATOMIC_INTERLOCKED_COMPARE_EXCHANGE8(&storage, desired, previous));
-        bool success = (previous == old_val);
-        if (success)
-            fence_after(success_order);
-        else
-            fence_after(failure_order);
         expected = old_val;
-        return success;
+        return (previous == old_val);
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_and(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_and(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
-        fence_before(order);
-        v = static_cast< storage_type >(BOOST_ATOMIC_INTERLOCKED_AND8(&storage, v));
-        fence_after(order);
-        return v;
+        return static_cast< storage_type >(BOOST_ATOMIC_INTERLOCKED_AND8(&storage, v));
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_or(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_or(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
-        fence_before(order);
-        v = static_cast< storage_type >(BOOST_ATOMIC_INTERLOCKED_OR8(&storage, v));
-        fence_after(order);
-        return v;
+        return static_cast< storage_type >(BOOST_ATOMIC_INTERLOCKED_OR8(&storage, v));
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_xor(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_xor(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
-        fence_before(order);
-        v = static_cast< storage_type >(BOOST_ATOMIC_INTERLOCKED_XOR8(&storage, v));
-        fence_after(order);
-        return v;
+        return static_cast< storage_type >(BOOST_ATOMIC_INTERLOCKED_XOR8(&storage, v));
     }
 };
 
 #elif defined(_M_IX86)
 
-template< >
-struct operations< 1u > :
-    public msvc_x86_operations< storage8_t, operations< 1u > >
+template< bool Signed >
+struct operations< 1u, Signed > :
+    public msvc_x86_operations< typename make_storage_type< 1u, Signed >::type, operations< 1u, Signed > >
 {
+    typedef msvc_x86_operations< typename make_storage_type< 1u, Signed >::type, operations< 1u, Signed > > base_type;
+    typedef typename base_type::storage_type storage_type;
+
     static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
-        fence_before(order);
+        base_type::fence_before(order);
         __asm
         {
             mov edx, storage
@@ -283,13 +261,13 @@ struct operations< 1u > :
             lock xadd byte ptr [edx], al
             mov v, al
         };
-        fence_after(order);
+        base_type::fence_after(order);
         return v;
     }
 
     static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
-        fence_before(order);
+        base_type::fence_before(order);
         __asm
         {
             mov edx, storage
@@ -297,14 +275,14 @@ struct operations< 1u > :
             xchg byte ptr [edx], al
             mov v, al
         };
-        fence_after(order);
+        base_type::fence_after(order);
         return v;
     }
 
     static BOOST_FORCEINLINE bool compare_exchange_strong(
-        storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order success_order, memory_order failure_order) BOOST_NOEXCEPT
+        storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order success_order, memory_order) BOOST_NOEXCEPT
     {
-        fence_before(success_order);
+        base_type::fence_before(success_order);
         bool success;
         __asm
         {
@@ -316,16 +294,14 @@ struct operations< 1u > :
             mov byte ptr [esi], al
             sete success
         };
-        if (success)
-            fence_after(success_order);
-        else
-            fence_after(failure_order);
+        // The success and failure fences are equivalent anyway
+        base_type::fence_after(success_order);
         return success;
     }
 
     static BOOST_FORCEINLINE storage_type fetch_and(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
-        fence_before(order);
+        base_type::fence_before(order);
         __asm
         {
             xor edx, edx
@@ -340,13 +316,13 @@ struct operations< 1u > :
             jne again
             mov v, al
         };
-        fence_after(order);
+        base_type::fence_after(order);
         return v;
     }
 
     static BOOST_FORCEINLINE storage_type fetch_or(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
-        fence_before(order);
+        base_type::fence_before(order);
         __asm
         {
             xor edx, edx
@@ -361,13 +337,13 @@ struct operations< 1u > :
             jne again
             mov v, al
         };
-        fence_after(order);
+        base_type::fence_after(order);
         return v;
     }
 
     static BOOST_FORCEINLINE storage_type fetch_xor(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
-        fence_before(order);
+        base_type::fence_before(order);
         __asm
         {
             xor edx, edx
@@ -382,105 +358,77 @@ struct operations< 1u > :
             jne again
             mov v, al
         };
-        fence_after(order);
+        base_type::fence_after(order);
         return v;
     }
 };
 
 #else
 
-template< >
-struct operations< 1u > :
-    public operations< 4u >
+template< bool Signed >
+struct operations< 1u, Signed > :
+    public extending_cas_based_operations< operations< 4u, Signed >, 1u, Signed >
 {
-    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
-    {
-        // We must resort to a CAS loop to handle overflows
-        storage_type res = storage;
-        while (!compare_exchange_strong(storage, res, (res + v) & 0x000000ff, order, memory_order_relaxed)) {}
-        return res;
-    }
-
-    static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
-    {
-        typedef make_signed< storage_type >::type signed_storage_type;
-        return fetch_add(storage, static_cast< storage_type >(-static_cast< signed_storage_type >(v)), order);
-    }
 };
 
 #endif
 
 #if defined(BOOST_ATOMIC_INTERLOCKED_COMPARE_EXCHANGE16)
 
-template< >
-struct operations< 2u > :
-    public msvc_x86_operations< storage16_t, operations< 2u > >
+template< bool Signed >
+struct operations< 2u, Signed > :
+    public msvc_x86_operations< typename make_storage_type< 2u, Signed >::type, operations< 2u, Signed > >
 {
-    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    typedef msvc_x86_operations< typename make_storage_type< 2u, Signed >::type, operations< 2u, Signed > > base_type;
+    typedef typename base_type::storage_type storage_type;
+
+    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
-        fence_before(order);
-        v = static_cast< storage_type >(BOOST_ATOMIC_INTERLOCKED_EXCHANGE_ADD16(&storage, v));
-        fence_after(order);
-        return v;
+        return static_cast< storage_type >(BOOST_ATOMIC_INTERLOCKED_EXCHANGE_ADD16(&storage, v));
     }
 
-    static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
-        fence_before(order);
-        v = static_cast< storage_type >(BOOST_ATOMIC_INTERLOCKED_EXCHANGE16(&storage, v));
-        fence_after(order);
-        return v;
+        return static_cast< storage_type >(BOOST_ATOMIC_INTERLOCKED_EXCHANGE16(&storage, v));
     }
 
     static BOOST_FORCEINLINE bool compare_exchange_strong(
-        storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order success_order, memory_order failure_order) BOOST_NOEXCEPT
+        storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order, memory_order) BOOST_NOEXCEPT
     {
         storage_type previous = expected;
-        fence_before(success_order);
         storage_type old_val = static_cast< storage_type >(BOOST_ATOMIC_INTERLOCKED_COMPARE_EXCHANGE16(&storage, desired, previous));
-        bool success = (previous == old_val);
-        if (success)
-            fence_after(success_order);
-        else
-            fence_after(failure_order);
         expected = old_val;
-        return success;
+        return (previous == old_val);
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_and(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_and(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
-        fence_before(order);
-        v = static_cast< storage_type >(BOOST_ATOMIC_INTERLOCKED_AND16(&storage, v));
-        fence_after(order);
-        return v;
+        return static_cast< storage_type >(BOOST_ATOMIC_INTERLOCKED_AND16(&storage, v));
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_or(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_or(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
-        fence_before(order);
-        v = static_cast< storage_type >(BOOST_ATOMIC_INTERLOCKED_OR16(&storage, v));
-        fence_after(order);
-        return v;
+        return static_cast< storage_type >(BOOST_ATOMIC_INTERLOCKED_OR16(&storage, v));
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_xor(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_xor(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
-        fence_before(order);
-        v = static_cast< storage_type >(BOOST_ATOMIC_INTERLOCKED_XOR16(&storage, v));
-        fence_after(order);
-        return v;
+        return static_cast< storage_type >(BOOST_ATOMIC_INTERLOCKED_XOR16(&storage, v));
     }
 };
 
 #elif defined(_M_IX86)
 
-template< >
-struct operations< 2u > :
-    public msvc_x86_operations< storage16_t, operations< 2u > >
+template< bool Signed >
+struct operations< 2u, Signed > :
+    public msvc_x86_operations< typename make_storage_type< 2u, Signed >::type, operations< 2u, Signed > >
 {
+    typedef msvc_x86_operations< typename make_storage_type< 2u, Signed >::type, operations< 2u, Signed > > base_type;
+    typedef typename base_type::storage_type storage_type;
+
     static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
-        fence_before(order);
+        base_type::fence_before(order);
         __asm
         {
             mov edx, storage
@@ -488,13 +436,13 @@ struct operations< 2u > :
             lock xadd word ptr [edx], ax
             mov v, ax
         };
-        fence_after(order);
+        base_type::fence_after(order);
         return v;
     }
 
     static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
-        fence_before(order);
+        base_type::fence_before(order);
         __asm
         {
             mov edx, storage
@@ -502,14 +450,14 @@ struct operations< 2u > :
             xchg word ptr [edx], ax
             mov v, ax
         };
-        fence_after(order);
+        base_type::fence_after(order);
         return v;
     }
 
     static BOOST_FORCEINLINE bool compare_exchange_strong(
-        storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order success_order, memory_order failure_order) BOOST_NOEXCEPT
+        storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order success_order, memory_order) BOOST_NOEXCEPT
     {
-        fence_before(success_order);
+        base_type::fence_before(success_order);
         bool success;
         __asm
         {
@@ -521,16 +469,14 @@ struct operations< 2u > :
             mov word ptr [esi], ax
             sete success
         };
-        if (success)
-            fence_after(success_order);
-        else
-            fence_after(failure_order);
+        // The success and failure fences are equivalent anyway
+        base_type::fence_after(success_order);
         return success;
     }
 
     static BOOST_FORCEINLINE storage_type fetch_and(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
-        fence_before(order);
+        base_type::fence_before(order);
         __asm
         {
             xor edx, edx
@@ -545,13 +491,13 @@ struct operations< 2u > :
             jne again
             mov v, ax
         };
-        fence_after(order);
+        base_type::fence_after(order);
         return v;
     }
 
     static BOOST_FORCEINLINE storage_type fetch_or(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
-        fence_before(order);
+        base_type::fence_before(order);
         __asm
         {
             xor edx, edx
@@ -566,13 +512,13 @@ struct operations< 2u > :
             jne again
             mov v, ax
         };
-        fence_after(order);
+        base_type::fence_after(order);
         return v;
     }
 
     static BOOST_FORCEINLINE storage_type fetch_xor(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
-        fence_before(order);
+        base_type::fence_before(order);
         __asm
         {
             xor edx, edx
@@ -587,30 +533,17 @@ struct operations< 2u > :
             jne again
             mov v, ax
         };
-        fence_after(order);
+        base_type::fence_after(order);
         return v;
     }
 };
 
 #else
 
-template< >
-struct operations< 2u > :
-    public operations< 4u >
+template< bool Signed >
+struct operations< 2u, Signed > :
+    public extending_cas_based_operations< operations< 4u, Signed >, 2u, Signed >
 {
-    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
-    {
-        // We must resort to a CAS loop to handle overflows
-        storage_type res = storage;
-        while (!compare_exchange_strong(storage, res, (res + v) & 0x0000ffff, order, memory_order_relaxed)) {}
-        return res;
-    }
-
-    static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
-    {
-        typedef make_signed< storage_type >::type signed_storage_type;
-        return fetch_add(storage, static_cast< storage_type >(-static_cast< signed_storage_type >(v)), order);
-    }
 };
 
 #endif
@@ -618,9 +551,10 @@ struct operations< 2u > :
 
 #if defined(BOOST_ATOMIC_DETAIL_X86_HAS_CMPXCHG8B)
 
+template< bool Signed >
 struct msvc_dcas_x86
 {
-    typedef storage64_t storage_type;
+    typedef typename make_storage_type< 8u, Signed >::type storage_type;
 
     // Intel 64 and IA-32 Architectures Software Developer's Manual, Volume 3A, 8.1.1. Guaranteed Atomic Operations:
     //
@@ -767,71 +701,53 @@ struct msvc_dcas_x86
     }
 };
 
-template< >
-struct operations< 8u > :
-    public cas_based_operations< msvc_dcas_x86 >
+template< bool Signed >
+struct operations< 8u, Signed > :
+    public cas_based_operations< msvc_dcas_x86< Signed > >
 {
 };
 
 #elif defined(_M_AMD64)
 
-template< >
-struct operations< 8u > :
-    public msvc_x86_operations< storage64_t, operations< 8u > >
+template< bool Signed >
+struct operations< 8u, Signed > :
+    public msvc_x86_operations< typename make_storage_type< 8u, Signed >::type, operations< 8u, Signed > >
 {
-    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    typedef msvc_x86_operations< typename make_storage_type< 8u, Signed >::type, operations< 8u, Signed > > base_type;
+    typedef typename base_type::storage_type storage_type;
+
+    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
-        fence_before(order);
-        v = static_cast< storage_type >(BOOST_ATOMIC_INTERLOCKED_EXCHANGE_ADD64(&storage, v));
-        fence_after(order);
-        return v;
+        return static_cast< storage_type >(BOOST_ATOMIC_INTERLOCKED_EXCHANGE_ADD64(&storage, v));
     }
 
-    static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
-        fence_before(order);
-        v = static_cast< storage_type >(BOOST_ATOMIC_INTERLOCKED_EXCHANGE64(&storage, v));
-        fence_after(order);
-        return v;
+        return static_cast< storage_type >(BOOST_ATOMIC_INTERLOCKED_EXCHANGE64(&storage, v));
     }
 
     static BOOST_FORCEINLINE bool compare_exchange_strong(
-        storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order success_order, memory_order failure_order) BOOST_NOEXCEPT
+        storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order, memory_order) BOOST_NOEXCEPT
     {
         storage_type previous = expected;
-        fence_before(success_order);
         storage_type old_val = static_cast< storage_type >(BOOST_ATOMIC_INTERLOCKED_COMPARE_EXCHANGE64(&storage, desired, previous));
-        bool success = (previous == old_val);
-        if (success)
-            fence_after(success_order);
-        else
-            fence_after(failure_order);
         expected = old_val;
-        return success;
+        return (previous == old_val);
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_and(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_and(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
-        fence_before(order);
-        v = static_cast< storage_type >(BOOST_ATOMIC_INTERLOCKED_AND64(&storage, v));
-        fence_after(order);
-        return v;
+        return static_cast< storage_type >(BOOST_ATOMIC_INTERLOCKED_AND64(&storage, v));
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_or(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_or(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
-        fence_before(order);
-        v = static_cast< storage_type >(BOOST_ATOMIC_INTERLOCKED_OR64(&storage, v));
-        fence_after(order);
-        return v;
+        return static_cast< storage_type >(BOOST_ATOMIC_INTERLOCKED_OR64(&storage, v));
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_xor(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_xor(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
-        fence_before(order);
-        v = static_cast< storage_type >(BOOST_ATOMIC_INTERLOCKED_XOR64(&storage, v));
-        fence_after(order);
-        return v;
+        return static_cast< storage_type >(BOOST_ATOMIC_INTERLOCKED_XOR64(&storage, v));
     }
 };
 
@@ -839,9 +755,10 @@ struct operations< 8u > :
 
 #if defined(BOOST_ATOMIC_DETAIL_X86_HAS_CMPXCHG16B)
 
+template< bool Signed >
 struct msvc_dcas_x86_64
 {
-    typedef storage128_t storage_type;
+    typedef typename make_storage_type< 16u, Signed >::type storage_type;
 
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
@@ -874,9 +791,9 @@ struct msvc_dcas_x86_64
     }
 };
 
-template< >
-struct operations< 16u > :
-    public cas_based_operations< msvc_dcas_x86_64 >
+template< bool Signed >
+struct operations< 16u, Signed > :
+    public cas_based_operations< msvc_dcas_x86_64< Signed > >
 {
 };
 

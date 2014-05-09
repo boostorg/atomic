@@ -34,7 +34,7 @@ namespace atomics {
 
 struct atomic_flag
 {
-    typedef atomics::detail::operations< 1u > operations;
+    typedef atomics::detail::operations< 1u, false > operations;
     typedef operations::storage_type storage_type;
 
     storage_type m_storage;

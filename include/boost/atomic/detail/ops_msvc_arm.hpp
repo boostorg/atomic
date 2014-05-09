@@ -118,17 +118,20 @@ struct msvc_arm_operations :
     }
 };
 
-template< >
-struct operations< 1u > :
-    public msvc_arm_operations< storage8_t, operations< 1u > >
+template< bool Signed >
+struct operations< 1u, Signed > :
+    public msvc_arm_operations< typename make_storage_type< 1u, Signed >::type, operations< 1u, Signed > >
 {
+    typedef msvc_arm_operations< typename make_storage_type< 1u, Signed >::type, operations< 1u, Signed > > base_type;
+    typedef typename base_type::storage_type storage_type;
+
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
         if (order != memory_order_seq_cst)
         {
-            fence_before_store(order);
+            base_type::fence_before_store(order);
             BOOST_ATOMIC_DETAIL_ARM_STORE8(&storage, v);
-            fence_after_store(order);
+            base_type::fence_after_store(order);
         }
         else
         {
@@ -139,7 +142,7 @@ struct operations< 1u > :
     static BOOST_FORCEINLINE storage_type load(storage_type const volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
         storage_type v = BOOST_ATOMIC_DETAIL_ARM_LOAD8(&storage);
-        fence_after_load(order);
+        base_type::fence_after_load(order);
         return v;
     }
 
@@ -287,17 +290,20 @@ struct operations< 1u > :
     }
 };
 
-template< >
-struct operations< 2u > :
-    public msvc_arm_operations< storage16_t, operations< 2u > >
+template< bool Signed >
+struct operations< 2u, Signed > :
+    public msvc_arm_operations< typename make_storage_type< 2u, Signed >::type, operations< 2u, Signed > >
 {
+    typedef msvc_arm_operations< typename make_storage_type< 2u, Signed >::type, operations< 2u, Signed > > base_type;
+    typedef typename base_type::storage_type storage_type;
+
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
         if (order != memory_order_seq_cst)
         {
-            fence_before_store(order);
+            base_type::fence_before_store(order);
             BOOST_ATOMIC_DETAIL_ARM_STORE16(&storage, v);
-            fence_after_store(order);
+            base_type::fence_after_store(order);
         }
         else
         {
@@ -308,7 +314,7 @@ struct operations< 2u > :
     static BOOST_FORCEINLINE storage_type load(storage_type const volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
         storage_type v = BOOST_ATOMIC_DETAIL_ARM_LOAD16(&storage);
-        fence_after_load(order);
+        base_type::fence_after_load(order);
         return v;
     }
 
@@ -456,17 +462,20 @@ struct operations< 2u > :
     }
 };
 
-template< >
-struct operations< 4u > :
-    public msvc_arm_operations< storage32_t, operations< 4u > >
+template< bool Signed >
+struct operations< 4u, Signed > :
+    public msvc_arm_operations< typename make_storage_type< 4u, Signed >::type, operations< 4u, Signed > >
 {
+    typedef msvc_arm_operations< typename make_storage_type< 4u, Signed >::type, operations< 4u, Signed > > base_type;
+    typedef typename base_type::storage_type storage_type;
+
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
         if (order != memory_order_seq_cst)
         {
-            fence_before_store(order);
+            base_type::fence_before_store(order);
             BOOST_ATOMIC_DETAIL_ARM_STORE32(&storage, v);
-            fence_after_store(order);
+            base_type::fence_after_store(order);
         }
         else
         {
@@ -477,7 +486,7 @@ struct operations< 4u > :
     static BOOST_FORCEINLINE storage_type load(storage_type const volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
         storage_type v = BOOST_ATOMIC_DETAIL_ARM_LOAD32(&storage);
-        fence_after_load(order);
+        base_type::fence_after_load(order);
         return v;
     }
 
@@ -625,17 +634,20 @@ struct operations< 4u > :
     }
 };
 
-template< >
-struct operations< 8u > :
-    public msvc_arm_operations< storage64_t, operations< 8u > >
+template< bool Signed >
+struct operations< 8u, Signed > :
+    public msvc_arm_operations< typename make_storage_type< 8u, Signed >::type, operations< 8u, Signed > >
 {
+    typedef msvc_arm_operations< typename make_storage_type< 8u, Signed >::type, operations< 8u, Signed > > base_type;
+    typedef typename base_type::storage_type storage_type;
+
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
         if (order != memory_order_seq_cst)
         {
-            fence_before_store(order);
+            base_type::fence_before_store(order);
             BOOST_ATOMIC_DETAIL_ARM_STORE64(&storage, v);
-            fence_after_store(order);
+            base_type::fence_after_store(order);
         }
         else
         {
@@ -646,7 +658,7 @@ struct operations< 8u > :
     static BOOST_FORCEINLINE storage_type load(storage_type const volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
         storage_type v = BOOST_ATOMIC_DETAIL_ARM_LOAD64(&storage);
-        fence_after_load(order);
+        base_type::fence_after_load(order);
         return v;
     }
 

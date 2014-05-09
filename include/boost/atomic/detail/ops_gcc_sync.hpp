@@ -21,6 +21,7 @@
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/storage_types.hpp>
 #include <boost/atomic/detail/operations_fwd.hpp>
+#include <boost/atomic/detail/ops_extending_cas_based.hpp>
 #include <boost/atomic/capabilities.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
@@ -168,134 +169,69 @@ private:
 };
 
 #if BOOST_ATOMIC_INT8_LOCK_FREE > 0
-template< >
-struct operations< 1u > :
-    public gcc_sync_operations<
+template< bool Signed >
+struct operations< 1u, Signed > :
 #if defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_1)
-        storage8_t
+    public gcc_sync_operations< typename make_storage_type< 1u, Signed >::type >
 #elif defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_2)
-        storage16_t
+    public extending_cas_based_operations< gcc_sync_operations< typename make_storage_type< 2u, Signed >::type >, 1u, Signed >
 #elif defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_4)
-        storage32_t
+    public extending_cas_based_operations< gcc_sync_operations< typename make_storage_type< 4u, Signed >::type >, 1u, Signed >
 #elif defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_8)
-        storage64_t
+    public extending_cas_based_operations< gcc_sync_operations< typename make_storage_type< 8u, Signed >::type >, 1u, Signed >
 #else
-        storage128_t
+    public extending_cas_based_operations< gcc_sync_operations< typename make_storage_type< 16u, Signed >::type >, 1u, Signed >
 #endif
-    >
 {
-#if !defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_1)
-    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
-    {
-        // We must resort to a CAS loop to handle overflows
-        storage_type res = storage;
-        while (!compare_exchange_strong(storage, res, (res + v) & 0x000000ff, order, memory_order_relaxed)) {}
-        return res;
-    }
-
-    static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
-    {
-        return fetch_add(storage, -v, order);
-    }
-#endif
 };
 #endif
 
 #if BOOST_ATOMIC_INT16_LOCK_FREE > 0
-template< >
-struct operations< 2u > :
-    public gcc_sync_operations<
+template< bool Signed >
+struct operations< 2u, Signed > :
 #if defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_2)
-        storage16_t
+    public gcc_sync_operations< typename make_storage_type< 2u, Signed >::type >
 #elif defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_4)
-        storage32_t
+    public extending_cas_based_operations< gcc_sync_operations< typename make_storage_type< 4u, Signed >::type >, 2u, Signed >
 #elif defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_8)
-        storage64_t
+    public extending_cas_based_operations< gcc_sync_operations< typename make_storage_type< 8u, Signed >::type >, 2u, Signed >
 #else
-        storage128_t
+    public extending_cas_based_operations< gcc_sync_operations< typename make_storage_type< 16u, Signed >::type >, 2u, Signed >
 #endif
-    >
 {
-#if !defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_2)
-    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
-    {
-        // We must resort to a CAS loop to handle overflows
-        storage_type res = storage;
-        while (!compare_exchange_strong(storage, res, (res + v) & 0x0000ffff, order, memory_order_relaxed)) {}
-        return res;
-    }
-
-    static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
-    {
-        return fetch_add(storage, -v, order);
-    }
-#endif
 };
 #endif
 
 #if BOOST_ATOMIC_INT32_LOCK_FREE > 0
-template< >
-struct operations< 4u > :
-    public gcc_sync_operations<
+template< bool Signed >
+struct operations< 4u, Signed > :
 #if defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_4)
-        storage32_t
+    public gcc_sync_operations< typename make_storage_type< 4u, Signed >::type >
 #elif defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_8)
-        storage64_t
+    public extending_cas_based_operations< gcc_sync_operations< typename make_storage_type< 8u, Signed >::type >, 4u, Signed >
 #else
-        storage128_t
+    public extending_cas_based_operations< gcc_sync_operations< typename make_storage_type< 16u, Signed >::type >, 4u, Signed >
 #endif
-    >
 {
-#if !defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_4)
-    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
-    {
-        // We must resort to a CAS loop to handle overflows
-        storage_type res = storage;
-        while (!compare_exchange_strong(storage, res, (res + v) & 0xffffffff, order, memory_order_relaxed)) {}
-        return res;
-    }
-
-    static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
-    {
-        return fetch_add(storage, -v, order);
-    }
-#endif
 };
 #endif
 
 #if BOOST_ATOMIC_INT64_LOCK_FREE > 0
-template< >
-struct operations< 8u > :
-    public gcc_sync_operations<
+template< bool Signed >
+struct operations< 8u, Signed > :
 #if defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_8)
-        storage64_t
+    public gcc_sync_operations< typename make_storage_type< 8u, Signed >::type >
 #else
-        storage128_t
+    public extending_cas_based_operations< gcc_sync_operations< typename make_storage_type< 16u, Signed >::type >, 8u, Signed >
 #endif
-    >
 {
-#if !defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_8) && defined(BOOST_HAS_INT128)
-    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
-    {
-        // We must resort to a CAS loop to handle overflows
-        storage_type res = storage;
-        while (!compare_exchange_strong(storage, res, (res + v) & UINT64_C(0xffffffffffffffff), order, memory_order_relaxed)) {}
-        return res;
-    }
-
-    static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
-    {
-        return fetch_add(storage, -v, order);
-    }
-#endif
 };
-
 #endif
 
 #if BOOST_ATOMIC_INT128_LOCK_FREE > 0
-template< >
-struct operations< 16u > :
-    public gcc_sync_operations< storage128_t >
+template< bool Signed >
+struct operations< 16u, Signed > :
+    public gcc_sync_operations< typename make_storage_type< 16u, Signed >::type >
 {
 };
 #endif

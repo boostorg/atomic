@@ -19,8 +19,8 @@
 #include <cstddef>
 #include <boost/cstdint.hpp>
 #include <boost/assert.hpp>
+#include <boost/type_traits/is_signed.hpp>
 #include <boost/type_traits/is_integral.hpp>
-#include <boost/type_traits/make_unsigned.hpp>
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/union_cast.hpp>
 #include <boost/atomic/detail/operations_fwd.hpp>
@@ -33,8 +33,6 @@
 #pragma warning(push)
 // 'boost::atomics::atomic<T>' : multiple assignment operators specified
 #pragma warning(disable: 4522)
-// In case of atomic<bool>: 'unsigned char' : forcing value to bool 'true' or 'false' (performance warning)
-#pragma warning(disable: 4800)
 #endif
 
 namespace boost {
@@ -73,9 +71,8 @@ class base_atomic< T, int >
 {
 private:
     typedef T value_type;
-    typedef typename make_unsigned< value_type >::type unsigned_value_type;
     typedef T difference_type;
-    typedef atomics::detail::operations< storage_size_of< value_type >::value > operations;
+    typedef atomics::detail::operations< storage_size_of< value_type >::value, boost::is_signed< T >::value > operations;
 
 protected:
     typedef value_type value_arg_type;
@@ -88,7 +85,7 @@ protected:
 
 public:
     BOOST_DEFAULTED_FUNCTION(base_atomic(), {})
-    BOOST_CONSTEXPR explicit base_atomic(value_type v) BOOST_NOEXCEPT : m_storage(static_cast< unsigned_value_type >(v)) {}
+    BOOST_CONSTEXPR explicit base_atomic(value_type v) BOOST_NOEXCEPT : m_storage(v) {}
 
     void store(value_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
@@ -96,7 +93,7 @@ public:
         BOOST_ASSERT(order != memory_order_acquire);
         BOOST_ASSERT(order != memory_order_acq_rel);
 
-        operations::store(m_storage, static_cast< storage_type >(static_cast< unsigned_value_type >(v)), order);
+        operations::store(m_storage, static_cast< storage_type >(v), order);
     }
 
     value_type load(memory_order order = memory_order_seq_cst) const volatile BOOST_NOEXCEPT
@@ -109,17 +106,17 @@ public:
 
     value_type fetch_add(difference_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        return static_cast< value_type >(operations::fetch_add(m_storage, static_cast< storage_type >(static_cast< unsigned_value_type >(v)), order));
+        return static_cast< value_type >(operations::fetch_add(m_storage, static_cast< storage_type >(v), order));
     }
 
     value_type fetch_sub(difference_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        return static_cast< value_type >(operations::fetch_sub(m_storage, static_cast< storage_type >(static_cast< unsigned_value_type >(v)), order));
+        return static_cast< value_type >(operations::fetch_sub(m_storage, static_cast< storage_type >(v), order));
     }
 
     value_type exchange(value_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        return static_cast< value_type >(operations::exchange(m_storage, static_cast< storage_type >(static_cast< unsigned_value_type >(v)), order));
+        return static_cast< value_type >(operations::exchange(m_storage, static_cast< storage_type >(v), order));
     }
 
     bool compare_exchange_strong(value_type& expected, value_type desired, memory_order success_order, memory_order failure_order) volatile BOOST_NOEXCEPT
@@ -128,8 +125,8 @@ public:
         BOOST_ASSERT(failure_order != memory_order_acq_rel);
         BOOST_ASSERT(cas_failure_order_must_not_be_stronger_than_success_order(success_order, failure_order));
 
-        storage_type old_value = static_cast< storage_type >(static_cast< unsigned_value_type >(expected));
-        const bool res = operations::compare_exchange_strong(m_storage, old_value, static_cast< storage_type >(static_cast< unsigned_value_type >(desired)), success_order, failure_order);
+        storage_type old_value = static_cast< storage_type >(expected);
+        const bool res = operations::compare_exchange_strong(m_storage, old_value, static_cast< storage_type >(desired), success_order, failure_order);
         expected = static_cast< value_type >(old_value);
         return res;
     }
@@ -145,8 +142,8 @@ public:
         BOOST_ASSERT(failure_order != memory_order_acq_rel);
         BOOST_ASSERT(cas_failure_order_must_not_be_stronger_than_success_order(success_order, failure_order));
 
-        storage_type old_value = static_cast< storage_type >(static_cast< unsigned_value_type >(expected));
-        const bool res = operations::compare_exchange_weak(m_storage, old_value, static_cast< storage_type >(static_cast< unsigned_value_type >(desired)), success_order, failure_order);
+        storage_type old_value = static_cast< storage_type >(expected);
+        const bool res = operations::compare_exchange_weak(m_storage, old_value, static_cast< storage_type >(desired), success_order, failure_order);
         expected = static_cast< value_type >(old_value);
         return res;
     }
@@ -158,17 +155,17 @@ public:
 
     value_type fetch_and(value_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        return static_cast< value_type >(operations::fetch_and(m_storage, static_cast< storage_type >(static_cast< unsigned_value_type >(v)), order));
+        return static_cast< value_type >(operations::fetch_and(m_storage, static_cast< storage_type >(v), order));
     }
 
     value_type fetch_or(value_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        return static_cast< value_type >(operations::fetch_or(m_storage, static_cast< storage_type >(static_cast< unsigned_value_type >(v)), order));
+        return static_cast< value_type >(operations::fetch_or(m_storage, static_cast< storage_type >(v), order));
     }
 
     value_type fetch_xor(value_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        return static_cast< value_type >(operations::fetch_xor(m_storage, static_cast< storage_type >(static_cast< unsigned_value_type >(v)), order));
+        return static_cast< value_type >(operations::fetch_xor(m_storage, static_cast< storage_type >(v), order));
     }
 
     bool is_lock_free() const volatile BOOST_NOEXCEPT
@@ -231,7 +228,7 @@ class base_atomic< bool, int >
 {
 private:
     typedef bool value_type;
-    typedef atomics::detail::operations< storage_size_of< value_type >::value > operations;
+    typedef atomics::detail::operations< storage_size_of< value_type >::value, false > operations;
 
 protected:
     typedef value_type value_arg_type;
@@ -318,7 +315,7 @@ class base_atomic< T, void >
 {
 private:
     typedef T value_type;
-    typedef atomics::detail::operations< storage_size_of< value_type >::value > operations;
+    typedef atomics::detail::operations< storage_size_of< value_type >::value, false > operations;
 
 protected:
     typedef value_type const& value_arg_type;
@@ -408,7 +405,7 @@ class base_atomic< T*, void* >
 private:
     typedef T* value_type;
     typedef std::ptrdiff_t difference_type;
-    typedef atomics::detail::operations< storage_size_of< value_type >::value > operations;
+    typedef atomics::detail::operations< storage_size_of< value_type >::value, false > operations;
 
 protected:
     typedef value_type value_arg_type;
@@ -538,7 +535,7 @@ class base_atomic< void*, void* >
 private:
     typedef void* value_type;
     typedef std::ptrdiff_t difference_type;
-    typedef atomics::detail::operations< storage_size_of< value_type >::value > operations;
+    typedef atomics::detail::operations< storage_size_of< value_type >::value, false > operations;
 
 protected:
     typedef value_type value_arg_type;

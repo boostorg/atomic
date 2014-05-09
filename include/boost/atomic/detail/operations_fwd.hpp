@@ -24,7 +24,7 @@ namespace boost {
 namespace atomics {
 namespace detail {
 
-template< unsigned int Size >
+template< unsigned int Size, bool Signed >
 struct operations;
 
 } // namespace detail

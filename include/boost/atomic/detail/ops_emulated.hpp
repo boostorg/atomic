@@ -14,7 +14,6 @@
 #ifndef BOOST_ATOMIC_DETAIL_OPS_EMULATED_HPP_INCLUDED_
 #define BOOST_ATOMIC_DETAIL_OPS_EMULATED_HPP_INCLUDED_
 
-#include <cstring>
 #include <boost/memory_order.hpp>
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/storage_types.hpp>
@@ -137,60 +136,9 @@ struct emulated_operations
     }
 };
 
-template< unsigned int Size >
-struct storage_t
-{
-    unsigned char data[Size];
-
-    bool operator== (storage_t const& that) const
-    {
-        return std::memcmp(data, that.data, Size) == 0;
-    }
-    bool operator!= (storage_t const& that) const
-    {
-        return std::memcmp(data, that.data, Size) != 0;
-    }
-};
-
-template< unsigned int Size >
-struct default_storage_type
-{
-    typedef storage_t< Size > type;
-};
-
-template< >
-struct default_storage_type< 1u >
-{
-    typedef storage8_t type;
-};
-
-template< >
-struct default_storage_type< 2u >
-{
-    typedef storage16_t type;
-};
-
-template< >
-struct default_storage_type< 4u >
-{
-    typedef storage32_t type;
-};
-
-template< >
-struct default_storage_type< 8u >
-{
-    typedef storage64_t type;
-};
-
-template< >
-struct default_storage_type< 16u >
-{
-    typedef storage128_t type;
-};
-
-template< unsigned int Size >
+template< unsigned int Size, bool Signed >
 struct operations :
-    public emulated_operations< typename default_storage_type< Size >::type >
+    public emulated_operations< typename make_storage_type< Size, Signed >::type >
 {
 };
 
