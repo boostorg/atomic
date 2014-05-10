@@ -8,13 +8,13 @@
  * Copyright (c) 2014 Andrey Semashev
  */
 /*!
- * \file   atomic/detail/caps_gcc_sparcv9.hpp
+ * \file   atomic/detail/caps_gcc_sparc.hpp
  *
  * This header defines feature capabilities macros
  */
 
-#ifndef BOOST_ATOMIC_DETAIL_CAPS_GCC_SPARCV9_HPP_INCLUDED_
-#define BOOST_ATOMIC_DETAIL_CAPS_GCC_SPARCV9_HPP_INCLUDED_
+#ifndef BOOST_ATOMIC_DETAIL_CAPS_GCC_SPARC_HPP_INCLUDED_
+#define BOOST_ATOMIC_DETAIL_CAPS_GCC_SPARC_HPP_INCLUDED_
 
 #include <boost/atomic/detail/config.hpp>
 
@@ -31,4 +31,4 @@
 #define BOOST_ATOMIC_THREAD_FENCE 2
 #define BOOST_ATOMIC_SIGNAL_FENCE 2
 
-#endif // BOOST_ATOMIC_DETAIL_CAPS_GCC_SPARCV9_HPP_INCLUDED_
+#endif // BOOST_ATOMIC_DETAIL_CAPS_GCC_SPARC_HPP_INCLUDED_

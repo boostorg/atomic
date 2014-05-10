@@ -8,17 +8,17 @@
  * Copyright (c) 2014 Andrey Semashev
  */
 /*!
- * \file   atomic/detail/ops_gcc_sparcv9.hpp
+ * \file   atomic/detail/ops_gcc_sparc.hpp
  *
  * This header contains implementation of the \c operations template.
  */
 
-#ifndef BOOST_ATOMIC_DETAIL_OPS_GCC_SPARCV9_HPP_INCLUDED_
-#define BOOST_ATOMIC_DETAIL_OPS_GCC_SPARCV9_HPP_INCLUDED_
+#ifndef BOOST_ATOMIC_DETAIL_OPS_GCC_SPARC_HPP_INCLUDED_
+#define BOOST_ATOMIC_DETAIL_OPS_GCC_SPARC_HPP_INCLUDED_
 
 #include <boost/memory_order.hpp>
 #include <boost/atomic/detail/config.hpp>
-#include <boost/atomic/detail/storage_types.hpp>
+#include <boost/atomic/detail/storage_type.hpp>
 #include <boost/atomic/detail/operations_fwd.hpp>
 #include <boost/atomic/capabilities.hpp>
 #include <boost/atomic/detail/ops_cas_based.hpp>
@@ -32,7 +32,7 @@ namespace boost {
 namespace atomics {
 namespace detail {
 
-struct gcc_sparcv9_cas_base
+struct gcc_sparc_cas_base
 {
     static BOOST_FORCEINLINE void fence_before(memory_order order) BOOST_NOEXCEPT
     {
@@ -77,7 +77,6 @@ struct gcc_sparcv9_cas_base
             __asm__ __volatile__ ("membar #Sync" ::: "memory");
     }
 
-
     static BOOST_FORCEINLINE void fence_after_load(memory_order order) BOOST_NOEXCEPT
     {
         fence_after(order);
@@ -85,8 +84,8 @@ struct gcc_sparcv9_cas_base
 };
 
 template< bool Signed >
-struct gcc_sparcv9_cas32 :
-    public gcc_sparcv9_cas_base
+struct gcc_sparc_cas32 :
+    public gcc_sparc_cas_base
 {
     typedef typename make_storage_type< 4u, Signed >::type storage_type;
 
@@ -139,9 +138,9 @@ struct gcc_sparcv9_cas32 :
 
 template< bool Signed >
 struct operations< 4u, Signed > :
-    public cas_based_operations< gcc_sparcv9_cas32< Signed > >
+    public cas_based_operations< gcc_sparc_cas32< Signed > >
 {
-    typedef cas_based_operations< gcc_sparcv9_cas32< Signed > > base_type;
+    typedef cas_based_operations< gcc_sparc_cas32< Signed > > base_type;
     typedef typename base_type::storage_type storage_type;
 
     static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
@@ -160,7 +159,7 @@ struct operations< 4u, Signed > :
 
     static BOOST_FORCEINLINE bool test_and_set(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
-        return exchange(storage, (storage_type)1, order) != (storage_type)0;
+        return !!exchange(storage, (storage_type)1, order);
     }
 };
 
@@ -177,8 +176,8 @@ struct operations< 2u, Signed > :
 };
 
 template< bool Signed >
-struct gcc_sparcv9_cas64 :
-    public gcc_sparcv9_cas_base
+struct gcc_sparc_cas64 :
+    public gcc_sparc_cas_base
 {
     typedef typename make_storage_type< 8u, Signed >::type storage_type;
 
@@ -231,7 +230,7 @@ struct gcc_sparcv9_cas64 :
 
 template< bool Signed >
 struct operations< 8u, Signed > :
-    public cas_based_operations< gcc_sparcv9_cas64< Signed > >
+    public cas_based_operations< gcc_sparc_cas64< Signed > >
 {
 };
 
@@ -269,4 +268,4 @@ BOOST_FORCEINLINE void signal_fence(memory_order order) BOOST_NOEXCEPT
 } // namespace atomics
 } // namespace boost
 
-#endif // BOOST_ATOMIC_DETAIL_OPS_GCC_SPARCV9_HPP_INCLUDED_
+#endif // BOOST_ATOMIC_DETAIL_OPS_GCC_SPARC_HPP_INCLUDED_

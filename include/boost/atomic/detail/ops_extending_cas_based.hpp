@@ -16,7 +16,7 @@
 
 #include <boost/memory_order.hpp>
 #include <boost/atomic/detail/config.hpp>
-#include <boost/atomic/detail/storage_types.hpp>
+#include <boost/atomic/detail/storage_type.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once

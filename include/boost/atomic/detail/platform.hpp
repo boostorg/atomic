@@ -45,8 +45,8 @@
 #elif defined(__GNUC__) &&\
     (\
         defined(__ARM_ARCH_6__)  || defined(__ARM_ARCH_6J__) ||\
-        defined(__ARM_ARCH_6Z__) || defined(__ARM_ARCH_6ZK__) ||\
-        defined(__ARM_ARCH_6K__) ||\
+        defined(__ARM_ARCH_6K__) || defined(__ARM_ARCH_6Z__) ||\
+        defined(__ARM_ARCH_6ZK__) ||\
         defined(__ARM_ARCH_7__) || defined(__ARM_ARCH_7A__) ||\
         defined(__ARM_ARCH_7R__) || defined(__ARM_ARCH_7M__) ||\
         defined(__ARM_ARCH_7EM__) || defined(__ARM_ARCH_7S__)\
@@ -56,7 +56,7 @@
 
 #elif defined(__GNUC__) && defined(__sparc_v9__)
 
-#define BOOST_ATOMIC_DETAIL_PLATFORM gcc_sparcv9
+#define BOOST_ATOMIC_DETAIL_PLATFORM gcc_sparc
 
 #elif defined(__GNUC__) && ((__GNUC__ * 100 + __GNUC_MINOR__) >= 401)
 

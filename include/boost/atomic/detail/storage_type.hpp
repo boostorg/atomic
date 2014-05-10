@@ -8,13 +8,13 @@
  * Copyright (c) 2013 - 2014 Andrey Semashev
  */
 /*!
- * \file   atomic/detail/storage_types.hpp
+ * \file   atomic/detail/storage_type.hpp
  *
  * This header defines underlying types used as storage
  */
 
-#ifndef BOOST_ATOMIC_DETAIL_STORAGE_TYPES_HPP_INCLUDED_
-#define BOOST_ATOMIC_DETAIL_STORAGE_TYPES_HPP_INCLUDED_
+#ifndef BOOST_ATOMIC_DETAIL_STORAGE_TYPE_HPP_INCLUDED_
+#define BOOST_ATOMIC_DETAIL_STORAGE_TYPE_HPP_INCLUDED_
 
 #include <cstring>
 #include <boost/cstdint.hpp>
@@ -33,11 +33,22 @@ struct buffer_storage
 {
     unsigned char data[Size];
 
-    bool operator== (buffer_storage const& that) const
+    BOOST_FORCEINLINE bool operator! () const BOOST_NOEXCEPT
+    {
+        bool result = true;
+        for (unsigned int i = 0; i < Size && result; ++i)
+        {
+            result &= data[i] == 0;
+        }
+        return result;
+    }
+
+    BOOST_FORCEINLINE bool operator== (buffer_storage const& that) const BOOST_NOEXCEPT
     {
         return std::memcmp(data, that.data, Size) == 0;
     }
-    bool operator!= (buffer_storage const& that) const
+
+    BOOST_FORCEINLINE bool operator!= (buffer_storage const& that) const BOOST_NOEXCEPT
     {
         return std::memcmp(data, that.data, Size) != 0;
     }
@@ -116,6 +127,11 @@ struct make_storage_type< 16u, true >
 struct BOOST_ALIGNMENT(16) storage128_t
 {
     boost::uint64_t data[2];
+
+    BOOST_FORCEINLINE bool operator! () const BOOST_NOEXCEPT
+    {
+        return data[0] == 0 && data[1] == 0;
+    }
 };
 
 BOOST_FORCEINLINE bool operator== (storage128_t const& left, storage128_t const& right) BOOST_NOEXCEPT
@@ -149,4 +165,4 @@ struct storage_size_of
 } // namespace atomics
 } // namespace boost
 
-#endif // BOOST_ATOMIC_DETAIL_STORAGE_TYPES_HPP_INCLUDED_
+#endif // BOOST_ATOMIC_DETAIL_STORAGE_TYPE_HPP_INCLUDED_

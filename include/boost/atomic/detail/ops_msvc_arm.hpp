@@ -20,7 +20,7 @@
 #include <boost/memory_order.hpp>
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/interlocked.hpp>
-#include <boost/atomic/detail/storage_types.hpp>
+#include <boost/atomic/detail/storage_type.hpp>
 #include <boost/atomic/detail/operations_fwd.hpp>
 #include <boost/atomic/capabilities.hpp>
 #include <boost/atomic/detail/ops_msvc_common.hpp>
@@ -104,7 +104,7 @@ struct msvc_arm_operations :
 
     static BOOST_FORCEINLINE bool test_and_set(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
-        return Derived::exchange(storage, (storage_type)1, order) != 0;
+        return !!Derived::exchange(storage, (storage_type)1, order);
     }
 
     static BOOST_FORCEINLINE void clear(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT

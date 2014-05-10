@@ -18,7 +18,7 @@
 
 #include <boost/memory_order.hpp>
 #include <boost/atomic/detail/config.hpp>
-#include <boost/atomic/detail/storage_types.hpp>
+#include <boost/atomic/detail/storage_type.hpp>
 #include <boost/atomic/detail/operations_fwd.hpp>
 #include <boost/atomic/detail/ops_extending_cas_based.hpp>
 #include <boost/atomic/capabilities.hpp>
@@ -77,7 +77,7 @@ struct gcc_ppc_operations_base
 {
     static BOOST_FORCEINLINE void fence_before(memory_order order) BOOST_NOEXCEPT
     {
-        switch(order)
+        switch (order)
         {
         case memory_order_release:
         case memory_order_acq_rel:
@@ -93,7 +93,7 @@ struct gcc_ppc_operations_base
 
     static BOOST_FORCEINLINE void fence_after(memory_order order) BOOST_NOEXCEPT
     {
-        switch(order)
+        switch (order)
         {
         case memory_order_acquire:
         case memory_order_acq_rel:

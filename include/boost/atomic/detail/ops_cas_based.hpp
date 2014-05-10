@@ -75,7 +75,7 @@ struct cas_based_operations :
 
     static BOOST_FORCEINLINE bool test_and_set(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
-        return exchange(storage, (storage_type)1, order) != (storage_type)0;
+        return !!exchange(storage, (storage_type)1, order);
     }
 
     static BOOST_FORCEINLINE void clear(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT

@@ -16,7 +16,7 @@
 
 #include <boost/memory_order.hpp>
 #include <boost/atomic/detail/config.hpp>
-#include <boost/atomic/detail/storage_types.hpp>
+#include <boost/atomic/detail/storage_type.hpp>
 #include <boost/atomic/detail/operations_fwd.hpp>
 #include <boost/atomic/detail/lockpool.hpp>
 #include <boost/atomic/capabilities.hpp>
@@ -122,7 +122,7 @@ struct emulated_operations
 
     static BOOST_FORCEINLINE bool test_and_set(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
-        return exchange(storage, (storage_type)1, order) != (storage_type)0;
+        return !!exchange(storage, (storage_type)1, order);
     }
 
     static BOOST_FORCEINLINE void clear(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
