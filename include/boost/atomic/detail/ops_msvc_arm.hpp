@@ -18,6 +18,7 @@
 
 #include <intrin.h>
 #include <boost/memory_order.hpp>
+#include <boost/type_traits/make_signed.hpp>
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/interlocked.hpp>
 #include <boost/atomic/detail/storage_type.hpp>
