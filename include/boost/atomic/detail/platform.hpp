@@ -25,12 +25,12 @@
 
 #define BOOST_ATOMIC_DETAIL_PLATFORM emulated
 #define BOOST_ATOMIC_EMULATED
-
+/*
 #elif (defined(__GNUC__) && ((__GNUC__ * 100 + __GNUC_MINOR__) >= 407))\
     || (defined(BOOST_CLANG) && ((__clang_major__ * 100 + __clang_minor__) >= 302))
 
 #define BOOST_ATOMIC_DETAIL_PLATFORM gcc_atomic
-
+*/
 #elif defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__))
 
 #define BOOST_ATOMIC_DETAIL_PLATFORM gcc_x86
@@ -56,6 +56,10 @@
 #elif defined(__GNUC__) && defined(__sparc_v9__)
 
 #define BOOST_ATOMIC_DETAIL_PLATFORM gcc_sparc
+
+#elif defined(__GNUC__) && defined(__alpha__)
+
+#define BOOST_ATOMIC_DETAIL_PLATFORM gcc_alpha
 
 #elif defined(__GNUC__) && ((__GNUC__ * 100 + __GNUC_MINOR__) >= 401)
 

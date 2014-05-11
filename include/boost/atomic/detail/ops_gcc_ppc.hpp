@@ -20,7 +20,6 @@
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/storage_type.hpp>
 #include <boost/atomic/detail/operations_fwd.hpp>
-#include <boost/atomic/detail/ops_extending_cas_based.hpp>
 #include <boost/atomic/capabilities.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
@@ -116,7 +115,7 @@ struct operations< 4u, Signed > :
         __asm__ __volatile__
         (
             "stw %1, %0\n"
-            : "+m"(storage)
+            : "+m" (storage)
             : "r" (v)
         );
         fence_after_store(order);
@@ -149,7 +148,7 @@ struct operations< 4u, Signed > :
             "lwarx %0,%y1\n"
             "stwcx. %2,%y1\n"
             "bne- 1b\n"
-            : "=&b" (original), "+Z"(storage)
+            : "=&b" (original), "+Z" (storage)
             : "b" (v)
             : "cr0"
         );
@@ -172,7 +171,7 @@ struct operations< 4u, Signed > :
             "bne- 1f\n"
             "li %1, 1\n"
             "1:"
-            : "=&b" (expected), "=&b" (success), "+Z"(storage)
+            : "=&b" (expected), "=&b" (success), "+Z" (storage)
             : "b" (expected), "b" (desired)
             : "cr0"
         );
@@ -198,7 +197,7 @@ struct operations< 4u, Signed > :
             "bne- 0b\n"
             "li %1, 1\n"
             "1:"
-            : "=&b" (expected), "=&b" (success), "+Z"(storage)
+            : "=&b" (expected), "=&b" (success), "+Z" (storage)
             : "b" (expected), "b" (desired)
             : "cr0"
         );
@@ -220,7 +219,7 @@ struct operations< 4u, Signed > :
             "add %1,%0,%3\n"
             "stwcx. %1,%y2\n"
             "bne- 1b\n"
-            : "=&b" (original), "=&b" (tmp), "+Z"(storage)
+            : "=&b" (original), "=&b" (tmp), "+Z" (storage)
             : "b" (v)
             : "cc"
         );
@@ -239,7 +238,7 @@ struct operations< 4u, Signed > :
             "sub %1,%0,%3\n"
             "stwcx. %1,%y2\n"
             "bne- 1b\n"
-            : "=&b" (original), "=&b" (tmp), "+Z"(storage)
+            : "=&b" (original), "=&b" (tmp), "+Z" (storage)
             : "b" (v)
             : "cc"
         );
@@ -258,7 +257,7 @@ struct operations< 4u, Signed > :
             "and %1,%0,%3\n"
             "stwcx. %1,%y2\n"
             "bne- 1b\n"
-            : "=&b" (original), "=&b" (tmp), "+Z"(storage)
+            : "=&b" (original), "=&b" (tmp), "+Z" (storage)
             : "b" (v)
             : "cc"
         );
@@ -277,7 +276,7 @@ struct operations< 4u, Signed > :
             "or %1,%0,%3\n"
             "stwcx. %1,%y2\n"
             "bne- 1b\n"
-            : "=&b" (original), "=&b" (tmp), "+Z"(storage)
+            : "=&b" (original), "=&b" (tmp), "+Z" (storage)
             : "b" (v)
             : "cc"
         );
@@ -296,7 +295,7 @@ struct operations< 4u, Signed > :
             "xor %1,%0,%3\n"
             "stwcx. %1,%y2\n"
             "bne- 1b\n"
-            : "=&b" (original), "=&b" (tmp), "+Z"(storage)
+            : "=&b" (original), "=&b" (tmp), "+Z" (storage)
             : "b" (v)
             : "cc"
         );
@@ -340,7 +339,7 @@ struct operations< 1u, false > :
             "rlwinm %1, %1, 0, 0xff\n"
             "stwcx. %1,%y2\n"
             "bne- 1b\n"
-            : "=&b" (original), "=&b" (tmp), "+Z"(storage)
+            : "=&b" (original), "=&b" (tmp), "+Z" (storage)
             : "b" (v)
             : "cc"
         );
@@ -360,7 +359,7 @@ struct operations< 1u, false > :
             "rlwinm %1, %1, 0, 0xff\n"
             "stwcx. %1,%y2\n"
             "bne- 1b\n"
-            : "=&b" (original), "=&b" (tmp), "+Z"(storage)
+            : "=&b" (original), "=&b" (tmp), "+Z" (storage)
             : "b" (v)
             : "cc"
         );
@@ -388,7 +387,7 @@ struct operations< 1u, true > :
             "extsb %1, %1\n"
             "stwcx. %1,%y2\n"
             "bne- 1b\n"
-            : "=&b" (original), "=&b" (tmp), "+Z"(storage)
+            : "=&b" (original), "=&b" (tmp), "+Z" (storage)
             : "b" (v)
             : "cc"
         );
@@ -408,7 +407,7 @@ struct operations< 1u, true > :
             "extsb %1, %1\n"
             "stwcx. %1,%y2\n"
             "bne- 1b\n"
-            : "=&b" (original), "=&b" (tmp), "+Z"(storage)
+            : "=&b" (original), "=&b" (tmp), "+Z" (storage)
             : "b" (v)
             : "cc"
         );
@@ -437,7 +436,7 @@ struct operations< 2u, false > :
             "rlwinm %1, %1, 0, 0xffff\n"
             "stwcx. %1,%y2\n"
             "bne- 1b\n"
-            : "=&b" (original), "=&b" (tmp), "+Z"(storage)
+            : "=&b" (original), "=&b" (tmp), "+Z" (storage)
             : "b" (v)
             : "cc"
         );
@@ -457,7 +456,7 @@ struct operations< 2u, false > :
             "rlwinm %1, %1, 0, 0xffff\n"
             "stwcx. %1,%y2\n"
             "bne- 1b\n"
-            : "=&b" (original), "=&b" (tmp), "+Z"(storage)
+            : "=&b" (original), "=&b" (tmp), "+Z" (storage)
             : "b" (v)
             : "cc"
         );
@@ -485,7 +484,7 @@ struct operations< 2u, true > :
             "extsh %1, %1\n"
             "stwcx. %1,%y2\n"
             "bne- 1b\n"
-            : "=&b" (original), "=&b" (tmp), "+Z"(storage)
+            : "=&b" (original), "=&b" (tmp), "+Z" (storage)
             : "b" (v)
             : "cc"
         );
@@ -505,7 +504,7 @@ struct operations< 2u, true > :
             "extsh %1, %1\n"
             "stwcx. %1,%y2\n"
             "bne- 1b\n"
-            : "=&b" (original), "=&b" (tmp), "+Z"(storage)
+            : "=&b" (original), "=&b" (tmp), "+Z" (storage)
             : "b" (v)
             : "cc"
         );
@@ -529,7 +528,7 @@ struct operations< 8u, Signed > :
         __asm__ __volatile__
         (
             "std %1, %0\n"
-            : "+m"(storage)
+            : "+m" (storage)
             : "r" (v)
         );
         fence_after_store(order);
@@ -544,7 +543,7 @@ struct operations< 8u, Signed > :
             "cmpd %0, %0\n"
             "bne- 1f\n"
             "1:\n"
-            : "=&b"(v)
+            : "=&b" (v)
             : "m" (storage)
             : "cr0"
         );
@@ -562,7 +561,7 @@ struct operations< 8u, Signed > :
             "ldarx %0,%y1\n"
             "stdcx. %2,%y1\n"
             "bne- 1b\n"
-            : "=&b" (original), "+Z"(storage)
+            : "=&b" (original), "+Z" (storage)
             : "b" (v)
             : "cr0"
         );
@@ -585,7 +584,7 @@ struct operations< 8u, Signed > :
             "bne- 1f\n"
             "li %1, 1\n"
             "1:"
-            : "=&b" (expected), "=&b" (success), "+Z"(storage)
+            : "=&b" (expected), "=&b" (success), "+Z" (storage)
             : "b" (expected), "b" (desired)
             : "cr0"
         );
@@ -611,7 +610,7 @@ struct operations< 8u, Signed > :
             "bne- 0b\n"
             "li %1, 1\n"
             "1:"
-            : "=&b" (expected), "=&b" (success), "+Z"(storage)
+            : "=&b" (expected), "=&b" (success), "+Z" (storage)
             : "b" (expected), "b" (desired)
             : "cr0"
         );
@@ -633,7 +632,7 @@ struct operations< 8u, Signed > :
             "add %1,%0,%3\n"
             "stdcx. %1,%y2\n"
             "bne- 1b\n"
-            : "=&b" (original), "=&b" (tmp), "+Z"(storage)
+            : "=&b" (original), "=&b" (tmp), "+Z" (storage)
             : "b" (v)
             : "cc"
         );
@@ -652,7 +651,7 @@ struct operations< 8u, Signed > :
             "sub %1,%0,%3\n"
             "stdcx. %1,%y2\n"
             "bne- 1b\n"
-            : "=&b" (original), "=&b" (tmp), "+Z"(storage)
+            : "=&b" (original), "=&b" (tmp), "+Z" (storage)
             : "b" (v)
             : "cc"
         );
@@ -671,7 +670,7 @@ struct operations< 8u, Signed > :
             "and %1,%0,%3\n"
             "stdcx. %1,%y2\n"
             "bne- 1b\n"
-            : "=&b" (original), "=&b" (tmp), "+Z"(storage)
+            : "=&b" (original), "=&b" (tmp), "+Z" (storage)
             : "b" (v)
             : "cc"
         );
@@ -690,7 +689,7 @@ struct operations< 8u, Signed > :
             "or %1,%0,%3\n"
             "stdcx. %1,%y2\n"
             "bne- 1b\n"
-            : "=&b" (original), "=&b" (tmp), "+Z"(storage)
+            : "=&b" (original), "=&b" (tmp), "+Z" (storage)
             : "b" (v)
             : "cc"
         );
@@ -709,7 +708,7 @@ struct operations< 8u, Signed > :
             "xor %1,%0,%3\n"
             "stdcx. %1,%y2\n"
             "bne- 1b\n"
-            : "=&b" (original), "=&b" (tmp), "+Z"(storage)
+            : "=&b" (original), "=&b" (tmp), "+Z" (storage)
             : "b" (v)
             : "cc"
         );
