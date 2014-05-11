@@ -92,28 +92,14 @@ struct gcc_arm_operations_base
 {
     static BOOST_FORCEINLINE void fence_before(memory_order order) BOOST_NOEXCEPT
     {
-        switch (order)
-        {
-        case memory_order_release:
-        case memory_order_acq_rel:
-        case memory_order_seq_cst:
+        if ((order & memory_order_release) != 0)
             hardware_full_fence();
-            break;
-        default:;
-        }
     }
 
     static BOOST_FORCEINLINE void fence_after(memory_order order) BOOST_NOEXCEPT
     {
-        switch (order)
-        {
-        case memory_order_acquire:
-        case memory_order_acq_rel:
-        case memory_order_seq_cst:
+        if ((order & memory_order_acquire) != 0)
             hardware_full_fence();
-            break;
-        default:;
-        }
     }
 
     static BOOST_FORCEINLINE void fence_after_store(memory_order order) BOOST_NOEXCEPT
@@ -278,7 +264,7 @@ struct operations< 4u, Signed > :
               [result] "=&r" (result),      // %1
               [tmp] "=&l" (tmp),            // %2
               [storage] "+Q" (storage)      // %3
-            : [value] "r" (v),              // %4
+            : [value] "r" (v)               // %4
             : "cc"
         );
         fence_after(order);
@@ -304,7 +290,7 @@ struct operations< 4u, Signed > :
               [result] "=&r" (result),      // %1
               [tmp] "=&l" (tmp),            // %2
               [storage] "+Q" (storage)      // %3
-            : [value] "r" (v),              // %4
+            : [value] "r" (v)               // %4
             : "cc"
         );
         fence_after(order);
@@ -330,7 +316,7 @@ struct operations< 4u, Signed > :
               [result] "=&r" (result),      // %1
               [tmp] "=&l" (tmp),            // %2
               [storage] "+Q" (storage)      // %3
-            : [value] "r" (v),              // %4
+            : [value] "r" (v)               // %4
             : "cc"
         );
         fence_after(order);
@@ -356,7 +342,7 @@ struct operations< 4u, Signed > :
               [result] "=&r" (result),      // %1
               [tmp] "=&l" (tmp),            // %2
               [storage] "+Q" (storage)      // %3
-            : [value] "r" (v),              // %4
+            : [value] "r" (v)               // %4
             : "cc"
         );
         fence_after(order);
@@ -382,7 +368,7 @@ struct operations< 4u, Signed > :
               [result] "=&r" (result),      // %1
               [tmp] "=&l" (tmp),            // %2
               [storage] "+Q" (storage)      // %3
-            : [value] "r" (v),              // %4
+            : [value] "r" (v)               // %4
             : "cc"
         );
         fence_after(order);
@@ -433,7 +419,7 @@ struct operations< 1u, false > :
               [result] "=&r" (result),      // %1
               [tmp] "=&l" (tmp),            // %2
               [storage] "+Q" (storage)      // %3
-            : [value] "r" (v),              // %4
+            : [value] "r" (v)               // %4
             : "cc"
         );
         fence_after(order);
@@ -460,7 +446,7 @@ struct operations< 1u, false > :
               [result] "=&r" (result),      // %1
               [tmp] "=&l" (tmp),            // %2
               [storage] "+Q" (storage)      // %3
-            : [value] "r" (v),              // %4
+            : [value] "r" (v)               // %4
             : "cc"
         );
         fence_after(order);
@@ -495,7 +481,7 @@ struct operations< 1u, true > :
               [result] "=&r" (result),      // %1
               [tmp] "=&l" (tmp),            // %2
               [storage] "+Q" (storage)      // %3
-            : [value] "r" (v),              // %4
+            : [value] "r" (v)               // %4
             : "cc"
         );
         fence_after(order);
@@ -522,7 +508,7 @@ struct operations< 1u, true > :
               [result] "=&r" (result),      // %1
               [tmp] "=&l" (tmp),            // %2
               [storage] "+Q" (storage)      // %3
-            : [value] "r" (v),              // %4
+            : [value] "r" (v)               // %4
             : "cc"
         );
         fence_after(order);
@@ -558,7 +544,7 @@ struct operations< 2u, false > :
               [result] "=&r" (result),      // %1
               [tmp] "=&l" (tmp),            // %2
               [storage] "+Q" (storage)      // %3
-            : [value] "r" (v),              // %4
+            : [value] "r" (v)               // %4
             : "cc"
         );
         fence_after(order);
@@ -585,7 +571,7 @@ struct operations< 2u, false > :
               [result] "=&r" (result),      // %1
               [tmp] "=&l" (tmp),            // %2
               [storage] "+Q" (storage)      // %3
-            : [value] "r" (v),              // %4
+            : [value] "r" (v)               // %4
             : "cc"
         );
         fence_after(order);
@@ -620,7 +606,7 @@ struct operations< 2u, true > :
               [result] "=&r" (result),      // %1
               [tmp] "=&l" (tmp),            // %2
               [storage] "+Q" (storage)      // %3
-            : [value] "r" (v),              // %4
+            : [value] "r" (v)               // %4
             : "cc"
         );
         fence_after(order);
@@ -647,7 +633,7 @@ struct operations< 2u, true > :
               [result] "=&r" (result),      // %1
               [tmp] "=&l" (tmp),            // %2
               [storage] "+Q" (storage)      // %3
-            : [value] "r" (v),              // %4
+            : [value] "r" (v)               // %4
             : "cc"
         );
         fence_after(order);
@@ -671,7 +657,7 @@ struct operations< 2u, true > :
 
 template< bool Signed >
 struct operations< 8u, Signed > :
-    public gcc_ppc_operations_base
+    public gcc_arm_operations_base
 {
     typedef typename make_storage_type< 8u, Signed >::type storage_type;
 
@@ -690,7 +676,7 @@ struct operations< 8u, Signed > :
             "ldrexd %1, %H1, %2\n"
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%0)
             : "=&l" (tmp),       // %0
-              "=&r" (original),  // %1
+              "=&r" (original)   // %1
             : "Q" (storage)      // %2
         );
         fence_after(order);
@@ -815,7 +801,7 @@ struct operations< 8u, Signed > :
               "=&r" (result),    // %1
               "=&l" (tmp),       // %2
               "+Q" (storage)     // %3
-            : "r" (v),           // %4
+            : "r" (v)            // %4
             : "cc"
         );
         fence_after(order);
@@ -842,7 +828,7 @@ struct operations< 8u, Signed > :
               "=&r" (result),    // %1
               "=&l" (tmp),       // %2
               "+Q" (storage)     // %3
-            : "r" (v),           // %4
+            : "r" (v)            // %4
             : "cc"
         );
         fence_after(order);
@@ -869,7 +855,7 @@ struct operations< 8u, Signed > :
               "=&r" (result),    // %1
               "=&l" (tmp),       // %2
               "+Q" (storage)     // %3
-            : "r" (v),           // %4
+            : "r" (v)            // %4
             : "cc"
         );
         fence_after(order);
@@ -896,7 +882,7 @@ struct operations< 8u, Signed > :
               "=&r" (result),    // %1
               "=&l" (tmp),       // %2
               "+Q" (storage)     // %3
-            : "r" (v),           // %4
+            : "r" (v)            // %4
             : "cc"
         );
         fence_after(order);
@@ -923,7 +909,7 @@ struct operations< 8u, Signed > :
               "=&r" (result),    // %1
               "=&l" (tmp),       // %2
               "+Q" (storage)     // %3
-            : "r" (v),           // %4
+            : "r" (v)            // %4
             : "cc"
         );
         fence_after(order);
@@ -951,30 +937,14 @@ struct operations< 8u, Signed > :
 
 BOOST_FORCEINLINE void thread_fence(memory_order order) BOOST_NOEXCEPT
 {
-    switch (order)
-    {
-    case memory_order_acquire:
-    case memory_order_release:
-    case memory_order_acq_rel:
-    case memory_order_seq_cst:
+    if ((order & (memory_order_acquire | memory_order_release)) != 0)
         gcc_arm_operations_base::hardware_full_fence();
-        break;
-    default:;
-    }
 }
 
 BOOST_FORCEINLINE void signal_fence(memory_order order) BOOST_NOEXCEPT
 {
-    switch (order)
-    {
-    case memory_order_acquire:
-    case memory_order_release:
-    case memory_order_acq_rel:
-    case memory_order_seq_cst:
+    if ((order & ~memory_order_consume) != 0)
         __asm__ __volatile__ ("" ::: "memory");
-        break;
-    default:;
-    }
 }
 
 } // namespace detail

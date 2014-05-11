@@ -44,61 +44,14 @@ struct gcc_x86_operations_base
 {
     static BOOST_FORCEINLINE void fence_before(memory_order order) BOOST_NOEXCEPT
     {
-        switch (order)
-        {
-        case memory_order_relaxed:
-        case memory_order_acquire:
-        case memory_order_consume:
-            break;
-        case memory_order_release:
-        case memory_order_acq_rel:
+        if ((order & memory_order_release) != 0)
             __asm__ __volatile__ ("" ::: "memory");
-            break;
-        case memory_order_seq_cst:
-            __asm__ __volatile__ ("" ::: "memory");
-            break;
-        default:;
-        }
     }
 
     static BOOST_FORCEINLINE void fence_after(memory_order order) BOOST_NOEXCEPT
     {
-        switch (order)
-        {
-        case memory_order_relaxed:
-        case memory_order_release:
-            break;
-        case memory_order_acquire:
-        case memory_order_acq_rel:
+        if ((order & memory_order_acquire) != 0)
             __asm__ __volatile__ ("" ::: "memory");
-            break;
-        case memory_order_consume:
-            break;
-        case memory_order_seq_cst:
-            __asm__ __volatile__ ("" ::: "memory");
-            break;
-        default:;
-        }
-    }
-
-    static BOOST_FORCEINLINE void fence_after_load(memory_order order) BOOST_NOEXCEPT
-    {
-        switch (order)
-        {
-        case memory_order_relaxed:
-        case memory_order_release:
-            break;
-        case memory_order_acquire:
-        case memory_order_acq_rel:
-            __asm__ __volatile__ ("" ::: "memory");
-            break;
-        case memory_order_consume:
-            break;
-        case memory_order_seq_cst:
-            __asm__ __volatile__ ("" ::: "memory");
-            break;
-        default:;
-        }
     }
 };
 
@@ -125,7 +78,7 @@ struct gcc_x86_operations :
     static BOOST_FORCEINLINE storage_type load(storage_type const volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
         storage_type v = storage;
-        fence_after_load(order);
+        fence_after(order);
         return v;
     }
 
@@ -750,17 +703,8 @@ struct operations< 16u, Signed > :
 
 BOOST_FORCEINLINE void thread_fence(memory_order order) BOOST_NOEXCEPT
 {
-    switch (order)
+    if (order == memory_order_seq_cst)
     {
-    case memory_order_relaxed:
-    case memory_order_consume:
-        break;
-    case memory_order_acquire:
-    case memory_order_release:
-    case memory_order_acq_rel:
-        __asm__ __volatile__ ("" ::: "memory");
-        break;
-    case memory_order_seq_cst:
         __asm__ __volatile__
         (
 #if defined(__x86_64__) || defined(__SSE2__)
@@ -770,26 +714,17 @@ BOOST_FORCEINLINE void thread_fence(memory_order order) BOOST_NOEXCEPT
 #endif
             ::: "memory"
         );
-        break;
-    default:;
+    }
+    else if ((order & (memory_order_acquire | memory_order_release)) != 0)
+    {
+        __asm__ __volatile__ ("" ::: "memory");
     }
 }
 
 BOOST_FORCEINLINE void signal_fence(memory_order order) BOOST_NOEXCEPT
 {
-    switch (order)
-    {
-    case memory_order_relaxed:
-    case memory_order_consume:
-        break;
-    case memory_order_acquire:
-    case memory_order_release:
-    case memory_order_acq_rel:
-    case memory_order_seq_cst:
+    if ((order & ~memory_order_consume) != 0)
         __asm__ __volatile__ ("" ::: "memory");
-        break;
-    default:;
-    }
 }
 
 } // namespace detail

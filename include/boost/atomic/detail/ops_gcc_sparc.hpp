@@ -36,50 +36,24 @@ struct gcc_sparc_cas_base
 {
     static BOOST_FORCEINLINE void fence_before(memory_order order) BOOST_NOEXCEPT
     {
-        switch (order)
-        {
-        case memory_order_relaxed:
-        case memory_order_acquire:
-        case memory_order_consume:
-            break;
-        case memory_order_release:
-        case memory_order_acq_rel:
-            __asm__ __volatile__ ("membar #StoreStore | #LoadStore" ::: "memory");
-            break;
-        case memory_order_seq_cst:
+        if (order == memory_order_seq_cst)
             __asm__ __volatile__ ("membar #Sync" ::: "memory");
-            break;
-        }
+        else if ((order & memory_order_release) != 0)
+            __asm__ __volatile__ ("membar #StoreStore | #LoadStore" ::: "memory");
     }
 
     static BOOST_FORCEINLINE void fence_after(memory_order order) BOOST_NOEXCEPT
     {
-        switch (order)
-        {
-        case memory_order_relaxed:
-        case memory_order_consume:
-        case memory_order_release:
-            break;
-        case memory_order_acquire:
-        case memory_order_acq_rel:
-            __asm__ __volatile__ ("membar #LoadLoad | #LoadStore" ::: "memory");
-            break;
-        case memory_order_seq_cst:
+        if (order == memory_order_seq_cst)
             __asm__ __volatile__ ("membar #Sync" ::: "memory");
-            break;
-        default:;
-        }
+        else if ((order & memory_order_acquire) != 0)
+            __asm__ __volatile__ ("membar #StoreStore | #LoadStore" ::: "memory");
     }
 
     static BOOST_FORCEINLINE void fence_after_store(memory_order order) BOOST_NOEXCEPT
     {
         if (order == memory_order_seq_cst)
             __asm__ __volatile__ ("membar #Sync" ::: "memory");
-    }
-
-    static BOOST_FORCEINLINE void fence_after_load(memory_order order) BOOST_NOEXCEPT
-    {
-        fence_after(order);
     }
 };
 
@@ -99,7 +73,7 @@ struct gcc_sparc_cas32 :
     static BOOST_FORCEINLINE storage_type load(storage_type const volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
         storage_type v = storage;
-        fence_after_load(order);
+        fence_after(order);
         return v;
     }
 
@@ -191,7 +165,7 @@ struct gcc_sparc_cas64 :
     static BOOST_FORCEINLINE storage_type load(storage_type const volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
         storage_type v = storage;
-        fence_after_load(order);
+        fence_after(order);
         return v;
     }
 
@@ -237,10 +211,8 @@ struct operations< 8u, Signed > :
 
 BOOST_FORCEINLINE void thread_fence(memory_order order) BOOST_NOEXCEPT
 {
-    switch(order)
+    switch (order)
     {
-    case memory_order_relaxed:
-        break;
     case memory_order_release:
         __asm__ __volatile__ ("membar #StoreStore | #LoadStore" ::: "memory");
         break;
@@ -250,18 +222,20 @@ BOOST_FORCEINLINE void thread_fence(memory_order order) BOOST_NOEXCEPT
     case memory_order_acq_rel:
         __asm__ __volatile__ ("membar #LoadLoad | #LoadStore | #StoreStore" ::: "memory");
         break;
-    case memory_order_consume:
-        break;
     case memory_order_seq_cst:
         __asm__ __volatile__ ("membar #Sync" ::: "memory");
         break;
-    default:;
+    case memory_order_consume:
+    case memory_order_relaxed:
+    default:
+        break;
     }
 }
 
 BOOST_FORCEINLINE void signal_fence(memory_order order) BOOST_NOEXCEPT
 {
-    __asm__ __volatile__ ("" ::: "memory");
+    if ((order & ~memory_order_consume) != 0)
+        __asm__ __volatile__ ("" ::: "memory");
 }
 
 } // namespace detail

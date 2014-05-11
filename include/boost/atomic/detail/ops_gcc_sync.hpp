@@ -31,8 +31,30 @@ namespace boost {
 namespace atomics {
 namespace detail {
 
+struct gcc_sync_operations_base
+{
+    static BOOST_FORCEINLINE void fence_before_store(memory_order order) BOOST_NOEXCEPT
+    {
+        if ((order & memory_order_release) != 0)
+            __sync_synchronize();
+    }
+
+    static BOOST_FORCEINLINE void fence_after_store(memory_order order) BOOST_NOEXCEPT
+    {
+        if (order == memory_order_seq_cst)
+            __sync_synchronize();
+    }
+
+    static BOOST_FORCEINLINE void fence_after_load(memory_order order) BOOST_NOEXCEPT
+    {
+        if ((order & (memory_order_acquire | memory_order_consume)) != 0)
+            __sync_synchronize();
+    }
+};
+
 template< typename T >
-struct gcc_sync_operations
+struct gcc_sync_operations :
+    public gcc_sync_operations_base
 {
     typedef T storage_type;
 
@@ -126,45 +148,6 @@ struct gcc_sync_operations
     {
         return true;
     }
-
-private:
-    static BOOST_FORCEINLINE void fence_before_store(memory_order order) BOOST_NOEXCEPT
-    {
-        switch (order)
-        {
-        case memory_order_relaxed:
-        case memory_order_acquire:
-        case memory_order_consume:
-            break;
-        case memory_order_release:
-        case memory_order_acq_rel:
-        case memory_order_seq_cst:
-            __sync_synchronize();
-            break;
-        }
-    }
-
-    static BOOST_FORCEINLINE void fence_after_store(memory_order order) BOOST_NOEXCEPT
-    {
-        if (order == memory_order_seq_cst)
-            __sync_synchronize();
-    }
-
-    static BOOST_FORCEINLINE void fence_after_load(memory_order order) BOOST_NOEXCEPT
-    {
-        switch (order)
-        {
-        case memory_order_relaxed:
-        case memory_order_release:
-            break;
-        case memory_order_consume:
-        case memory_order_acquire:
-        case memory_order_acq_rel:
-        case memory_order_seq_cst:
-            __sync_synchronize();
-            break;
-        }
-    }
 };
 
 #if BOOST_ATOMIC_INT8_LOCK_FREE > 0
@@ -237,35 +220,14 @@ struct operations< 16u, Signed > :
 
 BOOST_FORCEINLINE void thread_fence(memory_order order) BOOST_NOEXCEPT
 {
-    switch (order)
-    {
-    case memory_order_relaxed:
-        break;
-    case memory_order_release:
-    case memory_order_consume:
-    case memory_order_acquire:
-    case memory_order_acq_rel:
-    case memory_order_seq_cst:
+    if (order != memory_order_relaxed)
         __sync_synchronize();
-        break;
-    }
 }
 
 BOOST_FORCEINLINE void signal_fence(memory_order order) BOOST_NOEXCEPT
 {
-    switch (order)
-    {
-    case memory_order_relaxed:
-    case memory_order_consume:
-        break;
-    case memory_order_acquire:
-    case memory_order_release:
-    case memory_order_acq_rel:
-    case memory_order_seq_cst:
+    if ((order & ~memory_order_consume) != 0)
         __asm__ __volatile__ ("" ::: "memory");
-        break;
-    default:;
-    }
 }
 
 } // namespace detail

@@ -59,16 +59,8 @@ struct linux_arm_cas_base
 {
     static BOOST_FORCEINLINE void fence_before_store(memory_order order) BOOST_NOEXCEPT
     {
-        switch (order)
-        {
-        case memory_order_release:
-        case memory_order_acq_rel:
-        case memory_order_seq_cst:
+        if ((order & memory_order_release) != 0)
             hardware_full_fence();
-            break;
-        case memory_order_consume:
-        default:;
-        }
     }
 
     static BOOST_FORCEINLINE void fence_after_store(memory_order order) BOOST_NOEXCEPT
@@ -79,15 +71,8 @@ struct linux_arm_cas_base
 
     static BOOST_FORCEINLINE void fence_after_load(memory_order order) BOOST_NOEXCEPT
     {
-        switch (order)
-        {
-        case memory_order_acquire:
-        case memory_order_acq_rel:
-        case memory_order_seq_cst:
+        if ((order & memory_order_acquire) != 0)
             hardware_full_fence();
-            break;
-        default:;
-        }
     }
 
     static BOOST_FORCEINLINE void hardware_full_fence() BOOST_NOEXCEPT
@@ -175,35 +160,14 @@ struct operations< 4u, Signed > :
 
 BOOST_FORCEINLINE void thread_fence(memory_order order) BOOST_NOEXCEPT
 {
-    switch (order)
-    {
-    case memory_order_relaxed:
-        break;
-    case memory_order_release:
-    case memory_order_consume:
-    case memory_order_acquire:
-    case memory_order_acq_rel:
-    case memory_order_seq_cst:
+    if ((order & (memory_order_acquire | memory_order_release)) != 0)
         linux_arm_cas_base::hardware_full_fence();
-        break;
-    }
 }
 
 BOOST_FORCEINLINE void signal_fence(memory_order order) BOOST_NOEXCEPT
 {
-    switch (order)
-    {
-    case memory_order_relaxed:
-    case memory_order_consume:
-        break;
-    case memory_order_acquire:
-    case memory_order_release:
-    case memory_order_acq_rel:
-    case memory_order_seq_cst:
+    if ((order & ~memory_order_consume) != 0)
         __asm__ __volatile__ ("" ::: "memory");
-        break;
-    default:;
-    }
 }
 
 } // namespace detail

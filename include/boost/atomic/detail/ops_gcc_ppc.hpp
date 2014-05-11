@@ -77,38 +77,29 @@ struct gcc_ppc_operations_base
 {
     static BOOST_FORCEINLINE void fence_before(memory_order order) BOOST_NOEXCEPT
     {
-        switch (order)
-        {
-        case memory_order_release:
-        case memory_order_acq_rel:
 #if defined(__powerpc64__)
-            __asm__ __volatile__ ("lwsync" ::: "memory");
-            break;
-#endif
-        case memory_order_seq_cst:
+        if (order == memory_order_seq_cst)
             __asm__ __volatile__ ("sync" ::: "memory");
-        default:;
-        }
+        else if ((order & memory_order_release) != 0)
+            __asm__ __volatile__ ("lwsync" ::: "memory");
+#else
+        if ((order & memory_order_release) != 0)
+            __asm__ __volatile__ ("sync" ::: "memory");
+#endif
     }
 
     static BOOST_FORCEINLINE void fence_after(memory_order order) BOOST_NOEXCEPT
     {
-        switch (order)
-        {
-        case memory_order_acquire:
-        case memory_order_acq_rel:
-        case memory_order_seq_cst:
-            __asm__ __volatile__ ("isync");
-        case memory_order_consume:
+        if ((order & memory_order_acquire) != 0)
+            __asm__ __volatile__ ("isync" ::: "memory");
+        else if (order == memory_order_consume)
             __asm__ __volatile__ ("" ::: "memory");
-        default:;
-        }
     }
 
     static BOOST_FORCEINLINE void fence_after_store(memory_order order) BOOST_NOEXCEPT
     {
         if (order == memory_order_seq_cst)
-            __asm__ __volatile__ ("sync");
+            __asm__ __volatile__ ("sync" ::: "memory");
     }
 };
 
@@ -766,16 +757,8 @@ BOOST_FORCEINLINE void thread_fence(memory_order order) BOOST_NOEXCEPT
 
 BOOST_FORCEINLINE void signal_fence(memory_order order) BOOST_NOEXCEPT
 {
-    switch (order)
-    {
-    case memory_order_acquire:
-    case memory_order_release:
-    case memory_order_acq_rel:
-    case memory_order_seq_cst:
+    if ((order & ~memory_order_consume) != 0)
         __asm__ __volatile__ ("" ::: "memory");
-        break;
-    default:;
-    }
 }
 
 } // namespace detail
