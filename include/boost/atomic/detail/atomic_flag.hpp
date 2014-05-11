@@ -23,6 +23,11 @@
 #pragma once
 #endif
 
+/*
+ * IMPLEMENTATION NOTE: All interface functions MUST be declared with BOOST_FORCEINLINE,
+ *                      see comment for convert_memory_order_to_gcc in ops_gcc_atomic.hpp.
+ */
+
 namespace boost {
 namespace atomics {
 
@@ -39,16 +44,16 @@ struct atomic_flag
 
     storage_type m_storage;
 
-    BOOST_CONSTEXPR atomic_flag() BOOST_NOEXCEPT : m_storage(0)
+    BOOST_FORCEINLINE BOOST_CONSTEXPR atomic_flag() BOOST_NOEXCEPT : m_storage(0)
     {
     }
 
-    bool test_and_set(memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
+    BOOST_FORCEINLINE bool test_and_set(memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
         return operations::test_and_set(m_storage, order);
     }
 
-    void clear(memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
+    BOOST_FORCEINLINE void clear(memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
         BOOST_ASSERT(order != memory_order_acquire);
         BOOST_ASSERT(order != memory_order_acq_rel);

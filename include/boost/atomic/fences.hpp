@@ -24,6 +24,11 @@
 #pragma once
 #endif
 
+/*
+ * IMPLEMENTATION NOTE: All interface functions MUST be declared with BOOST_FORCEINLINE,
+ *                      see comment for convert_memory_order_to_gcc in ops_gcc_atomic.hpp.
+ */
+
 namespace boost {
 
 namespace atomics {

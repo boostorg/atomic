@@ -28,10 +28,42 @@
 #pragma once
 #endif
 
+#if defined(__INTEL_COMPILER)
+// This is used to suppress warning #32013 described below for Intel Compiler.
+// In debug builds the compiler does not inline any functions, so basically
+// every atomic function call results in this warning. I don't know any other
+// way to selectively disable just this one warning.
+#pragma system_header
+#endif
+
 namespace boost {
 namespace atomics {
 namespace detail {
 
+/*!
+ * The function converts \c boost::memory_order values to the compiler-specific constants.
+ *
+ * NOTE: The intention is that the function is optimized away by the compiler, and the
+ *       compiler-specific constants are passed to the intrinsics. I know constexpr doesn't
+ *       work in this case because the standard atomics interface require memory ordering
+ *       constants to be passed as function arguments, at which point they stop being constexpr.
+ *       However it is crucial that the compiler sees constants and not runtime values,
+ *       because otherwise it just ignores the ordering value and always uses seq_cst.
+ *       This is the case with Intel C++ Compiler 14.0.3 (Composer XE 2013 SP1, update 3) and
+ *       gcc 4.8.2. Intel Compiler issues a warning in this case:
+ *
+ *       warning #32013: Invalid memory order specified. Defaulting to seq_cst memory order.
+ *
+ *       while gcc acts silently.
+ *
+ *       To mitigate the problem ALL functions, including the atomic<> members must be
+ *       declared with BOOST_FORCEINLINE. In this case the compilers are able to see that
+ *       all functions are called with constant orderings and call intrinstcts properly.
+ *
+ *       Unfortunately, this still doesn't work in debug mode as the compiler doesn't
+ *       inline functions even when marked with BOOST_FORCEINLINE. In this case all atomic
+ *       operaions will be executed with seq_cst semantics.
+ */
 BOOST_FORCEINLINE BOOST_CONSTEXPR int convert_memory_order_to_gcc(memory_order order) BOOST_NOEXCEPT
 {
     return (order == memory_order_relaxed ? __ATOMIC_RELAXED : (order == memory_order_consume ? __ATOMIC_CONSUME :
