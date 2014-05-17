@@ -145,7 +145,7 @@ One can however also arrive at the same conclusion using
 at [^m.lock()]. If this is be thread1, then as a consequence,
 thread2 cannot succeed at [^m.lock()] before thread1 has executed
 [^m.unlock()], consequently A ['happens-before] B in this case.
-By symmetry, if thread2 succeeds at [^m.unlock()] first, we can
+By symmetry, if thread2 succeeds at [^m.lock()] first, we can
 conclude B ['happens-before] A.
 
 Since this already exhausts all options, we can conclude that
