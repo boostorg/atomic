@@ -36,9 +36,32 @@
 #pragma once
 #endif
 
+#if defined(BOOST_MSVC)
+#pragma warning(push)
+// frame pointer register 'ebx' modified by inline assembly code. See the note below.
+#pragma warning(disable: 4731)
+#endif
+
 namespace boost {
 namespace atomics {
 namespace detail {
+
+/*
+ * Implementation note for asm blocks.
+ *
+ * http://msdn.microsoft.com/en-us/data/k1a8ss06%28v=vs.105%29
+ *
+ * Some SSE types require eight-byte stack alignment, forcing the compiler to emit dynamic stack-alignment code.
+ * To be able to access both the local variables and the function parameters after the alignment, the compiler
+ * maintains two frame pointers. If the compiler performs frame pointer omission (FPO), it will use EBP and ESP.
+ * If the compiler does not perform FPO, it will use EBX and EBP. To ensure code runs correctly, do not modify EBX
+ * in asm code if the function requires dynamic stack alignment as it could modify the frame pointer.
+ * Either move the eight-byte aligned types out of the function, or avoid using EBX.
+ *
+ * Since we have no way of knowing that the compiler uses FPO, we have to always save and restore ebx
+ * whenever we have to clobber it. Additionally, we disable warning C4731 above so that the compiler
+ * doesn't spam about ebx use.
+ */
 
 struct msvc_x86_operations_base
 {
@@ -303,8 +326,10 @@ struct operations< 1u, Signed > :
     static BOOST_FORCEINLINE storage_type fetch_and(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
         base_type::fence_before(order);
+        int backup;
         __asm
         {
+            mov backup, ebx
             xor edx, edx
             mov edi, storage
             movzx ebx, v
@@ -316,6 +341,7 @@ struct operations< 1u, Signed > :
             lock cmpxchg byte ptr [edi], dl
             jne again
             mov v, al
+            mov ebx, backup
         };
         base_type::fence_after(order);
         return v;
@@ -324,8 +350,10 @@ struct operations< 1u, Signed > :
     static BOOST_FORCEINLINE storage_type fetch_or(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
         base_type::fence_before(order);
+        int backup;
         __asm
         {
+            mov backup, ebx
             xor edx, edx
             mov edi, storage
             movzx ebx, v
@@ -337,6 +365,7 @@ struct operations< 1u, Signed > :
             lock cmpxchg byte ptr [edi], dl
             jne again
             mov v, al
+            mov ebx, backup
         };
         base_type::fence_after(order);
         return v;
@@ -345,8 +374,10 @@ struct operations< 1u, Signed > :
     static BOOST_FORCEINLINE storage_type fetch_xor(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
         base_type::fence_before(order);
+        int backup;
         __asm
         {
+            mov backup, ebx
             xor edx, edx
             mov edi, storage
             movzx ebx, v
@@ -358,6 +389,7 @@ struct operations< 1u, Signed > :
             lock cmpxchg byte ptr [edi], dl
             jne again
             mov v, al
+            mov ebx, backup
         };
         base_type::fence_after(order);
         return v;
@@ -478,8 +510,10 @@ struct operations< 2u, Signed > :
     static BOOST_FORCEINLINE storage_type fetch_and(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
         base_type::fence_before(order);
+        int backup;
         __asm
         {
+            mov backup, ebx
             xor edx, edx
             mov edi, storage
             movzx ebx, v
@@ -491,6 +525,7 @@ struct operations< 2u, Signed > :
             lock cmpxchg word ptr [edi], dx
             jne again
             mov v, ax
+            mov ebx, backup
         };
         base_type::fence_after(order);
         return v;
@@ -499,8 +534,10 @@ struct operations< 2u, Signed > :
     static BOOST_FORCEINLINE storage_type fetch_or(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
         base_type::fence_before(order);
+        int backup;
         __asm
         {
+            mov backup, ebx
             xor edx, edx
             mov edi, storage
             movzx ebx, v
@@ -512,6 +549,7 @@ struct operations< 2u, Signed > :
             lock cmpxchg word ptr [edi], dx
             jne again
             mov v, ax
+            mov ebx, backup
         };
         base_type::fence_after(order);
         return v;
@@ -520,8 +558,10 @@ struct operations< 2u, Signed > :
     static BOOST_FORCEINLINE storage_type fetch_xor(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
         base_type::fence_before(order);
+        int backup;
         __asm
         {
+            mov backup, ebx
             xor edx, edx
             mov edi, storage
             movzx ebx, v
@@ -533,6 +573,7 @@ struct operations< 2u, Signed > :
             lock cmpxchg word ptr [edi], dx
             jne again
             mov v, ax
+            mov ebx, backup
         };
         base_type::fence_after(order);
         return v;
@@ -597,8 +638,10 @@ struct msvc_dcas_x86
         }
         else
         {
+            int backup;
             __asm
             {
+                mov backup, ebx
                 mov edi, p
                 mov ebx, dword ptr [v]
                 mov ecx, dword ptr [v + 4]
@@ -608,6 +651,7 @@ struct msvc_dcas_x86
             again:
                 lock cmpxchg8b qword ptr [edi]
                 jne again
+                mov ebx, backup
             };
         }
     }
@@ -673,8 +717,10 @@ struct msvc_dcas_x86
         return result;
 #else
         bool result;
+        int backup;
         __asm
         {
+            mov backup, ebx
             mov edi, p
             mov esi, expected
             mov ebx, dword ptr [desired]
@@ -684,6 +730,7 @@ struct msvc_dcas_x86
             lock cmpxchg8b qword ptr [edi]
             mov dword ptr [esi], eax
             mov dword ptr [esi + 4], edx
+            mov ebx, backup
             sete result
         };
         return result;
@@ -816,5 +863,9 @@ BOOST_FORCEINLINE void signal_fence(memory_order) BOOST_NOEXCEPT
 } // namespace detail
 } // namespace atomics
 } // namespace boost
+
+#if defined(BOOST_MSVC)
+#pragma warning(pop)
+#endif
 
 #endif // BOOST_ATOMIC_DETAIL_OPS_MSVC_X86_HPP_INCLUDED_

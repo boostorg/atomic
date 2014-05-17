@@ -57,6 +57,9 @@ int test_main(int, char *[])
     test_struct_api<test_struct<boost::uint128_type> >();
 #endif
 
+    // https://svn.boost.org/trac/boost/ticket/9985
+    test_struct_api<test_struct<double> >();
+
     test_large_struct_api();
 
     return 0;
