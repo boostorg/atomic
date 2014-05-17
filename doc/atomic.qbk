@@ -711,6 +711,13 @@ to indicate whether the corresponding operations are lock-free or not.
       [`BOOST_ATOMIC_INT128_LOCK_FREE`]
       [Indicate whether `atomic<int128_type>` is lock-free.]
     ]
+    [
+      [`BOOST_ATOMIC_NO_ATOMIC_FLAG_INIT`]
+      [Defined after including `atomic_flag.hpp`, if the implementation
+      does not support the `BOOST_ATOMIC_FLAG_INIT` macro for static
+      initialization of `atomic_flag`. This macro is typically defined
+      for pre-C++11 compilers.]
+    ]
 ]
 
 In the table above, `intN_type` is a type that fits storage of contiguous `N` bits, suitably aligned for atomic operations.
