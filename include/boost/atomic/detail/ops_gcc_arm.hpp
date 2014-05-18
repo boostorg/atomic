@@ -111,9 +111,12 @@ struct gcc_arm_operations_base
     static BOOST_FORCEINLINE void hardware_full_fence() BOOST_NOEXCEPT
     {
 #if defined(BOOST_ATOMIC_DETAIL_ARM_HAS_DMB)
+        // Older binutils (supposedly, older than 2.21.1) didn't support symbolic arguments of the "dmb" instruction such as "ish".
+        // So we use its equivalent instead: a numeric constant 11. Another solution would be to inject encoded bytes of the instruction:
+        // ".byte 0xbf, 0xf3, 0x5b, 0x8f\n"
         __asm__ __volatile__
         (
-            "dmb ish\n"
+            "dmb #11\n" // dmb ish
             :
             :
             : "memory"
