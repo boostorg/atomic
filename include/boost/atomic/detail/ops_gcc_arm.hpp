@@ -111,12 +111,16 @@ struct gcc_arm_operations_base
     static BOOST_FORCEINLINE void hardware_full_fence() BOOST_NOEXCEPT
     {
 #if defined(BOOST_ATOMIC_DETAIL_ARM_HAS_DMB)
-        // Older binutils (supposedly, older than 2.21.1) didn't support symbolic arguments of the "dmb" instruction such as "ish".
-        // So we use its equivalent instead: a numeric constant 11. Another solution would be to inject encoded bytes of the instruction:
-        // ".byte 0xbf, 0xf3, 0x5b, 0x8f\n"
+        // Older binutils (supposedly, older than 2.21.1) didn't support symbolic or numeric arguments of the "dmb" instruction such as "ish" or "#11".
+        // As a worksround we have to inject encoded bytes of the instruction. There are two encodings for the instruction: ARM and Thumb. See ARM Architecture Reference Manual, A8.8.43.
+        // Since we cannot detect binutils version at compile time, we'll have to always use this hack.
         __asm__ __volatile__
         (
-            "dmb #11\n" // dmb ish
+#if defined(__thumb2__)
+            ".short 0xF3BF, 0x8F5B\n" // dmb ish
+#else
+            ".word 0xF57FF05B\n" // dmb ish
+#endif
             :
             :
             : "memory"
@@ -676,11 +680,11 @@ struct operations< 8u, Signed > :
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%0)
-            "ldrexd %1, %H1, %2\n"
+            "ldrexd %1, %H1, [%2]\n"
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%0)
             : "=&l" (tmp),       // %0
               "=&r" (original)   // %1
-            : "Q" (storage)      // %2
+            : "r" (&storage)     // %2
         );
         fence_after(order);
         return original;
@@ -695,16 +699,16 @@ struct operations< 8u, Signed > :
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%0)
             "1:\n"
-            "ldrexd %1, %H1, %2\n"          // load the original value
-            "strexd %0, %3, %H3, %2\n"      // store the replacement, tmp = store failed
+            "ldrexd %1, %H1, [%2]\n"        // load the original value
+            "strexd %0, %3, %H3, [%2]\n"    // store the replacement, tmp = store failed
             "teq    %0, #0\n"               // check if store succeeded
             "bne    1b\n"
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%0)
             : "=&l" (tmp),       // %0
-              "=&r" (original),  // %1
-              "+Q" (storage)     // %2
-            : "r" (v)            // %3
-            : "cc"
+              "=&r" (original)   // %1
+            : "r" (&storage),    // %2
+              "r" (v)            // %3
+            : "cc", "memory"
         );
         fence_after(order);
         return original;
@@ -720,22 +724,22 @@ struct operations< 8u, Signed > :
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%2)
-            "ldrexd  %0, %H0, %3\n"                 // original = *(&storage)
+            "ldrexd  %0, %H0, [%3]\n"               // original = *(&storage)
             "eor     %1, %0, %4\n"                  // The three instructions are just a fancy way of comparing 2 64-bit integers:
             "eor     %2, %H0, %H4\n"                // success = original[lo] ^ expected[lo]; tmp = original[hi] ^ expected[hi];
             "orrs    %1, %1, %2\n"                  // success = success | tmp (i.e. 0 if original==expected); flags = original==expected
             "itte    eq\n"                          // [hint that the following 3 instructions are conditional on flags.equal]
-            "strexdeq %1, %5, %H5, %3\n"            // if (flags.equal) *(&storage) = desired, success = store failed
+            "strexdeq %1, %5, %H5, [%3]\n"          // if (flags.equal) *(&storage) = desired, success = store failed
             "eoreq   %1, %1, #1\n"                  // if (flags.equal) success ^= 1 (i.e. make it 1 if store succeeded)
             "movne   %1, #0\n"                      // if (!flags.equal) success = 0
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%2)
             : "=&r" (original),  // %0
               "=&r" (success),   // %1
-              "=&l" (tmp),       // %2
-              "+Q" (storage)     // %3
-            : "r" (expected),    // %4
+              "=&l" (tmp)        // %2
+            : "r" (&storage),    // %3
+              "r" (expected),    // %4
               "r" (desired)      // %5
-            : "cc"
+            : "cc", "memory"
         );
         if (success)
             fence_after(success_order);
@@ -756,25 +760,25 @@ struct operations< 8u, Signed > :
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%2)
             "1:\n"
-            "ldrexd  %0, %H0, %3\n"                 // original = *(&storage)
+            "ldrexd  %0, %H0, [%3]\n"               // original = *(&storage)
             "eor     %1, %0, %4\n"                  // The three instructions are just a fancy way of comparing 2 64-bit integers:
             "eor     %2, %H0, %H4\n"                // success = original[lo] ^ expected[lo]; tmp = original[hi] ^ expected[hi];
             "orrs    %1, %1, %2\n"                  // success = success | tmp (i.e. 0 if original==expected); flags = original==expected
             "itt     ne\n"                          // [hint that the following 2 instructions are conditional on flags.equal]
             "movne   %1, #0\n"                      // if (!flags.equal) success = 0
             "bne     2f\n"                          // if (!flags.equal) goto end
-            "strexd  %1, %5, %H5, %3\n"             // *(&storage) = desired, success = store failed
+            "strexd  %1, %5, %H5, [%3]\n"           // *(&storage) = desired, success = store failed
             "eors    %1, %1, #1\n"                  // success ^= 1 (i.e. make it 1 if store succeeded); flags.equal = success == 0
             "beq     1b\n"                          // if (flags.equal) goto retry
             "2:\n"
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%2)
             : "=&r" (original),  // %0
               "=&r" (success),   // %1
-              "=&l" (tmp),       // %2
-              "+Q" (storage)     // %3
-            : "r" (expected),    // %4
+              "=&l" (tmp)        // %2
+            : "r" (&storage),    // %3
+              "r" (expected),    // %4
               "r" (desired)      // %5
-            : "cc"
+            : "cc", "memory"
         );
         if (success)
             fence_after(success_order);
@@ -793,19 +797,19 @@ struct operations< 8u, Signed > :
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%2)
             "1:\n"
-            "ldrexd  %0, %H0, %3\n"                 // original = *(&storage)
+            "ldrexd  %0, %H0, [%3]\n"               // original = *(&storage)
             "adds    %1, %0, %4\n"                  // result = original + value
             "adc     %H1, %H0, %H4\n"
-            "strexd  %2, %1, %H1, %3\n"             // *(&storage) = result, tmp = store failed
+            "strexd  %2, %1, %H1, [%3]\n"           // *(&storage) = result, tmp = store failed
             "teq     %2, #0\n"                      // flags = tmp==0
             "bne     1b\n"                          // if (!flags.equal) goto retry
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%2)
             : "=&r" (original),  // %0
               "=&r" (result),    // %1
-              "=&l" (tmp),       // %2
-              "+Q" (storage)     // %3
-            : "r" (v)            // %4
-            : "cc"
+              "=&l" (tmp)        // %2
+            : "r" (&storage),    // %3
+              "r" (v)            // %4
+            : "cc", "memory"
         );
         fence_after(order);
         return original;
@@ -820,19 +824,19 @@ struct operations< 8u, Signed > :
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%2)
             "1:\n"
-            "ldrexd  %0, %H0, %3\n"                 // original = *(&storage)
+            "ldrexd  %0, %H0, [%3]\n"               // original = *(&storage)
             "subs    %1, %0, %4\n"                  // result = original - value
             "sbc     %H1, %H0, %H4\n"
-            "strexd  %2, %1, %H1, %3\n"             // *(&storage) = result, tmp = store failed
+            "strexd  %2, %1, %H1, [%3]\n"           // *(&storage) = result, tmp = store failed
             "teq     %2, #0\n"                      // flags = tmp==0
             "bne     1b\n"                          // if (!flags.equal) goto retry
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%2)
             : "=&r" (original),  // %0
               "=&r" (result),    // %1
-              "=&l" (tmp),       // %2
-              "+Q" (storage)     // %3
-            : "r" (v)            // %4
-            : "cc"
+              "=&l" (tmp)        // %2
+            : "r" (&storage),    // %3
+              "r" (v)            // %4
+            : "cc", "memory"
         );
         fence_after(order);
         return original;
@@ -847,19 +851,19 @@ struct operations< 8u, Signed > :
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%2)
             "1:\n"
-            "ldrexd  %0, %H0, %3\n"                 // original = *(&storage)
+            "ldrexd  %0, %H0, [%3]\n"               // original = *(&storage)
             "and     %1, %0, %4\n"                  // result = original & value
             "and     %H1, %H0, %H4\n"
-            "strexd  %2, %1, %H1, %3\n"             // *(&storage) = result, tmp = store failed
+            "strexd  %2, %1, %H1, [%3]\n"           // *(&storage) = result, tmp = store failed
             "teq     %2, #0\n"                      // flags = tmp==0
             "bne     1b\n"                          // if (!flags.equal) goto retry
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%2)
             : "=&r" (original),  // %0
               "=&r" (result),    // %1
-              "=&l" (tmp),       // %2
-              "+Q" (storage)     // %3
-            : "r" (v)            // %4
-            : "cc"
+              "=&l" (tmp)        // %2
+            : "r" (&storage),    // %3
+              "r" (v)            // %4
+            : "cc", "memory"
         );
         fence_after(order);
         return original;
@@ -874,19 +878,19 @@ struct operations< 8u, Signed > :
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%2)
             "1:\n"
-            "ldrexd  %0, %H0, %3\n"                 // original = *(&storage)
+            "ldrexd  %0, %H0, [%3]\n"               // original = *(&storage)
             "orr     %1, %0, %4\n"                  // result = original | value
             "orr     %H1, %H0, %H4\n"
-            "strexd  %2, %1, %H1, %3\n"             // *(&storage) = result, tmp = store failed
+            "strexd  %2, %1, %H1, [%3]\n"           // *(&storage) = result, tmp = store failed
             "teq     %2, #0\n"                      // flags = tmp==0
             "bne     1b\n"                          // if (!flags.equal) goto retry
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%2)
             : "=&r" (original),  // %0
               "=&r" (result),    // %1
-              "=&l" (tmp),       // %2
-              "+Q" (storage)     // %3
-            : "r" (v)            // %4
-            : "cc"
+              "=&l" (tmp)        // %2
+            : "r" (&storage),    // %3
+              "r" (v)            // %4
+            : "cc", "memory"
         );
         fence_after(order);
         return original;
@@ -901,19 +905,19 @@ struct operations< 8u, Signed > :
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%2)
             "1:\n"
-            "ldrexd  %0, %H0, %3\n"                 // original = *(&storage)
+            "ldrexd  %0, %H0, [%3]\n"               // original = *(&storage)
             "eor     %1, %0, %4\n"                  // result = original ^ value
             "eor     %H1, %H0, %H4\n"
-            "strexd  %2, %1, %H1, %3\n"             // *(&storage) = result, tmp = store failed
+            "strexd  %2, %1, %H1, [%3]\n"           // *(&storage) = result, tmp = store failed
             "teq     %2, #0\n"                      // flags = tmp==0
             "bne     1b\n"                          // if (!flags.equal) goto retry
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%2)
             : "=&r" (original),  // %0
               "=&r" (result),    // %1
-              "=&l" (tmp),       // %2
-              "+Q" (storage)     // %3
-            : "r" (v)            // %4
-            : "cc"
+              "=&l" (tmp)        // %2
+            : "r" (&storage),    // %3
+              "r" (v)            // %4
+            : "cc", "memory"
         );
         fence_after(order);
         return original;
