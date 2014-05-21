@@ -35,7 +35,11 @@
 #define BOOST_ATOMIC_DETAIL_ARM_HAS_LDREXH_STREXH 1
 #if !defined(__ARM_ARCH_7M__)
 // ARMv6k and ARMv7 except ARMv7-M have 64-bit ldrex/strex variants
+// Unfortunately, GCC (at least 4.7.3 on Ubuntu) does not allocate register pairs properly, which is required
+// for ldrexd/strexd instructions, so we disable 64-bit support. GCC 4.8.2 seem to be working correctly.
+#if (__GNUC__ * 100 + __GNUC_MINOR__) >= 408
 #define BOOST_ATOMIC_DETAIL_ARM_HAS_LDREXD_STREXD 1
+#endif
 #endif
 #endif
 
