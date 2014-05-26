@@ -194,7 +194,7 @@ struct gcc_dcas_x86
         (
             "lock; cmpxchg8b %[dest]\n\t"
             "sete %[success]"
-            : "+A,A" (expected), [dest] "+m,m" (storage), [scratch] "=m,m" (scratch), [success] "=q,m" (success)
+            : "+A,A" (expected), [dest] "+m,m" (storage), [success] "=q,m" (success)
             : "b,b" ((uint32_t)desired), "c,c" ((uint32_t)(desired >> 32))
             : "cc", "memory"
         );
