@@ -81,7 +81,7 @@ struct msvc_arm_operations_base
     static BOOST_FORCEINLINE BOOST_CONSTEXPR memory_order cas_common_order(memory_order success_order, memory_order failure_order) BOOST_NOEXCEPT
     {
         // Combine order flags together and transform memory_order_consume to memory_order_acquire
-        return static_cast< memory_order >(((failure_order | success_order) & ~memory_order_consume) | (((failure_order | success_order) & memory_order_consume) >> 3u));
+        return static_cast< memory_order >(((failure_order | success_order) & ~memory_order_consume) | (((failure_order | success_order) & memory_order_consume) << 1u));
     }
 };
 
