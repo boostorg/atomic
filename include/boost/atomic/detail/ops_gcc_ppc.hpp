@@ -89,10 +89,8 @@ struct gcc_ppc_operations_base
 
     static BOOST_FORCEINLINE void fence_after(memory_order order) BOOST_NOEXCEPT
     {
-        if ((order & memory_order_acquire) != 0)
+        if ((order & (memory_order_consume | memory_order_acquire)) != 0)
             __asm__ __volatile__ ("isync" ::: "memory");
-        else if (order == memory_order_consume)
-            __asm__ __volatile__ ("" ::: "memory");
     }
 
     static BOOST_FORCEINLINE void fence_after_store(memory_order order) BOOST_NOEXCEPT
@@ -739,6 +737,7 @@ BOOST_FORCEINLINE void thread_fence(memory_order order) BOOST_NOEXCEPT
 {
     switch (order)
     {
+    case memory_order_consume:
     case memory_order_acquire:
         __asm__ __volatile__ ("isync" ::: "memory");
         break;
@@ -750,13 +749,14 @@ BOOST_FORCEINLINE void thread_fence(memory_order order) BOOST_NOEXCEPT
     case memory_order_acq_rel:
     case memory_order_seq_cst:
         __asm__ __volatile__ ("sync" ::: "memory");
+        break;
     default:;
     }
 }
 
 BOOST_FORCEINLINE void signal_fence(memory_order order) BOOST_NOEXCEPT
 {
-    if ((order & ~memory_order_consume) != 0)
+    if (order != memory_order_relaxed)
         __asm__ __volatile__ ("" ::: "memory");
 }
 

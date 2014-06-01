@@ -74,13 +74,15 @@ struct msvc_arm_operations_base
     {
         BOOST_ATOMIC_DETAIL_COMPILER_BARRIER();
 
-        if (order == memory_order_seq_cst)
+        if ((order & (memory_order_consume | memory_order_acquire)) != 0)
             hardware_full_fence();
+
+        BOOST_ATOMIC_DETAIL_COMPILER_BARRIER();
     }
 
     static BOOST_FORCEINLINE BOOST_CONSTEXPR memory_order cas_common_order(memory_order success_order, memory_order failure_order) BOOST_NOEXCEPT
     {
-        // Combine order flags together and transform memory_order_consume to memory_order_acquire
+        // Combine order flags together and promote memory_order_consume to memory_order_acquire
         return static_cast< memory_order >(((failure_order | success_order) & ~memory_order_consume) | (((failure_order | success_order) & memory_order_consume) << 1u));
     }
 };
@@ -128,16 +130,9 @@ struct operations< 1u, Signed > :
 
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
-        if (order != memory_order_seq_cst)
-        {
-            base_type::fence_before_store(order);
-            BOOST_ATOMIC_DETAIL_ARM_STORE8(&storage, v);
-            base_type::fence_after_store(order);
-        }
-        else
-        {
-            exchange(storage, v, order);
-        }
+        base_type::fence_before_store(order);
+        BOOST_ATOMIC_DETAIL_ARM_STORE8(&storage, v);
+        base_type::fence_after_store(order);
     }
 
     static BOOST_FORCEINLINE storage_type load(storage_type const volatile& storage, memory_order order) BOOST_NOEXCEPT
@@ -300,16 +295,9 @@ struct operations< 2u, Signed > :
 
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
-        if (order != memory_order_seq_cst)
-        {
-            base_type::fence_before_store(order);
-            BOOST_ATOMIC_DETAIL_ARM_STORE16(&storage, v);
-            base_type::fence_after_store(order);
-        }
-        else
-        {
-            exchange(storage, v, order);
-        }
+        base_type::fence_before_store(order);
+        BOOST_ATOMIC_DETAIL_ARM_STORE16(&storage, v);
+        base_type::fence_after_store(order);
     }
 
     static BOOST_FORCEINLINE storage_type load(storage_type const volatile& storage, memory_order order) BOOST_NOEXCEPT
@@ -472,16 +460,9 @@ struct operations< 4u, Signed > :
 
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
-        if (order != memory_order_seq_cst)
-        {
-            base_type::fence_before_store(order);
-            BOOST_ATOMIC_DETAIL_ARM_STORE32(&storage, v);
-            base_type::fence_after_store(order);
-        }
-        else
-        {
-            exchange(storage, v, order);
-        }
+        base_type::fence_before_store(order);
+        BOOST_ATOMIC_DETAIL_ARM_STORE32(&storage, v);
+        base_type::fence_after_store(order);
     }
 
     static BOOST_FORCEINLINE storage_type load(storage_type const volatile& storage, memory_order order) BOOST_NOEXCEPT
@@ -644,16 +625,9 @@ struct operations< 8u, Signed > :
 
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
-        if (order != memory_order_seq_cst)
-        {
-            base_type::fence_before_store(order);
-            BOOST_ATOMIC_DETAIL_ARM_STORE64(&storage, v);
-            base_type::fence_after_store(order);
-        }
-        else
-        {
-            exchange(storage, v, order);
-        }
+        base_type::fence_before_store(order);
+        BOOST_ATOMIC_DETAIL_ARM_STORE64(&storage, v);
+        base_type::fence_after_store(order);
     }
 
     static BOOST_FORCEINLINE storage_type load(storage_type const volatile& storage, memory_order order) BOOST_NOEXCEPT
@@ -811,14 +785,15 @@ struct operations< 8u, Signed > :
 BOOST_FORCEINLINE void thread_fence(memory_order order) BOOST_NOEXCEPT
 {
     BOOST_ATOMIC_DETAIL_COMPILER_BARRIER();
-    if (order == memory_order_seq_cst)
+    if (order != memory_order_relaxed)
         msvc_arm_operations_base::hardware_full_fence();
     BOOST_ATOMIC_DETAIL_COMPILER_BARRIER();
 }
 
 BOOST_FORCEINLINE void signal_fence(memory_order) BOOST_NOEXCEPT
 {
-    BOOST_ATOMIC_DETAIL_COMPILER_BARRIER();
+    if (order != memory_order_relaxed)
+        BOOST_ATOMIC_DETAIL_COMPILER_BARRIER();
 }
 
 } // namespace detail

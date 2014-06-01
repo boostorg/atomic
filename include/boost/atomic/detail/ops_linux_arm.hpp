@@ -71,7 +71,7 @@ struct linux_arm_cas_base
 
     static BOOST_FORCEINLINE void fence_after_load(memory_order order) BOOST_NOEXCEPT
     {
-        if ((order & memory_order_acquire) != 0)
+        if ((order & (memory_order_consume | memory_order_acquire)) != 0)
             hardware_full_fence();
     }
 
@@ -160,13 +160,13 @@ struct operations< 4u, Signed > :
 
 BOOST_FORCEINLINE void thread_fence(memory_order order) BOOST_NOEXCEPT
 {
-    if ((order & (memory_order_acquire | memory_order_release)) != 0)
+    if (order != memory_order_relaxed)
         linux_arm_cas_base::hardware_full_fence();
 }
 
 BOOST_FORCEINLINE void signal_fence(memory_order order) BOOST_NOEXCEPT
 {
-    if ((order & ~memory_order_consume) != 0)
+    if (order != memory_order_relaxed)
         __asm__ __volatile__ ("" ::: "memory");
 }
 

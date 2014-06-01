@@ -857,7 +857,8 @@ BOOST_FORCEINLINE void thread_fence(memory_order order) BOOST_NOEXCEPT
 
 BOOST_FORCEINLINE void signal_fence(memory_order) BOOST_NOEXCEPT
 {
-    BOOST_ATOMIC_DETAIL_COMPILER_BARRIER();
+    if ((order & ~memory_order_consume) != 0)
+        BOOST_ATOMIC_DETAIL_COMPILER_BARRIER();
 }
 
 } // namespace detail
