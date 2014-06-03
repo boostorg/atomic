@@ -43,6 +43,14 @@ namespace boost {
 namespace atomics {
 namespace detail {
 
+// A note about memory_order_consume. Technically, this architecture allows to avoid
+// unnecessary memory barrier after consume load since it supports data dependency ordering.
+// However, some compiler optimizations may break a seemingly valid code relying on data
+// dependency tracking by injecting bogus branches to aid out of order execution.
+// This may happen not only in Boost.Atomic code but also in user's code, which we have no
+// control of. See this thread: http://lists.boost.org/Archives/boost/2014/06/213890.php.
+// For this reason we promote memory_order_consume to memory_order_acquire.
+
 struct msvc_arm_operations_base
 {
     static BOOST_FORCEINLINE void hardware_full_fence() BOOST_NOEXCEPT

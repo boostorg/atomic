@@ -79,6 +79,14 @@ namespace detail {
 // to annotate the conditional instructions.  These are ignored in other modes (e.g. v6),
 // so they can always be present.
 
+// A note about memory_order_consume. Technically, this architecture allows to avoid
+// unnecessary memory barrier after consume load since it supports data dependency ordering.
+// However, some compiler optimizations may break a seemingly valid code relying on data
+// dependency tracking by injecting bogus branches to aid out of order execution.
+// This may happen not only in Boost.Atomic code but also in user's code, which we have no
+// control of. See this thread: http://lists.boost.org/Archives/boost/2014/06/213890.php.
+// For this reason we promote memory_order_consume to memory_order_acquire.
+
 #if defined(__thumb__) && !defined(__thumb2__)
 #define BOOST_ATOMIC_DETAIL_ARM_ASM_START(TMPREG) "adr " #TMPREG ", 8f\n" "bx " #TMPREG "\n" ".arm\n" ".align 4\n" "8:\n"
 #define BOOST_ATOMIC_DETAIL_ARM_ASM_END(TMPREG)   "adr " #TMPREG ", 9f + 1\n" "bx " #TMPREG "\n" ".thumb\n" ".align 2\n" "9:\n"
