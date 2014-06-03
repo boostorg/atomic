@@ -65,13 +65,13 @@ struct gcc_alpha_operations_base
 {
     static BOOST_FORCEINLINE void fence_before(memory_order order) BOOST_NOEXCEPT
     {
-        if ((order & (memory_order_release | memory_order_consume)) != 0)
+        if ((order & memory_order_release) != 0)
             __asm__ __volatile__ ("mb" ::: "memory");
     }
 
     static BOOST_FORCEINLINE void fence_after(memory_order order) BOOST_NOEXCEPT
     {
-        if ((order & memory_order_acquire) != 0)
+        if ((order & (memory_order_consume | memory_order_acquire)) != 0)
             __asm__ __volatile__ ("mb" ::: "memory");
     }
 
