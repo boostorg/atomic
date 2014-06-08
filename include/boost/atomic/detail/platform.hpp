@@ -21,13 +21,19 @@
 #pragma once
 #endif
 
-#if defined(BOOST_ATOMIC_FORCE_FALLBACK)
+#if !defined(BOOST_ATOMIC_FORCE_FALLBACK)
 
-#define BOOST_ATOMIC_DETAIL_PLATFORM emulated
-#define BOOST_ATOMIC_EMULATED
-
-#elif (defined(__GNUC__) && ((__GNUC__ * 100 + __GNUC_MINOR__) >= 407))\
-    || (defined(BOOST_CLANG) && ((__clang_major__ * 100 + __clang_minor__) >= 302))
+// Compiler-based backends
+#if ((defined(__GNUC__) && ((__GNUC__ * 100 + __GNUC_MINOR__) >= 407)) ||\
+    (defined(BOOST_CLANG) && ((__clang_major__ * 100 + __clang_minor__) >= 302))) &&\
+    (\
+        (__GCC_ATOMIC_BOOL_LOCK_FREE + 0) == 2 ||\
+        (__GCC_ATOMIC_CHAR_LOCK_FREE + 0) == 2 ||\
+        (__GCC_ATOMIC_SHORT_LOCK_FREE + 0) == 2 ||\
+        (__GCC_ATOMIC_INT_LOCK_FREE + 0) == 2 ||\
+        (__GCC_ATOMIC_LONG_LOCK_FREE + 0) == 2 ||\
+        (__GCC_ATOMIC_LLONG_LOCK_FREE + 0) == 2\
+    )
 
 #define BOOST_ATOMIC_DETAIL_PLATFORM gcc_atomic
 
@@ -61,13 +67,16 @@
 
 #define BOOST_ATOMIC_DETAIL_PLATFORM gcc_alpha
 
-#elif defined(__GNUC__) && ((__GNUC__ * 100 + __GNUC_MINOR__) >= 401)
+#elif defined(__GNUC__) && ((__GNUC__ * 100 + __GNUC_MINOR__) >= 401) &&\
+    (\
+        defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_1) ||\
+        defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_2) ||\
+        defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_4) ||\
+        defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_8) ||\
+        defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_16)\
+    )
 
 #define BOOST_ATOMIC_DETAIL_PLATFORM gcc_sync
-
-#elif defined(__linux__) && defined(__arm__)
-
-#define BOOST_ATOMIC_DETAIL_PLATFORM linux_arm
 
 #elif defined(_MSC_VER) && (defined(_M_IX86) || defined(_M_X64))
 
@@ -77,15 +86,28 @@
 
 #define BOOST_ATOMIC_DETAIL_PLATFORM msvc_arm
 
+#endif
+
+// OS-based backends
+#if !defined(BOOST_ATOMIC_DETAIL_PLATFORM)
+
+#if defined(__linux__) && defined(__arm__)
+
+#define BOOST_ATOMIC_DETAIL_PLATFORM linux_arm
+
 #elif defined(BOOST_WINDOWS) || defined(_WIN32_CE)
 
 #define BOOST_ATOMIC_DETAIL_PLATFORM windows
 
-#else
+#endif
 
+#endif // !defined(BOOST_ATOMIC_DETAIL_PLATFORM)
+
+#endif // !defined(BOOST_ATOMIC_FORCE_FALLBACK)
+
+#if !defined(BOOST_ATOMIC_DETAIL_PLATFORM)
 #define BOOST_ATOMIC_DETAIL_PLATFORM emulated
 #define BOOST_ATOMIC_EMULATED
-
 #endif
 
 #define BOOST_ATOMIC_DETAIL_HEADER(prefix) <BOOST_JOIN(prefix, BOOST_ATOMIC_DETAIL_PLATFORM).hpp>

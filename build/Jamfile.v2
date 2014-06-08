@@ -13,6 +13,8 @@ project boost/atomic
       <link>shared:<define>BOOST_ATOMIC_DYN_LINK=1
       <link>static:<define>BOOST_ATOMIC_STATIC_LINK=1
       <define>BOOST_ATOMIC_SOURCE
+      <target-os>windows:<define>BOOST_USE_WINDOWS_H
+      <toolset>gcc,<target-os>windows:<linkflags>"-lkernel32"
     : usage-requirements
       <link>shared:<define>BOOST_ATOMIC_DYN_LINK=1
       <link>static:<define>BOOST_ATOMIC_STATIC_LINK=1

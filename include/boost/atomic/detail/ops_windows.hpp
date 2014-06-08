@@ -73,7 +73,7 @@ struct windows_operations :
 
     static BOOST_FORCEINLINE storage_type load(storage_type const volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
-        return Derived::fetch_add(storage, (storage_type)0, order);
+        return Derived::fetch_add(const_cast< storage_type volatile& >(storage), (storage_type)0, order);
     }
 
     static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
