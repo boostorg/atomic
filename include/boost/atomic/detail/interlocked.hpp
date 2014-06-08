@@ -2,7 +2,7 @@
 #define BOOST_ATOMIC_DETAIL_INTERLOCKED_HPP
 
 //  Copyright (c) 2009 Helge Bahmann
-//  Copyright (c) 2012, 2013 Andrey Semashev
+//  Copyright (c) 2012 - 2014 Andrey Semashev
 //
 //  Distributed under the Boost Software License, Version 1.0.
 //  See accompanying file LICENSE_1_0.txt or copy at
@@ -14,18 +14,53 @@
 #pragma once
 #endif
 
-#if defined(_WIN32_WCE) || (defined(_MSC_VER) && _MSC_VER < 1400)
+#if defined(_WIN32_WCE)
 
-#include <boost/detail/interlocked.hpp>
+#if _WIN32_WCE >= 0x600
 
-#define BOOST_ATOMIC_INTERLOCKED_COMPARE_EXCHANGE(dest, exchange, compare) BOOST_INTERLOCKED_COMPARE_EXCHANGE((long*)(dest), exchange, compare)
-#define BOOST_ATOMIC_INTERLOCKED_EXCHANGE(dest, newval) BOOST_INTERLOCKED_EXCHANGE((long*)(dest), newval)
-#define BOOST_ATOMIC_INTERLOCKED_EXCHANGE_ADD(dest, addend) BOOST_INTERLOCKED_EXCHANGE_ADD((long*)(dest), addend)
-#define BOOST_ATOMIC_INTERLOCKED_COMPARE_EXCHANGE_POINTER(dest, exchange, compare) BOOST_INTERLOCKED_COMPARE_EXCHANGE_POINTER(dest, exchange, compare)
-#define BOOST_ATOMIC_INTERLOCKED_EXCHANGE_POINTER(dest, newval) BOOST_INTERLOCKED_EXCHANGE_POINTER(dest, newval)
-#define BOOST_ATOMIC_INTERLOCKED_EXCHANGE_ADD_POINTER(dest, byte_offset) ((void*)BOOST_INTERLOCKED_EXCHANGE_ADD((long*)(dest), byte_offset))
+extern "C" long __cdecl _InterlockedCompareExchange( long volatile *, long, long );
+extern "C" long __cdecl _InterlockedExchangeAdd( long volatile *, long );
+extern "C" long __cdecl _InterlockedExchange( long volatile *, long );
 
-#elif defined(_MSC_VER) && _MSC_VER >= 1400
+#define BOOST_ATOMIC_INTERLOCKED_COMPARE_EXCHANGE(dest, exchange, compare) _InterlockedCompareExchange((long*)(dest), exchange, compare)
+#define BOOST_ATOMIC_INTERLOCKED_EXCHANGE_ADD(dest, addend) _InterlockedExchangeAdd((long*)(dest), (long)(addend))
+#define BOOST_ATOMIC_INTERLOCKED_EXCHANGE(dest, newval) _InterlockedExchange((long*)(dest), (long)(newval))
+
+#else // _WIN32_WCE >= 0x600
+
+extern "C" long __cdecl InterlockedCompareExchange( long*, long, long );
+extern "C" long __cdecl InterlockedExchangeAdd( long*, long );
+extern "C" long __cdecl InterlockedExchange( long*, long );
+
+#define BOOST_ATOMIC_INTERLOCKED_COMPARE_EXCHANGE(dest, exchange, compare) InterlockedCompareExchange((long*)(dest), exchange, compare)
+#define BOOST_ATOMIC_INTERLOCKED_EXCHANGE_ADD(dest, addend) InterlockedExchangeAdd((long*)(dest), (long)(addend))
+#define BOOST_ATOMIC_INTERLOCKED_EXCHANGE(dest, newval) InterlockedExchange((long*)(dest), (long)(newval))
+
+#endif // _WIN32_WCE >= 0x600
+
+#define BOOST_ATOMIC_INTERLOCKED_COMPARE_EXCHANGE_POINTER(dest, exchange, compare) ((void*)BOOST_ATOMIC_INTERLOCKED_COMPARE_EXCHANGE((long*)(dest), (long)(exchange), (long)(compare)))
+#define BOOST_ATOMIC_INTERLOCKED_EXCHANGE_POINTER(dest, exchange) ((void*)BOOST_ATOMIC_INTERLOCKED_EXCHANGE((long*)(dest), (long)(exchange)))
+
+#elif defined(_MSC_VER) && _MSC_VER >= 1310
+
+#if _MSC_VER < 1400
+
+extern "C" long __cdecl _InterlockedCompareExchange( long volatile *, long, long );
+extern "C" long __cdecl _InterlockedExchangeAdd( long volatile *, long );
+extern "C" long __cdecl _InterlockedExchange( long volatile *, long );
+
+#pragma intrinsic(_InterlockedCompareExchange)
+#pragma intrinsic(_InterlockedExchangeAdd)
+#pragma intrinsic(_InterlockedExchange)
+
+#define BOOST_ATOMIC_INTERLOCKED_COMPARE_EXCHANGE(dest, exchange, compare) _InterlockedCompareExchange((long*)(dest), exchange, compare)
+#define BOOST_ATOMIC_INTERLOCKED_EXCHANGE_ADD(dest, addend) _InterlockedExchangeAdd((long*)(dest), (long)(addend))
+#define BOOST_ATOMIC_INTERLOCKED_EXCHANGE(dest, newval) _InterlockedExchange((long*)(dest), (long)(newval))
+
+#define BOOST_ATOMIC_INTERLOCKED_COMPARE_EXCHANGE_POINTER(dest, exchange, compare) ((void*)BOOST_ATOMIC_INTERLOCKED_COMPARE_EXCHANGE((long*)(dest), (long)(exchange), (long)(compare)))
+#define BOOST_ATOMIC_INTERLOCKED_EXCHANGE_POINTER(dest, exchange) ((void*)BOOST_ATOMIC_INTERLOCKED_EXCHANGE((long*)(dest), (long)(exchange)))
+
+#else // _MSC_VER < 1400
 
 #include <intrin.h>
 
@@ -324,7 +359,9 @@
 
 #endif // _MSC_VER >= 1700 && defined(_M_ARM)
 
-#else // defined(_MSC_VER) && _MSC_VER >= 1400
+#endif // _MSC_VER < 1400
+
+#else // defined(_MSC_VER) && _MSC_VER >= 1310
 
 #if defined(BOOST_USE_WINDOWS_H)
 

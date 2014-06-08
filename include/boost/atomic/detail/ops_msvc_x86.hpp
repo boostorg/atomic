@@ -42,6 +42,11 @@
 #pragma warning(disable: 4731)
 #endif
 
+#if defined(_MSC_VER) && (defined(_M_AMD64) || (defined(_M_IX86) && defined(_M_IX86_FP) && _M_IX86_FP >= 2))
+extern "C" void _mm_mfence(void);
+#pragma intrinsic(_mm_mfence)
+#endif
+
 namespace boost {
 namespace atomics {
 namespace detail {
