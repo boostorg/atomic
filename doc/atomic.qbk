@@ -437,20 +437,25 @@ of the various ordering constraints.
 
 [^boost::atomic<['T]>] provides methods for atomically accessing
 variables of a suitable type [^['T]]. The type is suitable if
-it satisfies one of the following constraints:
+it is /trivial/ (3.9/9 \[basic.types\]). Following are
+examples of the types compatible with this requirement:
 
-* it is an integer, boolean, enum or pointer type
-* it is any other data-type ([^class] or [^struct]) that has
-  a non-throwing default constructor, that is copyable via
-  [^memcpy] and comparable via [^memcmp].
+* a scalar type (e.g. integer, boolean, enum or pointer type)
+* a [^class] or [^struct] that has no non-trivial copy or move
+  constructors or assignment operators, has a trivial default
+  constructor and destructor, and that is comparable via [^memcmp].
 
-Note that all classes having a trivial default constructor,
-no destructor and no virtual methods satisfy the second condition
-according to C++98. On a given platform, other data-types ['may]
-also satisfy this constraint, however you should exercise
-caution as the behaviour becomes implementation-defined. Also be warned
+Note that classes with virtual functions or virtual base classes
+do not satisfy the requirements. Also be warned
 that structures with "padding" between data members may compare
 non-equal via [^memcmp] even though all members are equal.
+
+[note The C++11 standard has slightly more relaxed requirements on the
+compatible types. `std::atomic` only requires the type to be
+/trivially copyable/, which allows the default constructor to be
+non-trivial. The additional requirement on the default constructor
+is a property of this implementation. For most conventional uses
+of `atomic` the difference is not essential.]
 
 [section:interface_atomic_generic [^boost::atomic<['T]>] template class]
 
