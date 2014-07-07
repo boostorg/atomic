@@ -46,7 +46,7 @@ struct gcc_sparc_cas_base
     {
         if (order == memory_order_seq_cst)
             __asm__ __volatile__ ("membar #Sync" ::: "memory");
-        else if ((order & memory_order_acquire) != 0)
+        else if ((order & (memory_order_consume | memory_order_acquire)) != 0)
             __asm__ __volatile__ ("membar #StoreStore | #LoadStore" ::: "memory");
     }
 
@@ -216,6 +216,7 @@ BOOST_FORCEINLINE void thread_fence(memory_order order) BOOST_NOEXCEPT
     case memory_order_release:
         __asm__ __volatile__ ("membar #StoreStore | #LoadStore" ::: "memory");
         break;
+    case memory_order_consume:
     case memory_order_acquire:
         __asm__ __volatile__ ("membar #LoadLoad | #LoadStore" ::: "memory");
         break;
@@ -225,7 +226,6 @@ BOOST_FORCEINLINE void thread_fence(memory_order order) BOOST_NOEXCEPT
     case memory_order_seq_cst:
         __asm__ __volatile__ ("membar #Sync" ::: "memory");
         break;
-    case memory_order_consume:
     case memory_order_relaxed:
     default:
         break;
@@ -234,7 +234,7 @@ BOOST_FORCEINLINE void thread_fence(memory_order order) BOOST_NOEXCEPT
 
 BOOST_FORCEINLINE void signal_fence(memory_order order) BOOST_NOEXCEPT
 {
-    if ((order & ~memory_order_consume) != 0)
+    if (order != memory_order_relaxed)
         __asm__ __volatile__ ("" ::: "memory");
 }
 
