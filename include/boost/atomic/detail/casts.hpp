@@ -16,6 +16,7 @@
 #ifndef BOOST_ATOMIC_DETAIL_CASTS_HPP_INCLUDED_
 #define BOOST_ATOMIC_DETAIL_CASTS_HPP_INCLUDED_
 
+#include <cstring>
 #include <boost/atomic/detail/config.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
@@ -37,6 +38,23 @@ BOOST_FORCEINLINE To union_cast(From const& from) BOOST_NOEXCEPT
     caster = {};
     caster.as_from = from;
     return caster.as_to;
+}
+
+template< typename To, typename From >
+BOOST_FORCEINLINE To memcpy_cast(From const& from) BOOST_NOEXCEPT
+{
+    struct
+    {
+        To to;
+    }
+    value = {};
+    std::memcpy
+    (
+        &reinterpret_cast< char& >(value.to),
+        &reinterpret_cast< const char& >(from),
+        (sizeof(From) < sizeof(To) ? sizeof(From) : sizeof(To))
+    );
+    return value.to;
 }
 
 } // namespace detail

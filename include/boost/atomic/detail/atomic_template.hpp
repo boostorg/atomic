@@ -333,8 +333,7 @@ protected:
     storage_type m_storage;
 
 public:
-    BOOST_DEFAULTED_FUNCTION(base_atomic(), {})
-    BOOST_FORCEINLINE explicit base_atomic(value_type const& v) BOOST_NOEXCEPT : m_storage(atomics::detail::union_cast< storage_type >(v))
+    BOOST_FORCEINLINE explicit base_atomic(value_type const& v = value_type()) BOOST_NOEXCEPT : m_storage(atomics::detail::memcpy_cast< storage_type >(v))
     {
     }
 
@@ -344,7 +343,7 @@ public:
         BOOST_ASSERT(order != memory_order_acquire);
         BOOST_ASSERT(order != memory_order_acq_rel);
 
-        operations::store(m_storage, atomics::detail::union_cast< storage_type >(v), order);
+        operations::store(m_storage, atomics::detail::memcpy_cast< storage_type >(v), order);
     }
 
     BOOST_FORCEINLINE value_type load(memory_order order = memory_order_seq_cst) const volatile BOOST_NOEXCEPT
@@ -352,12 +351,12 @@ public:
         BOOST_ASSERT(order != memory_order_release);
         BOOST_ASSERT(order != memory_order_acq_rel);
 
-        return atomics::detail::union_cast< value_type >(operations::load(m_storage, order));
+        return atomics::detail::memcpy_cast< value_type >(operations::load(m_storage, order));
     }
 
     BOOST_FORCEINLINE value_type exchange(value_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        return atomics::detail::union_cast< value_type >(operations::exchange(m_storage, atomics::detail::union_cast< storage_type >(v), order));
+        return atomics::detail::memcpy_cast< value_type >(operations::exchange(m_storage, atomics::detail::memcpy_cast< storage_type >(v), order));
     }
 
     BOOST_FORCEINLINE bool compare_exchange_strong(value_type& expected, value_type desired, memory_order success_order, memory_order failure_order) volatile BOOST_NOEXCEPT
@@ -366,9 +365,9 @@ public:
         BOOST_ASSERT(failure_order != memory_order_acq_rel);
         BOOST_ASSERT(cas_failure_order_must_not_be_stronger_than_success_order(success_order, failure_order));
 
-        storage_type old_value = atomics::detail::union_cast< storage_type >(expected);
-        const bool res = operations::compare_exchange_strong(m_storage, old_value, atomics::detail::union_cast< storage_type >(desired), success_order, failure_order);
-        expected = atomics::detail::union_cast< value_type >(old_value);
+        storage_type old_value = atomics::detail::memcpy_cast< storage_type >(expected);
+        const bool res = operations::compare_exchange_strong(m_storage, old_value, atomics::detail::memcpy_cast< storage_type >(desired), success_order, failure_order);
+        expected = atomics::detail::memcpy_cast< value_type >(old_value);
         return res;
     }
 
@@ -383,9 +382,9 @@ public:
         BOOST_ASSERT(failure_order != memory_order_acq_rel);
         BOOST_ASSERT(cas_failure_order_must_not_be_stronger_than_success_order(success_order, failure_order));
 
-        storage_type old_value = atomics::detail::union_cast< storage_type >(expected);
-        const bool res = operations::compare_exchange_weak(m_storage, old_value, atomics::detail::union_cast< storage_type >(desired), success_order, failure_order);
-        expected = atomics::detail::union_cast< value_type >(old_value);
+        storage_type old_value = atomics::detail::memcpy_cast< storage_type >(expected);
+        const bool res = operations::compare_exchange_weak(m_storage, old_value, atomics::detail::memcpy_cast< storage_type >(desired), success_order, failure_order);
+        expected = atomics::detail::memcpy_cast< value_type >(old_value);
         return res;
     }
 

@@ -51,5 +51,9 @@ int test_main(int, char *[])
 
     test_large_struct_api();
 
+    // Test that boost::atomic<T> only requires T to be trivially copyable.
+    // Other non-trivial constructors are allowed.
+    test_struct_with_ctor_api();
+
     return 0;
 }

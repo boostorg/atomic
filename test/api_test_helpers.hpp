@@ -344,4 +344,30 @@ test_large_struct_api(void)
     test_base_operators(a, b, c);
 }
 
+struct test_struct_with_ctor {
+    typedef unsigned int value_type;
+    value_type i;
+    test_struct_with_ctor() : i(0x01234567) {}
+    inline bool operator==(const test_struct_with_ctor & c) const {return i == c.i;}
+    inline bool operator!=(const test_struct_with_ctor & c) const {return i != c.i;}
+};
+
+static void
+test_struct_with_ctor_api(void)
+{
+    {
+        test_struct_with_ctor s;
+        boost::atomic<test_struct_with_ctor> sa;
+        // Check that the default constructor was called
+        BOOST_CHECK( sa.load() == s );
+    }
+
+    test_struct_with_ctor a, b, c;
+    a.i = 1;
+    b.i = 2;
+    c.i = 3;
+
+    test_base_operators(a, b, c);
+}
+
 #endif
