@@ -8,13 +8,13 @@
  * Copyright (c) 2013 - 2014 Andrey Semashev
  */
 /*!
- * \file   atomic/detail/union_cast.hpp
+ * \file   atomic/detail/casts.hpp
  *
- * This header defines \c union_cast used to convert between storage and value types
+ * This header defines \c union_cast and \c memcpy_cast used to convert between storage and value types
  */
 
-#ifndef BOOST_ATOMIC_DETAIL_UNION_CAST_HPP_INCLUDED_
-#define BOOST_ATOMIC_DETAIL_UNION_CAST_HPP_INCLUDED_
+#ifndef BOOST_ATOMIC_DETAIL_CASTS_HPP_INCLUDED_
+#define BOOST_ATOMIC_DETAIL_CASTS_HPP_INCLUDED_
 
 #include <boost/atomic/detail/config.hpp>
 
@@ -43,4 +43,4 @@ BOOST_FORCEINLINE To union_cast(From const& from) BOOST_NOEXCEPT
 } // namespace atomics
 } // namespace boost
 
-#endif // BOOST_ATOMIC_DETAIL_UNION_CAST_HPP_INCLUDED_
+#endif // BOOST_ATOMIC_DETAIL_CASTS_HPP_INCLUDED_

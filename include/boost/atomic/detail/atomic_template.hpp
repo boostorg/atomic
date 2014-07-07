@@ -22,7 +22,7 @@
 #include <boost/type_traits/is_signed.hpp>
 #include <boost/type_traits/is_integral.hpp>
 #include <boost/atomic/detail/config.hpp>
-#include <boost/atomic/detail/union_cast.hpp>
+#include <boost/atomic/detail/casts.hpp>
 #include <boost/atomic/detail/operations_fwd.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
