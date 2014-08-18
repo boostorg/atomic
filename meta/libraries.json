@@ -3,7 +3,8 @@
     "name": "Atomic",
     "authors": [
         "Helge Bahmann",
-        "Tim Blechmann"
+        "Tim Blechmann",
+        "Andrey Semashev"
     ],
     "description": "C++11-style atomic<>.",
     "category": [
@@ -11,6 +12,7 @@
     ],
     "maintainers": [
         "Helge Bahmann <hcb -at- chaoticmind.net>",
-        "Tim Blechmann <tim -at- klingt.org>"
+        "Tim Blechmann <tim -at- klingt.org>",
+        "Andrey Semashev <andrey.semashev -at- gmail.com>"
     ]
 }
