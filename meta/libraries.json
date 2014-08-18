@@ -1,0 +1,16 @@
+{
+    "key": "atomic",
+    "name": "Atomic",
+    "authors": [
+        "Helge Bahmann",
+        "Tim Blechmann"
+    ],
+    "description": "C++11-style atomic<>.",
+    "category": [
+        "Concurrent"
+    ],
+    "maintainers": [
+        "Helge Bahmann <hcb -at- chaoticmind.net>",
+        "Tim Blechmann <tim -at- klingt.org>"
+    ]
+}
