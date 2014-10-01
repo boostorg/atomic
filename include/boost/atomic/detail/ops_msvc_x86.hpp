@@ -247,7 +247,7 @@ struct operations< 1u, Signed > :
     }
 
     static BOOST_FORCEINLINE bool compare_exchange_strong(
-        storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order success_order, memory_order failure_order) BOOST_NOEXCEPT
+        storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order, memory_order) BOOST_NOEXCEPT
     {
         storage_type previous = expected;
         storage_type old_val = static_cast< storage_type >(BOOST_ATOMIC_INTERLOCKED_COMPARE_EXCHANGE8(&storage, desired, previous));
