@@ -44,7 +44,9 @@
 
 #if defined(_MSC_VER) && (defined(_M_AMD64) || (defined(_M_IX86) && defined(_M_IX86_FP) && _M_IX86_FP >= 2))
 extern "C" void _mm_mfence(void);
+#if defined(BOOST_MSVC)
 #pragma intrinsic(_mm_mfence)
+#endif
 #endif
 
 namespace boost {
