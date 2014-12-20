@@ -98,7 +98,8 @@ BOOST_ATOMIC_DECL lockpool::scoped_lock::scoped_lock(const volatile void* addr) 
 {
     while (lock_operations::test_and_set(*static_cast< lock_type* >(m_lock), memory_order_acquire))
     {
-        atomics::detail::pause();
+        while (!!lock_operations::load(*static_cast< lock_type* >(m_lock), memory_order_relaxed))
+            atomics::detail::pause();
     }
 }
 
