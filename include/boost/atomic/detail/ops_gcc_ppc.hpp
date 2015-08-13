@@ -84,7 +84,7 @@ struct gcc_ppc_operations_base
 {
     static BOOST_FORCEINLINE void fence_before(memory_order order) BOOST_NOEXCEPT
     {
-#if defined(__powerpc64__)
+#if defined(__powerpc64__) || defined(__PPC64__)
         if (order == memory_order_seq_cst)
             __asm__ __volatile__ ("sync" ::: "memory");
         else if ((order & memory_order_release) != 0)
@@ -520,7 +520,7 @@ struct operations< 2u, true > :
 };
 
 
-#if defined(__powerpc64__)
+#if defined(__powerpc64__) || defined(__PPC64__)
 
 template< bool Signed >
 struct operations< 8u, Signed > :
@@ -738,7 +738,7 @@ struct operations< 8u, Signed > :
     }
 };
 
-#endif // defined(__powerpc64__)
+#endif // defined(__powerpc64__) || defined(__PPC64__)
 
 
 BOOST_FORCEINLINE void thread_fence(memory_order order) BOOST_NOEXCEPT
@@ -750,7 +750,7 @@ BOOST_FORCEINLINE void thread_fence(memory_order order) BOOST_NOEXCEPT
         __asm__ __volatile__ ("isync" ::: "memory");
         break;
     case memory_order_release:
-#if defined(__powerpc64__)
+#if defined(__powerpc64__) || defined(__PPC64__)
         __asm__ __volatile__ ("lwsync" ::: "memory");
         break;
 #endif
@@ -765,7 +765,11 @@ BOOST_FORCEINLINE void thread_fence(memory_order order) BOOST_NOEXCEPT
 BOOST_FORCEINLINE void signal_fence(memory_order order) BOOST_NOEXCEPT
 {
     if (order != memory_order_relaxed)
+#if defined(__ibmxl__) || defined(__IBMCPP__)
+        __fence();
+#else
         __asm__ __volatile__ ("" ::: "memory");
+#endif
 }
 
 } // namespace detail
