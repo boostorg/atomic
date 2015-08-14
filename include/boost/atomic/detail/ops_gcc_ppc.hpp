@@ -30,6 +30,9 @@ namespace boost {
 namespace atomics {
 namespace detail {
 
+// The implementation below uses information from this document:
+// http://www.rdrop.com/users/paulmck/scalability/paper/N2745r.2010.02.19a.html
+
 /*
     Refer to: Motorola: "Programming Environments Manual for 32-Bit
     Implementations of the PowerPC Architecture", Appendix E:
@@ -100,12 +103,6 @@ struct gcc_ppc_operations_base
         if ((order & (memory_order_consume | memory_order_acquire)) != 0)
             __asm__ __volatile__ ("isync" ::: "memory");
     }
-
-    static BOOST_FORCEINLINE void fence_after_store(memory_order order) BOOST_NOEXCEPT
-    {
-        if (order == memory_order_seq_cst)
-            __asm__ __volatile__ ("sync" ::: "memory");
-    }
 };
 
 
@@ -120,27 +117,40 @@ struct operations< 4u, Signed > :
         fence_before(order);
         __asm__ __volatile__
         (
-            "stw %1, %0\n"
+            "stw %1, %0\n\t"
             : "+m" (storage)
             : "r" (v)
         );
-        fence_after_store(order);
     }
 
     static BOOST_FORCEINLINE storage_type load(storage_type const volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
         storage_type v;
-        __asm__ __volatile__
-        (
-            "lwz %0, %1\n"
-            "cmpw %0, %0\n"
-            "bne- 1f\n"
-            "1:\n"
-            : "=&r" (v)
-            : "m" (storage)
-            : "cr0"
-        );
-        fence_after(order);
+        if (order == memory_order_seq_cst)
+            __asm__ __volatile__ ("sync" ::: "memory");
+        if ((order & (memory_order_consume | memory_order_acquire)) != 0)
+        {
+            __asm__ __volatile__
+            (
+                "lwz %0, %1\n\t"
+                "cmpw %0, %0\n\t"
+                "bne- 1f\n\t"
+                "1:\n\t"
+                "isync\n\t"
+                : "=&r" (v)
+                : "m" (storage)
+                : "cr0", "memory"
+            );
+        }
+        else
+        {
+            __asm__ __volatile__
+            (
+                "lwz %0, %1\n\t"
+                : "=&r" (v)
+                : "m" (storage)
+            );
+        }
         return v;
     }
 
@@ -150,10 +160,10 @@ struct operations< 4u, Signed > :
         fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n"
-            "lwarx %0,%y1\n"
-            "stwcx. %2,%y1\n"
-            "bne- 1b\n"
+            "1:\n\t"
+            "lwarx %0,%y1\n\t"
+            "stwcx. %2,%y1\n\t"
+            "bne- 1b\n\t"
             : "=&b" (original), "+Z" (storage)
             : "b" (v)
             : "cr0"
@@ -169,14 +179,14 @@ struct operations< 4u, Signed > :
         fence_before(success_order);
         __asm__ __volatile__
         (
-            "li %1, 0\n"
-            "lwarx %0,%y2\n"
-            "cmpw %0, %3\n"
-            "bne- 1f\n"
-            "stwcx. %4,%y2\n"
-            "bne- 1f\n"
-            "li %1, 1\n"
-            "1:"
+            "li %1, 0\n\t"
+            "lwarx %0,%y2\n\t"
+            "cmpw %0, %3\n\t"
+            "bne- 1f\n\t"
+            "stwcx. %4,%y2\n\t"
+            "bne- 1f\n\t"
+            "li %1, 1\n\t"
+            "1:\n\t"
             : "=&b" (expected), "=&b" (success), "+Z" (storage)
             : "b" (expected), "b" (desired)
             : "cr0"
@@ -195,14 +205,14 @@ struct operations< 4u, Signed > :
         fence_before(success_order);
         __asm__ __volatile__
         (
-            "li %1, 0\n"
-            "0: lwarx %0,%y2\n"
-            "cmpw %0, %3\n"
-            "bne- 1f\n"
-            "stwcx. %4,%y2\n"
-            "bne- 0b\n"
-            "li %1, 1\n"
-            "1:"
+            "li %1, 0\n\t"
+            "0: lwarx %0,%y2\n\t"
+            "cmpw %0, %3\n\t"
+            "bne- 1f\n\t"
+            "stwcx. %4,%y2\n\t"
+            "bne- 0b\n\t"
+            "li %1, 1\n\t"
+            "1:\n\t"
             : "=&b" (expected), "=&b" (success), "+Z" (storage)
             : "b" (expected), "b" (desired)
             : "cr0"
@@ -220,11 +230,11 @@ struct operations< 4u, Signed > :
         fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n"
-            "lwarx %0,%y2\n"
-            "add %1,%0,%3\n"
-            "stwcx. %1,%y2\n"
-            "bne- 1b\n"
+            "1:\n\t"
+            "lwarx %0,%y2\n\t"
+            "add %1,%0,%3\n\t"
+            "stwcx. %1,%y2\n\t"
+            "bne- 1b\n\t"
             : "=&b" (original), "=&b" (tmp), "+Z" (storage)
             : "b" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -239,11 +249,11 @@ struct operations< 4u, Signed > :
         fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n"
-            "lwarx %0,%y2\n"
-            "sub %1,%0,%3\n"
-            "stwcx. %1,%y2\n"
-            "bne- 1b\n"
+            "1:\n\t"
+            "lwarx %0,%y2\n\t"
+            "sub %1,%0,%3\n\t"
+            "stwcx. %1,%y2\n\t"
+            "bne- 1b\n\t"
             : "=&b" (original), "=&b" (tmp), "+Z" (storage)
             : "b" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -258,11 +268,11 @@ struct operations< 4u, Signed > :
         fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n"
-            "lwarx %0,%y2\n"
-            "and %1,%0,%3\n"
-            "stwcx. %1,%y2\n"
-            "bne- 1b\n"
+            "1:\n\t"
+            "lwarx %0,%y2\n\t"
+            "and %1,%0,%3\n\t"
+            "stwcx. %1,%y2\n\t"
+            "bne- 1b\n\t"
             : "=&b" (original), "=&b" (tmp), "+Z" (storage)
             : "b" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -277,11 +287,11 @@ struct operations< 4u, Signed > :
         fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n"
-            "lwarx %0,%y2\n"
-            "or %1,%0,%3\n"
-            "stwcx. %1,%y2\n"
-            "bne- 1b\n"
+            "1:\n\t"
+            "lwarx %0,%y2\n\t"
+            "or %1,%0,%3\n\t"
+            "stwcx. %1,%y2\n\t"
+            "bne- 1b\n\t"
             : "=&b" (original), "=&b" (tmp), "+Z" (storage)
             : "b" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -296,11 +306,11 @@ struct operations< 4u, Signed > :
         fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n"
-            "lwarx %0,%y2\n"
-            "xor %1,%0,%3\n"
-            "stwcx. %1,%y2\n"
-            "bne- 1b\n"
+            "1:\n\t"
+            "lwarx %0,%y2\n\t"
+            "xor %1,%0,%3\n\t"
+            "stwcx. %1,%y2\n\t"
+            "bne- 1b\n\t"
             : "=&b" (original), "=&b" (tmp), "+Z" (storage)
             : "b" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -339,12 +349,12 @@ struct operations< 1u, false > :
         fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n"
-            "lwarx %0,%y2\n"
-            "add %1,%0,%3\n"
-            "rlwinm %1, %1, 0, 0xff\n"
-            "stwcx. %1,%y2\n"
-            "bne- 1b\n"
+            "1:\n\t"
+            "lwarx %0,%y2\n\t"
+            "add %1,%0,%3\n\t"
+            "rlwinm %1, %1, 0, 0xff\n\t"
+            "stwcx. %1,%y2\n\t"
+            "bne- 1b\n\t"
             : "=&b" (original), "=&b" (tmp), "+Z" (storage)
             : "b" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -359,12 +369,12 @@ struct operations< 1u, false > :
         fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n"
-            "lwarx %0,%y2\n"
-            "sub %1,%0,%3\n"
-            "rlwinm %1, %1, 0, 0xff\n"
-            "stwcx. %1,%y2\n"
-            "bne- 1b\n"
+            "1:\n\t"
+            "lwarx %0,%y2\n\t"
+            "sub %1,%0,%3\n\t"
+            "rlwinm %1, %1, 0, 0xff\n\t"
+            "stwcx. %1,%y2\n\t"
+            "bne- 1b\n\t"
             : "=&b" (original), "=&b" (tmp), "+Z" (storage)
             : "b" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -387,12 +397,12 @@ struct operations< 1u, true > :
         fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n"
-            "lwarx %0,%y2\n"
-            "add %1,%0,%3\n"
-            "extsb %1, %1\n"
-            "stwcx. %1,%y2\n"
-            "bne- 1b\n"
+            "1:\n\t"
+            "lwarx %0,%y2\n\t"
+            "add %1,%0,%3\n\t"
+            "extsb %1, %1\n\t"
+            "stwcx. %1,%y2\n\t"
+            "bne- 1b\n\t"
             : "=&b" (original), "=&b" (tmp), "+Z" (storage)
             : "b" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -407,12 +417,12 @@ struct operations< 1u, true > :
         fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n"
-            "lwarx %0,%y2\n"
-            "sub %1,%0,%3\n"
-            "extsb %1, %1\n"
-            "stwcx. %1,%y2\n"
-            "bne- 1b\n"
+            "1:\n\t"
+            "lwarx %0,%y2\n\t"
+            "sub %1,%0,%3\n\t"
+            "extsb %1, %1\n\t"
+            "stwcx. %1,%y2\n\t"
+            "bne- 1b\n\t"
             : "=&b" (original), "=&b" (tmp), "+Z" (storage)
             : "b" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -436,12 +446,12 @@ struct operations< 2u, false > :
         fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n"
-            "lwarx %0,%y2\n"
-            "add %1,%0,%3\n"
-            "rlwinm %1, %1, 0, 0xffff\n"
-            "stwcx. %1,%y2\n"
-            "bne- 1b\n"
+            "1:\n\t"
+            "lwarx %0,%y2\n\t"
+            "add %1,%0,%3\n\t"
+            "rlwinm %1, %1, 0, 0xffff\n\t"
+            "stwcx. %1,%y2\n\t"
+            "bne- 1b\n\t"
             : "=&b" (original), "=&b" (tmp), "+Z" (storage)
             : "b" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -456,12 +466,12 @@ struct operations< 2u, false > :
         fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n"
-            "lwarx %0,%y2\n"
-            "sub %1,%0,%3\n"
-            "rlwinm %1, %1, 0, 0xffff\n"
-            "stwcx. %1,%y2\n"
-            "bne- 1b\n"
+            "1:\n\t"
+            "lwarx %0,%y2\n\t"
+            "sub %1,%0,%3\n\t"
+            "rlwinm %1, %1, 0, 0xffff\n\t"
+            "stwcx. %1,%y2\n\t"
+            "bne- 1b\n\t"
             : "=&b" (original), "=&b" (tmp), "+Z" (storage)
             : "b" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -484,12 +494,12 @@ struct operations< 2u, true > :
         fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n"
-            "lwarx %0,%y2\n"
-            "add %1,%0,%3\n"
-            "extsh %1, %1\n"
-            "stwcx. %1,%y2\n"
-            "bne- 1b\n"
+            "1:\n\t"
+            "lwarx %0,%y2\n\t"
+            "add %1,%0,%3\n\t"
+            "extsh %1, %1\n\t"
+            "stwcx. %1,%y2\n\t"
+            "bne- 1b\n\t"
             : "=&b" (original), "=&b" (tmp), "+Z" (storage)
             : "b" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -504,12 +514,12 @@ struct operations< 2u, true > :
         fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n"
-            "lwarx %0,%y2\n"
-            "sub %1,%0,%3\n"
-            "extsh %1, %1\n"
-            "stwcx. %1,%y2\n"
-            "bne- 1b\n"
+            "1:\n\t"
+            "lwarx %0,%y2\n\t"
+            "sub %1,%0,%3\n\t"
+            "extsh %1, %1\n\t"
+            "stwcx. %1,%y2\n\t"
+            "bne- 1b\n\t"
             : "=&b" (original), "=&b" (tmp), "+Z" (storage)
             : "b" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -533,27 +543,40 @@ struct operations< 8u, Signed > :
         fence_before(order);
         __asm__ __volatile__
         (
-            "std %1, %0\n"
+            "std %1, %0\n\t"
             : "+m" (storage)
             : "r" (v)
         );
-        fence_after_store(order);
     }
 
     static BOOST_FORCEINLINE storage_type load(storage_type const volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
         storage_type v;
-        __asm__ __volatile__
-        (
-            "ld %0, %1\n"
-            "cmpd %0, %0\n"
-            "bne- 1f\n"
-            "1:\n"
-            : "=&b" (v)
-            : "m" (storage)
-            : "cr0"
-        );
-        fence_after(order);
+        if (order == memory_order_seq_cst)
+            __asm__ __volatile__ ("sync" ::: "memory");
+        if ((order & (memory_order_consume | memory_order_acquire)) != 0)
+        {
+            __asm__ __volatile__
+            (
+                "ld %0, %1\n\t"
+                "cmpd %0, %0\n\t"
+                "bne- 1f\n\t"
+                "1:\n\t"
+                "isync\n\t"
+                : "=&b" (v)
+                : "m" (storage)
+                : "cr0", "memory"
+            );
+        }
+        else
+        {
+            __asm__ __volatile__
+            (
+                "ld %0, %1\n\t"
+                : "=&b" (v)
+                : "m" (storage)
+            );
+        }
         return v;
     }
 
@@ -563,10 +586,10 @@ struct operations< 8u, Signed > :
         fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n"
-            "ldarx %0,%y1\n"
-            "stdcx. %2,%y1\n"
-            "bne- 1b\n"
+            "1:\n\t"
+            "ldarx %0,%y1\n\t"
+            "stdcx. %2,%y1\n\t"
+            "bne- 1b\n\t"
             : "=&b" (original), "+Z" (storage)
             : "b" (v)
             : "cr0"
@@ -582,13 +605,13 @@ struct operations< 8u, Signed > :
         fence_before(success_order);
         __asm__ __volatile__
         (
-            "li %1, 0\n"
-            "ldarx %0,%y2\n"
-            "cmpd %0, %3\n"
-            "bne- 1f\n"
-            "stdcx. %4,%y2\n"
-            "bne- 1f\n"
-            "li %1, 1\n"
+            "li %1, 0\n\t"
+            "ldarx %0,%y2\n\t"
+            "cmpd %0, %3\n\t"
+            "bne- 1f\n\t"
+            "stdcx. %4,%y2\n\t"
+            "bne- 1f\n\t"
+            "li %1, 1\n\t"
             "1:"
             : "=&b" (expected), "=&b" (success), "+Z" (storage)
             : "b" (expected), "b" (desired)
@@ -608,14 +631,14 @@ struct operations< 8u, Signed > :
         fence_before(success_order);
         __asm__ __volatile__
         (
-            "li %1, 0\n"
-            "0: ldarx %0,%y2\n"
-            "cmpd %0, %3\n"
-            "bne- 1f\n"
-            "stdcx. %4,%y2\n"
-            "bne- 0b\n"
-            "li %1, 1\n"
-            "1:"
+            "li %1, 0\n\t"
+            "0: ldarx %0,%y2\n\t"
+            "cmpd %0, %3\n\t"
+            "bne- 1f\n\t"
+            "stdcx. %4,%y2\n\t"
+            "bne- 0b\n\t"
+            "li %1, 1\n\t"
+            "1:\n\t"
             : "=&b" (expected), "=&b" (success), "+Z" (storage)
             : "b" (expected), "b" (desired)
             : "cr0"
@@ -633,11 +656,11 @@ struct operations< 8u, Signed > :
         fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n"
-            "ldarx %0,%y2\n"
-            "add %1,%0,%3\n"
-            "stdcx. %1,%y2\n"
-            "bne- 1b\n"
+            "1:\n\t"
+            "ldarx %0,%y2\n\t"
+            "add %1,%0,%3\n\t"
+            "stdcx. %1,%y2\n\t"
+            "bne- 1b\n\t"
             : "=&b" (original), "=&b" (tmp), "+Z" (storage)
             : "b" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -652,11 +675,11 @@ struct operations< 8u, Signed > :
         fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n"
-            "ldarx %0,%y2\n"
-            "sub %1,%0,%3\n"
-            "stdcx. %1,%y2\n"
-            "bne- 1b\n"
+            "1:\n\t"
+            "ldarx %0,%y2\n\t"
+            "sub %1,%0,%3\n\t"
+            "stdcx. %1,%y2\n\t"
+            "bne- 1b\n\t"
             : "=&b" (original), "=&b" (tmp), "+Z" (storage)
             : "b" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -671,11 +694,11 @@ struct operations< 8u, Signed > :
         fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n"
-            "ldarx %0,%y2\n"
-            "and %1,%0,%3\n"
-            "stdcx. %1,%y2\n"
-            "bne- 1b\n"
+            "1:\n\t"
+            "ldarx %0,%y2\n\t"
+            "and %1,%0,%3\n\t"
+            "stdcx. %1,%y2\n\t"
+            "bne- 1b\n\t"
             : "=&b" (original), "=&b" (tmp), "+Z" (storage)
             : "b" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -690,11 +713,11 @@ struct operations< 8u, Signed > :
         fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n"
-            "ldarx %0,%y2\n"
-            "or %1,%0,%3\n"
-            "stdcx. %1,%y2\n"
-            "bne- 1b\n"
+            "1:\n\t"
+            "ldarx %0,%y2\n\t"
+            "or %1,%0,%3\n\t"
+            "stdcx. %1,%y2\n\t"
+            "bne- 1b\n\t"
             : "=&b" (original), "=&b" (tmp), "+Z" (storage)
             : "b" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -709,11 +732,11 @@ struct operations< 8u, Signed > :
         fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n"
-            "ldarx %0,%y2\n"
-            "xor %1,%0,%3\n"
-            "stdcx. %1,%y2\n"
-            "bne- 1b\n"
+            "1:\n\t"
+            "ldarx %0,%y2\n\t"
+            "xor %1,%0,%3\n\t"
+            "stdcx. %1,%y2\n\t"
+            "bne- 1b\n\t"
             : "=&b" (original), "=&b" (tmp), "+Z" (storage)
             : "b" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -747,14 +770,12 @@ BOOST_FORCEINLINE void thread_fence(memory_order order) BOOST_NOEXCEPT
     {
     case memory_order_consume:
     case memory_order_acquire:
-        __asm__ __volatile__ ("isync" ::: "memory");
-        break;
     case memory_order_release:
+    case memory_order_acq_rel:
 #if defined(__powerpc64__) || defined(__PPC64__)
         __asm__ __volatile__ ("lwsync" ::: "memory");
         break;
 #endif
-    case memory_order_acq_rel:
     case memory_order_seq_cst:
         __asm__ __volatile__ ("sync" ::: "memory");
         break;
