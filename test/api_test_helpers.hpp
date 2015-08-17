@@ -346,6 +346,24 @@ test_struct_api(void)
         BOOST_TEST( sa.is_lock_free() == si.is_lock_free() );
     }
 }
+
+template<typename T>
+struct test_struct_x2 {
+    typedef T value_type;
+    value_type i, j;
+    inline bool operator==(const test_struct_x2 & c) const {return i == c.i && j == c.j;}
+    inline bool operator!=(const test_struct_x2 & c) const {return i != c.i && j != c.j;}
+};
+
+template<typename T>
+void
+test_struct_x2_api(void)
+{
+    T a = {1, 1}, b = {2, 2}, c = {3, 3};
+
+    test_base_operators(a, b, c);
+}
+
 struct large_struct {
     long data[64];
 
