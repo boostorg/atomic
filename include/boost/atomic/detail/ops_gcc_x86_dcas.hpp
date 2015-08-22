@@ -272,10 +272,10 @@ struct gcc_dcas_x86
             "1: lock; cmpxchg8b 0(%[dest])\n\t"
             "jne 1b\n\t"
 #if !defined(BOOST_ATOMIC_DETAIL_NO_ASM_CONSTRAINT_ALTERNATIVES)
-            : "=&A,A" (v)
+            : "=A,A" (v)
             : "b,b" ((uint32_t)v), "c,c" ((uint32_t)(v >> 32)), [dest] "D,S" (&storage)
 #else
-            : "=&A" (v)
+            : "=A" (v)
             : "b" ((uint32_t)v), "c" ((uint32_t)(v >> 32)), [dest] "D" (&storage)
 #endif
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
@@ -423,6 +423,24 @@ struct gcc_dcas_x86_64
                 return val;
             old_val = val;
         }
+#elif defined(BOOST_GCC) && (BOOST_GCC+0) < 40500
+        // GCC 4.4 can't allocate rax:rdx register pair either but it also doesn't support 128-bit __sync_val_compare_and_swap
+        storage_type old_value;
+        uint64_t const* p_value = (uint64_t const*)&v;
+        __asm__ __volatile__
+        (
+            "movq 0(%[dest]), %%rax\n\t"
+            "movq 8(%[dest]), %%rdx\n\t"
+            ".align 16\n\t"
+            "1: lock; cmpxchg16b 0(%[dest])\n\t"
+            "jne 1b\n\t"
+            "movq %%rax, 0(%[old_value])\n\t"
+            "movq %%rdx, 8(%[old_value])\n\t"
+            :
+            : "b" (p_value[0]), "c" (p_value[1]), [dest] "r" (&storage), [old_value] "r" (&old_value)
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory", "rax", "rdx"
+        );
+        return old_value;
 #else
         uint64_t const* p_value = (uint64_t const*)&v;
         __asm__ __volatile__
