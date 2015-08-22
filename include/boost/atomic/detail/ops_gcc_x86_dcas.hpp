@@ -36,6 +36,7 @@ template< bool Signed >
 struct gcc_dcas_x86
 {
     typedef typename make_storage_type< 8u, Signed >::type storage_type;
+    typedef typename make_storage_type< 8u, Signed >::aligned aligned_storage_type;
 
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
@@ -227,6 +228,62 @@ struct gcc_dcas_x86
         return compare_exchange_strong(storage, expected, desired, success_order, failure_order);
     }
 
+    static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    {
+#if defined(__clang__)
+        // Clang cannot allocate eax:edx register pairs but it has sync intrinsics
+        storage_type old_val = storage;
+        while (true)
+        {
+            storage_type val = __sync_val_compare_and_swap(&storage, old_val, v);
+            if (val == old_val)
+                return val;
+            old_val = val;
+        }
+#elif defined(__PIC__)
+        uint32_t scratch;
+        __asm__ __volatile__
+        (
+            "movl %%ebx, %[scratch]\n\t"
+            "movl %%eax, %%ebx\n\t"
+            "movl %%edx, %%ecx\n\t"
+            "movl 0(%[dest]), %%eax\n\t"
+            "movl 4(%[dest]), %%edx\n\t"
+            ".align 16\n\t"
+            "1: lock; cmpxchg8b 0(%[dest])\n\t"
+            "jne 1b\n\t"
+            "movl %[scratch], %%ebx\n\t"
+#if !defined(BOOST_ATOMIC_DETAIL_NO_ASM_CONSTRAINT_ALTERNATIVES)
+            : "+A,A" (v), [scratch] "=m,m" (scratch)
+            : [dest] "D,S" (&storage)
+#else
+            : "+A" (v), [scratch] "=m" (scratch)
+            : [dest] "D" (&storage)
+#endif
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "ecx", "memory"
+        );
+        return v;
+#else
+        __asm__ __volatile__
+        (
+            "movl 0(%[dest]), %%eax\n\t"
+            "movl 4(%[dest]), %%edx\n\t"
+            ".align 16\n\t"
+            "1: lock; cmpxchg8b 0(%[dest])\n\t"
+            "jne 1b\n\t"
+#if !defined(BOOST_ATOMIC_DETAIL_NO_ASM_CONSTRAINT_ALTERNATIVES)
+            : "=&A,A" (v)
+            : "b,b" ((uint32_t)v), "c,c" ((uint32_t)(v >> 32)), [dest] "D,S" (&storage)
+#else
+            : "=&A" (v)
+            : "b" ((uint32_t)v), "c" ((uint32_t)(v >> 32)), [dest] "D" (&storage)
+#endif
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
+        );
+        return v;
+#endif
+    }
+
     static BOOST_FORCEINLINE bool is_lock_free(storage_type const volatile&) BOOST_NOEXCEPT
     {
         return true;
@@ -241,6 +298,7 @@ template< bool Signed >
 struct gcc_dcas_x86_64
 {
     typedef typename make_storage_type< 16u, Signed >::type storage_type;
+    typedef typename make_storage_type< 16u, Signed >::aligned aligned_storage_type;
 
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
@@ -351,6 +409,35 @@ struct gcc_dcas_x86_64
         storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order success_order, memory_order failure_order) BOOST_NOEXCEPT
     {
         return compare_exchange_strong(storage, expected, desired, success_order, failure_order);
+    }
+
+    static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    {
+#if defined(__clang__)
+        // Clang cannot allocate eax:edx register pairs but it has sync intrinsics
+        storage_type old_val = storage;
+        while (true)
+        {
+            storage_type val = __sync_val_compare_and_swap(&storage, old_val, v);
+            if (val == old_val)
+                return val;
+            old_val = val;
+        }
+#else
+        uint64_t const* p_value = (uint64_t const*)&v;
+        __asm__ __volatile__
+        (
+            "movq 0(%[dest]), %%rax\n\t"
+            "movq 8(%[dest]), %%rdx\n\t"
+            ".align 16\n\t"
+            "1: lock; cmpxchg16b 0(%[dest])\n\t"
+            "jne 1b\n\t"
+            : "=&A" (v)
+            : "b" (p_value[0]), "c" (p_value[1]), [dest] "r" (&storage)
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
+        );
+        return v;
+#endif
     }
 
     static BOOST_FORCEINLINE bool is_lock_free(storage_type const volatile&) BOOST_NOEXCEPT

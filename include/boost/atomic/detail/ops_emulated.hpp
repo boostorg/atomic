@@ -14,6 +14,7 @@
 #ifndef BOOST_ATOMIC_DETAIL_OPS_EMULATED_HPP_INCLUDED_
 #define BOOST_ATOMIC_DETAIL_OPS_EMULATED_HPP_INCLUDED_
 
+#include <cstddef>
 #include <boost/memory_order.hpp>
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/storage_type.hpp>
@@ -136,10 +137,11 @@ struct emulated_operations
     }
 };
 
-template< unsigned int Size, bool Signed >
+template< std::size_t Size, bool Signed >
 struct operations :
     public emulated_operations< typename make_storage_type< Size, Signed >::type >
 {
+    typedef typename make_storage_type< Size, Signed >::aligned aligned_storage_type;
 };
 
 } // namespace detail
