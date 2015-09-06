@@ -352,7 +352,7 @@ struct gcc_x86_extended_operations< 1u, Signed > :
         (
             "lock; btsb %[bit_number], %[storage]\n\t"
             : [storage] "=m" (storage), [result] "=@ccc" (res)
-            : [bit_number] "iq" (bit_number)
+            : [bit_number] "Kq" (bit_number)
             : "memory"
         );
 #else
@@ -361,7 +361,7 @@ struct gcc_x86_extended_operations< 1u, Signed > :
             "lock; btsb %[bit_number], %[storage]\n\t"
             "setc %[result]\n\t"
             : [storage] "=m" (storage), [result] "=q" (res)
-            : [bit_number] "iq" (bit_number)
+            : [bit_number] "Kq" (bit_number)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
 #endif
@@ -376,7 +376,7 @@ struct gcc_x86_extended_operations< 1u, Signed > :
         (
             "lock; btrb %[bit_number], %[storage]\n\t"
             : [storage] "=m" (storage), [result] "=@ccc" (res)
-            : [bit_number] "iq" (bit_number)
+            : [bit_number] "Kq" (bit_number)
             : "memory"
         );
 #else
@@ -385,7 +385,7 @@ struct gcc_x86_extended_operations< 1u, Signed > :
             "lock; btrb %[bit_number], %[storage]\n\t"
             "setc %[result]\n\t"
             : [storage] "=m" (storage), [result] "=q" (res)
-            : [bit_number] "iq" (bit_number)
+            : [bit_number] "Kq" (bit_number)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
 #endif
@@ -400,7 +400,7 @@ struct gcc_x86_extended_operations< 1u, Signed > :
         (
             "lock; btcb %[bit_number], %[storage]\n\t"
             : [storage] "=m" (storage), [result] "=@ccc" (res)
-            : [bit_number] "iq" (bit_number)
+            : [bit_number] "Kq" (bit_number)
             : "memory"
         );
 #else
@@ -409,7 +409,7 @@ struct gcc_x86_extended_operations< 1u, Signed > :
             "lock; btcb %[bit_number], %[storage]\n\t"
             "setc %[result]\n\t"
             : [storage] "=m" (storage), [result] "=q" (res)
-            : [bit_number] "iq" (bit_number)
+            : [bit_number] "Kq" (bit_number)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
 #endif
@@ -739,7 +739,7 @@ struct gcc_x86_extended_operations< 2u, Signed > :
         (
             "lock; btsw %[bit_number], %[storage]\n\t"
             : [storage] "=m" (storage), [result] "=@ccc" (res)
-            : [bit_number] "iq" (bit_number)
+            : [bit_number] "Kq" (bit_number)
             : "memory"
         );
 #else
@@ -748,7 +748,7 @@ struct gcc_x86_extended_operations< 2u, Signed > :
             "lock; btsw %[bit_number], %[storage]\n\t"
             "setc %[result]\n\t"
             : [storage] "=m" (storage), [result] "=q" (res)
-            : [bit_number] "iq" (bit_number)
+            : [bit_number] "Kq" (bit_number)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
 #endif
@@ -763,7 +763,7 @@ struct gcc_x86_extended_operations< 2u, Signed > :
         (
             "lock; btrw %[bit_number], %[storage]\n\t"
             : [storage] "=m" (storage), [result] "=@ccc" (res)
-            : [bit_number] "iq" (bit_number)
+            : [bit_number] "Kq" (bit_number)
             : "memory"
         );
 #else
@@ -772,7 +772,7 @@ struct gcc_x86_extended_operations< 2u, Signed > :
             "lock; btrw %[bit_number], %[storage]\n\t"
             "setc %[result]\n\t"
             : [storage] "=m" (storage), [result] "=q" (res)
-            : [bit_number] "iq" (bit_number)
+            : [bit_number] "Kq" (bit_number)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
 #endif
@@ -787,7 +787,7 @@ struct gcc_x86_extended_operations< 2u, Signed > :
         (
             "lock; btcw %[bit_number], %[storage]\n\t"
             : [storage] "=m" (storage), [result] "=@ccc" (res)
-            : [bit_number] "iq" (bit_number)
+            : [bit_number] "Kq" (bit_number)
             : "memory"
         );
 #else
@@ -796,7 +796,7 @@ struct gcc_x86_extended_operations< 2u, Signed > :
             "lock; btcw %[bit_number], %[storage]\n\t"
             "setc %[result]\n\t"
             : [storage] "=m" (storage), [result] "=q" (res)
-            : [bit_number] "iq" (bit_number)
+            : [bit_number] "Kq" (bit_number)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
 #endif
@@ -1126,7 +1126,7 @@ struct gcc_x86_extended_operations< 4u, Signed > :
         (
             "lock; btsl %[bit_number], %[storage]\n\t"
             : [storage] "=m" (storage), [result] "=@ccc" (res)
-            : [bit_number] "ir" (bit_number)
+            : [bit_number] "Kr" (bit_number)
             : "memory"
         );
 #else
@@ -1135,7 +1135,7 @@ struct gcc_x86_extended_operations< 4u, Signed > :
             "lock; btsl %[bit_number], %[storage]\n\t"
             "setc %[result]\n\t"
             : [storage] "=m" (storage), [result] "=q" (res)
-            : [bit_number] "ir" (bit_number)
+            : [bit_number] "Kr" (bit_number)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
 #endif
@@ -1150,7 +1150,7 @@ struct gcc_x86_extended_operations< 4u, Signed > :
         (
             "lock; btrl %[bit_number], %[storage]\n\t"
             : [storage] "=m" (storage), [result] "=@ccc" (res)
-            : [bit_number] "ir" (bit_number)
+            : [bit_number] "Kr" (bit_number)
             : "memory"
         );
 #else
@@ -1159,7 +1159,7 @@ struct gcc_x86_extended_operations< 4u, Signed > :
             "lock; btrl %[bit_number], %[storage]\n\t"
             "setc %[result]\n\t"
             : [storage] "=m" (storage), [result] "=q" (res)
-            : [bit_number] "ir" (bit_number)
+            : [bit_number] "Kr" (bit_number)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
 #endif
@@ -1174,7 +1174,7 @@ struct gcc_x86_extended_operations< 4u, Signed > :
         (
             "lock; btcl %[bit_number], %[storage]\n\t"
             : [storage] "=m" (storage), [result] "=@ccc" (res)
-            : [bit_number] "ir" (bit_number)
+            : [bit_number] "Kr" (bit_number)
             : "memory"
         );
 #else
@@ -1183,7 +1183,7 @@ struct gcc_x86_extended_operations< 4u, Signed > :
             "lock; btcl %[bit_number], %[storage]\n\t"
             "setc %[result]\n\t"
             : [storage] "=m" (storage), [result] "=q" (res)
-            : [bit_number] "ir" (bit_number)
+            : [bit_number] "Kr" (bit_number)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
 #endif
@@ -1515,7 +1515,7 @@ struct gcc_x86_extended_operations< 8u, Signed > :
         (
             "lock; btsq %[bit_number], %[storage]\n\t"
             : [storage] "=m" (storage), [result] "=@ccc" (res)
-            : [bit_number] "ir" (bit_number)
+            : [bit_number] "Kr" (bit_number)
             : "memory"
         );
 #else
@@ -1524,7 +1524,7 @@ struct gcc_x86_extended_operations< 8u, Signed > :
             "lock; btsq %[bit_number], %[storage]\n\t"
             "setc %[result]\n\t"
             : [storage] "=m" (storage), [result] "=q" (res)
-            : [bit_number] "ir" (bit_number)
+            : [bit_number] "Kr" (bit_number)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
 #endif
@@ -1539,7 +1539,7 @@ struct gcc_x86_extended_operations< 8u, Signed > :
         (
             "lock; btrq %[bit_number], %[storage]\n\t"
             : [storage] "=m" (storage), [result] "=@ccc" (res)
-            : [bit_number] "ir" (bit_number)
+            : [bit_number] "Kr" (bit_number)
             : "memory"
         );
 #else
@@ -1548,7 +1548,7 @@ struct gcc_x86_extended_operations< 8u, Signed > :
             "lock; btrq %[bit_number], %[storage]\n\t"
             "setc %[result]\n\t"
             : [storage] "=m" (storage), [result] "=q" (res)
-            : [bit_number] "ir" (bit_number)
+            : [bit_number] "Kr" (bit_number)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
 #endif
@@ -1563,7 +1563,7 @@ struct gcc_x86_extended_operations< 8u, Signed > :
         (
             "lock; btcq %[bit_number], %[storage]\n\t"
             : [storage] "=m" (storage), [result] "=@ccc" (res)
-            : [bit_number] "ir" (bit_number)
+            : [bit_number] "Kr" (bit_number)
             : "memory"
         );
 #else
@@ -1572,7 +1572,7 @@ struct gcc_x86_extended_operations< 8u, Signed > :
             "lock; btcq %[bit_number], %[storage]\n\t"
             "setc %[result]\n\t"
             : [storage] "=m" (storage), [result] "=q" (res)
-            : [bit_number] "ir" (bit_number)
+            : [bit_number] "Kr" (bit_number)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
 #endif
