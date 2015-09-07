@@ -27,14 +27,94 @@ namespace boost {
 namespace atomics {
 namespace detail {
 
+template< typename Base >
+struct gcc_x86_extended_operations_common :
+    public Base
+{
+    typedef Base base_type;
+    typedef typename base_type::storage_type storage_type;
+
+    static BOOST_FORCEINLINE bool bit_test_and_set(storage_type volatile& storage, unsigned int bit_number, memory_order) BOOST_NOEXCEPT
+    {
+        bool res;
+#if defined(BOOST_ATOMIC_DETAIL_ASM_HAS_FLAG_OUTPUTS)
+        __asm__ __volatile__
+        (
+            "lock; bts %[bit_number], %[storage]\n\t"
+            : [storage] "=m" (storage), [result] "=@ccc" (res)
+            : [bit_number] "Kq" (bit_number)
+            : "memory"
+        );
+#else
+        __asm__ __volatile__
+        (
+            "lock; bts %[bit_number], %[storage]\n\t"
+            "setc %[result]\n\t"
+            : [storage] "=m" (storage), [result] "=q" (res)
+            : [bit_number] "Kq" (bit_number)
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
+        );
+#endif
+        return res;
+    }
+
+    static BOOST_FORCEINLINE bool bit_test_and_reset(storage_type volatile& storage, unsigned int bit_number, memory_order) BOOST_NOEXCEPT
+    {
+        bool res;
+#if defined(BOOST_ATOMIC_DETAIL_ASM_HAS_FLAG_OUTPUTS)
+        __asm__ __volatile__
+        (
+            "lock; btr %[bit_number], %[storage]\n\t"
+            : [storage] "=m" (storage), [result] "=@ccc" (res)
+            : [bit_number] "Kq" (bit_number)
+            : "memory"
+        );
+#else
+        __asm__ __volatile__
+        (
+            "lock; btr %[bit_number], %[storage]\n\t"
+            "setc %[result]\n\t"
+            : [storage] "=m" (storage), [result] "=q" (res)
+            : [bit_number] "Kq" (bit_number)
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
+        );
+#endif
+        return res;
+    }
+
+    static BOOST_FORCEINLINE bool bit_test_and_complement(storage_type volatile& storage, unsigned int bit_number, memory_order) BOOST_NOEXCEPT
+    {
+        bool res;
+#if defined(BOOST_ATOMIC_DETAIL_ASM_HAS_FLAG_OUTPUTS)
+        __asm__ __volatile__
+        (
+            "lock; btc %[bit_number], %[storage]\n\t"
+            : [storage] "=m" (storage), [result] "=@ccc" (res)
+            : [bit_number] "Kq" (bit_number)
+            : "memory"
+        );
+#else
+        __asm__ __volatile__
+        (
+            "lock; btc %[bit_number], %[storage]\n\t"
+            "setc %[result]\n\t"
+            : [storage] "=m" (storage), [result] "=q" (res)
+            : [bit_number] "Kq" (bit_number)
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
+        );
+#endif
+        return res;
+    }
+};
+
 template< std::size_t Size, bool Signed, typename Base >
 struct gcc_x86_extended_operations;
 
 template< bool Signed, typename Base >
-struct gcc_x86_extended_operations< 1u, Signed > :
-    public Base
+struct gcc_x86_extended_operations< 1u, Signed, Base > :
+    public gcc_x86_extended_operations_common< Base >
 {
-    typedef Base base_type;
+    typedef gcc_x86_extended_operations_common< Base > base_type;
     typedef typename base_type::storage_type storage_type;
 
 #define BOOST_ATOMIC_DETAIL_CAS_LOOP(op, result)\
@@ -46,7 +126,7 @@ struct gcc_x86_extended_operations< 1u, Signed > :
         op " %[new_val]\n\t"\
         "lock; cmpxchgb %[new_val], %[storage]\n\t"\
         "jne 1b"\
-        : [res] "+q" (result), [storage] "+m" (storage), [new_val] "=&q" (new_val)\
+        : [res] "+a" (result), [storage] "+m" (storage), [new_val] "=&q" (new_val)\
         : \
         : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"\
     )
@@ -343,85 +423,13 @@ struct gcc_x86_extended_operations< 1u, Signed > :
 #endif
         return res;
     }
-
-    static BOOST_FORCEINLINE bool bit_test_and_set(storage_type volatile& storage, unsigned int bit_number, memory_order) BOOST_NOEXCEPT
-    {
-        bool res;
-#if defined(BOOST_ATOMIC_DETAIL_ASM_HAS_FLAG_OUTPUTS)
-        __asm__ __volatile__
-        (
-            "lock; btsb %[bit_number], %[storage]\n\t"
-            : [storage] "=m" (storage), [result] "=@ccc" (res)
-            : [bit_number] "Kq" (bit_number)
-            : "memory"
-        );
-#else
-        __asm__ __volatile__
-        (
-            "lock; btsb %[bit_number], %[storage]\n\t"
-            "setc %[result]\n\t"
-            : [storage] "=m" (storage), [result] "=q" (res)
-            : [bit_number] "Kq" (bit_number)
-            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
-        );
-#endif
-        return res;
-    }
-
-    static BOOST_FORCEINLINE bool bit_test_and_reset(storage_type volatile& storage, unsigned int bit_number, memory_order) BOOST_NOEXCEPT
-    {
-        bool res;
-#if defined(BOOST_ATOMIC_DETAIL_ASM_HAS_FLAG_OUTPUTS)
-        __asm__ __volatile__
-        (
-            "lock; btrb %[bit_number], %[storage]\n\t"
-            : [storage] "=m" (storage), [result] "=@ccc" (res)
-            : [bit_number] "Kq" (bit_number)
-            : "memory"
-        );
-#else
-        __asm__ __volatile__
-        (
-            "lock; btrb %[bit_number], %[storage]\n\t"
-            "setc %[result]\n\t"
-            : [storage] "=m" (storage), [result] "=q" (res)
-            : [bit_number] "Kq" (bit_number)
-            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
-        );
-#endif
-        return res;
-    }
-
-    static BOOST_FORCEINLINE bool bit_test_and_complement(storage_type volatile& storage, unsigned int bit_number, memory_order) BOOST_NOEXCEPT
-    {
-        bool res;
-#if defined(BOOST_ATOMIC_DETAIL_ASM_HAS_FLAG_OUTPUTS)
-        __asm__ __volatile__
-        (
-            "lock; btcb %[bit_number], %[storage]\n\t"
-            : [storage] "=m" (storage), [result] "=@ccc" (res)
-            : [bit_number] "Kq" (bit_number)
-            : "memory"
-        );
-#else
-        __asm__ __volatile__
-        (
-            "lock; btcb %[bit_number], %[storage]\n\t"
-            "setc %[result]\n\t"
-            : [storage] "=m" (storage), [result] "=q" (res)
-            : [bit_number] "Kq" (bit_number)
-            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
-        );
-#endif
-        return res;
-    }
 };
 
 template< bool Signed, typename Base >
-struct gcc_x86_extended_operations< 2u, Signed > :
-    public Base
+struct gcc_x86_extended_operations< 2u, Signed, Base > :
+    public gcc_x86_extended_operations_common< Base >
 {
-    typedef Base base_type;
+    typedef gcc_x86_extended_operations_common< Base > base_type;
     typedef typename base_type::storage_type storage_type;
 
 #define BOOST_ATOMIC_DETAIL_CAS_LOOP(op, result)\
@@ -433,7 +441,7 @@ struct gcc_x86_extended_operations< 2u, Signed > :
         op " %[new_val]\n\t"\
         "lock; cmpxchgw %[new_val], %[storage]\n\t"\
         "jne 1b"\
-        : [res] "+q" (result), [storage] "+m" (storage), [new_val] "=&q" (new_val)\
+        : [res] "+a" (result), [storage] "+m" (storage), [new_val] "=&q" (new_val)\
         : \
         : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"\
     )
@@ -730,85 +738,13 @@ struct gcc_x86_extended_operations< 2u, Signed > :
 #endif
         return res;
     }
-
-    static BOOST_FORCEINLINE bool bit_test_and_set(storage_type volatile& storage, unsigned int bit_number, memory_order) BOOST_NOEXCEPT
-    {
-        bool res;
-#if defined(BOOST_ATOMIC_DETAIL_ASM_HAS_FLAG_OUTPUTS)
-        __asm__ __volatile__
-        (
-            "lock; btsw %[bit_number], %[storage]\n\t"
-            : [storage] "=m" (storage), [result] "=@ccc" (res)
-            : [bit_number] "Kq" (bit_number)
-            : "memory"
-        );
-#else
-        __asm__ __volatile__
-        (
-            "lock; btsw %[bit_number], %[storage]\n\t"
-            "setc %[result]\n\t"
-            : [storage] "=m" (storage), [result] "=q" (res)
-            : [bit_number] "Kq" (bit_number)
-            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
-        );
-#endif
-        return res;
-    }
-
-    static BOOST_FORCEINLINE bool bit_test_and_reset(storage_type volatile& storage, unsigned int bit_number, memory_order) BOOST_NOEXCEPT
-    {
-        bool res;
-#if defined(BOOST_ATOMIC_DETAIL_ASM_HAS_FLAG_OUTPUTS)
-        __asm__ __volatile__
-        (
-            "lock; btrw %[bit_number], %[storage]\n\t"
-            : [storage] "=m" (storage), [result] "=@ccc" (res)
-            : [bit_number] "Kq" (bit_number)
-            : "memory"
-        );
-#else
-        __asm__ __volatile__
-        (
-            "lock; btrw %[bit_number], %[storage]\n\t"
-            "setc %[result]\n\t"
-            : [storage] "=m" (storage), [result] "=q" (res)
-            : [bit_number] "Kq" (bit_number)
-            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
-        );
-#endif
-        return res;
-    }
-
-    static BOOST_FORCEINLINE bool bit_test_and_complement(storage_type volatile& storage, unsigned int bit_number, memory_order) BOOST_NOEXCEPT
-    {
-        bool res;
-#if defined(BOOST_ATOMIC_DETAIL_ASM_HAS_FLAG_OUTPUTS)
-        __asm__ __volatile__
-        (
-            "lock; btcw %[bit_number], %[storage]\n\t"
-            : [storage] "=m" (storage), [result] "=@ccc" (res)
-            : [bit_number] "Kq" (bit_number)
-            : "memory"
-        );
-#else
-        __asm__ __volatile__
-        (
-            "lock; btcw %[bit_number], %[storage]\n\t"
-            "setc %[result]\n\t"
-            : [storage] "=m" (storage), [result] "=q" (res)
-            : [bit_number] "Kq" (bit_number)
-            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
-        );
-#endif
-        return res;
-    }
 };
 
 template< bool Signed, typename Base >
-struct gcc_x86_extended_operations< 4u, Signed > :
-    public Base
+struct gcc_x86_extended_operations< 4u, Signed, Base > :
+    public gcc_x86_extended_operations_common< Base >
 {
-    typedef Base base_type;
+    typedef gcc_x86_extended_operations_common< Base > base_type;
     typedef typename base_type::storage_type storage_type;
 
 #define BOOST_ATOMIC_DETAIL_CAS_LOOP(op, result)\
@@ -820,7 +756,7 @@ struct gcc_x86_extended_operations< 4u, Signed > :
         op " %[new_val]\n\t"\
         "lock; cmpxchgl %[new_val], %[storage]\n\t"\
         "jne 1b"\
-        : [res] "+r" (result), [storage] "+m" (storage), [new_val] "=&r" (new_val)\
+        : [res] "+a" (result), [storage] "+m" (storage), [new_val] "=&r" (new_val)\
         : \
         : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"\
     )
@@ -1117,87 +1053,15 @@ struct gcc_x86_extended_operations< 4u, Signed > :
 #endif
         return res;
     }
-
-    static BOOST_FORCEINLINE bool bit_test_and_set(storage_type volatile& storage, unsigned int bit_number, memory_order) BOOST_NOEXCEPT
-    {
-        bool res;
-#if defined(BOOST_ATOMIC_DETAIL_ASM_HAS_FLAG_OUTPUTS)
-        __asm__ __volatile__
-        (
-            "lock; btsl %[bit_number], %[storage]\n\t"
-            : [storage] "=m" (storage), [result] "=@ccc" (res)
-            : [bit_number] "Kr" (bit_number)
-            : "memory"
-        );
-#else
-        __asm__ __volatile__
-        (
-            "lock; btsl %[bit_number], %[storage]\n\t"
-            "setc %[result]\n\t"
-            : [storage] "=m" (storage), [result] "=q" (res)
-            : [bit_number] "Kr" (bit_number)
-            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
-        );
-#endif
-        return res;
-    }
-
-    static BOOST_FORCEINLINE bool bit_test_and_reset(storage_type volatile& storage, unsigned int bit_number, memory_order) BOOST_NOEXCEPT
-    {
-        bool res;
-#if defined(BOOST_ATOMIC_DETAIL_ASM_HAS_FLAG_OUTPUTS)
-        __asm__ __volatile__
-        (
-            "lock; btrl %[bit_number], %[storage]\n\t"
-            : [storage] "=m" (storage), [result] "=@ccc" (res)
-            : [bit_number] "Kr" (bit_number)
-            : "memory"
-        );
-#else
-        __asm__ __volatile__
-        (
-            "lock; btrl %[bit_number], %[storage]\n\t"
-            "setc %[result]\n\t"
-            : [storage] "=m" (storage), [result] "=q" (res)
-            : [bit_number] "Kr" (bit_number)
-            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
-        );
-#endif
-        return res;
-    }
-
-    static BOOST_FORCEINLINE bool bit_test_and_complement(storage_type volatile& storage, unsigned int bit_number, memory_order) BOOST_NOEXCEPT
-    {
-        bool res;
-#if defined(BOOST_ATOMIC_DETAIL_ASM_HAS_FLAG_OUTPUTS)
-        __asm__ __volatile__
-        (
-            "lock; btcl %[bit_number], %[storage]\n\t"
-            : [storage] "=m" (storage), [result] "=@ccc" (res)
-            : [bit_number] "Kr" (bit_number)
-            : "memory"
-        );
-#else
-        __asm__ __volatile__
-        (
-            "lock; btcl %[bit_number], %[storage]\n\t"
-            "setc %[result]\n\t"
-            : [storage] "=m" (storage), [result] "=q" (res)
-            : [bit_number] "Kr" (bit_number)
-            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
-        );
-#endif
-        return res;
-    }
 };
 
 #if defined(__x86_64__)
 
 template< bool Signed, typename Base >
-struct gcc_x86_extended_operations< 8u, Signed > :
-    public Base
+struct gcc_x86_extended_operations< 8u, Signed, Base > :
+    public gcc_x86_extended_operations_common< Base >
 {
-    typedef Base base_type;
+    typedef gcc_x86_extended_operations_common< Base > base_type;
     typedef typename base_type::storage_type storage_type;
 
 #define BOOST_ATOMIC_DETAIL_CAS_LOOP(op, result)\
@@ -1209,7 +1073,7 @@ struct gcc_x86_extended_operations< 8u, Signed > :
         op " %[new_val]\n\t"\
         "lock; cmpxchgq %[new_val], %[storage]\n\t"\
         "jne 1b"\
-        : [res] "+r" (result), [storage] "+m" (storage), [new_val] "=&r" (new_val)\
+        : [res] "+a" (result), [storage] "+m" (storage), [new_val] "=&r" (new_val)\
         : \
         : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"\
     )
@@ -1501,78 +1365,6 @@ struct gcc_x86_extended_operations< 8u, Signed > :
             "setz %[result]\n\t"
             : [storage] "=m" (storage), [result] "=q" (res)
             : [argument] "r" (v)
-            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
-        );
-#endif
-        return res;
-    }
-
-    static BOOST_FORCEINLINE bool bit_test_and_set(storage_type volatile& storage, unsigned int bit_number, memory_order) BOOST_NOEXCEPT
-    {
-        bool res;
-#if defined(BOOST_ATOMIC_DETAIL_ASM_HAS_FLAG_OUTPUTS)
-        __asm__ __volatile__
-        (
-            "lock; btsq %[bit_number], %[storage]\n\t"
-            : [storage] "=m" (storage), [result] "=@ccc" (res)
-            : [bit_number] "Kr" (bit_number)
-            : "memory"
-        );
-#else
-        __asm__ __volatile__
-        (
-            "lock; btsq %[bit_number], %[storage]\n\t"
-            "setc %[result]\n\t"
-            : [storage] "=m" (storage), [result] "=q" (res)
-            : [bit_number] "Kr" (bit_number)
-            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
-        );
-#endif
-        return res;
-    }
-
-    static BOOST_FORCEINLINE bool bit_test_and_reset(storage_type volatile& storage, unsigned int bit_number, memory_order) BOOST_NOEXCEPT
-    {
-        bool res;
-#if defined(BOOST_ATOMIC_DETAIL_ASM_HAS_FLAG_OUTPUTS)
-        __asm__ __volatile__
-        (
-            "lock; btrq %[bit_number], %[storage]\n\t"
-            : [storage] "=m" (storage), [result] "=@ccc" (res)
-            : [bit_number] "Kr" (bit_number)
-            : "memory"
-        );
-#else
-        __asm__ __volatile__
-        (
-            "lock; btrq %[bit_number], %[storage]\n\t"
-            "setc %[result]\n\t"
-            : [storage] "=m" (storage), [result] "=q" (res)
-            : [bit_number] "Kr" (bit_number)
-            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
-        );
-#endif
-        return res;
-    }
-
-    static BOOST_FORCEINLINE bool bit_test_and_complement(storage_type volatile& storage, unsigned int bit_number, memory_order) BOOST_NOEXCEPT
-    {
-        bool res;
-#if defined(BOOST_ATOMIC_DETAIL_ASM_HAS_FLAG_OUTPUTS)
-        __asm__ __volatile__
-        (
-            "lock; btcq %[bit_number], %[storage]\n\t"
-            : [storage] "=m" (storage), [result] "=@ccc" (res)
-            : [bit_number] "Kr" (bit_number)
-            : "memory"
-        );
-#else
-        __asm__ __volatile__
-        (
-            "lock; btcq %[bit_number], %[storage]\n\t"
-            "setc %[result]\n\t"
-            : [storage] "=m" (storage), [result] "=q" (res)
-            : [bit_number] "Kr" (bit_number)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
 #endif
