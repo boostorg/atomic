@@ -9,10 +9,12 @@
 
 #include <boost/atomic.hpp>
 #include <cstring>
+#include <limits>
 #include <boost/config.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/core/lightweight_test.hpp>
 #include <boost/type_traits/integral_constant.hpp>
+#include <boost/type_traits/is_signed.hpp>
 #include <boost/type_traits/is_unsigned.hpp>
 
 /* provide helpers that exercise whether the API
@@ -188,12 +190,83 @@ void test_additive_operators_with_type(T value, D delta)
         BOOST_TEST( a.load() == T((AddType)value - 1) );
         BOOST_TEST( n == T((AddType)value - 1) );
     }
+
+    // Opaque operations
+    {
+        boost::atomic<T> a(value);
+        a.opaque_add(delta);
+        BOOST_TEST( a.load() == T((AddType)value + delta) );
+    }
+
+    {
+        boost::atomic<T> a(value);
+        a.opaque_sub(delta);
+        BOOST_TEST( a.load() == T((AddType)value - delta) );
+    }
+
+    // Modify and test operations
+    {
+        boost::atomic<T> a((T)0);
+        bool f = a.add_and_test((D)0);
+        BOOST_TEST( f == true );
+        BOOST_TEST( a.load() == (T)0 );
+
+        f = a.add_and_test((D)1);
+        BOOST_TEST( f == false );
+        BOOST_TEST( a.load() == T(((AddType)0) + ((D)1)) );
+    }
+    {
+        boost::atomic<T> a((T)0);
+        bool f = a.add_and_test((std::numeric_limits< D >::max)());
+        BOOST_TEST( f == false );
+        BOOST_TEST( a.load() == T(((AddType)0) + (std::numeric_limits< D >::max)()) );
+    }
+
+    {
+        boost::atomic<T> a((T)0);
+        bool f = a.sub_and_test((D)0);
+        BOOST_TEST( f == true );
+        BOOST_TEST( a.load() == (T)0 );
+
+        f = a.sub_and_test((D)1);
+        BOOST_TEST( f == false );
+        BOOST_TEST( a.load() == T(((AddType)0) - ((D)1)) );
+    }
+    {
+        boost::atomic<T> a((T)0);
+        bool f = a.sub_and_test((std::numeric_limits< D >::max)());
+        BOOST_TEST( f == false );
+        BOOST_TEST( a.load() == T(((AddType)0) - (std::numeric_limits< D >::max)()) );
+    }
 }
 
 template<typename T, typename D>
 void test_additive_operators(T value, D delta)
 {
     test_additive_operators_with_type<T, D, T>(value, delta);
+}
+
+template< typename T >
+void test_negation()
+{
+    {
+        boost::atomic<T> a((T)1);
+        T n = a.fetch_negate();
+        BOOST_TEST( a.load() == (T)-1 );
+        BOOST_TEST( n == (T)1 );
+
+        n = a.fetch_negate();
+        BOOST_TEST( a.load() == (T)1 );
+        BOOST_TEST( n == (T)-1 );
+    }
+    {
+        boost::atomic<T> a((T)1);
+        a.opaque_negate();
+        BOOST_TEST( a.load() == (T)-1 );
+
+        a.opaque_negate();
+        BOOST_TEST( a.load() == (T)1 );
+    }
 }
 
 template<typename T>
@@ -236,6 +309,13 @@ void test_bit_operators(T value, T delta)
         BOOST_TEST( n == value );
     }
 
+    {
+        boost::atomic<T> a(value);
+        T n = a.fetch_complement();
+        BOOST_TEST( a.load() == T(~value) );
+        BOOST_TEST( n == value );
+    }
+
     /* overloaded modify/assign */
     {
         boost::atomic<T> a(value);
@@ -256,6 +336,123 @@ void test_bit_operators(T value, T delta)
         T n = (a ^= delta);
         BOOST_TEST( a.load() == T(value ^ delta) );
         BOOST_TEST( n == T(value ^ delta) );
+    }
+
+    // Opaque operations
+    {
+        boost::atomic<T> a(value);
+        a.opaque_and(delta);
+        BOOST_TEST( a.load() == T(value & delta) );
+    }
+
+    {
+        boost::atomic<T> a(value);
+        a.opaque_or(delta);
+        BOOST_TEST( a.load() == T(value | delta) );
+    }
+
+    {
+        boost::atomic<T> a(value);
+        a.opaque_xor(delta);
+        BOOST_TEST( a.load() == T(value ^ delta) );
+    }
+
+    {
+        boost::atomic<T> a(value);
+        a.opaque_complement();
+        BOOST_TEST( a.load() == T(~value) );
+    }
+
+    // Modify and test operations
+    {
+        boost::atomic<T> a((T)1);
+        bool f = a.and_and_test((T)1);
+        BOOST_TEST( f == false );
+        BOOST_TEST( a.load() == T(1) );
+
+        f = a.and_and_test((T)0);
+        BOOST_TEST( f == true );
+        BOOST_TEST( a.load() == T(0) );
+
+        f = a.and_and_test((T)0);
+        BOOST_TEST( f == true );
+        BOOST_TEST( a.load() == T(0) );
+    }
+
+    {
+        boost::atomic<T> a((T)0);
+        bool f = a.or_and_test((T)0);
+        BOOST_TEST( f == true );
+        BOOST_TEST( a.load() == T(0) );
+
+        f = a.or_and_test((T)1);
+        BOOST_TEST( f == false );
+        BOOST_TEST( a.load() == T(1) );
+
+        f = a.or_and_test((T)1);
+        BOOST_TEST( f == false );
+        BOOST_TEST( a.load() == T(1) );
+    }
+
+    {
+        boost::atomic<T> a((T)0);
+        bool f = a.xor_and_test((T)0);
+        BOOST_TEST( f == true );
+        BOOST_TEST( a.load() == T(0) );
+
+        f = a.xor_and_test((T)1);
+        BOOST_TEST( f == false );
+        BOOST_TEST( a.load() == T(1) );
+
+        f = a.xor_and_test((T)1);
+        BOOST_TEST( f == true );
+        BOOST_TEST( a.load() == T(0) );
+    }
+
+    // Bit test and modify operations
+    {
+        boost::atomic<T> a((T)0x42);
+        bool f = a.bit_test_and_set(0);
+        BOOST_TEST( f == false );
+        BOOST_TEST( a.load() == T(0x43) );
+
+        f = a.bit_test_and_set(1);
+        BOOST_TEST( f == true );
+        BOOST_TEST( a.load() == T(0x43) );
+
+        f = a.bit_test_and_set(2);
+        BOOST_TEST( f == false );
+        BOOST_TEST( a.load() == T(0x47) );
+    }
+
+    {
+        boost::atomic<T> a((T)0x42);
+        bool f = a.bit_test_and_reset(0);
+        BOOST_TEST( f == false );
+        BOOST_TEST( a.load() == T(0x42) );
+
+        f = a.bit_test_and_reset(1);
+        BOOST_TEST( f == true );
+        BOOST_TEST( a.load() == T(0x40) );
+
+        f = a.bit_test_and_set(2);
+        BOOST_TEST( f == false );
+        BOOST_TEST( a.load() == T(0x40) );
+    }
+
+    {
+        boost::atomic<T> a((T)0x42);
+        bool f = a.bit_test_and_complement(0);
+        BOOST_TEST( f == false );
+        BOOST_TEST( a.load() == T(0x43) );
+
+        f = a.bit_test_and_complement(1);
+        BOOST_TEST( f == true );
+        BOOST_TEST( a.load() == T(0x41) );
+
+        f = a.bit_test_and_complement(2);
+        BOOST_TEST( f == false );
+        BOOST_TEST( a.load() == T(0x45) );
     }
 }
 
@@ -293,6 +490,9 @@ template<typename T>
 inline void test_integral_api(void)
 {
     do_test_integral_api<T>(boost::is_unsigned<T>());
+
+    if (boost::is_signed<T>::value)
+        test_negation<T>();
 }
 
 template<typename T>
