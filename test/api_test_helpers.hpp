@@ -411,48 +411,48 @@ void test_bit_operators(T value, T delta)
 
     // Bit test and modify operations
     {
-        boost::atomic<T> a((T)0x42);
+        boost::atomic<T> a((T)42);
         bool f = a.bit_test_and_set(0);
         BOOST_TEST( f == false );
-        BOOST_TEST( a.load() == T(0x43) );
+        BOOST_TEST( a.load() == T(43) );
 
         f = a.bit_test_and_set(1);
         BOOST_TEST( f == true );
-        BOOST_TEST( a.load() == T(0x43) );
+        BOOST_TEST( a.load() == T(43) );
 
         f = a.bit_test_and_set(2);
         BOOST_TEST( f == false );
-        BOOST_TEST( a.load() == T(0x47) );
+        BOOST_TEST( a.load() == T(47) );
     }
 
     {
-        boost::atomic<T> a((T)0x42);
+        boost::atomic<T> a((T)42);
         bool f = a.bit_test_and_reset(0);
         BOOST_TEST( f == false );
-        BOOST_TEST( a.load() == T(0x42) );
+        BOOST_TEST( a.load() == T(42) );
 
         f = a.bit_test_and_reset(1);
         BOOST_TEST( f == true );
-        BOOST_TEST( a.load() == T(0x40) );
+        BOOST_TEST( a.load() == T(40) );
 
         f = a.bit_test_and_set(2);
         BOOST_TEST( f == false );
-        BOOST_TEST( a.load() == T(0x40) );
+        BOOST_TEST( a.load() == T(40) );
     }
 
     {
-        boost::atomic<T> a((T)0x42);
+        boost::atomic<T> a((T)42);
         bool f = a.bit_test_and_complement(0);
         BOOST_TEST( f == false );
-        BOOST_TEST( a.load() == T(0x43) );
+        BOOST_TEST( a.load() == T(43) );
 
         f = a.bit_test_and_complement(1);
         BOOST_TEST( f == true );
-        BOOST_TEST( a.load() == T(0x41) );
+        BOOST_TEST( a.load() == T(41) );
 
         f = a.bit_test_and_complement(2);
         BOOST_TEST( f == false );
-        BOOST_TEST( a.load() == T(0x45) );
+        BOOST_TEST( a.load() == T(45) );
     }
 }
 
