@@ -41,7 +41,7 @@ struct gcc_x86_extended_operations_common :
         __asm__ __volatile__
         (
             "lock; bts %[bit_number], %[storage]\n\t"
-            : [storage] "=m" (storage), [result] "=@ccc" (res)
+            : [storage] "+m" (storage), [result] "=@ccc" (res)
             : [bit_number] "Kq" (bit_number)
             : "memory"
         );
@@ -50,7 +50,7 @@ struct gcc_x86_extended_operations_common :
         (
             "lock; bts %[bit_number], %[storage]\n\t"
             "setc %[result]\n\t"
-            : [storage] "=m" (storage), [result] "=q" (res)
+            : [storage] "+m" (storage), [result] "=q" (res)
             : [bit_number] "Kq" (bit_number)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
@@ -65,7 +65,7 @@ struct gcc_x86_extended_operations_common :
         __asm__ __volatile__
         (
             "lock; btr %[bit_number], %[storage]\n\t"
-            : [storage] "=m" (storage), [result] "=@ccc" (res)
+            : [storage] "+m" (storage), [result] "=@ccc" (res)
             : [bit_number] "Kq" (bit_number)
             : "memory"
         );
@@ -74,7 +74,7 @@ struct gcc_x86_extended_operations_common :
         (
             "lock; btr %[bit_number], %[storage]\n\t"
             "setc %[result]\n\t"
-            : [storage] "=m" (storage), [result] "=q" (res)
+            : [storage] "+m" (storage), [result] "=q" (res)
             : [bit_number] "Kq" (bit_number)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
@@ -89,7 +89,7 @@ struct gcc_x86_extended_operations_common :
         __asm__ __volatile__
         (
             "lock; btc %[bit_number], %[storage]\n\t"
-            : [storage] "=m" (storage), [result] "=@ccc" (res)
+            : [storage] "+m" (storage), [result] "=@ccc" (res)
             : [bit_number] "Kq" (bit_number)
             : "memory"
         );
@@ -98,7 +98,7 @@ struct gcc_x86_extended_operations_common :
         (
             "lock; btc %[bit_number], %[storage]\n\t"
             "setc %[result]\n\t"
-            : [storage] "=m" (storage), [result] "=q" (res)
+            : [storage] "+m" (storage), [result] "=q" (res)
             : [bit_number] "Kq" (bit_number)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
@@ -154,7 +154,7 @@ struct gcc_x86_extended_operations< 1u, Signed, Base > :
             __asm__ __volatile__
             (
                 "lock; incb %[storage]\n\t"
-                : [storage] "=m" (storage)
+                : [storage] "+m" (storage)
                 :
                 : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
             );
@@ -164,7 +164,7 @@ struct gcc_x86_extended_operations< 1u, Signed, Base > :
             __asm__ __volatile__
             (
                 "lock; addb %[argument], %[storage]\n\t"
-                : [storage] "=m" (storage)
+                : [storage] "+m" (storage)
                 : [argument] "iq" (v)
                 : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
             );
@@ -178,7 +178,7 @@ struct gcc_x86_extended_operations< 1u, Signed, Base > :
             __asm__ __volatile__
             (
                 "lock; decb %[storage]\n\t"
-                : [storage] "=m" (storage)
+                : [storage] "+m" (storage)
                 :
                 : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
             );
@@ -188,7 +188,7 @@ struct gcc_x86_extended_operations< 1u, Signed, Base > :
             __asm__ __volatile__
             (
                 "lock; subb %[argument], %[storage]\n\t"
-                : [storage] "=m" (storage)
+                : [storage] "+m" (storage)
                 : [argument] "iq" (v)
                 : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
             );
@@ -200,7 +200,7 @@ struct gcc_x86_extended_operations< 1u, Signed, Base > :
         __asm__ __volatile__
         (
             "lock; negb %[storage]\n\t"
-            : [storage] "=m" (storage)
+            : [storage] "+m" (storage)
             :
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
@@ -211,7 +211,7 @@ struct gcc_x86_extended_operations< 1u, Signed, Base > :
         __asm__ __volatile__
         (
             "lock; andb %[argument], %[storage]\n\t"
-            : [storage] "=m" (storage)
+            : [storage] "+m" (storage)
             : [argument] "iq" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
@@ -222,7 +222,7 @@ struct gcc_x86_extended_operations< 1u, Signed, Base > :
         __asm__ __volatile__
         (
             "lock; orb %[argument], %[storage]\n\t"
-            : [storage] "=m" (storage)
+            : [storage] "+m" (storage)
             : [argument] "iq" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
@@ -233,7 +233,7 @@ struct gcc_x86_extended_operations< 1u, Signed, Base > :
         __asm__ __volatile__
         (
             "lock; xorb %[argument], %[storage]\n\t"
-            : [storage] "=m" (storage)
+            : [storage] "+m" (storage)
             : [argument] "iq" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
@@ -244,7 +244,7 @@ struct gcc_x86_extended_operations< 1u, Signed, Base > :
         __asm__ __volatile__
         (
             "lock; notb %[storage]\n\t"
-            : [storage] "=m" (storage)
+            : [storage] "+m" (storage)
             :
             : "memory"
         );
@@ -259,7 +259,7 @@ struct gcc_x86_extended_operations< 1u, Signed, Base > :
             __asm__ __volatile__
             (
                 "lock; incb %[storage]\n\t"
-                : [storage] "=m" (storage), [result] "=@ccz" (res)
+                : [storage] "+m" (storage), [result] "=@ccz" (res)
                 :
                 : "memory"
             );
@@ -269,7 +269,7 @@ struct gcc_x86_extended_operations< 1u, Signed, Base > :
             __asm__ __volatile__
             (
                 "lock; addb %[argument], %[storage]\n\t"
-                : [storage] "=m" (storage), [result] "=@ccz" (res)
+                : [storage] "+m" (storage), [result] "=@ccz" (res)
                 : [argument] "iq" (v)
                 : "memory"
             );
@@ -281,7 +281,7 @@ struct gcc_x86_extended_operations< 1u, Signed, Base > :
             (
                 "lock; incb %[storage]\n\t"
                 "setz %[result]\n\t"
-                : [storage] "=m" (storage), [result] "=q" (res)
+                : [storage] "+m" (storage), [result] "=q" (res)
                 :
                 : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
             );
@@ -292,7 +292,7 @@ struct gcc_x86_extended_operations< 1u, Signed, Base > :
             (
                 "lock; addb %[argument], %[storage]\n\t"
                 "setz %[result]\n\t"
-                : [storage] "=m" (storage), [result] "=q" (res)
+                : [storage] "+m" (storage), [result] "=q" (res)
                 : [argument] "iq" (v)
                 : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
             );
@@ -310,7 +310,7 @@ struct gcc_x86_extended_operations< 1u, Signed, Base > :
             __asm__ __volatile__
             (
                 "lock; decb %[storage]\n\t"
-                : [storage] "=m" (storage), [result] "=@ccz" (res)
+                : [storage] "+m" (storage), [result] "=@ccz" (res)
                 :
                 : "memory"
             );
@@ -320,7 +320,7 @@ struct gcc_x86_extended_operations< 1u, Signed, Base > :
             __asm__ __volatile__
             (
                 "lock; subb %[argument], %[storage]\n\t"
-                : [storage] "=m" (storage), [result] "=@ccz" (res)
+                : [storage] "+m" (storage), [result] "=@ccz" (res)
                 : [argument] "iq" (v)
                 : "memory"
             );
@@ -332,7 +332,7 @@ struct gcc_x86_extended_operations< 1u, Signed, Base > :
             (
                 "lock; decb %[storage]\n\t"
                 "setz %[result]\n\t"
-                : [storage] "=m" (storage), [result] "=q" (res)
+                : [storage] "+m" (storage), [result] "=q" (res)
                 :
                 : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
             );
@@ -343,7 +343,7 @@ struct gcc_x86_extended_operations< 1u, Signed, Base > :
             (
                 "lock; subb %[argument], %[storage]\n\t"
                 "setz %[result]\n\t"
-                : [storage] "=m" (storage), [result] "=q" (res)
+                : [storage] "+m" (storage), [result] "=q" (res)
                 : [argument] "iq" (v)
                 : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
             );
@@ -359,7 +359,7 @@ struct gcc_x86_extended_operations< 1u, Signed, Base > :
         __asm__ __volatile__
         (
             "lock; andb %[argument], %[storage]\n\t"
-            : [storage] "=m" (storage), [result] "=@ccz" (res)
+            : [storage] "+m" (storage), [result] "=@ccz" (res)
             : [argument] "iq" (v)
             : "memory"
         );
@@ -368,7 +368,7 @@ struct gcc_x86_extended_operations< 1u, Signed, Base > :
         (
             "lock; andb %[argument], %[storage]\n\t"
             "setz %[result]\n\t"
-            : [storage] "=m" (storage), [result] "=q" (res)
+            : [storage] "+m" (storage), [result] "=q" (res)
             : [argument] "iq" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
@@ -383,7 +383,7 @@ struct gcc_x86_extended_operations< 1u, Signed, Base > :
         __asm__ __volatile__
         (
             "lock; orb %[argument], %[storage]\n\t"
-            : [storage] "=m" (storage), [result] "=@ccz" (res)
+            : [storage] "+m" (storage), [result] "=@ccz" (res)
             : [argument] "iq" (v)
             : "memory"
         );
@@ -392,7 +392,7 @@ struct gcc_x86_extended_operations< 1u, Signed, Base > :
         (
             "lock; orb %[argument], %[storage]\n\t"
             "setz %[result]\n\t"
-            : [storage] "=m" (storage), [result] "=q" (res)
+            : [storage] "+m" (storage), [result] "=q" (res)
             : [argument] "iq" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
@@ -407,7 +407,7 @@ struct gcc_x86_extended_operations< 1u, Signed, Base > :
         __asm__ __volatile__
         (
             "lock; xorb %[argument], %[storage]\n\t"
-            : [storage] "=m" (storage), [result] "=@ccz" (res)
+            : [storage] "+m" (storage), [result] "=@ccz" (res)
             : [argument] "iq" (v)
             : "memory"
         );
@@ -416,7 +416,7 @@ struct gcc_x86_extended_operations< 1u, Signed, Base > :
         (
             "lock; xorb %[argument], %[storage]\n\t"
             "setz %[result]\n\t"
-            : [storage] "=m" (storage), [result] "=q" (res)
+            : [storage] "+m" (storage), [result] "=q" (res)
             : [argument] "iq" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
@@ -469,7 +469,7 @@ struct gcc_x86_extended_operations< 2u, Signed, Base > :
             __asm__ __volatile__
             (
                 "lock; incw %[storage]\n\t"
-                : [storage] "=m" (storage)
+                : [storage] "+m" (storage)
                 :
                 : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
             );
@@ -479,7 +479,7 @@ struct gcc_x86_extended_operations< 2u, Signed, Base > :
             __asm__ __volatile__
             (
                 "lock; addw %[argument], %[storage]\n\t"
-                : [storage] "=m" (storage)
+                : [storage] "+m" (storage)
                 : [argument] "iq" (v)
                 : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
             );
@@ -493,7 +493,7 @@ struct gcc_x86_extended_operations< 2u, Signed, Base > :
             __asm__ __volatile__
             (
                 "lock; decw %[storage]\n\t"
-                : [storage] "=m" (storage)
+                : [storage] "+m" (storage)
                 :
                 : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
             );
@@ -503,7 +503,7 @@ struct gcc_x86_extended_operations< 2u, Signed, Base > :
             __asm__ __volatile__
             (
                 "lock; subw %[argument], %[storage]\n\t"
-                : [storage] "=m" (storage)
+                : [storage] "+m" (storage)
                 : [argument] "iq" (v)
                 : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
             );
@@ -515,7 +515,7 @@ struct gcc_x86_extended_operations< 2u, Signed, Base > :
         __asm__ __volatile__
         (
             "lock; negw %[storage]\n\t"
-            : [storage] "=m" (storage)
+            : [storage] "+m" (storage)
             :
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
@@ -526,7 +526,7 @@ struct gcc_x86_extended_operations< 2u, Signed, Base > :
         __asm__ __volatile__
         (
             "lock; andw %[argument], %[storage]\n\t"
-            : [storage] "=m" (storage)
+            : [storage] "+m" (storage)
             : [argument] "iq" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
@@ -537,7 +537,7 @@ struct gcc_x86_extended_operations< 2u, Signed, Base > :
         __asm__ __volatile__
         (
             "lock; orw %[argument], %[storage]\n\t"
-            : [storage] "=m" (storage)
+            : [storage] "+m" (storage)
             : [argument] "iq" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
@@ -548,7 +548,7 @@ struct gcc_x86_extended_operations< 2u, Signed, Base > :
         __asm__ __volatile__
         (
             "lock; xorw %[argument], %[storage]\n\t"
-            : [storage] "=m" (storage)
+            : [storage] "+m" (storage)
             : [argument] "iq" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
@@ -559,7 +559,7 @@ struct gcc_x86_extended_operations< 2u, Signed, Base > :
         __asm__ __volatile__
         (
             "lock; notw %[storage]\n\t"
-            : [storage] "=m" (storage)
+            : [storage] "+m" (storage)
             :
             : "memory"
         );
@@ -574,7 +574,7 @@ struct gcc_x86_extended_operations< 2u, Signed, Base > :
             __asm__ __volatile__
             (
                 "lock; incw %[storage]\n\t"
-                : [storage] "=m" (storage), [result] "=@ccz" (res)
+                : [storage] "+m" (storage), [result] "=@ccz" (res)
                 :
                 : "memory"
             );
@@ -584,7 +584,7 @@ struct gcc_x86_extended_operations< 2u, Signed, Base > :
             __asm__ __volatile__
             (
                 "lock; addw %[argument], %[storage]\n\t"
-                : [storage] "=m" (storage), [result] "=@ccz" (res)
+                : [storage] "+m" (storage), [result] "=@ccz" (res)
                 : [argument] "iq" (v)
                 : "memory"
             );
@@ -596,7 +596,7 @@ struct gcc_x86_extended_operations< 2u, Signed, Base > :
             (
                 "lock; incw %[storage]\n\t"
                 "setz %[result]\n\t"
-                : [storage] "=m" (storage), [result] "=q" (res)
+                : [storage] "+m" (storage), [result] "=q" (res)
                 :
                 : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
             );
@@ -607,7 +607,7 @@ struct gcc_x86_extended_operations< 2u, Signed, Base > :
             (
                 "lock; addw %[argument], %[storage]\n\t"
                 "setz %[result]\n\t"
-                : [storage] "=m" (storage), [result] "=q" (res)
+                : [storage] "+m" (storage), [result] "=q" (res)
                 : [argument] "iq" (v)
                 : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
             );
@@ -625,7 +625,7 @@ struct gcc_x86_extended_operations< 2u, Signed, Base > :
             __asm__ __volatile__
             (
                 "lock; decw %[storage]\n\t"
-                : [storage] "=m" (storage), [result] "=@ccz" (res)
+                : [storage] "+m" (storage), [result] "=@ccz" (res)
                 :
                 : "memory"
             );
@@ -635,7 +635,7 @@ struct gcc_x86_extended_operations< 2u, Signed, Base > :
             __asm__ __volatile__
             (
                 "lock; subw %[argument], %[storage]\n\t"
-                : [storage] "=m" (storage), [result] "=@ccz" (res)
+                : [storage] "+m" (storage), [result] "=@ccz" (res)
                 : [argument] "iq" (v)
                 : "memory"
             );
@@ -647,7 +647,7 @@ struct gcc_x86_extended_operations< 2u, Signed, Base > :
             (
                 "lock; decw %[storage]\n\t"
                 "setz %[result]\n\t"
-                : [storage] "=m" (storage), [result] "=q" (res)
+                : [storage] "+m" (storage), [result] "=q" (res)
                 :
                 : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
             );
@@ -658,7 +658,7 @@ struct gcc_x86_extended_operations< 2u, Signed, Base > :
             (
                 "lock; subw %[argument], %[storage]\n\t"
                 "setz %[result]\n\t"
-                : [storage] "=m" (storage), [result] "=q" (res)
+                : [storage] "+m" (storage), [result] "=q" (res)
                 : [argument] "iq" (v)
                 : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
             );
@@ -674,7 +674,7 @@ struct gcc_x86_extended_operations< 2u, Signed, Base > :
         __asm__ __volatile__
         (
             "lock; andw %[argument], %[storage]\n\t"
-            : [storage] "=m" (storage), [result] "=@ccz" (res)
+            : [storage] "+m" (storage), [result] "=@ccz" (res)
             : [argument] "iq" (v)
             : "memory"
         );
@@ -683,7 +683,7 @@ struct gcc_x86_extended_operations< 2u, Signed, Base > :
         (
             "lock; andw %[argument], %[storage]\n\t"
             "setz %[result]\n\t"
-            : [storage] "=m" (storage), [result] "=q" (res)
+            : [storage] "+m" (storage), [result] "=q" (res)
             : [argument] "iq" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
@@ -698,7 +698,7 @@ struct gcc_x86_extended_operations< 2u, Signed, Base > :
         __asm__ __volatile__
         (
             "lock; orw %[argument], %[storage]\n\t"
-            : [storage] "=m" (storage), [result] "=@ccz" (res)
+            : [storage] "+m" (storage), [result] "=@ccz" (res)
             : [argument] "iq" (v)
             : "memory"
         );
@@ -707,7 +707,7 @@ struct gcc_x86_extended_operations< 2u, Signed, Base > :
         (
             "lock; orw %[argument], %[storage]\n\t"
             "setz %[result]\n\t"
-            : [storage] "=m" (storage), [result] "=q" (res)
+            : [storage] "+m" (storage), [result] "=q" (res)
             : [argument] "iq" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
@@ -722,7 +722,7 @@ struct gcc_x86_extended_operations< 2u, Signed, Base > :
         __asm__ __volatile__
         (
             "lock; xorw %[argument], %[storage]\n\t"
-            : [storage] "=m" (storage), [result] "=@ccz" (res)
+            : [storage] "+m" (storage), [result] "=@ccz" (res)
             : [argument] "iq" (v)
             : "memory"
         );
@@ -731,7 +731,7 @@ struct gcc_x86_extended_operations< 2u, Signed, Base > :
         (
             "lock; xorw %[argument], %[storage]\n\t"
             "setz %[result]\n\t"
-            : [storage] "=m" (storage), [result] "=q" (res)
+            : [storage] "+m" (storage), [result] "=q" (res)
             : [argument] "iq" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
@@ -784,7 +784,7 @@ struct gcc_x86_extended_operations< 4u, Signed, Base > :
             __asm__ __volatile__
             (
                 "lock; incl %[storage]\n\t"
-                : [storage] "=m" (storage)
+                : [storage] "+m" (storage)
                 :
                 : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
             );
@@ -794,7 +794,7 @@ struct gcc_x86_extended_operations< 4u, Signed, Base > :
             __asm__ __volatile__
             (
                 "lock; addl %[argument], %[storage]\n\t"
-                : [storage] "=m" (storage)
+                : [storage] "+m" (storage)
                 : [argument] "ir" (v)
                 : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
             );
@@ -808,7 +808,7 @@ struct gcc_x86_extended_operations< 4u, Signed, Base > :
             __asm__ __volatile__
             (
                 "lock; decl %[storage]\n\t"
-                : [storage] "=m" (storage)
+                : [storage] "+m" (storage)
                 :
                 : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
             );
@@ -818,7 +818,7 @@ struct gcc_x86_extended_operations< 4u, Signed, Base > :
             __asm__ __volatile__
             (
                 "lock; subl %[argument], %[storage]\n\t"
-                : [storage] "=m" (storage)
+                : [storage] "+m" (storage)
                 : [argument] "ir" (v)
                 : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
             );
@@ -830,7 +830,7 @@ struct gcc_x86_extended_operations< 4u, Signed, Base > :
         __asm__ __volatile__
         (
             "lock; negl %[storage]\n\t"
-            : [storage] "=m" (storage)
+            : [storage] "+m" (storage)
             :
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
@@ -841,7 +841,7 @@ struct gcc_x86_extended_operations< 4u, Signed, Base > :
         __asm__ __volatile__
         (
             "lock; andl %[argument], %[storage]\n\t"
-            : [storage] "=m" (storage)
+            : [storage] "+m" (storage)
             : [argument] "ir" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
@@ -852,7 +852,7 @@ struct gcc_x86_extended_operations< 4u, Signed, Base > :
         __asm__ __volatile__
         (
             "lock; orl %[argument], %[storage]\n\t"
-            : [storage] "=m" (storage)
+            : [storage] "+m" (storage)
             : [argument] "ir" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
@@ -863,7 +863,7 @@ struct gcc_x86_extended_operations< 4u, Signed, Base > :
         __asm__ __volatile__
         (
             "lock; xorl %[argument], %[storage]\n\t"
-            : [storage] "=m" (storage)
+            : [storage] "+m" (storage)
             : [argument] "ir" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
@@ -874,7 +874,7 @@ struct gcc_x86_extended_operations< 4u, Signed, Base > :
         __asm__ __volatile__
         (
             "lock; notl %[storage]\n\t"
-            : [storage] "=m" (storage)
+            : [storage] "+m" (storage)
             :
             : "memory"
         );
@@ -889,7 +889,7 @@ struct gcc_x86_extended_operations< 4u, Signed, Base > :
             __asm__ __volatile__
             (
                 "lock; incl %[storage]\n\t"
-                : [storage] "=m" (storage), [result] "=@ccz" (res)
+                : [storage] "+m" (storage), [result] "=@ccz" (res)
                 :
                 : "memory"
             );
@@ -899,7 +899,7 @@ struct gcc_x86_extended_operations< 4u, Signed, Base > :
             __asm__ __volatile__
             (
                 "lock; addl %[argument], %[storage]\n\t"
-                : [storage] "=m" (storage), [result] "=@ccz" (res)
+                : [storage] "+m" (storage), [result] "=@ccz" (res)
                 : [argument] "ir" (v)
                 : "memory"
             );
@@ -911,7 +911,7 @@ struct gcc_x86_extended_operations< 4u, Signed, Base > :
             (
                 "lock; incl %[storage]\n\t"
                 "setz %[result]\n\t"
-                : [storage] "=m" (storage), [result] "=q" (res)
+                : [storage] "+m" (storage), [result] "=q" (res)
                 :
                 : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
             );
@@ -922,7 +922,7 @@ struct gcc_x86_extended_operations< 4u, Signed, Base > :
             (
                 "lock; addl %[argument], %[storage]\n\t"
                 "setz %[result]\n\t"
-                : [storage] "=m" (storage), [result] "=q" (res)
+                : [storage] "+m" (storage), [result] "=q" (res)
                 : [argument] "ir" (v)
                 : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
             );
@@ -940,7 +940,7 @@ struct gcc_x86_extended_operations< 4u, Signed, Base > :
             __asm__ __volatile__
             (
                 "lock; decl %[storage]\n\t"
-                : [storage] "=m" (storage), [result] "=@ccz" (res)
+                : [storage] "+m" (storage), [result] "=@ccz" (res)
                 :
                 : "memory"
             );
@@ -950,7 +950,7 @@ struct gcc_x86_extended_operations< 4u, Signed, Base > :
             __asm__ __volatile__
             (
                 "lock; subl %[argument], %[storage]\n\t"
-                : [storage] "=m" (storage), [result] "=@ccz" (res)
+                : [storage] "+m" (storage), [result] "=@ccz" (res)
                 : [argument] "ir" (v)
                 : "memory"
             );
@@ -962,7 +962,7 @@ struct gcc_x86_extended_operations< 4u, Signed, Base > :
             (
                 "lock; decl %[storage]\n\t"
                 "setz %[result]\n\t"
-                : [storage] "=m" (storage), [result] "=q" (res)
+                : [storage] "+m" (storage), [result] "=q" (res)
                 :
                 : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
             );
@@ -973,7 +973,7 @@ struct gcc_x86_extended_operations< 4u, Signed, Base > :
             (
                 "lock; subl %[argument], %[storage]\n\t"
                 "setz %[result]\n\t"
-                : [storage] "=m" (storage), [result] "=q" (res)
+                : [storage] "+m" (storage), [result] "=q" (res)
                 : [argument] "ir" (v)
                 : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
             );
@@ -989,7 +989,7 @@ struct gcc_x86_extended_operations< 4u, Signed, Base > :
         __asm__ __volatile__
         (
             "lock; andl %[argument], %[storage]\n\t"
-            : [storage] "=m" (storage), [result] "=@ccz" (res)
+            : [storage] "+m" (storage), [result] "=@ccz" (res)
             : [argument] "ir" (v)
             : "memory"
         );
@@ -998,7 +998,7 @@ struct gcc_x86_extended_operations< 4u, Signed, Base > :
         (
             "lock; andl %[argument], %[storage]\n\t"
             "setz %[result]\n\t"
-            : [storage] "=m" (storage), [result] "=q" (res)
+            : [storage] "+m" (storage), [result] "=q" (res)
             : [argument] "ir" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
@@ -1013,7 +1013,7 @@ struct gcc_x86_extended_operations< 4u, Signed, Base > :
         __asm__ __volatile__
         (
             "lock; orl %[argument], %[storage]\n\t"
-            : [storage] "=m" (storage), [result] "=@ccz" (res)
+            : [storage] "+m" (storage), [result] "=@ccz" (res)
             : [argument] "ir" (v)
             : "memory"
         );
@@ -1022,7 +1022,7 @@ struct gcc_x86_extended_operations< 4u, Signed, Base > :
         (
             "lock; orl %[argument], %[storage]\n\t"
             "setz %[result]\n\t"
-            : [storage] "=m" (storage), [result] "=q" (res)
+            : [storage] "+m" (storage), [result] "=q" (res)
             : [argument] "ir" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
@@ -1037,7 +1037,7 @@ struct gcc_x86_extended_operations< 4u, Signed, Base > :
         __asm__ __volatile__
         (
             "lock; xorl %[argument], %[storage]\n\t"
-            : [storage] "=m" (storage), [result] "=@ccz" (res)
+            : [storage] "+m" (storage), [result] "=@ccz" (res)
             : [argument] "ir" (v)
             : "memory"
         );
@@ -1046,7 +1046,7 @@ struct gcc_x86_extended_operations< 4u, Signed, Base > :
         (
             "lock; xorl %[argument], %[storage]\n\t"
             "setz %[result]\n\t"
-            : [storage] "=m" (storage), [result] "=q" (res)
+            : [storage] "+m" (storage), [result] "=q" (res)
             : [argument] "ir" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
@@ -1101,7 +1101,7 @@ struct gcc_x86_extended_operations< 8u, Signed, Base > :
             __asm__ __volatile__
             (
                 "lock; incq %[storage]\n\t"
-                : [storage] "=m" (storage)
+                : [storage] "+m" (storage)
                 :
                 : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
             );
@@ -1111,8 +1111,8 @@ struct gcc_x86_extended_operations< 8u, Signed, Base > :
             __asm__ __volatile__
             (
                 "lock; addq %[argument], %[storage]\n\t"
-                : [storage] "=m" (storage)
-                : [argument] "r" (v)
+                : [storage] "+m" (storage)
+                : [argument] "er" (v)
                 : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
             );
         }
@@ -1125,7 +1125,7 @@ struct gcc_x86_extended_operations< 8u, Signed, Base > :
             __asm__ __volatile__
             (
                 "lock; decq %[storage]\n\t"
-                : [storage] "=m" (storage)
+                : [storage] "+m" (storage)
                 :
                 : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
             );
@@ -1135,8 +1135,8 @@ struct gcc_x86_extended_operations< 8u, Signed, Base > :
             __asm__ __volatile__
             (
                 "lock; subq %[argument], %[storage]\n\t"
-                : [storage] "=m" (storage)
-                : [argument] "r" (v)
+                : [storage] "+m" (storage)
+                : [argument] "er" (v)
                 : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
             );
         }
@@ -1147,7 +1147,7 @@ struct gcc_x86_extended_operations< 8u, Signed, Base > :
         __asm__ __volatile__
         (
             "lock; negq %[storage]\n\t"
-            : [storage] "=m" (storage)
+            : [storage] "+m" (storage)
             :
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
@@ -1158,8 +1158,8 @@ struct gcc_x86_extended_operations< 8u, Signed, Base > :
         __asm__ __volatile__
         (
             "lock; andq %[argument], %[storage]\n\t"
-            : [storage] "=m" (storage)
-            : [argument] "r" (v)
+            : [storage] "+m" (storage)
+            : [argument] "er" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
     }
@@ -1169,8 +1169,8 @@ struct gcc_x86_extended_operations< 8u, Signed, Base > :
         __asm__ __volatile__
         (
             "lock; orq %[argument], %[storage]\n\t"
-            : [storage] "=m" (storage)
-            : [argument] "r" (v)
+            : [storage] "+m" (storage)
+            : [argument] "er" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
     }
@@ -1180,8 +1180,8 @@ struct gcc_x86_extended_operations< 8u, Signed, Base > :
         __asm__ __volatile__
         (
             "lock; xorq %[argument], %[storage]\n\t"
-            : [storage] "=m" (storage)
-            : [argument] "r" (v)
+            : [storage] "+m" (storage)
+            : [argument] "er" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
     }
@@ -1191,7 +1191,7 @@ struct gcc_x86_extended_operations< 8u, Signed, Base > :
         __asm__ __volatile__
         (
             "lock; notq %[storage]\n\t"
-            : [storage] "=m" (storage)
+            : [storage] "+m" (storage)
             :
             : "memory"
         );
@@ -1206,7 +1206,7 @@ struct gcc_x86_extended_operations< 8u, Signed, Base > :
             __asm__ __volatile__
             (
                 "lock; incq %[storage]\n\t"
-                : [storage] "=m" (storage), [result] "=@ccz" (res)
+                : [storage] "+m" (storage), [result] "=@ccz" (res)
                 :
                 : "memory"
             );
@@ -1216,8 +1216,8 @@ struct gcc_x86_extended_operations< 8u, Signed, Base > :
             __asm__ __volatile__
             (
                 "lock; addq %[argument], %[storage]\n\t"
-                : [storage] "=m" (storage), [result] "=@ccz" (res)
-                : [argument] "r" (v)
+                : [storage] "+m" (storage), [result] "=@ccz" (res)
+                : [argument] "er" (v)
                 : "memory"
             );
         }
@@ -1228,7 +1228,7 @@ struct gcc_x86_extended_operations< 8u, Signed, Base > :
             (
                 "lock; incq %[storage]\n\t"
                 "setz %[result]\n\t"
-                : [storage] "=m" (storage), [result] "=q" (res)
+                : [storage] "+m" (storage), [result] "=q" (res)
                 :
                 : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
             );
@@ -1239,8 +1239,8 @@ struct gcc_x86_extended_operations< 8u, Signed, Base > :
             (
                 "lock; addq %[argument], %[storage]\n\t"
                 "setz %[result]\n\t"
-                : [storage] "=m" (storage), [result] "=q" (res)
-                : [argument] "r" (v)
+                : [storage] "+m" (storage), [result] "=q" (res)
+                : [argument] "er" (v)
                 : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
             );
         }
@@ -1257,7 +1257,7 @@ struct gcc_x86_extended_operations< 8u, Signed, Base > :
             __asm__ __volatile__
             (
                 "lock; decq %[storage]\n\t"
-                : [storage] "=m" (storage), [result] "=@ccz" (res)
+                : [storage] "+m" (storage), [result] "=@ccz" (res)
                 :
                 : "memory"
             );
@@ -1267,8 +1267,8 @@ struct gcc_x86_extended_operations< 8u, Signed, Base > :
             __asm__ __volatile__
             (
                 "lock; subq %[argument], %[storage]\n\t"
-                : [storage] "=m" (storage), [result] "=@ccz" (res)
-                : [argument] "r" (v)
+                : [storage] "+m" (storage), [result] "=@ccz" (res)
+                : [argument] "er" (v)
                 : "memory"
             );
         }
@@ -1279,7 +1279,7 @@ struct gcc_x86_extended_operations< 8u, Signed, Base > :
             (
                 "lock; decq %[storage]\n\t"
                 "setz %[result]\n\t"
-                : [storage] "=m" (storage), [result] "=q" (res)
+                : [storage] "+m" (storage), [result] "=q" (res)
                 :
                 : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
             );
@@ -1290,8 +1290,8 @@ struct gcc_x86_extended_operations< 8u, Signed, Base > :
             (
                 "lock; subq %[argument], %[storage]\n\t"
                 "setz %[result]\n\t"
-                : [storage] "=m" (storage), [result] "=q" (res)
-                : [argument] "r" (v)
+                : [storage] "+m" (storage), [result] "=q" (res)
+                : [argument] "er" (v)
                 : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
             );
         }
@@ -1306,8 +1306,8 @@ struct gcc_x86_extended_operations< 8u, Signed, Base > :
         __asm__ __volatile__
         (
             "lock; andq %[argument], %[storage]\n\t"
-            : [storage] "=m" (storage), [result] "=@ccz" (res)
-            : [argument] "r" (v)
+            : [storage] "+m" (storage), [result] "=@ccz" (res)
+            : [argument] "er" (v)
             : "memory"
         );
 #else
@@ -1315,8 +1315,8 @@ struct gcc_x86_extended_operations< 8u, Signed, Base > :
         (
             "lock; andq %[argument], %[storage]\n\t"
             "setz %[result]\n\t"
-            : [storage] "=m" (storage), [result] "=q" (res)
-            : [argument] "r" (v)
+            : [storage] "+m" (storage), [result] "=q" (res)
+            : [argument] "er" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
 #endif
@@ -1330,8 +1330,8 @@ struct gcc_x86_extended_operations< 8u, Signed, Base > :
         __asm__ __volatile__
         (
             "lock; orq %[argument], %[storage]\n\t"
-            : [storage] "=m" (storage), [result] "=@ccz" (res)
-            : [argument] "r" (v)
+            : [storage] "+m" (storage), [result] "=@ccz" (res)
+            : [argument] "er" (v)
             : "memory"
         );
 #else
@@ -1339,8 +1339,8 @@ struct gcc_x86_extended_operations< 8u, Signed, Base > :
         (
             "lock; orq %[argument], %[storage]\n\t"
             "setz %[result]\n\t"
-            : [storage] "=m" (storage), [result] "=q" (res)
-            : [argument] "r" (v)
+            : [storage] "+m" (storage), [result] "=q" (res)
+            : [argument] "er" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
 #endif
@@ -1354,8 +1354,8 @@ struct gcc_x86_extended_operations< 8u, Signed, Base > :
         __asm__ __volatile__
         (
             "lock; xorq %[argument], %[storage]\n\t"
-            : [storage] "=m" (storage), [result] "=@ccz" (res)
-            : [argument] "r" (v)
+            : [storage] "+m" (storage), [result] "=@ccz" (res)
+            : [argument] "er" (v)
             : "memory"
         );
 #else
@@ -1363,8 +1363,8 @@ struct gcc_x86_extended_operations< 8u, Signed, Base > :
         (
             "lock; xorq %[argument], %[storage]\n\t"
             "setz %[result]\n\t"
-            : [storage] "=m" (storage), [result] "=q" (res)
-            : [argument] "r" (v)
+            : [storage] "+m" (storage), [result] "=q" (res)
+            : [argument] "er" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
 #endif
