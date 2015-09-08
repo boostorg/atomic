@@ -221,6 +221,12 @@ void test_additive_operators_with_type(T value, D delta)
         BOOST_TEST( f == false );
         BOOST_TEST( a.load() == T(((AddType)0) + (std::numeric_limits< D >::max)()) );
     }
+    {
+        boost::atomic<T> a((T)0);
+        bool f = a.add_and_test((std::numeric_limits< D >::min)());
+        BOOST_TEST( f == ((std::numeric_limits< D >::min)() == 0) );
+        BOOST_TEST( a.load() == T(((AddType)0) + (std::numeric_limits< D >::min)()) );
+    }
 
     {
         boost::atomic<T> a((T)0);
@@ -237,6 +243,12 @@ void test_additive_operators_with_type(T value, D delta)
         bool f = a.sub_and_test((std::numeric_limits< D >::max)());
         BOOST_TEST( f == false );
         BOOST_TEST( a.load() == T(((AddType)0) - (std::numeric_limits< D >::max)()) );
+    }
+    {
+        boost::atomic<T> a((T)0);
+        bool f = a.sub_and_test((std::numeric_limits< D >::min)());
+        BOOST_TEST( f == ((std::numeric_limits< D >::min)() == 0) );
+        BOOST_TEST( a.load() == T(((AddType)0) - (std::numeric_limits< D >::min)()) );
     }
 }
 
@@ -437,7 +449,7 @@ void test_bit_operators(T value, T delta)
 
         f = a.bit_test_and_set(2);
         BOOST_TEST( f == false );
-        BOOST_TEST( a.load() == T(40) );
+        BOOST_TEST( a.load() == T(44) );
     }
 
     {
