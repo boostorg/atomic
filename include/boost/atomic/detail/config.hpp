@@ -36,7 +36,7 @@
 #define BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA
 #endif
 
-#if (defined(macintosh) || defined(__APPLE__) || defined(__APPLE_CC__)) && (defined(BOOST_GCC) && (BOOST_GCC+0) < 40300)
+#if (defined(macintosh) || defined(__APPLE__) || defined(__APPLE_CC__)) && (defined(__GNUC__) && (__GNUC__ * 100 + __GNUC_MINOR__) < 403)
 // This macro indicates we're using older binutils that don't support implied zero displacements for memory opereands,
 // making code like this invalid:
 //   movl 4+(%%edx), %%eax
