@@ -21,6 +21,30 @@
 #pragma once
 #endif
 
+#if defined(__has_builtin)
+#if __has_builtin(__builtin_memcpy)
+#define BOOST_ATOMIC_DETAIL_HAS_BUILTIN_MEMCPY
+#endif
+#if __has_builtin(__builtin_memcmp)
+#define BOOST_ATOMIC_DETAIL_HAS_BUILTIN_MEMCMP
+#endif
+#elif defined(BOOST_GCC)
+#define BOOST_ATOMIC_DETAIL_HAS_BUILTIN_MEMCPY
+#define BOOST_ATOMIC_DETAIL_HAS_BUILTIN_MEMCMP
+#endif
+
+#if defined(BOOST_ATOMIC_DETAIL_HAS_BUILTIN_MEMCPY)
+#define BOOST_ATOMIC_DETAIL_MEMCPY __builtin_memcpy
+#else
+#define BOOST_ATOMIC_DETAIL_MEMCPY std::memcpy
+#endif
+
+#if defined(BOOST_ATOMIC_DETAIL_HAS_BUILTIN_MEMCMP)
+#define BOOST_ATOMIC_DETAIL_MEMCMP __builtin_memcmp
+#else
+#define BOOST_ATOMIC_DETAIL_MEMCMP std::memcmp
+#endif
+
 #if defined(__CUDACC__)
 // nvcc does not support alternatives in asm statement constraints
 #define BOOST_ATOMIC_DETAIL_NO_ASM_CONSTRAINT_ALTERNATIVES

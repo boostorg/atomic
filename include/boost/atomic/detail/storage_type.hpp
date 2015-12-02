@@ -17,9 +17,11 @@
 #define BOOST_ATOMIC_DETAIL_STORAGE_TYPE_HPP_INCLUDED_
 
 #include <cstddef>
-#include <cstring>
 #include <boost/cstdint.hpp>
 #include <boost/atomic/detail/config.hpp>
+#if !defined(BOOST_ATOMIC_DETAIL_HAS_BUILTIN_MEMCMP) || !defined(BOOST_ATOMIC_DETAIL_HAS_BUILTIN_MEMCPY)
+#include <cstring>
+#endif
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once
@@ -42,24 +44,24 @@ struct buffer_storage
 
     BOOST_FORCEINLINE bool operator! () const BOOST_NOEXCEPT
     {
-        return (data[0] == 0u && std::memcmp(data, data + 1, Size - 1) == 0);
+        return (data[0] == 0u && BOOST_ATOMIC_DETAIL_MEMCMP(data, data + 1, Size - 1) == 0);
     }
 
     BOOST_FORCEINLINE bool operator== (buffer_storage const& that) const BOOST_NOEXCEPT
     {
-        return std::memcmp(data, that.data, Size) == 0;
+        return BOOST_ATOMIC_DETAIL_MEMCMP(data, that.data, Size) == 0;
     }
 
     BOOST_FORCEINLINE bool operator!= (buffer_storage const& that) const BOOST_NOEXCEPT
     {
-        return std::memcmp(data, that.data, Size) != 0;
+        return BOOST_ATOMIC_DETAIL_MEMCMP(data, that.data, Size) != 0;
     }
 };
 
 template< std::size_t Size >
 BOOST_FORCEINLINE void non_atomic_load(buffer_storage< Size > const volatile& from, buffer_storage< Size >& to) BOOST_NOEXCEPT
 {
-    std::memcpy(to.data, const_cast< unsigned char const* >(from.data), Size);
+    BOOST_ATOMIC_DETAIL_MEMCPY(to.data, const_cast< unsigned char const* >(from.data), Size);
 }
 
 template< std::size_t Size, bool Signed >

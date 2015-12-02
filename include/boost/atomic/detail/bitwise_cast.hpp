@@ -8,16 +8,18 @@
  * Copyright (c) 2013 - 2014 Andrey Semashev
  */
 /*!
- * \file   atomic/detail/casts.hpp
+ * \file   atomic/detail/bitwise_cast.hpp
  *
- * This header defines \c union_cast and \c memcpy_cast used to convert between storage and value types
+ * This header defines \c bitwise_cast used to convert between storage and value types
  */
 
-#ifndef BOOST_ATOMIC_DETAIL_CASTS_HPP_INCLUDED_
-#define BOOST_ATOMIC_DETAIL_CASTS_HPP_INCLUDED_
+#ifndef BOOST_ATOMIC_DETAIL_BITWISE_CAST_HPP_INCLUDED_
+#define BOOST_ATOMIC_DETAIL_BITWISE_CAST_HPP_INCLUDED_
 
-#include <cstring>
 #include <boost/atomic/detail/config.hpp>
+#if !defined(BOOST_ATOMIC_DETAIL_HAS_BUILTIN_MEMCPY)
+#include <cstring>
+#endif
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once
@@ -28,27 +30,14 @@ namespace atomics {
 namespace detail {
 
 template< typename To, typename From >
-BOOST_FORCEINLINE To union_cast(From const& from) BOOST_NOEXCEPT
-{
-    union
-    {
-        To as_to;
-        From as_from;
-    }
-    caster = {};
-    caster.as_from = from;
-    return caster.as_to;
-}
-
-template< typename To, typename From >
-BOOST_FORCEINLINE To memcpy_cast(From const& from) BOOST_NOEXCEPT
+BOOST_FORCEINLINE To bitwise_cast(From const& from) BOOST_NOEXCEPT
 {
     struct
     {
         To to;
     }
     value = {};
-    std::memcpy
+    BOOST_ATOMIC_DETAIL_MEMCPY
     (
         &reinterpret_cast< char& >(value.to),
         &reinterpret_cast< const char& >(from),
@@ -61,4 +50,4 @@ BOOST_FORCEINLINE To memcpy_cast(From const& from) BOOST_NOEXCEPT
 } // namespace atomics
 } // namespace boost
 
-#endif // BOOST_ATOMIC_DETAIL_CASTS_HPP_INCLUDED_
+#endif // BOOST_ATOMIC_DETAIL_BITWISE_CAST_HPP_INCLUDED_
