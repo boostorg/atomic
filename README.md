@@ -1,4 +1,4 @@
-#![Boost.Atomic](doc/logo.png)
+# ![Boost.Atomic](doc/logo.png)
 
 Boost.Atomic, part of collection of the [Boost C++ Libraries](http://github.com/boostorg), implements atomic operations for various CPU architectures, reflecting and extending the standard interface defined in C++11.
 
