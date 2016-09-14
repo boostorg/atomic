@@ -353,7 +353,14 @@ The following macros affect library behavior:
 
 [table
     [[Macro] [Description]]
-    [[`BOOST_ATOMIC_NO_CMPXCHG16B`] [Affects 64-bit x86 MSVC builds. When defined,
+    [[`BOOST_ATOMIC_NO_CMPXCHG8B`] [Affects 32-bit x86 Oracle Studio builds. When defined,
+      the library assumes the target CPU does not support `cmpxchg8b` instruction used
+      to support 64-bit atomic operations. This is the case with very old CPUs (pre-Pentium).
+      The library does not perform runtime detection of this instruction, so running the code
+      that uses 64-bit atomics on such CPUs will result in crashes, unless this macro is defined.
+      Note that the macro does not affect MSVC, GCC and compatible compilers because the library infers
+      this information from the compiler-defined macros.]]
+    [[`BOOST_ATOMIC_NO_CMPXCHG16B`] [Affects 64-bit x86 MSVC and Oracle Studio builds. When defined,
       the library assumes the target CPU does not support `cmpxchg16b` instruction used
       to support 128-bit atomic operations. This is the case with some early 64-bit AMD CPUs,
       all Intel CPUs and current AMD CPUs support this instruction. The library does not
@@ -361,6 +368,13 @@ The following macros affect library behavior:
       atomics on such CPUs will result in crashes, unless this macro is defined. Note that
       the macro does not affect GCC and compatible compilers because the library infers
       this information from the compiler-defined macros.]]
+    [[`BOOST_ATOMIC_NO_MFENCE`] [Affects 32-bit x86 Oracle Studio builds. When defined,
+      the library assumes the target CPU does not support `mfence` instruction used
+      to implement thread fences. This instruction was added with SSE2 instruction set extension,
+      which was available in CPUs since Intel Pentium 4. The library does not perform runtime detection
+      of this instruction, so running the library code on older CPUs will result in crashes, unless
+      this macro is defined. Note that the macro does not affect MSVC, GCC and compatible compilers
+      because the library infers this information from the compiler-defined macros.]]
     [[`BOOST_ATOMIC_FORCE_FALLBACK`] [When defined, all operations are implemented with locks.
       This is mostly used for testing and should not be used in real world projects.]]
     [[`BOOST_ATOMIC_DYN_LINK` and `BOOST_ALL_DYN_LINK`] [Control library linking. If defined,
