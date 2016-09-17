@@ -38,7 +38,7 @@ verify_lock_free(const char * type_name, int lock_free_macro_val, int lock_free_
     std::cout << "atomic<" << type_name << "> is " << lock_free_level[lock_free_macro_val] << " lock free\n";
 }
 
-#if defined(__GNUC__) && defined(__i386__)
+#if (defined(__GNUC__) || defined(__SUNPRO_CC)) && defined(__i386__)
 
 #define EXPECT_CHAR_LOCK_FREE 2
 #define EXPECT_SHORT_LOCK_FREE 2
@@ -53,7 +53,7 @@ verify_lock_free(const char * type_name, int lock_free_macro_val, int lock_free_
 #define EXPECT_POINTER_LOCK_FREE 2
 #define EXPECT_BOOL_LOCK_FREE 2
 
-#elif defined(__GNUC__) && defined(__x86_64__)
+#elif (defined(__GNUC__) || defined(__SUNPRO_CC)) && defined(__x86_64__)
 
 #define EXPECT_CHAR_LOCK_FREE 2
 #define EXPECT_SHORT_LOCK_FREE 2
@@ -135,13 +135,13 @@ verify_lock_free(const char * type_name, int lock_free_macro_val, int lock_free_
 #define EXPECT_POINTER_LOCK_FREE 2
 #define EXPECT_BOOL_LOCK_FREE 2
 
-#elif defined(__GNUC__) && defined(__sparc_v9__)
+#elif (defined(__GNUC__) || defined(__SUNPRO_CC)) && (defined(__sparcv8plus) || defined(__sparc_v9__))
 
 #define EXPECT_CHAR_LOCK_FREE 2
 #define EXPECT_SHORT_LOCK_FREE 2
 #define EXPECT_INT_LOCK_FREE 2
 #define EXPECT_LONG_LOCK_FREE 2
-#define EXPECT_LLONG_LOCK_FREE 0
+#define EXPECT_LLONG_LOCK_FREE 2
 #define EXPECT_INT128_LOCK_FREE 0
 #define EXPECT_POINTER_LOCK_FREE 2
 #define EXPECT_BOOL_LOCK_FREE 2
