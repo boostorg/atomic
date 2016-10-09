@@ -803,8 +803,8 @@ implementation behaves as expected:
   signed/unsigned extension, ...).
 * [*lockfree.cpp] verifies that the [*BOOST_ATOMIC_*_LOCKFREE] macros
   are set properly according to the expectations for a given
-  platform, and that they match up with the [*is_lock_free] member
-  functions of the [*atomic] object instances.
+  platform, and that they match up with the [*is_always_lock_free] and
+  [*is_lock_free] members of the [*atomic] object instances.
 * [*atomicity.cpp] lets two threads race against each other modifying
   a shared variable, verifying that the operations behave atomic
   as appropriate. By nature, this test is necessarily stochastic, and

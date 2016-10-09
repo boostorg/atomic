@@ -38,6 +38,8 @@ struct gcc_dcas_x86
     typedef typename make_storage_type< 8u, Signed >::type storage_type;
     typedef typename make_storage_type< 8u, Signed >::aligned aligned_storage_type;
 
+    static BOOST_CONSTEXPR_OR_CONST bool is_always_lock_free = true;
+
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
         if ((((uint32_t)&storage) & 0x00000007) == 0)
@@ -366,6 +368,8 @@ struct gcc_dcas_x86_64
 {
     typedef typename make_storage_type< 16u, Signed >::type storage_type;
     typedef typename make_storage_type< 16u, Signed >::aligned aligned_storage_type;
+
+    static BOOST_CONSTEXPR_OR_CONST bool is_always_lock_free = true;
 
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {

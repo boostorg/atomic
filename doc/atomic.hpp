@@ -81,6 +81,15 @@ template<typename Type>
 class atomic {
 public:
     /**
+        \brief The constant equals to \c true if the atomic type's operations
+               are always lock-free and \c false otherwise.
+
+        If this constant is \c true then \c is_lock_free() shall always
+        return \c true for any object of this atomic type.
+    */
+    static constexpr bool is_always_lock_free;
+
+    /**
         \brief Create uninitialized atomic variable
         Creates an atomic variable. Its initial value is undefined.
     */
@@ -91,6 +100,13 @@ public:
         Creates and initializes an atomic variable.
     */
     explicit atomic(Type value);
+
+    /**
+        \brief Returns \c true if the object's operations are lock-free
+               and \c false otherwise.
+    */
+    bool is_lock_free() const noexcept;
+
 
     /**
         \brief Read the current value of the atomic variable
