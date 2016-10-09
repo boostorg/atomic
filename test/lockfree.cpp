@@ -35,6 +35,8 @@ verify_lock_free(const char * type_name, int lock_free_macro_val, int lock_free_
     if (lock_free_macro_val == 2)
         BOOST_TEST(value.is_lock_free());
 
+    BOOST_TEST(boost::atomic<T>::is_always_lock_free == (lock_free_expect == 2));
+
     std::cout << "atomic<" << type_name << "> is " << lock_free_level[lock_free_macro_val] << " lock free\n";
 }
 
