@@ -154,7 +154,7 @@ verify_lock_free(const char * type_name, int lock_free_macro_val, int lock_free_
 #define EXPECT_SHORT_LOCK_FREE 2
 #define EXPECT_INT_LOCK_FREE 2
 #define EXPECT_LONG_LOCK_FREE 2
-#if defined(_WIN64) || defined(BOOST_ATOMIC_DETAIL_X86_HAS_CMPXCHG8B) || defined(_M_AMD64) || defined(_M_IA64) || (_MSC_VER >= 1700 && defined(_M_ARM))
+#if defined(_WIN64) || defined(BOOST_ATOMIC_DETAIL_X86_HAS_CMPXCHG8B) || defined(_M_AMD64) || defined(_M_IA64) || (_MSC_VER >= 1700 && (defined(_M_ARM) || defined(_M_ARM64)))
 #define EXPECT_LLONG_LOCK_FREE 2
 #else
 #define EXPECT_LLONG_LOCK_FREE 0
