@@ -73,6 +73,7 @@ struct gcc_dcas_x86
         {
 #if !defined(BOOST_ATOMIC_DETAIL_NO_ASM_IMPLIED_ZERO_DISPLACEMENTS)
 #if defined(__PIC__)
+            uint32_t v_lo = (uint32_t)v;
             uint32_t scratch;
             __asm__ __volatile__
             (
@@ -84,8 +85,8 @@ struct gcc_dcas_x86
                 "1: lock; cmpxchg8b %[dest]\n\t"
                 "jne 1b\n\t"
                 "movl %[scratch], %%ebx\n\t"
-                : [scratch] "=m" (scratch), [dest] "=o" (storage)
-                : [value_lo] "a" ((uint32_t)v), "c" ((uint32_t)(v >> 32))
+                : [scratch] "=m" (scratch), [dest] "=o" (storage), [value_lo] "+a" (v_lo)
+                : "c" ((uint32_t)(v >> 32))
                 : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "edx", "memory"
             );
 #else // defined(__PIC__)
@@ -103,6 +104,7 @@ struct gcc_dcas_x86
 #endif // defined(__PIC__)
 #else // !defined(BOOST_ATOMIC_DETAIL_NO_ASM_IMPLIED_ZERO_DISPLACEMENTS)
 #if defined(__PIC__)
+            uint32_t v_lo = (uint32_t)v;
             uint32_t scratch;
             __asm__ __volatile__
             (
@@ -115,11 +117,11 @@ struct gcc_dcas_x86
                 "jne 1b\n\t"
                 "movl %[scratch], %%ebx\n\t"
 #if !defined(BOOST_ATOMIC_DETAIL_NO_ASM_CONSTRAINT_ALTERNATIVES)
-                : [scratch] "=m,m" (scratch)
-                : [value_lo] "a,a" ((uint32_t)v), "c,c" ((uint32_t)(v >> 32)), [dest] "D,S" (&storage)
+                : [scratch] "=m,m" (scratch), [value_lo] "+a,a" (v_lo)
+                : "c,c" ((uint32_t)(v >> 32)), [dest] "D,S" (&storage)
 #else
-                : [scratch] "=m" (scratch)
-                : [value_lo] "a" ((uint32_t)v), "c" ((uint32_t)(v >> 32)), [dest] "D" (&storage)
+                : [scratch] "=m" (scratch), [value_lo] "+a" (v_lo)
+                : "c" ((uint32_t)(v >> 32)), [dest] "D" (&storage)
 #endif
                 : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "edx", "memory"
             );
