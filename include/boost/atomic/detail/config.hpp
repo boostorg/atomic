@@ -73,4 +73,11 @@
 #define BOOST_ATOMIC_DETAIL_NO_ASM_RAX_RDX_PAIRS
 #endif
 
+#if defined(BOOST_NO_CXX11_HDR_TYPE_TRAITS)
+#if !(defined(BOOST_LIBSTDCXX11) && (BOOST_LIBSTDCXX_VERSION+0) >= 40700) /* libstdc++ from gcc >= 4.7 in C++11 mode */
+// This macro indicates that there is no <type_traits> standard header that is sufficient for Boost.Atomic needs.
+#define BOOST_ATOMIC_DETAIL_NO_CXX11_HDR_TYPE_TRAITS
+#endif
+#endif // defined(BOOST_NO_CXX11_HDR_TYPE_TRAITS)
+
 #endif // BOOST_ATOMIC_DETAIL_CONFIG_HPP_INCLUDED_

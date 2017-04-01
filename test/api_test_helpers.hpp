@@ -305,7 +305,6 @@ void test_pointer_api(void)
     test_additive_operators<T*>(&values[1], 1);
 
     test_base_operators<void*>(&values[0], &values[1], &values[2]);
-    test_additive_operators_with_type<void*, int, char*>(&values[1], 1);
 
 #if defined(BOOST_HAS_INTPTR_T)
     boost::atomic<void *> ptr;
