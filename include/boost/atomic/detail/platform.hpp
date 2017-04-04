@@ -61,7 +61,7 @@
         defined(__ARM_ARCH_7__) || defined(__ARM_ARCH_7A__) ||\
         defined(__ARM_ARCH_7R__) || defined(__ARM_ARCH_7M__) ||\
         defined(__ARM_ARCH_7EM__) || defined(__ARM_ARCH_7S__) ||\
-        defined(__ARM_ARCH_8A__)
+        defined(__ARM_ARCH_8A__)\
     )
 
 #define BOOST_ATOMIC_DETAIL_PLATFORM gcc_arm
