@@ -30,6 +30,12 @@
 // It does support GCC inline assembler though.
 #define BOOST_ATOMIC_DETAIL_PLATFORM gcc_ppc
 
+#elif defined(__IBMCPP__) && defined(__COMPILER_VER__) && defined(__TOS_MVS__)
+
+// IBM z/OS XL C/C++, which is an entirely different beast.
+
+#define BOOST_ATOMIC_DETAIL_PLATFORM xlcpp_zos
+
 #elif ((defined(__GNUC__) && ((__GNUC__ * 100 + __GNUC_MINOR__) >= 407)) ||\
     (defined(BOOST_CLANG) && ((__clang_major__ * 100 + __clang_minor__) >= 302))) &&\
     (\
