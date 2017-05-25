@@ -99,11 +99,6 @@ struct windows_operations :
     {
         store(storage, (storage_type)0, order);
     }
-
-    static BOOST_FORCEINLINE bool is_lock_free(storage_type const volatile&) BOOST_NOEXCEPT
-    {
-        return true;
-    }
 };
 
 template< bool Signed >

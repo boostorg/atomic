@@ -154,11 +154,6 @@ struct msvc_x86_operations :
     {
         store(storage, (storage_type)0, order);
     }
-
-    static BOOST_FORCEINLINE bool is_lock_free(storage_type const volatile&) BOOST_NOEXCEPT
-    {
-        return true;
-    }
 };
 
 template< bool Signed >
@@ -799,11 +794,6 @@ struct msvc_dcas_x86
 
         return v;
     }
-
-    static BOOST_FORCEINLINE bool is_lock_free(storage_type const volatile&) BOOST_NOEXCEPT
-    {
-        return true;
-    }
 };
 
 template< bool Signed >
@@ -892,11 +882,6 @@ struct msvc_dcas_x86_64
         storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order success_order, memory_order failure_order) BOOST_NOEXCEPT
     {
         return compare_exchange_strong(storage, expected, desired, success_order, failure_order);
-    }
-
-    static BOOST_FORCEINLINE bool is_lock_free(storage_type const volatile&) BOOST_NOEXCEPT
-    {
-        return true;
     }
 };
 

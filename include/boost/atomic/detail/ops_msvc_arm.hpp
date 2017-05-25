@@ -124,11 +124,6 @@ struct msvc_arm_operations :
     {
         Derived::store(storage, (storage_type)0, order);
     }
-
-    static BOOST_FORCEINLINE bool is_lock_free(storage_type const volatile&) BOOST_NOEXCEPT
-    {
-        return true;
-    }
 };
 
 template< bool Signed >

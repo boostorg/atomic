@@ -181,11 +181,6 @@ public:
         return compare_exchange_weak(expected, desired, order, atomics::detail::deduce_failure_order(order));
     }
 
-    BOOST_FORCEINLINE bool is_lock_free() const volatile BOOST_NOEXCEPT
-    {
-        return operations::is_lock_free(m_storage.value);
-    }
-
     BOOST_DELETED_FUNCTION(base_atomic(base_atomic const&))
     BOOST_DELETED_FUNCTION(base_atomic& operator=(base_atomic const&))
 
@@ -337,11 +332,6 @@ public:
         return static_cast< value_type >(operations::fetch_xor(m_storage.value, static_cast< storage_type >(v), order));
     }
 
-    BOOST_FORCEINLINE bool is_lock_free() const volatile BOOST_NOEXCEPT
-    {
-        return operations::is_lock_free(m_storage.value);
-    }
-
     BOOST_FORCEINLINE value_type operator++(int) volatile BOOST_NOEXCEPT
     {
         return fetch_add(1);
@@ -476,11 +466,6 @@ public:
         return compare_exchange_weak(expected, desired, order, atomics::detail::deduce_failure_order(order));
     }
 
-    BOOST_FORCEINLINE bool is_lock_free() const volatile BOOST_NOEXCEPT
-    {
-        return operations::is_lock_free(m_storage.value);
-    }
-
     BOOST_DELETED_FUNCTION(base_atomic(base_atomic const&))
     BOOST_DELETED_FUNCTION(base_atomic& operator=(base_atomic const&))
 };
@@ -584,11 +569,6 @@ public:
         return compare_exchange_weak(expected, desired, order, atomics::detail::deduce_failure_order(order));
     }
 
-    BOOST_FORCEINLINE bool is_lock_free() const volatile BOOST_NOEXCEPT
-    {
-        return operations::is_lock_free(m_storage.value);
-    }
-
     BOOST_FORCEINLINE value_type operator++(int) volatile BOOST_NOEXCEPT
     {
         return fetch_add(1);
@@ -655,9 +635,15 @@ public:
         return v;
     }
 
-    BOOST_FORCEINLINE operator value_type() volatile const BOOST_NOEXCEPT
+    BOOST_FORCEINLINE operator value_type() const volatile BOOST_NOEXCEPT
     {
         return this->load();
+    }
+
+    BOOST_FORCEINLINE bool is_lock_free() const volatile BOOST_NOEXCEPT
+    {
+        // C++17 requires all instances of atomic<> return a value consistent with is_always_lock_free here
+        return is_always_lock_free;
     }
 
     BOOST_FORCEINLINE storage_type& storage() BOOST_NOEXCEPT { return this->m_storage.value; }
