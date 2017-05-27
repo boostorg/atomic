@@ -80,13 +80,17 @@
 #endif
 #endif // defined(BOOST_NO_CXX11_HDR_TYPE_TRAITS)
 
-#if (defined(__GNUC__) && (!defined(BOOST_INTEL_CXX_VERSION) || (BOOST_INTEL_CXX_VERSION+0) >= 1300)) ||\
-    (defined(__has_attribute) && (__has_attribute(may_alias)+0) != 0)
+#if defined(__GNUC__) && (!defined(BOOST_INTEL_CXX_VERSION) || (BOOST_INTEL_CXX_VERSION+0) >= 1300)
 #define BOOST_ATOMIC_DETAIL_MAY_ALIAS __attribute__((__may_alias__))
-#define BOOST_ATOMIC_DETAIL_STORAGE_MAY_ALIAS
+#define BOOST_ATOMIC_DETAIL_STORAGE_TYPE_MAY_ALIAS
 #elif defined(BOOST_MSVC)
 // MSVC does not employ strict aliasing rules for optimizations and does not require an explicit markup
-#define BOOST_ATOMIC_DETAIL_STORAGE_MAY_ALIAS
+#define BOOST_ATOMIC_DETAIL_STORAGE_TYPE_MAY_ALIAS
+#elif defined(__has_attribute)
+#if (__has_attribute(may_alias)+0) != 0
+#define BOOST_ATOMIC_DETAIL_MAY_ALIAS __attribute__((__may_alias__))
+#define BOOST_ATOMIC_DETAIL_STORAGE_TYPE_MAY_ALIAS
+#endif
 #endif
 
 #if !defined(BOOST_ATOMIC_DETAIL_MAY_ALIAS)
