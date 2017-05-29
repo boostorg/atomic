@@ -25,6 +25,12 @@
 #pragma once
 #endif
 
+#if defined(BOOST_GCC) && (BOOST_GCC+0) >= 40600
+#pragma GCC diagnostic push
+// missing initializer for member var
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+#endif
+
 namespace boost {
 namespace atomics {
 namespace detail {
@@ -60,5 +66,9 @@ BOOST_FORCEINLINE To bitwise_cast(From const& from) BOOST_NOEXCEPT
 } // namespace detail
 } // namespace atomics
 } // namespace boost
+
+#if defined(BOOST_GCC) && (BOOST_GCC+0) >= 40600
+#pragma GCC diagnostic pop
+#endif
 
 #endif // BOOST_ATOMIC_DETAIL_BITWISE_CAST_HPP_INCLUDED_
