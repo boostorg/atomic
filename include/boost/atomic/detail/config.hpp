@@ -87,7 +87,7 @@
 // MSVC does not employ strict aliasing rules for optimizations and does not require an explicit markup
 #define BOOST_ATOMIC_DETAIL_STORAGE_TYPE_MAY_ALIAS
 #elif defined(__has_attribute)
-#if (__has_attribute(may_alias)+0) != 0
+#if __has_attribute(__may_alias__)
 #define BOOST_ATOMIC_DETAIL_MAY_ALIAS __attribute__((__may_alias__))
 #define BOOST_ATOMIC_DETAIL_STORAGE_TYPE_MAY_ALIAS
 #endif
