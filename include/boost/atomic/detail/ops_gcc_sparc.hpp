@@ -70,7 +70,7 @@ struct gcc_sparc_cas32 :
     {
         fence_before(order);
         storage = v;
-        fence_after_store(order);
+        fence_after(order);
     }
 
     static BOOST_FORCEINLINE storage_type load(storage_type const volatile& storage, memory_order order) BOOST_NOEXCEPT
