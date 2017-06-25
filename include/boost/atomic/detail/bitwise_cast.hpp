@@ -40,7 +40,7 @@ BOOST_FORCEINLINE T* addressof(T& value) BOOST_NOEXCEPT
 {
     // Note: The point of using a local struct as the intermediate type instead of char is to avoid gcc warnings
     // if T is a const volatile char*:
-    // warning: casting ‘const volatile char* const’ to ‘const volatile char&’ does not dereference pointer
+    // warning: casting 'const volatile char* const' to 'const volatile char&' does not dereference pointer
     // The local struct makes sure T is not related to the cast target type.
     struct opaque_type;
     return reinterpret_cast< T* >(&const_cast< opaque_type& >(reinterpret_cast< const volatile opaque_type& >(value)));
