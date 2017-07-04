@@ -6,17 +6,20 @@
  * Copyright (c) 2015 Andrey Semashev
  */
 /*!
- * \file   atomic/detail/ext_ops_gcc_x86.hpp
+ * \file   atomic/detail/extra_ops_gcc_x86.hpp
  *
- * This header contains implementation of the extended atomic operations for x86.
+ * This header contains implementation of the extra atomic operations for x86.
  */
 
-#ifndef BOOST_ATOMIC_DETAIL_EXT_OPS_GCC_X86_HPP_INCLUDED_
-#define BOOST_ATOMIC_DETAIL_EXT_OPS_GCC_X86_HPP_INCLUDED_
+#ifndef BOOST_ATOMIC_DETAIL_EXTRA_OPS_GCC_X86_HPP_INCLUDED_
+#define BOOST_ATOMIC_DETAIL_EXTRA_OPS_GCC_X86_HPP_INCLUDED_
 
+#include <cstddef>
+#include <boost/cstdint.hpp>
 #include <boost/memory_order.hpp>
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/storage_type.hpp>
+#include <boost/atomic/detail/extra_operations_fwd.hpp>
 #include <boost/atomic/capabilities.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
@@ -28,7 +31,7 @@ namespace atomics {
 namespace detail {
 
 template< typename Base >
-struct gcc_x86_extended_operations_common :
+struct gcc_x86_extra_operations_common :
     public Base
 {
     typedef Base base_type;
@@ -107,26 +110,23 @@ struct gcc_x86_extended_operations_common :
     }
 };
 
-template< std::size_t Size, bool Signed, typename Base >
-struct gcc_x86_extended_operations;
-
-template< bool Signed, typename Base >
-struct gcc_x86_extended_operations< 1u, Signed, Base > :
-    public gcc_x86_extended_operations_common< Base >
+template< typename Base, bool Signed >
+struct extra_operations< Base, 1u, Signed > :
+    public gcc_x86_extra_operations_common< Base >
 {
-    typedef gcc_x86_extended_operations_common< Base > base_type;
+    typedef gcc_x86_extra_operations_common< Base > base_type;
     typedef typename base_type::storage_type storage_type;
 
 #define BOOST_ATOMIC_DETAIL_CAS_LOOP(op, result)\
-    storage_type new_val;\
+    boost::uint32_t new_val;\
     __asm__ __volatile__\
     (\
         ".align 16\n\t"\
-        "1: mov %[res], %[new_val]\n\t"\
-        op " %[new_val]\n\t"\
-        "lock; cmpxchgb %[new_val], %[storage]\n\t"\
+        "1: movzbl %[res], %2\n\t"\
+        op " %b2\n\t"\
+        "lock; cmpxchgb %b2, %[storage]\n\t"\
         "jne 1b"\
-        : [res] "+a" (result), [storage] "+m" (storage), [new_val] "=&q" (new_val)\
+        : [res] "+a" (result), [storage] "+m" (storage), "=&q" (new_val)\
         : \
         : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"\
     )
@@ -425,23 +425,23 @@ struct gcc_x86_extended_operations< 1u, Signed, Base > :
     }
 };
 
-template< bool Signed, typename Base >
-struct gcc_x86_extended_operations< 2u, Signed, Base > :
-    public gcc_x86_extended_operations_common< Base >
+template< typename Base, bool Signed >
+struct extra_operations< Base, 2u, Signed > :
+    public gcc_x86_extra_operations_common< Base >
 {
-    typedef gcc_x86_extended_operations_common< Base > base_type;
+    typedef gcc_x86_extra_operations_common< Base > base_type;
     typedef typename base_type::storage_type storage_type;
 
 #define BOOST_ATOMIC_DETAIL_CAS_LOOP(op, result)\
-    storage_type new_val;\
+    boost::uint32_t new_val;\
     __asm__ __volatile__\
     (\
         ".align 16\n\t"\
-        "1: mov %[res], %[new_val]\n\t"\
-        op " %[new_val]\n\t"\
-        "lock; cmpxchgw %[new_val], %[storage]\n\t"\
+        "1: movzwl %[res], %2\n\t"\
+        op " %w2\n\t"\
+        "lock; cmpxchgw %w2, %[storage]\n\t"\
         "jne 1b"\
-        : [res] "+a" (result), [storage] "+m" (storage), [new_val] "=&q" (new_val)\
+        : [res] "+a" (result), [storage] "+m" (storage), "=&q" (new_val)\
         : \
         : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"\
     )
@@ -740,11 +740,11 @@ struct gcc_x86_extended_operations< 2u, Signed, Base > :
     }
 };
 
-template< bool Signed, typename Base >
-struct gcc_x86_extended_operations< 4u, Signed, Base > :
-    public gcc_x86_extended_operations_common< Base >
+template< typename Base, bool Signed >
+struct extra_operations< Base, 4u, Signed > :
+    public gcc_x86_extra_operations_common< Base >
 {
-    typedef gcc_x86_extended_operations_common< Base > base_type;
+    typedef gcc_x86_extra_operations_common< Base > base_type;
     typedef typename base_type::storage_type storage_type;
 
 #define BOOST_ATOMIC_DETAIL_CAS_LOOP(op, result)\
@@ -1057,11 +1057,11 @@ struct gcc_x86_extended_operations< 4u, Signed, Base > :
 
 #if defined(__x86_64__)
 
-template< bool Signed, typename Base >
-struct gcc_x86_extended_operations< 8u, Signed, Base > :
-    public gcc_x86_extended_operations_common< Base >
+template< typename Base, bool Signed >
+struct extra_operations< Base, 8u, Signed > :
+    public gcc_x86_extra_operations_common< Base >
 {
-    typedef gcc_x86_extended_operations_common< Base > base_type;
+    typedef gcc_x86_extra_operations_common< Base > base_type;
     typedef typename base_type::storage_type storage_type;
 
 #define BOOST_ATOMIC_DETAIL_CAS_LOOP(op, result)\
@@ -1378,4 +1378,4 @@ struct gcc_x86_extended_operations< 8u, Signed, Base > :
 } // namespace atomics
 } // namespace boost
 
-#endif // BOOST_ATOMIC_DETAIL_EXT_OPS_GCC_X86_HPP_INCLUDED_
+#endif // BOOST_ATOMIC_DETAIL_EXTRA_OPS_GCC_X86_HPP_INCLUDED_

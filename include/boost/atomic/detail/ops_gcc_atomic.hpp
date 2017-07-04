@@ -14,6 +14,7 @@
 #ifndef BOOST_ATOMIC_DETAIL_OPS_GCC_ATOMIC_HPP_INCLUDED_
 #define BOOST_ATOMIC_DETAIL_OPS_GCC_ATOMIC_HPP_INCLUDED_
 
+#include <cstddef>
 #include <boost/memory_order.hpp>
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/storage_type.hpp>
@@ -172,6 +173,8 @@ template< bool Signed >
 struct operations< 16u, Signed > :
     public cas_based_operations< gcc_dcas_x86_64< Signed > >
 {
+    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 16u;
+    static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
 };
 
 #else
@@ -181,6 +184,9 @@ struct operations< 16u, Signed > :
     public gcc_atomic_operations< typename make_storage_type< 16u, Signed >::type >
 {
     typedef typename make_storage_type< 16u, Signed >::aligned aligned_storage_type;
+
+    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 16u;
+    static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
 };
 
 #endif
@@ -195,6 +201,8 @@ template< bool Signed >
 struct operations< 8u, Signed > :
     public cas_based_operations< gcc_dcas_x86< Signed > >
 {
+    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 8u;
+    static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
 };
 
 #elif (BOOST_ATOMIC_DETAIL_SIZEOF_LLONG == 8 && __GCC_ATOMIC_LLONG_LOCK_FREE != BOOST_ATOMIC_LLONG_LOCK_FREE) ||\
@@ -210,6 +218,9 @@ struct operations< 8u, Signed > :
     public extending_cas_based_operations< gcc_atomic_operations< typename make_storage_type< 16u, Signed >::type >, 8u, Signed >
 {
     typedef typename make_storage_type< 16u, Signed >::aligned aligned_storage_type;
+
+    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 8u;
+    static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
 };
 
 #else
@@ -219,6 +230,9 @@ struct operations< 8u, Signed > :
     public gcc_atomic_operations< typename make_storage_type< 8u, Signed >::type >
 {
     typedef typename make_storage_type< 8u, Signed >::aligned aligned_storage_type;
+
+    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 8u;
+    static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
 };
 
 #endif
@@ -240,6 +254,9 @@ struct operations< 4u, Signed > :
     public extending_cas_based_operations< gcc_atomic_operations< typename make_storage_type< 8u, Signed >::type >, 4u, Signed >
 {
     typedef typename make_storage_type< 8u, Signed >::aligned aligned_storage_type;
+
+    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 8u;
+    static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
 };
 
 #else // !defined(BOOST_ATOMIC_DETAIL_INT64_EXTENDED)
@@ -249,6 +266,9 @@ struct operations< 4u, Signed > :
     public extending_cas_based_operations< gcc_atomic_operations< typename make_storage_type< 16u, Signed >::type >, 4u, Signed >
 {
     typedef typename make_storage_type< 16u, Signed >::aligned aligned_storage_type;
+
+    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 16u;
+    static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
 };
 
 #endif // !defined(BOOST_ATOMIC_DETAIL_INT64_EXTENDED)
@@ -260,6 +280,9 @@ struct operations< 4u, Signed > :
     public gcc_atomic_operations< typename make_storage_type< 4u, Signed >::type >
 {
     typedef typename make_storage_type< 4u, Signed >::aligned aligned_storage_type;
+
+    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 4u;
+    static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
 };
 
 #endif
@@ -281,6 +304,9 @@ struct operations< 2u, Signed > :
     public extending_cas_based_operations< gcc_atomic_operations< typename make_storage_type< 4u, Signed >::type >, 2u, Signed >
 {
     typedef typename make_storage_type< 4u, Signed >::aligned aligned_storage_type;
+
+    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 4u;
+    static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
 };
 
 #elif !defined(BOOST_ATOMIC_DETAIL_INT64_EXTENDED)
@@ -290,6 +316,9 @@ struct operations< 2u, Signed > :
     public extending_cas_based_operations< gcc_atomic_operations< typename make_storage_type< 8u, Signed >::type >, 2u, Signed >
 {
     typedef typename make_storage_type< 8u, Signed >::aligned aligned_storage_type;
+
+    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 8u;
+    static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
 };
 
 #else
@@ -299,6 +328,9 @@ struct operations< 2u, Signed > :
     public extending_cas_based_operations< gcc_atomic_operations< typename make_storage_type< 16u, Signed >::type >, 2u, Signed >
 {
     typedef typename make_storage_type< 16u, Signed >::aligned aligned_storage_type;
+
+    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 16u;
+    static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
 };
 
 #endif
@@ -310,6 +342,9 @@ struct operations< 2u, Signed > :
     public gcc_atomic_operations< typename make_storage_type< 2u, Signed >::type >
 {
     typedef typename make_storage_type< 2u, Signed >::aligned aligned_storage_type;
+
+    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 2u;
+    static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
 };
 
 #endif
@@ -331,6 +366,9 @@ struct operations< 1u, Signed > :
     public extending_cas_based_operations< gcc_atomic_operations< typename make_storage_type< 2u, Signed >::type >, 1u, Signed >
 {
     typedef typename make_storage_type< 2u, Signed >::aligned aligned_storage_type;
+
+    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 2u;
+    static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
 };
 
 #elif !defined(BOOST_ATOMIC_DETAIL_INT32_EXTENDED)
@@ -340,6 +378,9 @@ struct operations< 1u, Signed > :
     public extending_cas_based_operations< gcc_atomic_operations< typename make_storage_type< 4u, Signed >::type >, 1u, Signed >
 {
     typedef typename make_storage_type< 4u, Signed >::aligned aligned_storage_type;
+
+    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 4u;
+    static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
 };
 
 #elif !defined(BOOST_ATOMIC_DETAIL_INT64_EXTENDED)
@@ -349,6 +390,9 @@ struct operations< 1u, Signed > :
     public extending_cas_based_operations< gcc_atomic_operations< typename make_storage_type< 8u, Signed >::type >, 1u, Signed >
 {
     typedef typename make_storage_type< 8u, Signed >::aligned aligned_storage_type;
+
+    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 8u;
+    static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
 };
 
 #else
@@ -358,6 +402,9 @@ struct operations< 1u, Signed > :
     public extending_cas_based_operations< gcc_atomic_operations< typename make_storage_type< 16u, Signed >::type >, 1u, Signed >
 {
     typedef typename make_storage_type< 16u, Signed >::aligned aligned_storage_type;
+
+    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 16u;
+    static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
 };
 
 #endif
@@ -369,6 +416,9 @@ struct operations< 1u, Signed > :
     public gcc_atomic_operations< typename make_storage_type< 1u, Signed >::type >
 {
     typedef typename make_storage_type< 1u, Signed >::aligned aligned_storage_type;
+
+    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 1u;
+    static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
 };
 
 #endif

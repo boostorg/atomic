@@ -16,6 +16,7 @@
 #ifndef BOOST_ATOMIC_DETAIL_OPS_GCC_X86_HPP_INCLUDED_
 #define BOOST_ATOMIC_DETAIL_OPS_GCC_X86_HPP_INCLUDED_
 
+#include <cstddef>
 #include <boost/memory_order.hpp>
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/storage_type.hpp>
@@ -114,6 +115,9 @@ struct operations< 1u, Signed > :
     typedef typename base_type::storage_type storage_type;
     typedef typename make_storage_type< 1u, Signed >::aligned aligned_storage_type;
 
+    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 1u;
+    static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
+
     static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
         __asm__ __volatile__
@@ -200,6 +204,9 @@ struct operations< 2u, Signed > :
     typedef gcc_x86_operations< typename make_storage_type< 2u, Signed >::type, operations< 2u, Signed > > base_type;
     typedef typename base_type::storage_type storage_type;
     typedef typename make_storage_type< 2u, Signed >::aligned aligned_storage_type;
+
+    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 2u;
+    static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
 
     static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
@@ -288,6 +295,9 @@ struct operations< 4u, Signed > :
     typedef typename base_type::storage_type storage_type;
     typedef typename make_storage_type< 4u, Signed >::aligned aligned_storage_type;
 
+    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 4u;
+    static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
+
     static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
         __asm__ __volatile__
@@ -373,6 +383,8 @@ template< bool Signed >
 struct operations< 8u, Signed > :
     public cas_based_operations< gcc_dcas_x86< Signed > >
 {
+    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 8u;
+    static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
 };
 
 #elif defined(__x86_64__)
@@ -384,6 +396,9 @@ struct operations< 8u, Signed > :
     typedef gcc_x86_operations< typename make_storage_type< 8u, Signed >::type, operations< 8u, Signed > > base_type;
     typedef typename base_type::storage_type storage_type;
     typedef typename make_storage_type< 8u, Signed >::aligned aligned_storage_type;
+
+    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 8u;
+    static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
 
     static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
@@ -472,6 +487,8 @@ template< bool Signed >
 struct operations< 16u, Signed > :
     public cas_based_operations< gcc_dcas_x86_64< Signed > >
 {
+    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 16u;
+    static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
 };
 
 #endif // defined(BOOST_ATOMIC_DETAIL_X86_HAS_CMPXCHG16B)

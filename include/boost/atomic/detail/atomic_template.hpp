@@ -22,6 +22,7 @@
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/bitwise_cast.hpp>
 #include <boost/atomic/detail/operations_fwd.hpp>
+#include <boost/atomic/detail/extra_operations_fwd.hpp>
 #include <boost/atomic/detail/type_traits/is_signed.hpp>
 #include <boost/atomic/detail/type_traits/is_integral.hpp>
 #include <boost/atomic/detail/type_traits/is_function.hpp>
@@ -231,6 +232,7 @@ public:
 
 protected:
     typedef atomics::detail::operations< storage_size_of< value_type >::value, boost::atomics::detail::is_signed< T >::value > operations;
+    typedef atomics::detail::extra_operations< operations, operations::storage_size, operations::is_signed > extra_operations;
     typedef value_type value_arg_type;
 
 public:
@@ -336,90 +338,90 @@ public:
     // Boost.Atomic extensions
     BOOST_FORCEINLINE value_type fetch_negate(memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        return static_cast< value_type >(operations::fetch_negate(m_storage.value, order));
+        return static_cast< value_type >(extra_operations::fetch_negate(m_storage.value, order));
     }
 
     BOOST_FORCEINLINE value_type fetch_complement(memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        return static_cast< value_type >(operations::fetch_complement(m_storage.value, order));
+        return static_cast< value_type >(extra_operations::fetch_complement(m_storage.value, order));
     }
 
     BOOST_FORCEINLINE void opaque_add(difference_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        operations::opaque_add(m_storage.value, static_cast< storage_type >(v), order);
+        extra_operations::opaque_add(m_storage.value, static_cast< storage_type >(v), order);
     }
 
     BOOST_FORCEINLINE void opaque_sub(difference_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        operations::opaque_sub(m_storage.value, static_cast< storage_type >(v), order);
+        extra_operations::opaque_sub(m_storage.value, static_cast< storage_type >(v), order);
     }
 
     BOOST_FORCEINLINE void opaque_negate(memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        operations::opaque_negate(m_storage.value, order);
+        extra_operations::opaque_negate(m_storage.value, order);
     }
 
     BOOST_FORCEINLINE void opaque_and(value_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        operations::opaque_and(m_storage.value, static_cast< storage_type >(v), order);
+        extra_operations::opaque_and(m_storage.value, static_cast< storage_type >(v), order);
     }
 
     BOOST_FORCEINLINE void opaque_or(value_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        operations::opaque_or(m_storage.value, static_cast< storage_type >(v), order);
+        extra_operations::opaque_or(m_storage.value, static_cast< storage_type >(v), order);
     }
 
     BOOST_FORCEINLINE void opaque_xor(value_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        operations::opaque_xor(m_storage.value, static_cast< storage_type >(v), order);
+        extra_operations::opaque_xor(m_storage.value, static_cast< storage_type >(v), order);
     }
 
     BOOST_FORCEINLINE void opaque_complement(memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        operations::opaque_complement(m_storage.value, order);
+        extra_operations::opaque_complement(m_storage.value, order);
     }
 
     BOOST_FORCEINLINE bool add_and_test(difference_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        return operations::add_and_test(m_storage.value, static_cast< storage_type >(v), order);
+        return extra_operations::add_and_test(m_storage.value, static_cast< storage_type >(v), order);
     }
 
     BOOST_FORCEINLINE bool sub_and_test(difference_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        return operations::sub_and_test(m_storage.value, static_cast< storage_type >(v), order);
+        return extra_operations::sub_and_test(m_storage.value, static_cast< storage_type >(v), order);
     }
 
     BOOST_FORCEINLINE bool and_and_test(value_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        return operations::and_and_test(m_storage.value, static_cast< storage_type >(v), order);
+        return extra_operations::and_and_test(m_storage.value, static_cast< storage_type >(v), order);
     }
 
     BOOST_FORCEINLINE bool or_and_test(value_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        return operations::or_and_test(m_storage.value, static_cast< storage_type >(v), order);
+        return extra_operations::or_and_test(m_storage.value, static_cast< storage_type >(v), order);
     }
 
     BOOST_FORCEINLINE bool xor_and_test(value_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        return operations::xor_and_test(m_storage.value, static_cast< storage_type >(v), order);
+        return extra_operations::xor_and_test(m_storage.value, static_cast< storage_type >(v), order);
     }
 
     BOOST_FORCEINLINE bool bit_test_and_set(unsigned int bit_number, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
         BOOST_ASSERT(bit_number < sizeof(value_type) * 8u);
-        return operations::bit_test_and_set(m_storage.value, bit_number, order);
+        return extra_operations::bit_test_and_set(m_storage.value, bit_number, order);
     }
 
     BOOST_FORCEINLINE bool bit_test_and_reset(unsigned int bit_number, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
         BOOST_ASSERT(bit_number < sizeof(value_type) * 8u);
-        return operations::bit_test_and_reset(m_storage.value, bit_number, order);
+        return extra_operations::bit_test_and_reset(m_storage.value, bit_number, order);
     }
 
     BOOST_FORCEINLINE bool bit_test_and_complement(unsigned int bit_number, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
         BOOST_ASSERT(bit_number < sizeof(value_type) * 8u);
-        return operations::bit_test_and_complement(m_storage.value, bit_number, order);
+        return extra_operations::bit_test_and_complement(m_storage.value, bit_number, order);
     }
 
     // Operators
@@ -573,6 +575,7 @@ public:
 
 protected:
     typedef atomics::detail::operations< storage_size_of< value_type >::value, false > operations;
+    typedef atomics::detail::extra_operations< operations, operations::storage_size, operations::is_signed > extra_operations;
     typedef value_type value_arg_type;
 
 public:
@@ -665,22 +668,22 @@ public:
     // Boost.Atomic extensions
     BOOST_FORCEINLINE void opaque_add(difference_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        operations::opaque_add(m_storage.value, static_cast< storage_type >(v * sizeof(T)), order);
+        extra_operations::opaque_add(m_storage.value, static_cast< storage_type >(v * sizeof(T)), order);
     }
 
     BOOST_FORCEINLINE void opaque_sub(difference_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        operations::opaque_sub(m_storage.value, static_cast< storage_type >(v * sizeof(T)), order);
+        extra_operations::opaque_sub(m_storage.value, static_cast< storage_type >(v * sizeof(T)), order);
     }
 
     BOOST_FORCEINLINE bool add_and_test(difference_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        return operations::add_and_test(m_storage.value, static_cast< storage_type >(v * sizeof(T)), order);
+        return extra_operations::add_and_test(m_storage.value, static_cast< storage_type >(v * sizeof(T)), order);
     }
 
     BOOST_FORCEINLINE bool sub_and_test(difference_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        return operations::sub_and_test(m_storage.value, static_cast< storage_type >(v * sizeof(T)), order);
+        return extra_operations::sub_and_test(m_storage.value, static_cast< storage_type >(v * sizeof(T)), order);
     }
 
     // Operators

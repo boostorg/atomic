@@ -6,17 +6,19 @@
  * Copyright (c) 2015 Andrey Semashev
  */
 /*!
- * \file   atomic/detail/ext_ops_generic.hpp
+ * \file   atomic/detail/extra_ops_generic.hpp
  *
- * This header contains generic implementation of the extended atomic operations.
+ * This header contains generic implementation of the extra atomic operations.
  */
 
-#ifndef BOOST_ATOMIC_DETAIL_EXT_OPS_GENERIC_HPP_INCLUDED_
-#define BOOST_ATOMIC_DETAIL_EXT_OPS_GENERIC_HPP_INCLUDED_
+#ifndef BOOST_ATOMIC_DETAIL_EXTRA_OPS_GENERIC_HPP_INCLUDED_
+#define BOOST_ATOMIC_DETAIL_EXTRA_OPS_GENERIC_HPP_INCLUDED_
 
+#include <cstddef>
 #include <boost/memory_order.hpp>
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/storage_type.hpp>
+#include <boost/atomic/detail/extra_operations_fwd.hpp>
 #include <boost/atomic/capabilities.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
@@ -27,8 +29,9 @@ namespace boost {
 namespace atomics {
 namespace detail {
 
+// Default extra_operations template definition will be used unless specialized for a specific platform
 template< typename Base, std::size_t Size, bool Signed >
-struct generic_extended_operations :
+struct extra_operations :
     public Base
 {
     typedef Base base_type;
@@ -139,4 +142,4 @@ struct generic_extended_operations :
 } // namespace atomics
 } // namespace boost
 
-#endif // BOOST_ATOMIC_DETAIL_EXT_OPS_GENERIC_HPP_INCLUDED_
+#endif // BOOST_ATOMIC_DETAIL_EXTRA_OPS_GENERIC_HPP_INCLUDED_
