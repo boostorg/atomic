@@ -8,6 +8,7 @@
 #define BOOST_ATOMIC_API_TEST_HELPERS_HPP
 
 #include <boost/atomic.hpp>
+#include <cstddef>
 #include <cstring>
 #include <limits>
 #include <boost/config.hpp>
@@ -125,6 +126,37 @@ void test_constexpr_ctor()
 #endif
 }
 
+//! The type traits provides max and min values of type D that can be added/subtracted to T(0) without signed overflow
+template< typename T, typename D >
+struct distance_limits
+{
+    static D min BOOST_PREVENT_MACRO_SUBSTITUTION () BOOST_NOEXCEPT
+    {
+        return (std::numeric_limits< D >::min)();
+    }
+    static D max BOOST_PREVENT_MACRO_SUBSTITUTION () BOOST_NOEXCEPT
+    {
+        return (std::numeric_limits< D >::max)();
+    }
+};
+
+template< typename T, typename D >
+struct distance_limits< T*, D >
+{
+    static D min BOOST_PREVENT_MACRO_SUBSTITUTION () BOOST_NOEXCEPT
+    {
+        const std::ptrdiff_t ptrdiff = (std::numeric_limits< std::ptrdiff_t >::min)() / sizeof(T);
+        const D diff = (std::numeric_limits< D >::min)();
+        return diff < ptrdiff ? static_cast< D >(ptrdiff) : diff;
+    }
+    static D max BOOST_PREVENT_MACRO_SUBSTITUTION () BOOST_NOEXCEPT
+    {
+        const std::ptrdiff_t ptrdiff = (std::numeric_limits< std::ptrdiff_t >::max)() / sizeof(T);
+        const D diff = (std::numeric_limits< D >::max)();
+        return diff > ptrdiff ? static_cast< D >(ptrdiff) : diff;
+    }
+};
+
 template<typename T, typename D, typename AddType>
 void test_additive_operators_with_type(T value, D delta)
 {
@@ -217,15 +249,15 @@ void test_additive_operators_with_type(T value, D delta)
     }
     {
         boost::atomic<T> a((T)0);
-        bool f = a.add_and_test((std::numeric_limits< D >::max)());
+        bool f = a.add_and_test((distance_limits< T, D >::max)());
         BOOST_TEST( f == false );
-        BOOST_TEST( a.load() == T(((AddType)0) + (std::numeric_limits< D >::max)()) );
+        BOOST_TEST( a.load() == T(((AddType)0) + (distance_limits< T, D >::max)()) );
     }
     {
         boost::atomic<T> a((T)0);
-        bool f = a.add_and_test((std::numeric_limits< D >::min)());
-        BOOST_TEST( f == ((std::numeric_limits< D >::min)() == 0) );
-        BOOST_TEST( a.load() == T(((AddType)0) + (std::numeric_limits< D >::min)()) );
+        bool f = a.add_and_test((distance_limits< T, D >::min)());
+        BOOST_TEST( f == ((distance_limits< T, D >::min)() == 0) );
+        BOOST_TEST( a.load() == T(((AddType)0) + (distance_limits< T, D >::min)()) );
     }
 
     {
@@ -240,15 +272,15 @@ void test_additive_operators_with_type(T value, D delta)
     }
     {
         boost::atomic<T> a((T)0);
-        bool f = a.sub_and_test((std::numeric_limits< D >::max)());
+        bool f = a.sub_and_test((distance_limits< T, D >::max)());
         BOOST_TEST( f == false );
-        BOOST_TEST( a.load() == T(((AddType)0) - (std::numeric_limits< D >::max)()) );
+        BOOST_TEST( a.load() == T(((AddType)0) - (distance_limits< T, D >::max)()) );
     }
     {
         boost::atomic<T> a((T)0);
-        bool f = a.sub_and_test((std::numeric_limits< D >::min)());
-        BOOST_TEST( f == ((std::numeric_limits< D >::min)() == 0) );
-        BOOST_TEST( a.load() == T(((AddType)0) - (std::numeric_limits< D >::min)()) );
+        bool f = a.sub_and_test((distance_limits< T, D >::min)());
+        BOOST_TEST( f == ((distance_limits< T, D >::min)() == 0) );
+        BOOST_TEST( a.load() == T(((AddType)0) - (distance_limits< T, D >::min)()) );
     }
 }
 
