@@ -17,6 +17,7 @@
 #define BOOST_ATOMIC_DETAIL_OPS_GCC_X86_HPP_INCLUDED_
 
 #include <cstddef>
+#include <boost/cstdint.hpp>
 #include <boost/memory_order.hpp>
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/storage_type.hpp>
@@ -29,12 +30,6 @@
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once
-#endif
-
-#if defined(__x86_64__)
-#define BOOST_ATOMIC_DETAIL_TEMP_CAS_REGISTER "rdx"
-#else
-#define BOOST_ATOMIC_DETAIL_TEMP_CAS_REGISTER "edx"
 #endif
 
 namespace boost {
@@ -160,17 +155,17 @@ struct operations< 1u, Signed > :
     }
 
 #define BOOST_ATOMIC_DETAIL_CAS_LOOP(op, argument, result)\
+    boost::uint32_t new_val;\
     __asm__ __volatile__\
     (\
-        "xor %%" BOOST_ATOMIC_DETAIL_TEMP_CAS_REGISTER ", %%" BOOST_ATOMIC_DETAIL_TEMP_CAS_REGISTER "\n\t"\
         ".align 16\n\t"\
-        "1: movb %[arg], %%dl\n\t"\
-        op " %%al, %%dl\n\t"\
-        "lock; cmpxchgb %%dl, %[storage]\n\t"\
+        "1: movzbl %[arg], %2\n\t"\
+        op " %%al, %b2\n\t"\
+        "lock; cmpxchgb %b2, %[storage]\n\t"\
         "jne 1b"\
-        : [res] "+a" (result), [storage] "+m" (storage)\
+        : [res] "+a" (result), [storage] "+m" (storage), "=&q" (new_val)\
         : [arg] "q" (argument)\
-        : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA BOOST_ATOMIC_DETAIL_TEMP_CAS_REGISTER, "memory"\
+        : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"\
     )
 
     static BOOST_FORCEINLINE storage_type fetch_and(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
@@ -250,17 +245,17 @@ struct operations< 2u, Signed > :
     }
 
 #define BOOST_ATOMIC_DETAIL_CAS_LOOP(op, argument, result)\
+    boost::uint32_t new_val;\
     __asm__ __volatile__\
     (\
-        "xor %%" BOOST_ATOMIC_DETAIL_TEMP_CAS_REGISTER ", %%" BOOST_ATOMIC_DETAIL_TEMP_CAS_REGISTER "\n\t"\
         ".align 16\n\t"\
-        "1: movw %[arg], %%dx\n\t"\
-        op " %%ax, %%dx\n\t"\
-        "lock; cmpxchgw %%dx, %[storage]\n\t"\
+        "1: movzwl %[arg], %2\n\t"\
+        op " %%ax, %w2\n\t"\
+        "lock; cmpxchgw %w2, %[storage]\n\t"\
         "jne 1b"\
-        : [res] "+a" (result), [storage] "+m" (storage)\
+        : [res] "+a" (result), [storage] "+m" (storage), "=&q" (new_val)\
         : [arg] "q" (argument)\
-        : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA BOOST_ATOMIC_DETAIL_TEMP_CAS_REGISTER, "memory"\
+        : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"\
     )
 
     static BOOST_FORCEINLINE storage_type fetch_and(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
@@ -340,17 +335,17 @@ struct operations< 4u, Signed > :
     }
 
 #define BOOST_ATOMIC_DETAIL_CAS_LOOP(op, argument, result)\
+    storage_type new_val;\
     __asm__ __volatile__\
     (\
-        "xor %%" BOOST_ATOMIC_DETAIL_TEMP_CAS_REGISTER ", %%" BOOST_ATOMIC_DETAIL_TEMP_CAS_REGISTER "\n\t"\
         ".align 16\n\t"\
-        "1: movl %[arg], %%edx\n\t"\
-        op " %%eax, %%edx\n\t"\
-        "lock; cmpxchgl %%edx, %[storage]\n\t"\
+        "1: movl %[arg], %[new_val]\n\t"\
+        op " %%eax, %[new_val]\n\t"\
+        "lock; cmpxchgl %[new_val], %[storage]\n\t"\
         "jne 1b"\
-        : [res] "+a" (result), [storage] "+m" (storage)\
+        : [res] "+a" (result), [storage] "+m" (storage), [new_val] "=&r" (new_val)\
         : [arg] "r" (argument)\
-        : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA BOOST_ATOMIC_DETAIL_TEMP_CAS_REGISTER, "memory"\
+        : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"\
     )
 
     static BOOST_FORCEINLINE storage_type fetch_and(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
@@ -442,17 +437,17 @@ struct operations< 8u, Signed > :
     }
 
 #define BOOST_ATOMIC_DETAIL_CAS_LOOP(op, argument, result)\
+    storage_type new_val;\
     __asm__ __volatile__\
     (\
-        "xor %%" BOOST_ATOMIC_DETAIL_TEMP_CAS_REGISTER ", %%" BOOST_ATOMIC_DETAIL_TEMP_CAS_REGISTER "\n\t"\
         ".align 16\n\t"\
-        "1: movq %[arg], %%rdx\n\t"\
-        op " %%rax, %%rdx\n\t"\
-        "lock; cmpxchgq %%rdx, %[storage]\n\t"\
+        "1: movq %[arg], %[new_val]\n\t"\
+        op " %%rax, %[new_val]\n\t"\
+        "lock; cmpxchgq %[new_val], %[storage]\n\t"\
         "jne 1b"\
-        : [res] "+a" (result), [storage] "+m" (storage)\
+        : [res] "+a" (result), [storage] "+m" (storage), [new_val] "=&r" (new_val)\
         : [arg] "r" (argument)\
-        : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA BOOST_ATOMIC_DETAIL_TEMP_CAS_REGISTER, "memory"\
+        : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"\
     )
 
     static BOOST_FORCEINLINE storage_type fetch_and(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
@@ -522,7 +517,5 @@ BOOST_FORCEINLINE void signal_fence(memory_order order) BOOST_NOEXCEPT
 } // namespace detail
 } // namespace atomics
 } // namespace boost
-
-#undef BOOST_ATOMIC_DETAIL_TEMP_CAS_REGISTER
 
 #endif // BOOST_ATOMIC_DETAIL_OPS_GCC_X86_HPP_INCLUDED_
