@@ -15,7 +15,6 @@
 #define BOOST_ATOMIC_DETAIL_EXTRA_OPS_GCC_X86_HPP_INCLUDED_
 
 #include <cstddef>
-#include <boost/cstdint.hpp>
 #include <boost/memory_order.hpp>
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/storage_type.hpp>
@@ -116,9 +115,10 @@ struct extra_operations< Base, 1u, Signed > :
 {
     typedef gcc_x86_extra_operations_common< Base > base_type;
     typedef typename base_type::storage_type storage_type;
+    typedef typename make_storage_type< 4u, Signed >::type temp_storage_type;
 
 #define BOOST_ATOMIC_DETAIL_CAS_LOOP(op, result)\
-    boost::uint32_t new_val;\
+    temp_storage_type new_val;\
     __asm__ __volatile__\
     (\
         ".align 16\n\t"\
@@ -431,9 +431,10 @@ struct extra_operations< Base, 2u, Signed > :
 {
     typedef gcc_x86_extra_operations_common< Base > base_type;
     typedef typename base_type::storage_type storage_type;
+    typedef typename make_storage_type< 4u, Signed >::type temp_storage_type;
 
 #define BOOST_ATOMIC_DETAIL_CAS_LOOP(op, result)\
-    boost::uint32_t new_val;\
+    temp_storage_type new_val;\
     __asm__ __volatile__\
     (\
         ".align 16\n\t"\

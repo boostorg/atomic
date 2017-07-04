@@ -17,7 +17,6 @@
 #define BOOST_ATOMIC_DETAIL_OPS_GCC_X86_HPP_INCLUDED_
 
 #include <cstddef>
-#include <boost/cstdint.hpp>
 #include <boost/memory_order.hpp>
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/storage_type.hpp>
@@ -109,6 +108,7 @@ struct operations< 1u, Signed > :
     typedef gcc_x86_operations< typename make_storage_type< 1u, Signed >::type, operations< 1u, Signed > > base_type;
     typedef typename base_type::storage_type storage_type;
     typedef typename make_storage_type< 1u, Signed >::aligned aligned_storage_type;
+    typedef typename make_storage_type< 4u, Signed >::type temp_storage_type;
 
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 1u;
     static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
@@ -155,16 +155,16 @@ struct operations< 1u, Signed > :
     }
 
 #define BOOST_ATOMIC_DETAIL_CAS_LOOP(op, argument, result)\
-    boost::uint32_t new_val;\
+    temp_storage_type new_val;\
     __asm__ __volatile__\
     (\
         ".align 16\n\t"\
-        "1: movzbl %[arg], %2\n\t"\
+        "1: mov %[arg], %2\n\t"\
         op " %%al, %b2\n\t"\
         "lock; cmpxchgb %b2, %[storage]\n\t"\
         "jne 1b"\
         : [res] "+a" (result), [storage] "+m" (storage), "=&q" (new_val)\
-        : [arg] "q" (argument)\
+        : [arg] "ir" ((temp_storage_type)argument)\
         : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"\
     )
 
@@ -199,6 +199,7 @@ struct operations< 2u, Signed > :
     typedef gcc_x86_operations< typename make_storage_type< 2u, Signed >::type, operations< 2u, Signed > > base_type;
     typedef typename base_type::storage_type storage_type;
     typedef typename make_storage_type< 2u, Signed >::aligned aligned_storage_type;
+    typedef typename make_storage_type< 4u, Signed >::type temp_storage_type;
 
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 2u;
     static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
@@ -245,16 +246,16 @@ struct operations< 2u, Signed > :
     }
 
 #define BOOST_ATOMIC_DETAIL_CAS_LOOP(op, argument, result)\
-    boost::uint32_t new_val;\
+    temp_storage_type new_val;\
     __asm__ __volatile__\
     (\
         ".align 16\n\t"\
-        "1: movzwl %[arg], %2\n\t"\
+        "1: mov %[arg], %2\n\t"\
         op " %%ax, %w2\n\t"\
         "lock; cmpxchgw %w2, %[storage]\n\t"\
         "jne 1b"\
         : [res] "+a" (result), [storage] "+m" (storage), "=&q" (new_val)\
-        : [arg] "q" (argument)\
+        : [arg] "ir" ((temp_storage_type)argument)\
         : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"\
     )
 
@@ -339,12 +340,12 @@ struct operations< 4u, Signed > :
     __asm__ __volatile__\
     (\
         ".align 16\n\t"\
-        "1: movl %[arg], %[new_val]\n\t"\
+        "1: mov %[arg], %[new_val]\n\t"\
         op " %%eax, %[new_val]\n\t"\
         "lock; cmpxchgl %[new_val], %[storage]\n\t"\
         "jne 1b"\
         : [res] "+a" (result), [storage] "+m" (storage), [new_val] "=&r" (new_val)\
-        : [arg] "r" (argument)\
+        : [arg] "ir" (argument)\
         : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"\
     )
 
