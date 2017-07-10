@@ -29,9 +29,9 @@ namespace boost {
 namespace atomics {
 namespace detail {
 
-// Default extra_operations template definition will be used unless specialized for a specific platform
+//! Generic implementation of extra operations
 template< typename Base, std::size_t Size, bool Signed >
-struct extra_operations :
+struct generic_extra_operations :
     public Base
 {
     typedef Base base_type;
@@ -136,6 +136,13 @@ struct extra_operations :
         storage_type old_val = Base::fetch_xor(storage, mask, order);
         return !!(old_val & mask);
     }
+};
+
+// Default extra_operations template definition will be used unless specialized for a specific platform
+template< typename Base, std::size_t Size, bool Signed >
+struct extra_operations :
+    public generic_extra_operations< Base, Size, Signed >
+{
 };
 
 } // namespace detail
