@@ -136,6 +136,23 @@ struct extra_operations< Base, 1u, Signed > :
         return old_val;
     }
 
+    static BOOST_FORCEINLINE void opaque_negate(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
+    {
+        base_type::fence_before(order);
+        __asm
+        {
+            mov ecx, storage
+            movzx eax, byte ptr [ecx]
+            align 16
+        again:
+            mov edx, eax
+            neg dl
+            lock cmpxchg byte ptr [ecx], dl
+            jne again
+        };
+        base_type::fence_after(order);
+    }
+
     static BOOST_FORCEINLINE storage_type fetch_complement(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
         base_type::fence_before(order);
@@ -154,6 +171,23 @@ struct extra_operations< Base, 1u, Signed > :
         };
         base_type::fence_after(order);
         return old_val;
+    }
+
+    static BOOST_FORCEINLINE void opaque_complement(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
+    {
+        base_type::fence_before(order);
+        __asm
+        {
+            mov ecx, storage
+            movzx eax, byte ptr [ecx]
+            align 16
+        again:
+            mov edx, eax
+            not dl
+            lock cmpxchg byte ptr [ecx], dl
+            jne again
+        };
+        base_type::fence_after(order);
     }
 
     static BOOST_FORCEINLINE void opaque_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
@@ -343,6 +377,23 @@ struct extra_operations< Base, 2u, Signed > :
         return old_val;
     }
 
+    static BOOST_FORCEINLINE void opaque_negate(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
+    {
+        base_type::fence_before(order);
+        __asm
+        {
+            mov ecx, storage
+            movzx eax, word ptr [ecx]
+            align 16
+        again:
+            mov edx, eax
+            neg dx
+            lock cmpxchg word ptr [ecx], dx
+            jne again
+        };
+        base_type::fence_after(order);
+    }
+
     static BOOST_FORCEINLINE storage_type fetch_complement(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
         base_type::fence_before(order);
@@ -361,6 +412,23 @@ struct extra_operations< Base, 2u, Signed > :
         };
         base_type::fence_after(order);
         return old_val;
+    }
+
+    static BOOST_FORCEINLINE void opaque_complement(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
+    {
+        base_type::fence_before(order);
+        __asm
+        {
+            mov ecx, storage
+            movzx eax, word ptr [ecx]
+            align 16
+        again:
+            mov edx, eax
+            not dx
+            lock cmpxchg word ptr [ecx], dx
+            jne again
+        };
+        base_type::fence_after(order);
     }
 
     static BOOST_FORCEINLINE void opaque_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
@@ -550,6 +618,23 @@ struct extra_operations< Base, 4u, Signed > :
         return old_val;
     }
 
+    static BOOST_FORCEINLINE void opaque_negate(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
+    {
+        base_type::fence_before(order);
+        __asm
+        {
+            mov ecx, storage
+            mov eax, dword ptr [ecx]
+            align 16
+        again:
+            mov edx, eax
+            neg edx
+            lock cmpxchg dword ptr [ecx], edx
+            jne again
+        };
+        base_type::fence_after(order);
+    }
+
     static BOOST_FORCEINLINE storage_type fetch_complement(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
         base_type::fence_before(order);
@@ -568,6 +653,23 @@ struct extra_operations< Base, 4u, Signed > :
         };
         base_type::fence_after(order);
         return old_val;
+    }
+
+    static BOOST_FORCEINLINE void opaque_complement(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
+    {
+        base_type::fence_before(order);
+        __asm
+        {
+            mov ecx, storage
+            mov eax, dword ptr [ecx]
+            align 16
+        again:
+            mov edx, eax
+            not edx
+            lock cmpxchg dword ptr [ecx], edx
+            jne again
+        };
+        base_type::fence_after(order);
     }
 
     static BOOST_FORCEINLINE void opaque_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
