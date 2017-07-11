@@ -25,6 +25,12 @@
 #pragma once
 #endif
 
+#if defined(BOOST_MSVC)
+#pragma warning(push)
+// unary minus operator applied to unsigned type, result still unsigned
+#pragma warning(disable: 4146)
+#endif
+
 namespace boost {
 namespace atomics {
 namespace detail {
@@ -148,5 +154,9 @@ struct extra_operations :
 } // namespace detail
 } // namespace atomics
 } // namespace boost
+
+#if defined(BOOST_MSVC)
+#pragma warning(pop)
+#endif
 
 #endif // BOOST_ATOMIC_DETAIL_EXTRA_OPS_GENERIC_HPP_INCLUDED_
