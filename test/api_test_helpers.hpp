@@ -11,12 +11,26 @@
 #include <cstddef>
 #include <cstring>
 #include <limits>
+#include <ostream>
 #include <boost/config.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/core/lightweight_test.hpp>
 #include <boost/type_traits/integral_constant.hpp>
 #include <boost/type_traits/is_signed.hpp>
 #include <boost/type_traits/is_unsigned.hpp>
+
+namespace boost {
+namespace detail {
+
+// Make sure characters are printed as numbers if tests fail
+inline int test_output_impl(char v) { return v; }
+inline int test_output_impl(signed char v) { return v; }
+inline unsigned int test_output_impl(unsigned char v) { return v; }
+inline int test_output_impl(short v) { return v; }
+inline unsigned int test_output_impl(unsigned short v) { return v; }
+
+} // namespace detail
+} // namespace boost
 
 /* provide helpers that exercise whether the API
 functions of "boost::atomic" provide the correct
@@ -44,13 +58,13 @@ void test_base_operators(T value1, T value2, T value3)
     /* explicit load/store */
     {
         boost::atomic<T> a(value1);
-        BOOST_TEST( a.load() == value1 );
+        BOOST_TEST_EQ( a.load(), value1 );
     }
 
     {
         boost::atomic<T> a(value1);
         a.store(value2);
-        BOOST_TEST( a.load() == value2 );
+        BOOST_TEST_EQ( a.load(), value2 );
     }
 
     /* overloaded assignment/conversion */
@@ -69,7 +83,8 @@ void test_base_operators(T value1, T value2, T value3)
     {
         boost::atomic<T> a(value1);
         T n = a.exchange(value2);
-        BOOST_TEST( a.load() == value2 && n == value1 );
+        BOOST_TEST_EQ( a.load(), value2 );
+        BOOST_TEST_EQ( n, value1 );
     }
 
     {
@@ -77,7 +92,8 @@ void test_base_operators(T value1, T value2, T value3)
         T expected = value1;
         bool success = a.compare_exchange_strong(expected, value3);
         BOOST_TEST( success );
-        BOOST_TEST( a.load() == value3 && expected == value1 );
+        BOOST_TEST_EQ( a.load(), value3 );
+        BOOST_TEST_EQ( expected, value1 );
     }
 
     {
@@ -85,7 +101,8 @@ void test_base_operators(T value1, T value2, T value3)
         T expected = value2;
         bool success = a.compare_exchange_strong(expected, value3);
         BOOST_TEST( !success );
-        BOOST_TEST( a.load() == value1 && expected == value1 );
+        BOOST_TEST_EQ( a.load(), value1 );
+        BOOST_TEST_EQ( expected, value1 );
     }
 
     {
@@ -97,7 +114,8 @@ void test_base_operators(T value1, T value2, T value3)
             success = a.compare_exchange_weak(expected, value3);
         } while(!success);
         BOOST_TEST( success );
-        BOOST_TEST( a.load() == value3 && expected == value1 );
+        BOOST_TEST_EQ( a.load(), value3 );
+        BOOST_TEST_EQ( expected, value1 );
     }
 
     {
@@ -111,7 +129,8 @@ void test_base_operators(T value1, T value2, T value3)
                 break;
         } while(!success);
         BOOST_TEST( !success );
-        BOOST_TEST( a.load() == value1 && expected == value1 );
+        BOOST_TEST_EQ( a.load(), value1 );
+        BOOST_TEST_EQ( expected, value1 );
     }
 }
 
@@ -127,7 +146,7 @@ void test_constexpr_ctor()
 }
 
 //! The type traits provides max and min values of type D that can be added/subtracted to T(0) without signed overflow
-template< typename T, typename D >
+template< typename T, typename D, bool IsSigned = boost::is_signed< D >::value >
 struct distance_limits
 {
     static D min BOOST_PREVENT_MACRO_SUBSTITUTION () BOOST_NOEXCEPT
@@ -140,22 +159,105 @@ struct distance_limits
     }
 };
 
+#if defined(BOOST_MSVC)
+#pragma warning(push)
+// 'static_cast': truncation of constant value. There is no actual truncation happening because
+// the cast is only performed if the value fits in the range of the result.
+#pragma warning(disable: 4309)
+#endif
+
 template< typename T, typename D >
-struct distance_limits< T*, D >
+struct distance_limits< T*, D, true >
 {
     static D min BOOST_PREVENT_MACRO_SUBSTITUTION () BOOST_NOEXCEPT
     {
-        const std::ptrdiff_t ptrdiff = (std::numeric_limits< std::ptrdiff_t >::min)() / sizeof(T);
+        const std::ptrdiff_t ptrdiff = (std::numeric_limits< std::ptrdiff_t >::min)() / static_cast< std::ptrdiff_t >(sizeof(T));
         const D diff = (std::numeric_limits< D >::min)();
+        // Both values are negative. Return the closest value to zero.
         return diff < ptrdiff ? static_cast< D >(ptrdiff) : diff;
     }
     static D max BOOST_PREVENT_MACRO_SUBSTITUTION () BOOST_NOEXCEPT
     {
-        const std::ptrdiff_t ptrdiff = (std::numeric_limits< std::ptrdiff_t >::max)() / sizeof(T);
+        const std::ptrdiff_t ptrdiff = (std::numeric_limits< std::ptrdiff_t >::max)() / static_cast< std::ptrdiff_t >(sizeof(T));
+        const D diff = (std::numeric_limits< D >::max)();
+        // Both values are positive. Return the closest value to zero.
+        return diff > ptrdiff ? static_cast< D >(ptrdiff) : diff;
+    }
+};
+
+template< typename T, typename D >
+struct distance_limits< T*, D, false >
+{
+    static D min BOOST_PREVENT_MACRO_SUBSTITUTION () BOOST_NOEXCEPT
+    {
+        return (std::numeric_limits< D >::min)();
+    }
+    static D max BOOST_PREVENT_MACRO_SUBSTITUTION () BOOST_NOEXCEPT
+    {
+        const std::size_t ptrdiff = static_cast< std::size_t >((std::numeric_limits< std::ptrdiff_t >::max)()) / sizeof(T);
         const D diff = (std::numeric_limits< D >::max)();
         return diff > ptrdiff ? static_cast< D >(ptrdiff) : diff;
     }
 };
+
+#if defined(BOOST_MSVC)
+#pragma warning(pop)
+#endif
+
+template<typename T, typename D, typename AddType>
+void test_additive_operators_with_type_and_test()
+{
+    // Note: This set of tests is extracted to a separate function because otherwise MSVC-10 for x64 generates broken code
+    const T zero_value = 0;
+    const D zero_diff = 0;
+    const D one_diff = 1;
+    const AddType zero_add = 0;
+    {
+        boost::atomic<T> a(zero_value);
+        bool f = a.add_and_test(zero_diff);
+        BOOST_TEST_EQ( f, true );
+        BOOST_TEST_EQ( a.load(), zero_value );
+
+        f = a.add_and_test(one_diff);
+        BOOST_TEST_EQ( f, false );
+        BOOST_TEST_EQ( a.load(), T(zero_add + one_diff) );
+    }
+    {
+        boost::atomic<T> a(zero_value);
+        bool f = a.add_and_test((distance_limits< T, D >::max)());
+        BOOST_TEST_EQ( f, false );
+        BOOST_TEST_EQ( a.load(), T(zero_add + (distance_limits< T, D >::max)()) );
+    }
+    {
+        boost::atomic<T> a(zero_value);
+        bool f = a.add_and_test((distance_limits< T, D >::min)());
+        BOOST_TEST_EQ( f, ((distance_limits< T, D >::min)() == 0) );
+        BOOST_TEST_EQ( a.load(), T(zero_add + (distance_limits< T, D >::min)()) );
+    }
+
+    {
+        boost::atomic<T> a(zero_value);
+        bool f = a.sub_and_test(zero_diff);
+        BOOST_TEST_EQ( f, true );
+        BOOST_TEST_EQ( a.load(), zero_value );
+
+        f = a.sub_and_test(one_diff);
+        BOOST_TEST_EQ( f, false );
+        BOOST_TEST_EQ( a.load(), T(zero_add - one_diff) );
+    }
+    {
+        boost::atomic<T> a(zero_value);
+        bool f = a.sub_and_test((distance_limits< T, D >::max)());
+        BOOST_TEST_EQ( f, false );
+        BOOST_TEST_EQ( a.load(), T(zero_add - (distance_limits< T, D >::max)()) );
+    }
+    {
+        boost::atomic<T> a(zero_value);
+        bool f = a.sub_and_test((distance_limits< T, D >::min)());
+        BOOST_TEST_EQ( f, ((distance_limits< T, D >::min)() == 0) );
+        BOOST_TEST_EQ( a.load(), T(zero_add - (distance_limits< T, D >::min)()) );
+    }
+}
 
 template<typename T, typename D, typename AddType>
 void test_additive_operators_with_type(T value, D delta)
@@ -168,120 +270,76 @@ void test_additive_operators_with_type(T value, D delta)
     {
         boost::atomic<T> a(value);
         T n = a.fetch_add(delta);
-        BOOST_TEST( a.load() == T((AddType)value + delta) );
-        BOOST_TEST( n == value );
+        BOOST_TEST_EQ( a.load(), T((AddType)value + delta) );
+        BOOST_TEST_EQ( n, value );
     }
 
     {
         boost::atomic<T> a(value);
         T n = a.fetch_sub(delta);
-        BOOST_TEST( a.load() == T((AddType)value - delta) );
-        BOOST_TEST( n == value );
+        BOOST_TEST_EQ( a.load(), T((AddType)value - delta) );
+        BOOST_TEST_EQ( n, value );
     }
 
     /* overloaded modify/assign*/
     {
         boost::atomic<T> a(value);
         T n = (a += delta);
-        BOOST_TEST( a.load() == T((AddType)value + delta) );
-        BOOST_TEST( n == T((AddType)value + delta) );
+        BOOST_TEST_EQ( a.load(), T((AddType)value + delta) );
+        BOOST_TEST_EQ( n, T((AddType)value + delta) );
     }
 
     {
         boost::atomic<T> a(value);
         T n = (a -= delta);
-        BOOST_TEST( a.load() == T((AddType)value - delta) );
-        BOOST_TEST( n == T((AddType)value - delta) );
+        BOOST_TEST_EQ( a.load(), T((AddType)value - delta) );
+        BOOST_TEST_EQ( n, T((AddType)value - delta) );
     }
 
     /* overloaded increment/decrement */
     {
         boost::atomic<T> a(value);
         T n = a++;
-        BOOST_TEST( a.load() == T((AddType)value + 1) );
-        BOOST_TEST( n == value );
+        BOOST_TEST_EQ( a.load(), T((AddType)value + 1) );
+        BOOST_TEST_EQ( n, value );
     }
 
     {
         boost::atomic<T> a(value);
         T n = ++a;
-        BOOST_TEST( a.load() == T((AddType)value + 1) );
-        BOOST_TEST( n == T((AddType)value + 1) );
+        BOOST_TEST_EQ( a.load(), T((AddType)value + 1) );
+        BOOST_TEST_EQ( n, T((AddType)value + 1) );
     }
 
     {
         boost::atomic<T> a(value);
         T n = a--;
-        BOOST_TEST( a.load() == T((AddType)value - 1) );
-        BOOST_TEST( n == value );
+        BOOST_TEST_EQ( a.load(), T((AddType)value - 1) );
+        BOOST_TEST_EQ( n, value );
     }
 
     {
         boost::atomic<T> a(value);
         T n = --a;
-        BOOST_TEST( a.load() == T((AddType)value - 1) );
-        BOOST_TEST( n == T((AddType)value - 1) );
+        BOOST_TEST_EQ( a.load(), T((AddType)value - 1) );
+        BOOST_TEST_EQ( n, T((AddType)value - 1) );
     }
 
     // Opaque operations
     {
         boost::atomic<T> a(value);
         a.opaque_add(delta);
-        BOOST_TEST( a.load() == T((AddType)value + delta) );
+        BOOST_TEST_EQ( a.load(), T((AddType)value + delta) );
     }
 
     {
         boost::atomic<T> a(value);
         a.opaque_sub(delta);
-        BOOST_TEST( a.load() == T((AddType)value - delta) );
+        BOOST_TEST_EQ( a.load(), T((AddType)value - delta) );
     }
 
     // Modify and test operations
-    {
-        boost::atomic<T> a((T)0);
-        bool f = a.add_and_test((D)0);
-        BOOST_TEST( f == true );
-        BOOST_TEST( a.load() == (T)0 );
-
-        f = a.add_and_test((D)1);
-        BOOST_TEST( f == false );
-        BOOST_TEST( a.load() == T(((AddType)0) + ((D)1)) );
-    }
-    {
-        boost::atomic<T> a((T)0);
-        bool f = a.add_and_test((distance_limits< T, D >::max)());
-        BOOST_TEST( f == false );
-        BOOST_TEST( a.load() == T(((AddType)0) + (distance_limits< T, D >::max)()) );
-    }
-    {
-        boost::atomic<T> a((T)0);
-        bool f = a.add_and_test((distance_limits< T, D >::min)());
-        BOOST_TEST( f == ((distance_limits< T, D >::min)() == 0) );
-        BOOST_TEST( a.load() == T(((AddType)0) + (distance_limits< T, D >::min)()) );
-    }
-
-    {
-        boost::atomic<T> a((T)0);
-        bool f = a.sub_and_test((D)0);
-        BOOST_TEST( f == true );
-        BOOST_TEST( a.load() == (T)0 );
-
-        f = a.sub_and_test((D)1);
-        BOOST_TEST( f == false );
-        BOOST_TEST( a.load() == T(((AddType)0) - ((D)1)) );
-    }
-    {
-        boost::atomic<T> a((T)0);
-        bool f = a.sub_and_test((distance_limits< T, D >::max)());
-        BOOST_TEST( f == false );
-        BOOST_TEST( a.load() == T(((AddType)0) - (distance_limits< T, D >::max)()) );
-    }
-    {
-        boost::atomic<T> a((T)0);
-        bool f = a.sub_and_test((distance_limits< T, D >::min)());
-        BOOST_TEST( f == ((distance_limits< T, D >::min)() == 0) );
-        BOOST_TEST( a.load() == T(((AddType)0) - (distance_limits< T, D >::min)()) );
-    }
+    test_additive_operators_with_type_and_test< T, D, AddType >();
 }
 
 template<typename T, typename D>
@@ -296,20 +354,20 @@ void test_negation()
     {
         boost::atomic<T> a((T)1);
         T n = a.fetch_negate();
-        BOOST_TEST( a.load() == (T)-1 );
-        BOOST_TEST( n == (T)1 );
+        BOOST_TEST_EQ( a.load(), (T)-1 );
+        BOOST_TEST_EQ( n, (T)1 );
 
         n = a.fetch_negate();
-        BOOST_TEST( a.load() == (T)1 );
-        BOOST_TEST( n == (T)-1 );
+        BOOST_TEST_EQ( a.load(), (T)1 );
+        BOOST_TEST_EQ( n, (T)-1 );
     }
     {
         boost::atomic<T> a((T)1);
         a.opaque_negate();
-        BOOST_TEST( a.load() == (T)-1 );
+        BOOST_TEST_EQ( a.load(), (T)-1 );
 
         a.opaque_negate();
-        BOOST_TEST( a.load() == (T)1 );
+        BOOST_TEST_EQ( a.load(), (T)1 );
     }
 }
 
@@ -319,12 +377,12 @@ void test_additive_wrap(T value)
     {
         boost::atomic<T> a(value);
         T n = a.fetch_add(1) + (T)1;
-        BOOST_TEST( a.load() == n );
+        BOOST_TEST_EQ( a.load(), n );
     }
     {
         boost::atomic<T> a(value);
         T n = a.fetch_sub(1) - (T)1;
-        BOOST_TEST( a.load() == n );
+        BOOST_TEST_EQ( a.load(), n );
     }
 }
 
@@ -335,168 +393,168 @@ void test_bit_operators(T value, T delta)
     {
         boost::atomic<T> a(value);
         T n = a.fetch_and(delta);
-        BOOST_TEST( a.load() == T(value & delta) );
-        BOOST_TEST( n == value );
+        BOOST_TEST_EQ( a.load(), T(value & delta) );
+        BOOST_TEST_EQ( n, value );
     }
 
     {
         boost::atomic<T> a(value);
         T n = a.fetch_or(delta);
-        BOOST_TEST( a.load() == T(value | delta) );
-        BOOST_TEST( n == value );
+        BOOST_TEST_EQ( a.load(), T(value | delta) );
+        BOOST_TEST_EQ( n, value );
     }
 
     {
         boost::atomic<T> a(value);
         T n = a.fetch_xor(delta);
-        BOOST_TEST( a.load() == T(value ^ delta) );
-        BOOST_TEST( n == value );
+        BOOST_TEST_EQ( a.load(), T(value ^ delta) );
+        BOOST_TEST_EQ( n, value );
     }
 
     {
         boost::atomic<T> a(value);
         T n = a.fetch_complement();
-        BOOST_TEST( a.load() == T(~value) );
-        BOOST_TEST( n == value );
+        BOOST_TEST_EQ( a.load(), T(~value) );
+        BOOST_TEST_EQ( n, value );
     }
 
     /* overloaded modify/assign */
     {
         boost::atomic<T> a(value);
         T n = (a &= delta);
-        BOOST_TEST( a.load() == T(value & delta) );
-        BOOST_TEST( n == T(value & delta) );
+        BOOST_TEST_EQ( a.load(), T(value & delta) );
+        BOOST_TEST_EQ( n, T(value & delta) );
     }
 
     {
         boost::atomic<T> a(value);
         T n = (a |= delta);
-        BOOST_TEST( a.load() == T(value | delta) );
-        BOOST_TEST( n == T(value | delta) );
+        BOOST_TEST_EQ( a.load(), T(value | delta) );
+        BOOST_TEST_EQ( n, T(value | delta) );
     }
 
     {
         boost::atomic<T> a(value);
         T n = (a ^= delta);
-        BOOST_TEST( a.load() == T(value ^ delta) );
-        BOOST_TEST( n == T(value ^ delta) );
+        BOOST_TEST_EQ( a.load(), T(value ^ delta) );
+        BOOST_TEST_EQ( n, T(value ^ delta) );
     }
 
     // Opaque operations
     {
         boost::atomic<T> a(value);
         a.opaque_and(delta);
-        BOOST_TEST( a.load() == T(value & delta) );
+        BOOST_TEST_EQ( a.load(), T(value & delta) );
     }
 
     {
         boost::atomic<T> a(value);
         a.opaque_or(delta);
-        BOOST_TEST( a.load() == T(value | delta) );
+        BOOST_TEST_EQ( a.load(), T(value | delta) );
     }
 
     {
         boost::atomic<T> a(value);
         a.opaque_xor(delta);
-        BOOST_TEST( a.load() == T(value ^ delta) );
+        BOOST_TEST_EQ( a.load(), T(value ^ delta) );
     }
 
     {
         boost::atomic<T> a(value);
         a.opaque_complement();
-        BOOST_TEST( a.load() == T(~value) );
+        BOOST_TEST_EQ( a.load(), T(~value) );
     }
 
     // Modify and test operations
     {
         boost::atomic<T> a((T)1);
         bool f = a.and_and_test((T)1);
-        BOOST_TEST( f == false );
-        BOOST_TEST( a.load() == T(1) );
+        BOOST_TEST_EQ( f, false );
+        BOOST_TEST_EQ( a.load(), T(1) );
 
         f = a.and_and_test((T)0);
-        BOOST_TEST( f == true );
-        BOOST_TEST( a.load() == T(0) );
+        BOOST_TEST_EQ( f, true );
+        BOOST_TEST_EQ( a.load(), T(0) );
 
         f = a.and_and_test((T)0);
-        BOOST_TEST( f == true );
-        BOOST_TEST( a.load() == T(0) );
+        BOOST_TEST_EQ( f, true );
+        BOOST_TEST_EQ( a.load(), T(0) );
     }
 
     {
         boost::atomic<T> a((T)0);
         bool f = a.or_and_test((T)0);
-        BOOST_TEST( f == true );
-        BOOST_TEST( a.load() == T(0) );
+        BOOST_TEST_EQ( f, true );
+        BOOST_TEST_EQ( a.load(), T(0) );
 
         f = a.or_and_test((T)1);
-        BOOST_TEST( f == false );
-        BOOST_TEST( a.load() == T(1) );
+        BOOST_TEST_EQ( f, false );
+        BOOST_TEST_EQ( a.load(), T(1) );
 
         f = a.or_and_test((T)1);
-        BOOST_TEST( f == false );
-        BOOST_TEST( a.load() == T(1) );
+        BOOST_TEST_EQ( f, false );
+        BOOST_TEST_EQ( a.load(), T(1) );
     }
 
     {
         boost::atomic<T> a((T)0);
         bool f = a.xor_and_test((T)0);
-        BOOST_TEST( f == true );
-        BOOST_TEST( a.load() == T(0) );
+        BOOST_TEST_EQ( f, true );
+        BOOST_TEST_EQ( a.load(), T(0) );
 
         f = a.xor_and_test((T)1);
-        BOOST_TEST( f == false );
-        BOOST_TEST( a.load() == T(1) );
+        BOOST_TEST_EQ( f, false );
+        BOOST_TEST_EQ( a.load(), T(1) );
 
         f = a.xor_and_test((T)1);
-        BOOST_TEST( f == true );
-        BOOST_TEST( a.load() == T(0) );
+        BOOST_TEST_EQ( f, true );
+        BOOST_TEST_EQ( a.load(), T(0) );
     }
 
     // Bit test and modify operations
     {
         boost::atomic<T> a((T)42);
         bool f = a.bit_test_and_set(0);
-        BOOST_TEST( f == false );
-        BOOST_TEST( a.load() == T(43) );
+        BOOST_TEST_EQ( f, false );
+        BOOST_TEST_EQ( a.load(), T(43) );
 
         f = a.bit_test_and_set(1);
-        BOOST_TEST( f == true );
-        BOOST_TEST( a.load() == T(43) );
+        BOOST_TEST_EQ( f, true );
+        BOOST_TEST_EQ( a.load(), T(43) );
 
         f = a.bit_test_and_set(2);
-        BOOST_TEST( f == false );
-        BOOST_TEST( a.load() == T(47) );
+        BOOST_TEST_EQ( f, false );
+        BOOST_TEST_EQ( a.load(), T(47) );
     }
 
     {
         boost::atomic<T> a((T)42);
         bool f = a.bit_test_and_reset(0);
-        BOOST_TEST( f == false );
-        BOOST_TEST( a.load() == T(42) );
+        BOOST_TEST_EQ( f, false );
+        BOOST_TEST_EQ( a.load(), T(42) );
 
         f = a.bit_test_and_reset(1);
-        BOOST_TEST( f == true );
-        BOOST_TEST( a.load() == T(40) );
+        BOOST_TEST_EQ( f, true );
+        BOOST_TEST_EQ( a.load(), T(40) );
 
         f = a.bit_test_and_set(2);
-        BOOST_TEST( f == false );
-        BOOST_TEST( a.load() == T(44) );
+        BOOST_TEST_EQ( f, false );
+        BOOST_TEST_EQ( a.load(), T(44) );
     }
 
     {
         boost::atomic<T> a((T)42);
         bool f = a.bit_test_and_complement(0);
-        BOOST_TEST( f == false );
-        BOOST_TEST( a.load() == T(43) );
+        BOOST_TEST_EQ( f, false );
+        BOOST_TEST_EQ( a.load(), T(43) );
 
         f = a.bit_test_and_complement(1);
-        BOOST_TEST( f == true );
-        BOOST_TEST( a.load() == T(41) );
+        BOOST_TEST_EQ( f, true );
+        BOOST_TEST_EQ( a.load(), T(41) );
 
         f = a.bit_test_and_complement(2);
-        BOOST_TEST( f == false );
-        BOOST_TEST( a.load() == T(45) );
+        BOOST_TEST_EQ( f, false );
+        BOOST_TEST_EQ( a.load(), T(45) );
     }
 }
 
@@ -542,8 +600,8 @@ inline void test_integral_api(void)
 template<typename T>
 void test_pointer_api(void)
 {
-    BOOST_TEST( sizeof(boost::atomic<T *>) >= sizeof(T *));
-    BOOST_TEST( sizeof(boost::atomic<void *>) >= sizeof(T *));
+    BOOST_TEST_GE( sizeof(boost::atomic<T *>), sizeof(T *));
+    BOOST_TEST_GE( sizeof(boost::atomic<void *>), sizeof(T *));
 
     T values[3];
 
@@ -555,7 +613,7 @@ void test_pointer_api(void)
 #if defined(BOOST_HAS_INTPTR_T)
     boost::atomic<void *> ptr;
     boost::atomic<boost::intptr_t> integral;
-    BOOST_TEST( ptr.is_lock_free() == integral.is_lock_free() );
+    BOOST_TEST_EQ( ptr.is_lock_free(), integral.is_lock_free() );
 #endif
 }
 
@@ -577,6 +635,14 @@ struct test_struct {
     inline bool operator!=(const test_struct & c) const {return i != c.i;}
 };
 
+template< typename Char, typename Traits, typename T >
+inline std::basic_ostream< Char, Traits >& operator<< (std::basic_ostream< Char, Traits >& strm, test_struct< T > const& s)
+{
+    using boost::detail::test_output_impl;
+    strm << "{" << test_output_impl(s.i) << "}";
+    return strm;
+}
+
 template<typename T>
 void
 test_struct_api(void)
@@ -588,7 +654,7 @@ test_struct_api(void)
     {
         boost::atomic<T> sa;
         boost::atomic<typename T::value_type> si;
-        BOOST_TEST( sa.is_lock_free() == si.is_lock_free() );
+        BOOST_TEST_EQ( sa.is_lock_free(), si.is_lock_free() );
     }
 }
 
@@ -599,6 +665,14 @@ struct test_struct_x2 {
     inline bool operator==(const test_struct_x2 & c) const {return i == c.i && j == c.j;}
     inline bool operator!=(const test_struct_x2 & c) const {return i != c.i && j != c.j;}
 };
+
+template< typename Char, typename Traits, typename T >
+inline std::basic_ostream< Char, Traits >& operator<< (std::basic_ostream< Char, Traits >& strm, test_struct_x2< T > const& s)
+{
+    using boost::detail::test_output_impl;
+    strm << "{" << test_output_impl(s.i) << ", " << test_output_impl(s.j) << "}";
+    return strm;
+}
 
 template<typename T>
 void
@@ -622,6 +696,13 @@ struct large_struct {
     }
 };
 
+template< typename Char, typename Traits >
+inline std::basic_ostream< Char, Traits >& operator<< (std::basic_ostream< Char, Traits >& strm, large_struct const&)
+{
+    strm << "[large_struct]";
+    return strm;
+}
+
 static void
 test_large_struct_api(void)
 {
@@ -636,6 +717,13 @@ struct test_struct_with_ctor {
     inline bool operator==(const test_struct_with_ctor & c) const {return i == c.i;}
     inline bool operator!=(const test_struct_with_ctor & c) const {return i != c.i;}
 };
+
+template< typename Char, typename Traits >
+inline std::basic_ostream< Char, Traits >& operator<< (std::basic_ostream< Char, Traits >& strm, test_struct_with_ctor const&)
+{
+    strm << "[test_struct_with_ctor]";
+    return strm;
+}
 
 static void
 test_struct_with_ctor_api(void)
