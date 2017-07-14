@@ -21,6 +21,28 @@
 #pragma once
 #endif
 
+#if defined(__GNUC__) && defined(__arm__)
+
+// Newer gcc versions define __ARM_ARCH. Older ones don't, so we have to deduce ARM arch version from a bunch of version-specific macros.
+#if defined(__ARM_ARCH)
+#define BOOST_ATOMIC_DETAIL_ARM_ARCH __ARM_ARCH
+#elif defined(__ARM_ARCH_8A__)
+#define BOOST_ATOMIC_DETAIL_ARM_ARCH 8
+#elif defined(__ARM_ARCH_7__) || defined(__ARM_ARCH_7A__) ||\
+    defined(__ARM_ARCH_7R__) || defined(__ARM_ARCH_7M__) ||\
+    defined(__ARM_ARCH_7EM__) || defined(__ARM_ARCH_7S__)
+#define BOOST_ATOMIC_DETAIL_ARM_ARCH 7
+#elif defined(__ARM_ARCH_6__)  || defined(__ARM_ARCH_6J__) ||\
+    defined(__ARM_ARCH_6K__) || defined(__ARM_ARCH_6Z__) ||\
+    defined(__ARM_ARCH_6ZK__)
+#define BOOST_ATOMIC_DETAIL_ARM_ARCH 6
+#else
+// We are not interested in older versions - they don't support atomic ops
+#define BOOST_ATOMIC_DETAIL_ARM_ARCH 0
+#endif
+
+#endif // defined(__GNUC__) && defined(__arm__)
+
 #if !defined(BOOST_ATOMIC_FORCE_FALLBACK)
 
 // Determine the target platform.
@@ -36,18 +58,7 @@
 
 #define BOOST_ATOMIC_DETAIL_PLATFORM gcc_ppc
 
-// This list of ARM architecture versions comes from Apple's arm/arch.h header.
-// I don't know how complete it is.
-#elif defined(__GNUC__) &&\
-    (\
-        defined(__ARM_ARCH_6__)  || defined(__ARM_ARCH_6J__) ||\
-        defined(__ARM_ARCH_6K__) || defined(__ARM_ARCH_6Z__) ||\
-        defined(__ARM_ARCH_6ZK__) ||\
-        defined(__ARM_ARCH_7__) || defined(__ARM_ARCH_7A__) ||\
-        defined(__ARM_ARCH_7R__) || defined(__ARM_ARCH_7M__) ||\
-        defined(__ARM_ARCH_7EM__) || defined(__ARM_ARCH_7S__) ||\
-        defined(__ARM_ARCH_8A__)\
-    )
+#elif defined(__GNUC__) && defined(__arm__) && (BOOST_ATOMIC_DETAIL_ARM_ARCH+0) >= 6
 
 #define BOOST_ATOMIC_DETAIL_PLATFORM gcc_arm
 
