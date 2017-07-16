@@ -1,4 +1,5 @@
 //  Copyright (c) 2011 Helge Bahmann
+//  Copyright (c) 2017 Andrey Semashev
 //
 //  Distributed under the Boost Software License, Version 1.0.
 //  See accompanying file LICENSE_1_0.txt or copy at
@@ -14,10 +15,10 @@
 #include <ostream>
 #include <boost/config.hpp>
 #include <boost/cstdint.hpp>
-#include <boost/core/lightweight_test.hpp>
 #include <boost/type_traits/integral_constant.hpp>
 #include <boost/type_traits/is_signed.hpp>
 #include <boost/type_traits/is_unsigned.hpp>
+#include <boost/core/lightweight_test.hpp>
 
 namespace boost {
 namespace detail {
@@ -31,6 +32,22 @@ inline unsigned int test_output_impl(unsigned short v) { return v; }
 
 } // namespace detail
 } // namespace boost
+
+#if defined(BOOST_HAS_INT128)
+// GCC on PPC64 does not provide output operators for __int128
+template< typename Stream >
+inline Stream& operator<<(Stream& strm, boost::int128_type const& v)
+{
+    strm << static_cast< long long >(v);
+    return strm;
+}
+template< typename Stream >
+inline Stream& operator<<(Stream& strm, boost::uint128_type const& v)
+{
+    strm << static_cast< unsigned long long >(v);
+    return strm;
+}
+#endif // defined(BOOST_HAS_INT128)
 
 /* provide helpers that exercise whether the API
 functions of "boost::atomic" provide the correct
@@ -617,7 +634,8 @@ void test_pointer_api(void)
 #endif
 }
 
-enum test_enum {
+enum test_enum
+{
     foo, bar, baz
 };
 
@@ -628,7 +646,8 @@ test_enum_api(void)
 }
 
 template<typename T>
-struct test_struct {
+struct test_struct
+{
     typedef T value_type;
     value_type i;
     inline bool operator==(const test_struct & c) const {return i == c.i;}
@@ -659,7 +678,8 @@ test_struct_api(void)
 }
 
 template<typename T>
-struct test_struct_x2 {
+struct test_struct_x2
+{
     typedef T value_type;
     value_type i, j;
     inline bool operator==(const test_struct_x2 & c) const {return i == c.i && j == c.j;}
@@ -683,7 +703,8 @@ test_struct_x2_api(void)
     test_base_operators(a, b, c);
 }
 
-struct large_struct {
+struct large_struct
+{
     long data[64];
 
     inline bool operator==(const large_struct & c) const
