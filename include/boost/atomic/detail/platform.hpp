@@ -61,6 +61,7 @@
 #elif defined(__GNUC__) && defined(__arm__) && (BOOST_ATOMIC_DETAIL_ARM_ARCH+0) >= 6
 
 #define BOOST_ATOMIC_DETAIL_PLATFORM gcc_arm
+#define BOOST_ATOMIC_DETAIL_EXTRA_BACKEND gcc_arm
 
 #elif (defined(__GNUC__) || defined(__SUNPRO_CC)) && (defined(__sparcv8plus) || defined(__sparc_v9__))
 
