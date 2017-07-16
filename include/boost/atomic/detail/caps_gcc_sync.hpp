@@ -19,6 +19,7 @@
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/hwcaps_gcc_x86.hpp>
 #include <boost/atomic/detail/hwcaps_gcc_arm.hpp>
+#include <boost/atomic/detail/hwcaps_gcc_ppc.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once

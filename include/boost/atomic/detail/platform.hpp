@@ -57,6 +57,7 @@
 #elif defined(__GNUC__) && (defined(__POWERPC__) || defined(__PPC__))
 
 #define BOOST_ATOMIC_DETAIL_PLATFORM gcc_ppc
+#define BOOST_ATOMIC_DETAIL_EXTRA_BACKEND gcc_ppc
 
 #elif defined(__GNUC__) && defined(__arm__) && (BOOST_ATOMIC_DETAIL_ARM_ARCH+0) >= 6
 
