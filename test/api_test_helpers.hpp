@@ -12,42 +12,89 @@
 #include <cstddef>
 #include <cstring>
 #include <limits>
-#include <ostream>
+#include <iostream>
 #include <boost/config.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/type_traits/integral_constant.hpp>
 #include <boost/type_traits/is_signed.hpp>
 #include <boost/type_traits/is_unsigned.hpp>
-#include <boost/core/lightweight_test.hpp>
 
-namespace boost {
-namespace detail {
+struct test_stream_type
+{
+    typedef std::ios_base& (*ios_base_manip)(std::ios_base&);
+    typedef std::basic_ios< char, std::char_traits< char > >& (*basic_ios_manip)(std::basic_ios< char, std::char_traits< char > >&);
+    typedef std::ostream& (*stream_manip)(std::ostream&);
 
-// Make sure characters are printed as numbers if tests fail
-inline int test_output_impl(char v) { return v; }
-inline int test_output_impl(signed char v) { return v; }
-inline unsigned int test_output_impl(unsigned char v) { return v; }
-inline int test_output_impl(short v) { return v; }
-inline unsigned int test_output_impl(unsigned short v) { return v; }
+    template< typename T >
+    test_stream_type const& operator<< (T const& value) const
+    {
+        std::cerr << value;
+        return *this;
+    }
 
-} // namespace detail
-} // namespace boost
+    test_stream_type const& operator<< (ios_base_manip manip) const
+    {
+        std::cerr << manip;
+        return *this;
+    }
+    test_stream_type const& operator<< (basic_ios_manip manip) const
+    {
+        std::cerr << manip;
+        return *this;
+    }
+    test_stream_type const& operator<< (stream_manip manip) const
+    {
+        std::cerr << manip;
+        return *this;
+    }
+
+    // Make sure characters are printed as numbers if tests fail
+    test_stream_type const& operator<< (char value) const
+    {
+        std::cerr << static_cast< int >(value);
+        return *this;
+    }
+    test_stream_type const& operator<< (signed char value) const
+    {
+        std::cerr << static_cast< int >(value);
+        return *this;
+    }
+    test_stream_type const& operator<< (unsigned char value) const
+    {
+        std::cerr << static_cast< unsigned int >(value);
+        return *this;
+    }
+    test_stream_type const& operator<< (short value) const
+    {
+        std::cerr << static_cast< int >(value);
+        return *this;
+    }
+    test_stream_type const& operator<< (unsigned short value) const
+    {
+        std::cerr << static_cast< unsigned int >(value);
+        return *this;
+    }
 
 #if defined(BOOST_HAS_INT128)
-// GCC on PPC64 does not provide output operators for __int128
-template< typename Stream >
-inline Stream& operator<<(Stream& strm, boost::int128_type const& v)
-{
-    strm << static_cast< long long >(v);
-    return strm;
-}
-template< typename Stream >
-inline Stream& operator<<(Stream& strm, boost::uint128_type const& v)
-{
-    strm << static_cast< unsigned long long >(v);
-    return strm;
-}
+    // Some GCC versions don't provide output operators for __int128
+    test_stream_type const& operator<< (boost::int128_type const& v) const
+    {
+        std::cerr << static_cast< long long >(v);
+        return *this;
+    }
+    test_stream_type const& operator<< (boost::uint128_type const& v) const
+    {
+        std::cerr << static_cast< unsigned long long >(v);
+        return *this;
+    }
 #endif // defined(BOOST_HAS_INT128)
+};
+
+const test_stream_type test_stream = {};
+
+#define BOOST_LIGHTWEIGHT_TEST_OSTREAM test_stream
+
+#include <boost/core/lightweight_test.hpp>
 
 /* provide helpers that exercise whether the API
 functions of "boost::atomic" provide the correct
@@ -657,8 +704,7 @@ struct test_struct
 template< typename Char, typename Traits, typename T >
 inline std::basic_ostream< Char, Traits >& operator<< (std::basic_ostream< Char, Traits >& strm, test_struct< T > const& s)
 {
-    using boost::detail::test_output_impl;
-    strm << "{" << test_output_impl(s.i) << "}";
+    test_stream << "{" << s.i << "}";
     return strm;
 }
 
@@ -689,8 +735,7 @@ struct test_struct_x2
 template< typename Char, typename Traits, typename T >
 inline std::basic_ostream< Char, Traits >& operator<< (std::basic_ostream< Char, Traits >& strm, test_struct_x2< T > const& s)
 {
-    using boost::detail::test_output_impl;
-    strm << "{" << test_output_impl(s.i) << ", " << test_output_impl(s.j) << "}";
+    test_stream << "{" << s.i << ", " << s.j << "}";
     return strm;
 }
 
@@ -731,7 +776,8 @@ test_large_struct_api(void)
     test_base_operators(a, b, c);
 }
 
-struct test_struct_with_ctor {
+struct test_struct_with_ctor
+{
     typedef unsigned int value_type;
     value_type i;
     test_struct_with_ctor() : i(0x01234567) {}

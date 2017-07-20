@@ -8,7 +8,6 @@
 
 #include <boost/config.hpp>
 #include <boost/cstdint.hpp>
-#include <boost/core/lightweight_test.hpp>
 
 #include "api_test_helpers.hpp"
 
