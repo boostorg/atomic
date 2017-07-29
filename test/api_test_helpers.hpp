@@ -264,6 +264,38 @@ struct distance_limits< T*, D, false >
     }
 };
 
+#if defined(BOOST_HAS_INT128)
+
+// At least libstdc++ does not specialize std::numeric_limits for __int128 in strict mode (i.e. with GNU extensions disabled).
+// So we have to specialize the limits ourself. We assume two's complement signed representation.
+template< typename T, bool IsSigned >
+struct distance_limits< T, boost::int128_type, IsSigned >
+{
+    static boost::int128_type min BOOST_PREVENT_MACRO_SUBSTITUTION () BOOST_NOEXCEPT
+    {
+        return -(max)() - 1;
+    }
+    static boost::int128_type max BOOST_PREVENT_MACRO_SUBSTITUTION () BOOST_NOEXCEPT
+    {
+        return static_cast< boost::int128_type >((~static_cast< boost::uint128_type >(0u)) >> 1);
+    }
+};
+
+template< typename T, bool IsSigned >
+struct distance_limits< T, boost::uint128_type, IsSigned >
+{
+    static boost::uint128_type min BOOST_PREVENT_MACRO_SUBSTITUTION () BOOST_NOEXCEPT
+    {
+        return 0u;
+    }
+    static boost::uint128_type max BOOST_PREVENT_MACRO_SUBSTITUTION () BOOST_NOEXCEPT
+    {
+        return ~static_cast< boost::uint128_type >(0u);
+    }
+};
+
+#endif // defined(BOOST_HAS_INT128)
+
 #if defined(BOOST_MSVC)
 #pragma warning(pop)
 #endif
