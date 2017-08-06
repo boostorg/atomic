@@ -445,6 +445,66 @@ of the various ordering constraints.
 
 [endsect]
 
+[section:interface_atomic_flag Atomic flags]
+
+    #include <boost/atomic/atomic_flag.hpp>
+
+The `boost::atomic_flag` type provides the most basic set of atomic operations
+suitable for implementing mutually exclusive access to thread-shared data. The flag
+can have one of the two possible states: set and clear. The class implements the
+following operations:
+
+[table
+    [[Syntax] [Description]]
+    [
+      [`atomic_flag()`]
+      [Initialize to the clear state. See the discussion below.]
+    ]
+    [
+      [`bool test_and_set(memory_order order)`]
+      [Sets the atomic flag to the set state; returns `true` if the flag had been set prior to the operation]
+    ]
+    [
+      [`void clear(memory_order order)`]
+      [Sets the atomic flag to the clear state]
+    ]
+]
+
+`order` always has `memory_order_seq_cst` as default parameter.
+
+Note that the default constructor `atomic_flag()` is unlike `std::atomic_flag`, which
+leaves the default-constructed object uninitialized. This potentially requires dynamic
+initialization during the program startup to perform the object initialization, which
+makes it unsafe to create global `boost::atomic_flag` objects that can be used before
+entring `main()`. Some compilers though (especially those supporting C++11 `constexpr`)
+may be smart enough to perform flag initialization statically (which is, in C++11 terms,
+a constant initialization).
+
+This difference is deliberate and is done to support C++03 compilers. C++11 defines the
+`ATOMIC_FLAG_INIT` macro which can be used to statically initialize `std::atomic_flag`
+to a clear state like this:
+
+    std::atomic_flag flag = ATOMIC_FLAG_INIT; // constant initialization
+
+This macro cannot be implemented in C++03 because for that `atomic_flag` would have to be
+an aggregate type, which it cannot be because it has to prohibit copying and consequently
+define the default constructor. Thus the closest equivalent C++03 code using Boost.Atomic
+would be:
+
+    boost::atomic_flag flag; // possibly, dynamic initialization in C++03;
+                             // constant initialization in C++11
+
+The same code is also valid in C++11, so this code can be used universally. However, for
+interface parity with `std::atomic_flag`, if possible, the library also defines the
+`BOOST_ATOMIC_FLAG_INIT` macro, which is equivalent to `ATOMIC_FLAG_INIT`:
+
+    boost::atomic_flag flag = BOOST_ATOMIC_FLAG_INIT; // constant initialization
+
+This macro will only be implemented on a C++11 compiler. When this macro is not available,
+the library defines `BOOST_ATOMIC_NO_ATOMIC_FLAG_INIT`.
+
+[endsect]
+
 [section:interface_atomic_object Atomic objects]
 
     #include <boost/atomic/atomic.hpp>
