@@ -488,7 +488,7 @@ to a clear state like this:
 
 This macro cannot be implemented in C++03 because for that `atomic_flag` would have to be
 an aggregate type, which it cannot be because it has to prohibit copying and consequently
-define the default constructor. Thus the closest equivalent C++03 code using Boost.Atomic
+define the default constructor. Thus the closest equivalent C++03 code using [*Boost.Atomic]
 would be:
 
     boost::atomic_flag flag; // possibly, dynamic initialization in C++03;
