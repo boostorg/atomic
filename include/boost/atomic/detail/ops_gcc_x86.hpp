@@ -142,6 +142,15 @@ struct operations< 1u, Signed > :
     {
         storage_type previous = expected;
         bool success;
+#if defined(BOOST_ATOMIC_DETAIL_ASM_HAS_FLAG_OUTPUTS)
+        __asm__ __volatile__
+        (
+            "lock; cmpxchgb %3, %1"
+            : "+a" (previous), "+m" (storage), "=@ccz" (success)
+            : "q" (desired)
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
+        );
+#else // defined(BOOST_ATOMIC_DETAIL_ASM_HAS_FLAG_OUTPUTS)
         __asm__ __volatile__
         (
             "lock; cmpxchgb %3, %1\n\t"
@@ -150,6 +159,7 @@ struct operations< 1u, Signed > :
             : "q" (desired)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
+#endif // defined(BOOST_ATOMIC_DETAIL_ASM_HAS_FLAG_OUTPUTS)
         expected = previous;
         return success;
     }
@@ -233,6 +243,15 @@ struct operations< 2u, Signed > :
     {
         storage_type previous = expected;
         bool success;
+#if defined(BOOST_ATOMIC_DETAIL_ASM_HAS_FLAG_OUTPUTS)
+        __asm__ __volatile__
+        (
+            "lock; cmpxchgw %3, %1"
+            : "+a" (previous), "+m" (storage), "=@ccz" (success)
+            : "q" (desired)
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
+        );
+#else // defined(BOOST_ATOMIC_DETAIL_ASM_HAS_FLAG_OUTPUTS)
         __asm__ __volatile__
         (
             "lock; cmpxchgw %3, %1\n\t"
@@ -241,6 +260,7 @@ struct operations< 2u, Signed > :
             : "q" (desired)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
+#endif // defined(BOOST_ATOMIC_DETAIL_ASM_HAS_FLAG_OUTPUTS)
         expected = previous;
         return success;
     }
@@ -323,6 +343,15 @@ struct operations< 4u, Signed > :
     {
         storage_type previous = expected;
         bool success;
+#if defined(BOOST_ATOMIC_DETAIL_ASM_HAS_FLAG_OUTPUTS)
+        __asm__ __volatile__
+        (
+            "lock; cmpxchgl %3, %1"
+            : "+a" (previous), "+m" (storage), "=@ccz" (success)
+            : "r" (desired)
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
+        );
+#else // defined(BOOST_ATOMIC_DETAIL_ASM_HAS_FLAG_OUTPUTS)
         __asm__ __volatile__
         (
             "lock; cmpxchgl %3, %1\n\t"
@@ -331,6 +360,7 @@ struct operations< 4u, Signed > :
             : "r" (desired)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
+#endif // defined(BOOST_ATOMIC_DETAIL_ASM_HAS_FLAG_OUTPUTS)
         expected = previous;
         return success;
     }
@@ -425,6 +455,15 @@ struct operations< 8u, Signed > :
     {
         storage_type previous = expected;
         bool success;
+#if defined(BOOST_ATOMIC_DETAIL_ASM_HAS_FLAG_OUTPUTS)
+        __asm__ __volatile__
+        (
+            "lock; cmpxchgq %3, %1"
+            : "+a" (previous), "+m" (storage), "=@ccz" (success)
+            : "r" (desired)
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
+        );
+#else // defined(BOOST_ATOMIC_DETAIL_ASM_HAS_FLAG_OUTPUTS)
         __asm__ __volatile__
         (
             "lock; cmpxchgq %3, %1\n\t"
@@ -433,6 +472,7 @@ struct operations< 8u, Signed > :
             : "r" (desired)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
+#endif // defined(BOOST_ATOMIC_DETAIL_ASM_HAS_FLAG_OUTPUTS)
         expected = previous;
         return success;
     }
