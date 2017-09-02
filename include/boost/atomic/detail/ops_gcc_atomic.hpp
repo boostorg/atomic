@@ -20,7 +20,7 @@
 #include <boost/atomic/detail/storage_type.hpp>
 #include <boost/atomic/detail/operations_fwd.hpp>
 #include <boost/atomic/capabilities.hpp>
-#if defined(__clang__) && (defined(BOOST_ATOMIC_DETAIL_X86_HAS_CMPXCHG8B) || defined(BOOST_ATOMIC_DETAIL_X86_HAS_CMPXCHG16B))
+#if (defined(__clang__) || (defined(BOOST_GCC) && (BOOST_GCC+0) >= 70000)) && (defined(BOOST_ATOMIC_DETAIL_X86_HAS_CMPXCHG8B) || defined(BOOST_ATOMIC_DETAIL_X86_HAS_CMPXCHG16B))
 #include <boost/atomic/detail/ops_gcc_x86_dcas.hpp>
 #include <boost/atomic/detail/ops_cas_based.hpp>
 #endif
@@ -165,10 +165,12 @@ struct gcc_atomic_operations
 };
 
 #if BOOST_ATOMIC_INT128_LOCK_FREE > 0
-#if defined(__clang__) && defined(BOOST_ATOMIC_DETAIL_X86_HAS_CMPXCHG16B)
+#if (defined(__clang__) || (defined(BOOST_GCC) && (BOOST_GCC+0) >= 70000)) && defined(BOOST_ATOMIC_DETAIL_X86_HAS_CMPXCHG16B)
 
 // Workaround for clang bug: http://llvm.org/bugs/show_bug.cgi?id=19149
 // Clang 3.4 does not implement 128-bit __atomic* intrinsics even though it defines __GCC_HAVE_SYNC_COMPARE_AND_SWAP_16
+// A similar problem exists with gcc 7 as well, as it requires to link with libatomic to use 16-byte intrinsics:
+// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=80878
 template< bool Signed >
 struct operations< 16u, Signed > :
     public cas_based_operations< gcc_dcas_x86_64< Signed > >

@@ -61,6 +61,7 @@
 #endif
 
 #if ((defined(macintosh) || defined(__APPLE__) || defined(__APPLE_CC__)) && (defined(__GNUC__) && (__GNUC__ * 100 + __GNUC_MINOR__) < 403)) ||\
+    (defined(BOOST_GCC) && (BOOST_GCC+0) >= 70000) /* gcc 7 emits assembler warnings when zero displacement is implied */ ||\
     defined(__SUNPRO_CC)
 // This macro indicates we're using older binutils that don't support implied zero displacements for memory opereands,
 // making code like this invalid:
