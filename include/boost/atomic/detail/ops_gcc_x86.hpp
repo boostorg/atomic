@@ -52,11 +52,11 @@ struct gcc_x86_operations_base
     }
 };
 
-template< typename T, typename Derived >
+template< std::size_t Size, bool Signed, typename Derived >
 struct gcc_x86_operations :
     public gcc_x86_operations_base
 {
-    typedef T storage_type;
+    typedef typename make_storage_type< Size, Signed >::type storage_type;
 
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
@@ -103,9 +103,9 @@ struct gcc_x86_operations :
 
 template< bool Signed >
 struct operations< 1u, Signed > :
-    public gcc_x86_operations< typename make_storage_type< 1u, Signed >::type, operations< 1u, Signed > >
+    public gcc_x86_operations< 1u, Signed, operations< 1u, Signed > >
 {
-    typedef gcc_x86_operations< typename make_storage_type< 1u, Signed >::type, operations< 1u, Signed > > base_type;
+    typedef gcc_x86_operations< 1u, Signed, operations< 1u, Signed > > base_type;
     typedef typename base_type::storage_type storage_type;
     typedef typename make_storage_type< 1u, Signed >::aligned aligned_storage_type;
     typedef typename make_storage_type< 4u, Signed >::type temp_storage_type;
@@ -194,9 +194,9 @@ struct operations< 1u, Signed > :
 
 template< bool Signed >
 struct operations< 2u, Signed > :
-    public gcc_x86_operations< typename make_storage_type< 2u, Signed >::type, operations< 2u, Signed > >
+    public gcc_x86_operations< 2u, Signed, operations< 2u, Signed > >
 {
-    typedef gcc_x86_operations< typename make_storage_type< 2u, Signed >::type, operations< 2u, Signed > > base_type;
+    typedef gcc_x86_operations< 2u, Signed, operations< 2u, Signed > > base_type;
     typedef typename base_type::storage_type storage_type;
     typedef typename make_storage_type< 2u, Signed >::aligned aligned_storage_type;
     typedef typename make_storage_type< 4u, Signed >::type temp_storage_type;
@@ -285,9 +285,9 @@ struct operations< 2u, Signed > :
 
 template< bool Signed >
 struct operations< 4u, Signed > :
-    public gcc_x86_operations< typename make_storage_type< 4u, Signed >::type, operations< 4u, Signed > >
+    public gcc_x86_operations< 4u, Signed, operations< 4u, Signed > >
 {
-    typedef gcc_x86_operations< typename make_storage_type< 4u, Signed >::type, operations< 4u, Signed > > base_type;
+    typedef gcc_x86_operations< 4u, Signed, operations< 4u, Signed > > base_type;
     typedef typename base_type::storage_type storage_type;
     typedef typename make_storage_type< 4u, Signed >::aligned aligned_storage_type;
 
@@ -387,9 +387,9 @@ struct operations< 8u, Signed > :
 
 template< bool Signed >
 struct operations< 8u, Signed > :
-    public gcc_x86_operations< typename make_storage_type< 8u, Signed >::type, operations< 8u, Signed > >
+    public gcc_x86_operations< 8u, Signed, operations< 8u, Signed > >
 {
-    typedef gcc_x86_operations< typename make_storage_type< 8u, Signed >::type, operations< 8u, Signed > > base_type;
+    typedef gcc_x86_operations< 8u, Signed, operations< 8u, Signed > > base_type;
     typedef typename base_type::storage_type storage_type;
     typedef typename make_storage_type< 8u, Signed >::aligned aligned_storage_type;
 
