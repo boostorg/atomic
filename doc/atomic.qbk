@@ -995,10 +995,11 @@ limitations that cannot be lifted without compiler support:
   from transforming a computation dependency into a control dependency.
   A fully compliant C++11 compiler would be forbidden from such a transformation,
   but in practice most if not all compilers have chosen to promote
-  `memory_order_consume` to `memory_order_acquire` instead. In the
-  current implementation [*Boost.Atomic] follows that trend, but
-  this may change in the future.
-  [*Advise]: In general, avoid `memory_order_consume` and use `memory_order_acquire`
+  `memory_order_consume` to `memory_order_acquire` instead
+  (see [@https://gcc.gnu.org/bugzilla/show_bug.cgi?id=59448 this] gcc bug
+  for example). In the current implementation [*Boost.Atomic] follows that trend,
+  but this may change in the future.
+  [*Advice]: In general, avoid `memory_order_consume` and use `memory_order_acquire`
   instead. Use `memory_order_consume` only in conjunction with
   pointer values, and only if you can ensure that the compiler cannot
   speculate and transform these into control dependencies.
