@@ -15,16 +15,16 @@ environment:
   matrix:
     - TOOLSET: msvc-9.0
       ADDRESS_MODEL: 64
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     - TOOLSET: msvc-10.0
       ADDRESS_MODEL: 64
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     - TOOLSET: msvc-11.0
       ADDRESS_MODEL: 64
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     - TOOLSET: msvc-12.0
       ADDRESS_MODEL: 64
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     - TOOLSET: msvc-14.0
       ADDRESS_MODEL: 64
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
@@ -34,55 +34,45 @@ environment:
     - TOOLSET: gcc
       ADDRESS_MODEL: 64
       CXXFLAGS: cxxflags=-std=c++03
-      ADDPATH: C:\cygwin\bin;
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
+      ADDPATH: C:\cygwin64\bin;
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     - TOOLSET: gcc
       ADDRESS_MODEL: 64
       CXXFLAGS: cxxflags=-std=c++11
-      ADDPATH: C:\cygwin\bin;
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
-    - TOOLSET: gcc
-      ADDRESS_MODEL: 64
-      CXXFLAGS: cxxflags=-std=c++03
-      ADDPATH: C:\mingw\bin;
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
-    - TOOLSET: gcc
-      ADDRESS_MODEL: 64
-      CXXFLAGS: cxxflags=-std=c++11
-      ADDPATH: C:\mingw\bin;
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
+      ADDPATH: C:\cygwin64\bin;
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     - TOOLSET: gcc
       ADDRESS_MODEL: 64
       CXXFLAGS: cxxflags=-std=c++03
       ADDPATH: C:\mingw-w64\x86_64-6.3.0-posix-seh-rt_v5-rev1\mingw64\bin;
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     - TOOLSET: gcc
       ADDRESS_MODEL: 64
       CXXFLAGS: cxxflags=-std=c++11
       ADDPATH: C:\mingw-w64\x86_64-6.3.0-posix-seh-rt_v5-rev1\mingw64\bin;
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     - TOOLSET: gcc
       ADDRESS_MODEL: 64
       CXXFLAGS: cxxflags=-std=gnu++03
       ADDPATH: C:\mingw-w64\x86_64-6.3.0-posix-seh-rt_v5-rev1\mingw64\bin;
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     - TOOLSET: gcc
       ADDRESS_MODEL: 64
       CXXFLAGS: cxxflags=-std=gnu++11
       ADDPATH: C:\mingw-w64\x86_64-6.3.0-posix-seh-rt_v5-rev1\mingw64\bin;
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     - TOOLSET: msvc-9.0
       ADDRESS_MODEL: 32
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     - TOOLSET: msvc-10.0
       ADDRESS_MODEL: 32
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     - TOOLSET: msvc-11.0
       ADDRESS_MODEL: 32
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     - TOOLSET: msvc-12.0
       ADDRESS_MODEL: 32
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     - TOOLSET: msvc-14.0
       ADDRESS_MODEL: 32
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
@@ -93,42 +83,42 @@ environment:
       ADDRESS_MODEL: 32
       CXXFLAGS: cxxflags=-std=c++03
       ADDPATH: C:\cygwin\bin;
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     - TOOLSET: gcc
       ADDRESS_MODEL: 32
       CXXFLAGS: cxxflags=-std=c++11
       ADDPATH: C:\cygwin\bin;
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     - TOOLSET: gcc
       ADDRESS_MODEL: 32
       CXXFLAGS: cxxflags=-std=c++03
       ADDPATH: C:\mingw\bin;
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     - TOOLSET: gcc
       ADDRESS_MODEL: 32
       CXXFLAGS: cxxflags=-std=c++11
       ADDPATH: C:\mingw\bin;
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     - TOOLSET: gcc
       ADDRESS_MODEL: 32
       CXXFLAGS: cxxflags=-std=c++03
-      ADDPATH: C:\mingw-w64\x86_64-6.3.0-posix-seh-rt_v5-rev1\mingw64\bin;
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
+      ADDPATH: C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1\mingw64\bin;
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     - TOOLSET: gcc
       ADDRESS_MODEL: 32
       CXXFLAGS: cxxflags=-std=c++11
-      ADDPATH: C:\mingw-w64\x86_64-6.3.0-posix-seh-rt_v5-rev1\mingw64\bin;
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
+      ADDPATH: C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1\mingw64\bin;
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     - TOOLSET: gcc
       ADDRESS_MODEL: 32
       CXXFLAGS: cxxflags=-std=gnu++03
-      ADDPATH: C:\mingw-w64\x86_64-6.3.0-posix-seh-rt_v5-rev1\mingw64\bin;
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
+      ADDPATH: C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1\mingw64\bin;
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     - TOOLSET: gcc
       ADDRESS_MODEL: 32
       CXXFLAGS: cxxflags=-std=gnu++11
-      ADDPATH: C:\mingw-w64\x86_64-6.3.0-posix-seh-rt_v5-rev1\mingw64\bin;
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
+      ADDPATH: C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1\mingw64\bin;
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
 
 install:
   - cd ..
@@ -146,4 +136,4 @@ build: off
 
 test_script:
   - PATH=%ADDPATH%%PATH%
-  - b2 libs/atomic/test toolset=%TOOLSET% address-model=%ADDRESS_MODEL% %CXXFLAGS%
+  - b2 libs/atomic/test variant=release toolset=%TOOLSET% address-model=%ADDRESS_MODEL% %CXXFLAGS%
