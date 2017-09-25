@@ -13,15 +13,16 @@ branches:
 
 environment:
   matrix:
-    - TOOLSET: msvc-9.0
-      ADDRESS_MODEL: 64
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-    - TOOLSET: msvc-10.0
-      ADDRESS_MODEL: 64
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-    - TOOLSET: msvc-11.0
-      ADDRESS_MODEL: 64
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+# AppVeyor doesn't provide 64-bit compilers for these MSVC versions
+#    - TOOLSET: msvc-9.0
+#      ADDRESS_MODEL: 64
+#      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+#    - TOOLSET: msvc-10.0
+#      ADDRESS_MODEL: 64
+#      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+#    - TOOLSET: msvc-11.0
+#      ADDRESS_MODEL: 64
+#      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     - TOOLSET: msvc-12.0
       ADDRESS_MODEL: 64
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
@@ -31,36 +32,38 @@ environment:
     - TOOLSET: msvc-14.1
       ADDRESS_MODEL: 64
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+# Boost.Thread does not compile for Cygwin
+#    - TOOLSET: gcc
+#      ADDRESS_MODEL: 64
+#      B2_ARGS: cxxflags=-std=c++03
+#      ADDPATH: C:\cygwin64\bin
+#      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+#    - TOOLSET: gcc
+#      ADDRESS_MODEL: 64
+#      B2_ARGS: cxxflags=-std=c++11
+#      ADDPATH: C:\cygwin64\bin
+#      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     - TOOLSET: gcc
       ADDRESS_MODEL: 64
-      CXXFLAGS: cxxflags=-std=c++03
-      ADDPATH: C:\cygwin64\bin;
+      B2_ARGS: cxxflags=-std=c++03
+      ADDPATH: C:\mingw-w64\x86_64-6.3.0-posix-seh-rt_v5-rev1\mingw64\bin
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     - TOOLSET: gcc
       ADDRESS_MODEL: 64
-      CXXFLAGS: cxxflags=-std=c++11
-      ADDPATH: C:\cygwin64\bin;
+      B2_ARGS: cxxflags=-std=c++11
+      ADDPATH: C:\mingw-w64\x86_64-6.3.0-posix-seh-rt_v5-rev1\mingw64\bin
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     - TOOLSET: gcc
       ADDRESS_MODEL: 64
-      CXXFLAGS: cxxflags=-std=c++03
-      ADDPATH: C:\mingw-w64\x86_64-6.3.0-posix-seh-rt_v5-rev1\mingw64\bin;
+      B2_ARGS: cxxflags=-std=gnu++03
+      ADDPATH: C:\mingw-w64\x86_64-6.3.0-posix-seh-rt_v5-rev1\mingw64\bin
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     - TOOLSET: gcc
       ADDRESS_MODEL: 64
-      CXXFLAGS: cxxflags=-std=c++11
-      ADDPATH: C:\mingw-w64\x86_64-6.3.0-posix-seh-rt_v5-rev1\mingw64\bin;
+      B2_ARGS: cxxflags=-std=gnu++11
+      ADDPATH: C:\mingw-w64\x86_64-6.3.0-posix-seh-rt_v5-rev1\mingw64\bin
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-    - TOOLSET: gcc
-      ADDRESS_MODEL: 64
-      CXXFLAGS: cxxflags=-std=gnu++03
-      ADDPATH: C:\mingw-w64\x86_64-6.3.0-posix-seh-rt_v5-rev1\mingw64\bin;
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-    - TOOLSET: gcc
-      ADDRESS_MODEL: 64
-      CXXFLAGS: cxxflags=-std=gnu++11
-      ADDPATH: C:\mingw-w64\x86_64-6.3.0-posix-seh-rt_v5-rev1\mingw64\bin;
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+
     - TOOLSET: msvc-9.0
       ADDRESS_MODEL: 32
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
@@ -79,45 +82,46 @@ environment:
     - TOOLSET: msvc-14.1
       ADDRESS_MODEL: 32
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+# Boost.Thread does not compile for Cygwin
+#    - TOOLSET: gcc
+#      ADDRESS_MODEL: 32
+#      B2_ARGS: cxxflags=-std=c++03
+#      ADDPATH: C:\cygwin\bin
+#      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+#    - TOOLSET: gcc
+#      ADDRESS_MODEL: 32
+#      B2_ARGS: cxxflags=-std=c++11
+#      ADDPATH: C:\cygwin\bin
+#      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     - TOOLSET: gcc
       ADDRESS_MODEL: 32
-      CXXFLAGS: cxxflags=-std=c++03
-      ADDPATH: C:\cygwin\bin;
+      B2_ARGS: cxxflags=-std=c++03
+      ADDPATH: C:\mingw\bin
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     - TOOLSET: gcc
       ADDRESS_MODEL: 32
-      CXXFLAGS: cxxflags=-std=c++11
-      ADDPATH: C:\cygwin\bin;
+      B2_ARGS: cxxflags=-std=c++11
+      ADDPATH: C:\mingw\bin
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     - TOOLSET: gcc
       ADDRESS_MODEL: 32
-      CXXFLAGS: cxxflags=-std=c++03
-      ADDPATH: C:\mingw\bin;
+      B2_ARGS: cxxflags=-std=c++03
+      ADDPATH: C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     - TOOLSET: gcc
       ADDRESS_MODEL: 32
-      CXXFLAGS: cxxflags=-std=c++11
-      ADDPATH: C:\mingw\bin;
+      B2_ARGS: cxxflags=-std=c++11
+      ADDPATH: C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     - TOOLSET: gcc
       ADDRESS_MODEL: 32
-      CXXFLAGS: cxxflags=-std=c++03
-      ADDPATH: C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1\mingw64\bin;
+      B2_ARGS: cxxflags=-std=gnu++03
+      ADDPATH: C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     - TOOLSET: gcc
       ADDRESS_MODEL: 32
-      CXXFLAGS: cxxflags=-std=c++11
-      ADDPATH: C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1\mingw64\bin;
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-    - TOOLSET: gcc
-      ADDRESS_MODEL: 32
-      CXXFLAGS: cxxflags=-std=gnu++03
-      ADDPATH: C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1\mingw64\bin;
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-    - TOOLSET: gcc
-      ADDRESS_MODEL: 32
-      CXXFLAGS: cxxflags=-std=gnu++11
-      ADDPATH: C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1\mingw64\bin;
+      B2_ARGS: cxxflags=-std=gnu++11
+      ADDPATH: C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
 
 install:
@@ -135,5 +139,5 @@ install:
 build: off
 
 test_script:
-  - PATH=%ADDPATH%%PATH%
-  - b2 libs/atomic/test variant=release toolset=%TOOLSET% address-model=%ADDRESS_MODEL% %CXXFLAGS%
+  - PATH=%ADDPATH%;%PATH%
+  - b2 libs/atomic/test variant=release toolset=%TOOLSET% address-model=%ADDRESS_MODEL% %B2_ARGS%
