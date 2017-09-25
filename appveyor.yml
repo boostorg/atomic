@@ -106,22 +106,22 @@ environment:
     - TOOLSET: gcc
       ADDRESS_MODEL: 32
       B2_ARGS: cxxflags=-std=c++03
-      ADDPATH: C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1
+      ADDPATH: C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1\bin
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     - TOOLSET: gcc
       ADDRESS_MODEL: 32
       B2_ARGS: cxxflags=-std=c++11
-      ADDPATH: C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1
+      ADDPATH: C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1\bin
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     - TOOLSET: gcc
       ADDRESS_MODEL: 32
       B2_ARGS: cxxflags=-std=gnu++03
-      ADDPATH: C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1
+      ADDPATH: C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1\bin
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     - TOOLSET: gcc
       ADDRESS_MODEL: 32
       B2_ARGS: cxxflags=-std=gnu++11
-      ADDPATH: C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1
+      ADDPATH: C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1\bin
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
 
 install:
