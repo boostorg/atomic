@@ -551,6 +551,7 @@ matrix:
         apt:
           packages:
             - g++-4.7-multilib
+            - linux-libc-dev:i386
           sources:
             - ubuntu-toolchain-r-test
 
@@ -560,6 +561,7 @@ matrix:
         apt:
           packages:
             - g++-4.8-multilib
+            - linux-libc-dev:i386
           sources:
             - ubuntu-toolchain-r-test
 
@@ -569,6 +571,7 @@ matrix:
         apt:
           packages:
             - g++-4.9-multilib
+            - linux-libc-dev:i386
           sources:
             - ubuntu-toolchain-r-test
 
@@ -578,6 +581,7 @@ matrix:
         apt:
           packages:
             - g++-5-multilib
+            - linux-libc-dev:i386
           sources:
             - ubuntu-toolchain-r-test
 
@@ -587,6 +591,7 @@ matrix:
         apt:
           packages:
             - g++-6-multilib
+            - linux-libc-dev:i386
           sources:
             - ubuntu-toolchain-r-test
 
@@ -596,6 +601,7 @@ matrix:
         apt:
           packages:
             - g++-7-multilib
+            - linux-libc-dev:i386
           sources:
             - ubuntu-toolchain-r-test
 
@@ -607,6 +613,7 @@ matrix:
           packages:
             - clang-3.5
             - g++-4.8-multilib
+            - linux-libc-dev:i386
           sources:
             - ubuntu-toolchain-r-test
             - llvm-toolchain-precise-3.5
@@ -618,6 +625,7 @@ matrix:
           packages:
             - clang-3.6
             - g++-4.8-multilib
+            - linux-libc-dev:i386
           sources:
             - ubuntu-toolchain-r-test
             - llvm-toolchain-precise-3.6
@@ -629,6 +637,7 @@ matrix:
           packages:
             - clang-3.7
             - g++-4.8-multilib
+            - linux-libc-dev:i386
           sources:
             - ubuntu-toolchain-r-test
             - llvm-toolchain-precise-3.7
@@ -640,6 +649,7 @@ matrix:
           packages:
             - clang-3.8
             - g++-4.8-multilib
+            - linux-libc-dev:i386
           sources:
             - ubuntu-toolchain-r-test
             - llvm-toolchain-precise-3.8
@@ -651,6 +661,7 @@ matrix:
           packages:
             - clang-3.9
             - g++-4.8-multilib
+            - linux-libc-dev:i386
           sources:
             - ubuntu-toolchain-r-test
             - llvm-toolchain-trusty-3.9
@@ -662,6 +673,7 @@ matrix:
           packages:
             - clang-4.0
             - g++-4.8-multilib
+            - linux-libc-dev:i386
           sources:
             - ubuntu-toolchain-r-test
             - llvm-toolchain-trusty-4.0
@@ -673,6 +685,7 @@ matrix:
           packages:
             - clang-5.0
             - g++-4.8-multilib
+            - linux-libc-dev:i386
           sources:
             - ubuntu-toolchain-r-test
             - llvm-toolchain-trusty-5.0
