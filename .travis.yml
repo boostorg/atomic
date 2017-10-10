@@ -550,7 +550,7 @@ matrix:
       addons:
         apt:
           packages:
-            - g++-4.7
+            - g++-4.7-multilib
           sources:
             - ubuntu-toolchain-r-test
 
@@ -559,7 +559,7 @@ matrix:
       addons:
         apt:
           packages:
-            - g++-4.8
+            - g++-4.8-multilib
           sources:
             - ubuntu-toolchain-r-test
 
@@ -568,7 +568,7 @@ matrix:
       addons:
         apt:
           packages:
-            - g++-4.9
+            - g++-4.9-multilib
           sources:
             - ubuntu-toolchain-r-test
 
@@ -577,7 +577,7 @@ matrix:
       addons:
         apt:
           packages:
-            - g++-5
+            - g++-5-multilib
           sources:
             - ubuntu-toolchain-r-test
 
@@ -586,7 +586,7 @@ matrix:
       addons:
         apt:
           packages:
-            - g++-6
+            - g++-6-multilib
           sources:
             - ubuntu-toolchain-r-test
 
@@ -595,7 +595,7 @@ matrix:
       addons:
         apt:
           packages:
-            - g++-7
+            - g++-7-multilib
           sources:
             - ubuntu-toolchain-r-test
 
@@ -606,6 +606,7 @@ matrix:
         apt:
           packages:
             - clang-3.5
+            - g++-4.8-multilib
           sources:
             - ubuntu-toolchain-r-test
             - llvm-toolchain-precise-3.5
@@ -616,6 +617,7 @@ matrix:
         apt:
           packages:
             - clang-3.6
+            - g++-4.8-multilib
           sources:
             - ubuntu-toolchain-r-test
             - llvm-toolchain-precise-3.6
@@ -626,6 +628,7 @@ matrix:
         apt:
           packages:
             - clang-3.7
+            - g++-4.8-multilib
           sources:
             - ubuntu-toolchain-r-test
             - llvm-toolchain-precise-3.7
@@ -636,6 +639,7 @@ matrix:
         apt:
           packages:
             - clang-3.8
+            - g++-4.8-multilib
           sources:
             - ubuntu-toolchain-r-test
             - llvm-toolchain-precise-3.8
@@ -646,6 +650,7 @@ matrix:
         apt:
           packages:
             - clang-3.9
+            - g++-4.8-multilib
           sources:
             - ubuntu-toolchain-r-test
             - llvm-toolchain-trusty-3.9
@@ -656,6 +661,7 @@ matrix:
         apt:
           packages:
             - clang-4.0
+            - g++-4.8-multilib
           sources:
             - ubuntu-toolchain-r-test
             - llvm-toolchain-trusty-4.0
@@ -666,6 +672,7 @@ matrix:
         apt:
           packages:
             - clang-5.0
+            - g++-4.8-multilib
           sources:
             - ubuntu-toolchain-r-test
             - llvm-toolchain-trusty-5.0
