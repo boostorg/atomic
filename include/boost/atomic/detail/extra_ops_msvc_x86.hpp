@@ -281,7 +281,7 @@ struct extra_operations< Base, 1u, Signed > :
             mov edx, storage
             movzx eax, v
             lock add byte ptr [edx], al
-            setz result
+            setnz result
         };
         base_type::fence_after(order);
         return result;
@@ -296,7 +296,7 @@ struct extra_operations< Base, 1u, Signed > :
             mov edx, storage
             movzx eax, v
             lock sub byte ptr [edx], al
-            setz result
+            setnz result
         };
         base_type::fence_after(order);
         return result;
@@ -311,7 +311,7 @@ struct extra_operations< Base, 1u, Signed > :
             mov edx, storage
             movzx eax, v
             lock and byte ptr [edx], al
-            setz result
+            setnz result
         };
         base_type::fence_after(order);
         return result;
@@ -326,7 +326,7 @@ struct extra_operations< Base, 1u, Signed > :
             mov edx, storage
             movzx eax, v
             lock or byte ptr [edx], al
-            setz result
+            setnz result
         };
         base_type::fence_after(order);
         return result;
@@ -341,7 +341,7 @@ struct extra_operations< Base, 1u, Signed > :
             mov edx, storage
             movzx eax, v
             lock xor byte ptr [edx], al
-            setz result
+            setnz result
         };
         base_type::fence_after(order);
         return result;
@@ -522,7 +522,7 @@ struct extra_operations< Base, 2u, Signed > :
             mov edx, storage
             movzx eax, v
             lock add word ptr [edx], ax
-            setz result
+            setnz result
         };
         base_type::fence_after(order);
         return result;
@@ -537,7 +537,7 @@ struct extra_operations< Base, 2u, Signed > :
             mov edx, storage
             movzx eax, v
             lock sub word ptr [edx], ax
-            setz result
+            setnz result
         };
         base_type::fence_after(order);
         return result;
@@ -552,7 +552,7 @@ struct extra_operations< Base, 2u, Signed > :
             mov edx, storage
             movzx eax, v
             lock and word ptr [edx], ax
-            setz result
+            setnz result
         };
         base_type::fence_after(order);
         return result;
@@ -567,7 +567,7 @@ struct extra_operations< Base, 2u, Signed > :
             mov edx, storage
             movzx eax, v
             lock or word ptr [edx], ax
-            setz result
+            setnz result
         };
         base_type::fence_after(order);
         return result;
@@ -582,7 +582,7 @@ struct extra_operations< Base, 2u, Signed > :
             mov edx, storage
             movzx eax, v
             lock xor word ptr [edx], ax
-            setz result
+            setnz result
         };
         base_type::fence_after(order);
         return result;
@@ -763,7 +763,7 @@ struct extra_operations< Base, 4u, Signed > :
             mov edx, storage
             mov eax, v
             lock add dword ptr [edx], eax
-            setz result
+            setnz result
         };
         base_type::fence_after(order);
         return result;
@@ -778,7 +778,7 @@ struct extra_operations< Base, 4u, Signed > :
             mov edx, storage
             mov eax, v
             lock sub dword ptr [edx], eax
-            setz result
+            setnz result
         };
         base_type::fence_after(order);
         return result;
@@ -793,7 +793,7 @@ struct extra_operations< Base, 4u, Signed > :
             mov edx, storage
             mov eax, v
             lock and dword ptr [edx], eax
-            setz result
+            setnz result
         };
         base_type::fence_after(order);
         return result;
@@ -808,7 +808,7 @@ struct extra_operations< Base, 4u, Signed > :
             mov edx, storage
             mov eax, v
             lock or dword ptr [edx], eax
-            setz result
+            setnz result
         };
         base_type::fence_after(order);
         return result;
@@ -823,7 +823,7 @@ struct extra_operations< Base, 4u, Signed > :
             mov edx, storage
             mov eax, v
             lock xor dword ptr [edx], eax
-            setz result
+            setnz result
         };
         base_type::fence_after(order);
         return result;

@@ -109,4 +109,63 @@
 #define BOOST_ATOMIC_DETAIL_IS_CONSTANT(x) false
 #endif
 
+// Deprecated symbols markup
+#if !defined(BOOST_ATOMIC_DETAIL_DEPRECATED) && defined(_MSC_VER)
+#if (_MSC_VER) >= 1400
+#define BOOST_ATOMIC_DETAIL_DEPRECATED(msg) __declspec(deprecated(msg))
+#else
+// MSVC 7.1 only supports the attribute without a message
+#define BOOST_ATOMIC_DETAIL_DEPRECATED(msg) __declspec(deprecated)
+#endif
+#endif
+
+#if !defined(BOOST_ATOMIC_DETAIL_DEPRECATED) && defined(__has_extension)
+#if __has_extension(attribute_deprecated_with_message)
+#define BOOST_ATOMIC_DETAIL_DEPRECATED(msg) __attribute__((deprecated(msg)))
+#endif
+#endif
+
+// gcc since 4.5 supports deprecated attribute with a message; older versions support the attribute without a message.
+// Oracle Studio 12.4 supports deprecated attribute with a message; this is the first release that supports the attribute.
+#if !defined(BOOST_ATOMIC_DETAIL_DEPRECATED) && (\
+    (defined(__GNUC__) && ((__GNUC__ + 0) * 100 + (__GNUC_MINOR__ + 0)) >= 405) ||\
+    (defined(__SUNPRO_CC) && (__SUNPRO_CC + 0) >= 0x5130))
+#define BOOST_ATOMIC_DETAIL_DEPRECATED(msg) __attribute__((deprecated(msg)))
+#endif
+
+#if !defined(BOOST_ATOMIC_DETAIL_DEPRECATED) && __cplusplus >= 201402
+#define BOOST_ATOMIC_DETAIL_DEPRECATED(msg) [[deprecated(msg)]]
+#endif
+
+#if !defined(BOOST_ATOMIC_DETAIL_DEPRECATED) && defined(__GNUC__)
+#define BOOST_ATOMIC_DETAIL_DEPRECATED(msg) __attribute__((deprecated))
+#endif
+
+#if !defined(BOOST_ATOMIC_DETAIL_DEPRECATED) && defined(__has_attribute)
+#if __has_attribute(deprecated)
+#define BOOST_ATOMIC_DETAIL_DEPRECATED(msg) __attribute__((deprecated))
+#endif
+#endif
+
+#if !defined(BOOST_ATOMIC_DETAIL_DEPRECATED)
+#define BOOST_ATOMIC_DETAIL_DEPRECATED(msg)
+#endif
+
+// In Boost.Atomic 1.67 we changed (op)_and_test methods to return true when the result is non-zero. This would be more consistent
+// with the other names used in Boost.Atomic and the C++ standard library. Since the methods were announced as experimental and
+// the previous behavior was released only in Boost 1.66, it was decided to change the result without changing the method names.
+// By defining BOOST_ATOMIC_HIGHLIGHT_OP_AND_TEST the user has a way to highlight all uses of the affected functions so
+// that it is easier to find and update the affected code (which is typically adding or removing negation of the result). This
+// highlighting functionality is a temporary measure to help users upgrade from Boost 1.66 to newer Boost versions. It will
+// be removed eventually.
+//
+// More info at:
+// https://github.com/boostorg/atomic/issues/11
+// http://boost.2283326.n4.nabble.com/atomic-op-and-test-naming-tc4701445.html
+#if defined(BOOST_ATOMIC_HIGHLIGHT_OP_AND_TEST)
+#define BOOST_ATOMIC_DETAIL_HIGHLIGHT_OP_AND_TEST BOOST_ATOMIC_DETAIL_DEPRECATED("Boost.Atomic 1.67 has changed (op)_and_test result to the opposite. The functions now return true when the result is non-zero. Please, verify your use of the operation and undefine BOOST_ATOMIC_HIGHLIGHT_OP_AND_TEST.")
+#else
+#define BOOST_ATOMIC_DETAIL_HIGHLIGHT_OP_AND_TEST
+#endif
+
 #endif // BOOST_ATOMIC_DETAIL_CONFIG_HPP_INCLUDED_

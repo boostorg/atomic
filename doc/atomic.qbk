@@ -675,23 +675,23 @@ Additionally, as a [*Boost.Atomic] extension, the following operations are also 
     ]
     [
       [`bool add_and_test(I v, memory_order order)`]
-      [Add `v` to variable, returning `true` if the result is zero and `false` otherwise]
+      [Add `v` to variable, returning `true` if the result is non-zero and `false` otherwise]
     ]
     [
       [`bool sub_and_test(I v, memory_order order)`]
-      [Subtract `v` from variable, returning `true` if the result is zero and `false` otherwise]
+      [Subtract `v` from variable, returning `true` if the result is non-zero and `false` otherwise]
     ]
     [
       [`bool and_and_test(I v, memory_order order)`]
-      [Apply bit-wise "and" with `v` to variable, returning `true` if the result is zero and `false` otherwise]
+      [Apply bit-wise "and" with `v` to variable, returning `true` if the result is non-zero and `false` otherwise]
     ]
     [
       [`bool or_and_test(I v, memory_order order)`]
-      [Apply bit-wise "or" with `v` to variable, returning `true` if the result is zero and `false` otherwise]
+      [Apply bit-wise "or" with `v` to variable, returning `true` if the result is non-zero and `false` otherwise]
     ]
     [
       [`bool xor_and_test(I v, memory_order order)`]
-      [Apply bit-wise "xor" with `v` to variable, returning `true` if the result is zero and `false` otherwise]
+      [Apply bit-wise "xor" with `v` to variable, returning `true` if the result is non-zero and `false` otherwise]
     ]
     [
       [`bool bit_test_and_set(unsigned int n, memory_order order)`]
@@ -706,6 +706,12 @@ Additionally, as a [*Boost.Atomic] extension, the following operations are also 
       [Change bit number `n` in the variable to the opposite value, returning `true` if the bit was previously set to 1 and `false` otherwise]
     ]
 ]
+
+[note In Boost.Atomic 1.66 the [^['op]_and_test] operations returned the opposite value (i.e. `true` if the result is zero). This was changed
+to the current behavior in 1.67 for consistency with other operations in Boost.Atomic, as well as with conventions taken in the C++ standard library.
+Boost.Atomic 1.66 was the only release shipped with the old behavior. Users upgrading from Boost 1.66 to a later release can define
+`BOOST_ATOMIC_HIGHLIGHT_OP_AND_TEST` macro when building their code to generate deprecation warnings on the [^['op]_and_test] function calls
+(the functions are not actually deprecated though; this is just a way to highlight their use).]
 
 `order` always has `memory_order_seq_cst` as default parameter.
 

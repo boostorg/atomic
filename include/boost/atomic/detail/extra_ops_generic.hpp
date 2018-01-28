@@ -97,29 +97,29 @@ struct generic_extra_operations :
     {
         storage_type old_val = Base::fetch_add(storage, v, order);
         emulated_storage_type new_val = static_cast< emulated_storage_type >(old_val) + static_cast< emulated_storage_type >(v);
-        return !new_val;
+        return !!new_val;
     }
 
     static BOOST_FORCEINLINE bool sub_and_test(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
         storage_type old_val = Base::fetch_sub(storage, v, order);
         emulated_storage_type new_val = static_cast< emulated_storage_type >(old_val) - static_cast< emulated_storage_type >(v);
-        return !new_val;
+        return !!new_val;
     }
 
     static BOOST_FORCEINLINE bool and_and_test(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
-        return !(Base::fetch_and(storage, v, order) & v);
+        return !!(Base::fetch_and(storage, v, order) & v);
     }
 
     static BOOST_FORCEINLINE bool or_and_test(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
-        return !(Base::fetch_or(storage, v, order) | v);
+        return !!(Base::fetch_or(storage, v, order) | v);
     }
 
     static BOOST_FORCEINLINE bool xor_and_test(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
-        return !(Base::fetch_xor(storage, v, order) ^ v);
+        return !!(Base::fetch_xor(storage, v, order) ^ v);
     }
 
     static BOOST_FORCEINLINE bool bit_test_and_set(storage_type volatile& storage, unsigned int bit_number, memory_order order) BOOST_NOEXCEPT

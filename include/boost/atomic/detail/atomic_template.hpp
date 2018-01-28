@@ -381,26 +381,31 @@ public:
         extra_operations::opaque_complement(m_storage.value, order);
     }
 
+    BOOST_ATOMIC_DETAIL_HIGHLIGHT_OP_AND_TEST
     BOOST_FORCEINLINE bool add_and_test(difference_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
         return extra_operations::add_and_test(m_storage.value, static_cast< storage_type >(v), order);
     }
 
+    BOOST_ATOMIC_DETAIL_HIGHLIGHT_OP_AND_TEST
     BOOST_FORCEINLINE bool sub_and_test(difference_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
         return extra_operations::sub_and_test(m_storage.value, static_cast< storage_type >(v), order);
     }
 
+    BOOST_ATOMIC_DETAIL_HIGHLIGHT_OP_AND_TEST
     BOOST_FORCEINLINE bool and_and_test(value_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
         return extra_operations::and_and_test(m_storage.value, static_cast< storage_type >(v), order);
     }
 
+    BOOST_ATOMIC_DETAIL_HIGHLIGHT_OP_AND_TEST
     BOOST_FORCEINLINE bool or_and_test(value_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
         return extra_operations::or_and_test(m_storage.value, static_cast< storage_type >(v), order);
     }
 
+    BOOST_ATOMIC_DETAIL_HIGHLIGHT_OP_AND_TEST
     BOOST_FORCEINLINE bool xor_and_test(value_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
         return extra_operations::xor_and_test(m_storage.value, static_cast< storage_type >(v), order);

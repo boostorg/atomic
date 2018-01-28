@@ -311,46 +311,46 @@ void test_additive_operators_with_type_and_test()
     {
         boost::atomic<T> a(zero_value);
         bool f = a.add_and_test(zero_diff);
-        BOOST_TEST_EQ( f, true );
+        BOOST_TEST_EQ( f, false );
         BOOST_TEST_EQ( a.load(), zero_value );
 
         f = a.add_and_test(one_diff);
-        BOOST_TEST_EQ( f, false );
+        BOOST_TEST_EQ( f, true );
         BOOST_TEST_EQ( a.load(), T(zero_add + one_diff) );
     }
     {
         boost::atomic<T> a(zero_value);
         bool f = a.add_and_test((distance_limits< T, D >::max)());
-        BOOST_TEST_EQ( f, false );
+        BOOST_TEST_EQ( f, true );
         BOOST_TEST_EQ( a.load(), T(zero_add + (distance_limits< T, D >::max)()) );
     }
     {
         boost::atomic<T> a(zero_value);
         bool f = a.add_and_test((distance_limits< T, D >::min)());
-        BOOST_TEST_EQ( f, ((distance_limits< T, D >::min)() == 0) );
+        BOOST_TEST_EQ( f, ((distance_limits< T, D >::min)() != 0) );
         BOOST_TEST_EQ( a.load(), T(zero_add + (distance_limits< T, D >::min)()) );
     }
 
     {
         boost::atomic<T> a(zero_value);
         bool f = a.sub_and_test(zero_diff);
-        BOOST_TEST_EQ( f, true );
+        BOOST_TEST_EQ( f, false );
         BOOST_TEST_EQ( a.load(), zero_value );
 
         f = a.sub_and_test(one_diff);
-        BOOST_TEST_EQ( f, false );
+        BOOST_TEST_EQ( f, true );
         BOOST_TEST_EQ( a.load(), T(zero_add - one_diff) );
     }
     {
         boost::atomic<T> a(zero_value);
         bool f = a.sub_and_test((distance_limits< T, D >::max)());
-        BOOST_TEST_EQ( f, false );
+        BOOST_TEST_EQ( f, true );
         BOOST_TEST_EQ( a.load(), T(zero_add - (distance_limits< T, D >::max)()) );
     }
     {
         boost::atomic<T> a(zero_value);
         bool f = a.sub_and_test((distance_limits< T, D >::min)());
-        BOOST_TEST_EQ( f, ((distance_limits< T, D >::min)() == 0) );
+        BOOST_TEST_EQ( f, ((distance_limits< T, D >::min)() != 0) );
         BOOST_TEST_EQ( a.load(), T(zero_add - (distance_limits< T, D >::min)()) );
     }
 }
@@ -565,45 +565,45 @@ void test_bit_operators(T value, T delta)
     {
         boost::atomic<T> a((T)1);
         bool f = a.and_and_test((T)1);
-        BOOST_TEST_EQ( f, false );
+        BOOST_TEST_EQ( f, true );
         BOOST_TEST_EQ( a.load(), T(1) );
 
         f = a.and_and_test((T)0);
-        BOOST_TEST_EQ( f, true );
+        BOOST_TEST_EQ( f, false );
         BOOST_TEST_EQ( a.load(), T(0) );
 
         f = a.and_and_test((T)0);
-        BOOST_TEST_EQ( f, true );
+        BOOST_TEST_EQ( f, false );
         BOOST_TEST_EQ( a.load(), T(0) );
     }
 
     {
         boost::atomic<T> a((T)0);
         bool f = a.or_and_test((T)0);
-        BOOST_TEST_EQ( f, true );
+        BOOST_TEST_EQ( f, false );
         BOOST_TEST_EQ( a.load(), T(0) );
 
         f = a.or_and_test((T)1);
-        BOOST_TEST_EQ( f, false );
+        BOOST_TEST_EQ( f, true );
         BOOST_TEST_EQ( a.load(), T(1) );
 
         f = a.or_and_test((T)1);
-        BOOST_TEST_EQ( f, false );
+        BOOST_TEST_EQ( f, true );
         BOOST_TEST_EQ( a.load(), T(1) );
     }
 
     {
         boost::atomic<T> a((T)0);
         bool f = a.xor_and_test((T)0);
-        BOOST_TEST_EQ( f, true );
+        BOOST_TEST_EQ( f, false );
         BOOST_TEST_EQ( a.load(), T(0) );
 
         f = a.xor_and_test((T)1);
-        BOOST_TEST_EQ( f, false );
+        BOOST_TEST_EQ( f, true );
         BOOST_TEST_EQ( a.load(), T(1) );
 
         f = a.xor_and_test((T)1);
-        BOOST_TEST_EQ( f, true );
+        BOOST_TEST_EQ( f, false );
         BOOST_TEST_EQ( a.load(), T(0) );
     }
 
