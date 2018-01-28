@@ -105,7 +105,7 @@ struct operations< 4u, Signed > :
         storage_type v;
         if (order == memory_order_seq_cst)
             __asm__ __volatile__ ("sync" ::: "memory");
-        if ((order & (memory_order_consume | memory_order_acquire)) != 0)
+        if ((static_cast< unsigned int >(order) & (static_cast< unsigned int >(memory_order_consume) | static_cast< unsigned int >(memory_order_acquire))) != 0u)
         {
             __asm__ __volatile__
             (
@@ -336,7 +336,7 @@ struct operations< 1u, Signed > :
         storage_type v;
         if (order == memory_order_seq_cst)
             __asm__ __volatile__ ("sync" ::: "memory");
-        if ((order & (memory_order_consume | memory_order_acquire)) != 0)
+        if ((static_cast< unsigned int >(order) & (static_cast< unsigned int >(memory_order_consume) | static_cast< unsigned int >(memory_order_acquire))) != 0u)
         {
             __asm__ __volatile__
             (
@@ -667,7 +667,7 @@ struct operations< 2u, Signed > :
         storage_type v;
         if (order == memory_order_seq_cst)
             __asm__ __volatile__ ("sync" ::: "memory");
-        if ((order & (memory_order_consume | memory_order_acquire)) != 0)
+        if ((static_cast< unsigned int >(order) & (static_cast< unsigned int >(memory_order_consume) | static_cast< unsigned int >(memory_order_acquire))) != 0u)
         {
             __asm__ __volatile__
             (
@@ -997,7 +997,7 @@ struct operations< 8u, Signed > :
         storage_type v;
         if (order == memory_order_seq_cst)
             __asm__ __volatile__ ("sync" ::: "memory");
-        if ((order & (memory_order_consume | memory_order_acquire)) != 0)
+        if ((static_cast< unsigned int >(order) & (static_cast< unsigned int >(memory_order_consume) | static_cast< unsigned int >(memory_order_acquire))) != 0u)
         {
             __asm__ __volatile__
             (
@@ -1204,20 +1204,16 @@ struct operations< 8u, Signed > :
 
 BOOST_FORCEINLINE void thread_fence(memory_order order) BOOST_NOEXCEPT
 {
-    switch (order)
+    if (order != memory_order_relaxed)
     {
-    case memory_order_consume:
-    case memory_order_acquire:
-    case memory_order_release:
-    case memory_order_acq_rel:
 #if defined(__powerpc64__) || defined(__PPC64__)
-        __asm__ __volatile__ ("lwsync" ::: "memory");
-        break;
-#endif
-    case memory_order_seq_cst:
+        if (order != memory_order_seq_cst)
+            __asm__ __volatile__ ("lwsync" ::: "memory");
+        else
+            __asm__ __volatile__ ("sync" ::: "memory");
+#else
         __asm__ __volatile__ ("sync" ::: "memory");
-        break;
-    default:;
+#endif
     }
 }
 

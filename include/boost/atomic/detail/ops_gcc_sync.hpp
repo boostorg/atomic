@@ -38,7 +38,7 @@ struct gcc_sync_operations_base
 
     static BOOST_FORCEINLINE void fence_before_store(memory_order order) BOOST_NOEXCEPT
     {
-        if ((order & memory_order_release) != 0)
+        if ((static_cast< unsigned int >(order) & static_cast< unsigned int >(memory_order_release)) != 0u)
             __sync_synchronize();
     }
 
@@ -50,7 +50,7 @@ struct gcc_sync_operations_base
 
     static BOOST_FORCEINLINE void fence_after_load(memory_order order) BOOST_NOEXCEPT
     {
-        if ((order & (memory_order_acquire | memory_order_consume)) != 0)
+        if ((static_cast< unsigned int >(order) & (static_cast< unsigned int >(memory_order_acquire) | static_cast< unsigned int >(memory_order_consume))) != 0u)
             __sync_synchronize();
     }
 };
@@ -90,7 +90,7 @@ struct gcc_sync_operations :
         // GCC docs mention that not all architectures may support full exchange semantics for this intrinsic. However, GCC's implementation of
         // std::atomic<> uses this intrinsic unconditionally. We do so as well. In case if some architectures actually don't support this, we can always
         // add a check here and fall back to a CAS loop.
-        if ((order & memory_order_release) != 0)
+        if ((static_cast< unsigned int >(order) & static_cast< unsigned int >(memory_order_release)) != 0u)
             __sync_synchronize();
         return __sync_lock_test_and_set(&storage, v);
     }
@@ -135,7 +135,7 @@ struct gcc_sync_operations :
 
     static BOOST_FORCEINLINE bool test_and_set(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
-        if ((order & memory_order_release) != 0)
+        if ((static_cast< unsigned int >(order) & static_cast< unsigned int >(memory_order_release)) != 0u)
             __sync_synchronize();
         return !!__sync_lock_test_and_set(&storage, 1);
     }

@@ -41,7 +41,7 @@ struct gcc_sparc_cas_base
     {
         if (order == memory_order_seq_cst)
             __asm__ __volatile__ ("membar #Sync" ::: "memory");
-        else if ((order & memory_order_release) != 0)
+        else if ((static_cast< unsigned int >(order) & static_cast< unsigned int >(memory_order_release)) != 0u)
             __asm__ __volatile__ ("membar #StoreStore | #LoadStore" ::: "memory");
     }
 
@@ -49,7 +49,7 @@ struct gcc_sparc_cas_base
     {
         if (order == memory_order_seq_cst)
             __asm__ __volatile__ ("membar #Sync" ::: "memory");
-        else if ((order & (memory_order_consume | memory_order_acquire)) != 0)
+        else if ((static_cast< unsigned int >(order) & (static_cast< unsigned int >(memory_order_consume) | static_cast< unsigned int >(memory_order_acquire))) != 0u)
             __asm__ __volatile__ ("membar #StoreStore | #LoadStore" ::: "memory");
     }
 

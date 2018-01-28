@@ -65,7 +65,7 @@ struct msvc_arm_operations_base
     {
         BOOST_ATOMIC_DETAIL_COMPILER_BARRIER();
 
-        if ((order & memory_order_release) != 0)
+        if ((static_cast< unsigned int >(order) & static_cast< unsigned int >(memory_order_release)) != 0u)
             hardware_full_fence();
 
         BOOST_ATOMIC_DETAIL_COMPILER_BARRIER();
@@ -85,7 +85,7 @@ struct msvc_arm_operations_base
     {
         BOOST_ATOMIC_DETAIL_COMPILER_BARRIER();
 
-        if ((order & (memory_order_consume | memory_order_acquire)) != 0)
+        if ((static_cast< unsigned int >(order) & (static_cast< unsigned int >(memory_order_consume) | static_cast< unsigned int >(memory_order_acquire))) != 0u)
             hardware_full_fence();
 
         BOOST_ATOMIC_DETAIL_COMPILER_BARRIER();
@@ -94,7 +94,8 @@ struct msvc_arm_operations_base
     static BOOST_FORCEINLINE BOOST_CONSTEXPR memory_order cas_common_order(memory_order success_order, memory_order failure_order) BOOST_NOEXCEPT
     {
         // Combine order flags together and promote memory_order_consume to memory_order_acquire
-        return static_cast< memory_order >(((failure_order | success_order) & ~memory_order_consume) | (((failure_order | success_order) & memory_order_consume) << 1u));
+        return static_cast< memory_order >(((static_cast< unsigned int >(failure_order) | static_cast< unsigned int >(success_order)) & ~static_cast< unsigned int >(memory_order_consume))
+            | (((static_cast< unsigned int >(failure_order) | static_cast< unsigned int >(success_order)) & static_cast< unsigned int >(memory_order_consume)) << 1u));
     }
 };
 

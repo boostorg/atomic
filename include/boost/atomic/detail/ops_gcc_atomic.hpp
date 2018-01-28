@@ -54,10 +54,10 @@ namespace detail {
  * The function converts \c boost::memory_order values to the compiler-specific constants.
  *
  * NOTE: The intention is that the function is optimized away by the compiler, and the
- *       compiler-specific constants are passed to the intrinsics. I know constexpr doesn't
+ *       compiler-specific constants are passed to the intrinsics. Unfortunately, constexpr doesn't
  *       work in this case because the standard atomics interface require memory ordering
  *       constants to be passed as function arguments, at which point they stop being constexpr.
- *       However it is crucial that the compiler sees constants and not runtime values,
+ *       However, it is crucial that the compiler sees constants and not runtime values,
  *       because otherwise it just ignores the ordering value and always uses seq_cst.
  *       This is the case with Intel C++ Compiler 14.0.3 (Composer XE 2013 SP1, update 3) and
  *       gcc 4.8.2. Intel Compiler issues a warning in this case:
@@ -71,8 +71,8 @@ namespace detail {
  *       all functions are called with constant orderings and call intrinstcts properly.
  *
  *       Unfortunately, this still doesn't work in debug mode as the compiler doesn't
- *       inline functions even when marked with BOOST_FORCEINLINE. In this case all atomic
- *       operaions will be executed with seq_cst semantics.
+ *       propagate constants even when functions are marked with BOOST_FORCEINLINE. In this case
+ *       all atomic operaions will be executed with seq_cst semantics.
  */
 BOOST_FORCEINLINE BOOST_CONSTEXPR int convert_memory_order_to_gcc(memory_order order) BOOST_NOEXCEPT
 {

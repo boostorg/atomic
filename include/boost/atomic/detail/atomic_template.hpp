@@ -56,7 +56,7 @@ BOOST_FORCEINLINE BOOST_CONSTEXPR bool cas_failure_order_must_not_be_stronger_th
 {
     // 15 == (memory_order_seq_cst | memory_order_consume), see memory_order.hpp
     // Given the enum values we can test the strength of memory order requirements with this single condition.
-    return (failure_order & 15u) <= (success_order & 15u);
+    return (static_cast< unsigned int >(failure_order) & 15u) <= (static_cast< unsigned int >(success_order) & 15u);
 }
 
 template< typename T, bool IsFunction = boost::atomics::detail::is_function< T >::value >
