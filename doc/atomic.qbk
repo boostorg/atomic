@@ -707,6 +707,10 @@ Additionally, as a [*Boost.Atomic] extension, the following operations are also 
     ]
 ]
 
+[note In Boost.Atomic 1.67 and later the [^['op]_and_test] operations will return the opposite value (i.e. `true` if the result is non-zero). This was changed
+for consistency with other operations in Boost.Atomic, as well as with conventions taken in the C++ standard library. Users may prefer to
+postpone using these operations until Boost 1.67 to avoid the need to update the code after the upgrade.]
+
 `order` always has `memory_order_seq_cst` as default parameter.
 
 The [^opaque_['op]] and [^['op]_and_test] variants of the operations
