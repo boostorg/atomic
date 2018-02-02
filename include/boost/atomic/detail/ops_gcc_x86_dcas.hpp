@@ -21,7 +21,7 @@
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/storage_type.hpp>
 #include <boost/atomic/capabilities.hpp>
-#if defined(BOOST_ATOMIC_DETAIL_NO_ASM_RAX_RDX_PAIRS) && !defined(BOOST_ATOMIC_DETAIL_HAS_BUILTIN_MEMCPY)
+#if defined(BOOST_ATOMIC_DETAIL_NO_ASM_AX_DX_PAIRS) && !defined(BOOST_ATOMIC_DETAIL_HAS_BUILTIN_MEMCPY)
 #include <cstring>
 #endif
 
@@ -154,6 +154,20 @@ struct gcc_dcas_x86
 #if defined(__clang__)
             // Clang cannot allocate eax:edx register pairs but it has sync intrinsics
             value = __sync_val_compare_and_swap(&storage, (storage_type)0, (storage_type)0);
+#elif defined(BOOST_ATOMIC_DETAIL_NO_ASM_AX_DX_PAIRS)
+            uint32_t value_bits[2];
+            // We don't care for comparison result here; the previous value will be stored into value anyway.
+            // Also we don't care for ebx and ecx values, they just have to be equal to eax and edx before cmpxchg8b.
+            __asm__ __volatile__
+            (
+                "movl %%ebx, %%eax\n\t"
+                "movl %%ecx, %%edx\n\t"
+                "lock; cmpxchg8b %[storage]\n\t"
+                : "=&a" (value_bits[0]), "=&d" (value_bits[1])
+                : [storage] "m" (storage)
+                : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
+            );
+            BOOST_ATOMIC_DETAIL_MEMCPY(&value, value_bits, sizeof(value));
 #else
             // We don't care for comparison result here; the previous value will be stored into value anyway.
             // Also we don't care for ebx and ecx values, they just have to be equal to eax and edx before cmpxchg8b.
@@ -269,17 +283,6 @@ struct gcc_dcas_x86
 
     static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
-#if defined(__clang__)
-        // Clang cannot allocate eax:edx register pairs but it has sync intrinsics
-        storage_type old_value = storage;
-        while (true)
-        {
-            storage_type val = __sync_val_compare_and_swap(&storage, old_value, v);
-            if (val == old_value)
-                return val;
-            old_value = val;
-        }
-#else // defined(__clang__)
 #if defined(__PIC__)
         uint32_t scratch;
         __asm__ __volatile__
@@ -299,6 +302,24 @@ struct gcc_dcas_x86
         );
         return v;
 #else // defined(__PIC__)
+#if defined(BOOST_ATOMIC_DETAIL_NO_ASM_AX_DX_PAIRS)
+        uint32_t old_bits[2];
+        __asm__ __volatile__
+        (
+            "movl %[dest_lo], %%eax\n\t"
+            "movl %[dest_hi], %%edx\n\t"
+            ".align 16\n\t"
+            "1: lock; cmpxchg8b %[dest_lo]\n\t"
+            "jne 1b\n\t"
+            : "=&a" (old_bits[0]), "=&d" (old_bits[1]), [dest_lo] "+m" (storage), [dest_hi] "+m" (reinterpret_cast< volatile uint32_t* >(&storage)[1])
+            : "b" ((uint32_t)v), "c" ((uint32_t)(v >> 32))
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
+        );
+
+        storage_type old_value;
+        BOOST_ATOMIC_DETAIL_MEMCPY(&old_value, old_bits, sizeof(old_value));
+        return old_value;
+#else // defined(BOOST_ATOMIC_DETAIL_NO_ASM_AX_DX_PAIRS)
         storage_type old_value;
         __asm__ __volatile__
         (
@@ -312,8 +333,8 @@ struct gcc_dcas_x86
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
         return old_value;
+#endif // defined(BOOST_ATOMIC_DETAIL_NO_ASM_AX_DX_PAIRS)
 #endif // defined(__PIC__)
-#endif // defined(__clang__)
     }
 };
 
@@ -350,8 +371,8 @@ struct gcc_dcas_x86_64
         // Clang cannot allocate rax:rdx register pairs but it has sync intrinsics
         storage_type value = storage_type();
         return __sync_val_compare_and_swap(&storage, value, value);
-#elif defined(BOOST_ATOMIC_DETAIL_NO_ASM_RAX_RDX_PAIRS)
-        // GCC 4.4 can't allocate rax:rdx register pair either but it also doesn't support 128-bit __sync_val_compare_and_swap
+#elif defined(BOOST_ATOMIC_DETAIL_NO_ASM_AX_DX_PAIRS)
+        // Some compilers can't allocate rax:rdx register pair either and also don't support 128-bit __sync_val_compare_and_swap
         uint64_t value_bits[2];
 
         // We don't care for comparison result here; the previous value will be stored into value anyway.
@@ -369,7 +390,7 @@ struct gcc_dcas_x86_64
         storage_type value;
         BOOST_ATOMIC_DETAIL_MEMCPY(&value, value_bits, sizeof(value));
         return value;
-#else // defined(BOOST_ATOMIC_DETAIL_NO_ASM_RAX_RDX_PAIRS)
+#else // defined(BOOST_ATOMIC_DETAIL_NO_ASM_AX_DX_PAIRS)
         storage_type value;
 
         // We don't care for comparison result here; the previous value will be stored into value anyway.
@@ -398,9 +419,9 @@ struct gcc_dcas_x86_64
         expected = __sync_val_compare_and_swap(&storage, old_expected, desired);
         return expected == old_expected;
 
-#elif defined(BOOST_ATOMIC_DETAIL_NO_ASM_RAX_RDX_PAIRS)
+#elif defined(BOOST_ATOMIC_DETAIL_NO_ASM_AX_DX_PAIRS)
 
-        // GCC 4.4 can't allocate rax:rdx register pair either but it also doesn't support 128-bit __sync_val_compare_and_swap
+        // Some compilers can't allocate rax:rdx register pair either but also don't support 128-bit __sync_val_compare_and_swap
         bool success;
         __asm__ __volatile__
         (
@@ -413,7 +434,7 @@ struct gcc_dcas_x86_64
 
         return success;
 
-#else // defined(BOOST_ATOMIC_DETAIL_NO_ASM_RAX_RDX_PAIRS)
+#else // defined(BOOST_ATOMIC_DETAIL_NO_ASM_AX_DX_PAIRS)
 
         bool success;
 #if defined(BOOST_ATOMIC_DETAIL_ASM_HAS_FLAG_OUTPUTS)
@@ -442,7 +463,7 @@ struct gcc_dcas_x86_64
 
         return success;
 
-#endif // defined(BOOST_ATOMIC_DETAIL_NO_ASM_RAX_RDX_PAIRS)
+#endif // defined(BOOST_ATOMIC_DETAIL_NO_ASM_AX_DX_PAIRS)
     }
 
     static BOOST_FORCEINLINE bool compare_exchange_weak(
@@ -453,18 +474,7 @@ struct gcc_dcas_x86_64
 
     static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
-#if defined(__clang__)
-        // Clang cannot allocate eax:edx register pairs but it has sync intrinsics
-        storage_type old_val = storage;
-        while (true)
-        {
-            storage_type val = __sync_val_compare_and_swap(&storage, old_val, v);
-            if (val == old_val)
-                return val;
-            old_val = val;
-        }
-#elif defined(BOOST_ATOMIC_DETAIL_NO_ASM_RAX_RDX_PAIRS)
-        // GCC 4.4 can't allocate rax:rdx register pair either but it also doesn't support 128-bit __sync_val_compare_and_swap
+#if defined(BOOST_ATOMIC_DETAIL_NO_ASM_AX_DX_PAIRS)
         uint64_t old_bits[2];
         __asm__ __volatile__
         (
@@ -475,13 +485,13 @@ struct gcc_dcas_x86_64
             "jne 1b\n\t"
             : [dest_lo] "+m" (storage), [dest_hi] "+m" (reinterpret_cast< volatile uint64_t* >(&storage)[1]), "=&a" (old_bits[0]), "=&d" (old_bits[1])
             : "b" (reinterpret_cast< const uint64_t* >(&v)[0]), "c" (reinterpret_cast< const uint64_t* >(&v)[1])
-            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory", "rax", "rdx"
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
 
         storage_type old_value;
         BOOST_ATOMIC_DETAIL_MEMCPY(&old_value, old_bits, sizeof(old_value));
         return old_value;
-#else // defined(BOOST_ATOMIC_DETAIL_NO_ASM_RAX_RDX_PAIRS)
+#else // defined(BOOST_ATOMIC_DETAIL_NO_ASM_AX_DX_PAIRS)
         storage_type old_value;
         __asm__ __volatile__
         (
