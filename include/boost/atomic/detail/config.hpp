@@ -62,7 +62,13 @@
 
 #if (defined(__i386__) || defined(__x86_64__)) && (defined(__clang__) || (defined(BOOST_GCC) && (BOOST_GCC+0) < 40700) || defined(__SUNPRO_CC))
 // This macro indicates that the compiler does not support allocating eax:edx or rax:rdx register pairs ("A") in asm blocks
-#define BOOST_ATOMIC_DETAIL_NO_ASM_AX_DX_PAIRS
+#define BOOST_ATOMIC_DETAIL_X86_NO_ASM_AX_DX_PAIRS
+#endif
+
+#if defined(__i386__) && defined(__PIC__) && !(defined(__clang__) || (defined(BOOST_GCC) && (BOOST_GCC+0) >= 50100))
+// This macro indicates that asm blocks should preserve ebx value unchanged. Some compilers are able to maintain ebx themselves
+// around the asm blocks. For those compilers we don't need to save/restore ebx in asm blocks.
+#define BOOST_ATOMIC_DETAIL_X86_ASM_PRESERVE_EBX
 #endif
 
 #if defined(BOOST_NO_CXX11_HDR_TYPE_TRAITS)

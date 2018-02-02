@@ -21,7 +21,7 @@
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/storage_type.hpp>
 #include <boost/atomic/capabilities.hpp>
-#if defined(BOOST_ATOMIC_DETAIL_NO_ASM_AX_DX_PAIRS) && !defined(BOOST_ATOMIC_DETAIL_HAS_BUILTIN_MEMCPY)
+#if defined(BOOST_ATOMIC_DETAIL_X86_NO_ASM_AX_DX_PAIRS) && !defined(BOOST_ATOMIC_DETAIL_HAS_BUILTIN_MEMCPY)
 #include <cstring>
 #endif
 
@@ -32,6 +32,14 @@
 namespace boost {
 namespace atomics {
 namespace detail {
+
+// Note: In the 32-bit PIC code guarded with BOOST_ATOMIC_DETAIL_X86_ASM_PRESERVE_EBX below we have to avoid using memory
+// operand constraints because the compiler may choose to use ebx as the base register for that operand. At least, clang
+// is known to do that. For this reason we have to pre-compute a pointer to storage and pass it in edi. For the same reason
+// we cannot save ebx to the stack with a mov instruction, so we use esi as a scratch register and restore it afterwards.
+// Alternatively, we could push/pop the register to the stack, but exchanging the registers is faster.
+// The need to pass a pointer in edi is a bit wasteful because normally the memory operand would use a base pointer
+// with an offset (e.g. `this` + offset). But unfortunately, there seems to be no way around it.
 
 #if defined(BOOST_ATOMIC_DETAIL_X86_HAS_CMPXCHG8B)
 
@@ -80,23 +88,22 @@ struct gcc_dcas_x86
         }
         else
         {
-#if defined(__PIC__)
-            uint32_t scratch;
+#if defined(BOOST_ATOMIC_DETAIL_X86_ASM_PRESERVE_EBX)
             __asm__ __volatile__
             (
-                "movl %%ebx, %[scratch]\n\t"
+                "xchgl %%ebx, %%esi\n\t"
                 "movl %%eax, %%ebx\n\t"
-                "movl %[dest_lo], %%eax\n\t"
-                "movl %[dest_hi], %%edx\n\t"
+                "movl (%[dest]), %%eax\n\t"
+                "movl 4(%[dest]), %%edx\n\t"
                 ".align 16\n\t"
-                "1: lock; cmpxchg8b %[dest_lo]\n\t"
+                "1: lock; cmpxchg8b (%[dest])\n\t"
                 "jne 1b\n\t"
-                "movl %[scratch], %%ebx\n\t"
-                : [scratch] "=m" (scratch), [dest_lo] "=m" (storage), [dest_hi] "=m" (reinterpret_cast< volatile uint32_t* >(&storage)[1])
-                : "a" ((uint32_t)v), "c" ((uint32_t)(v >> 32))
+                "xchgl %%ebx, %%esi\n\t"
+                :
+                : "a" ((uint32_t)v), "c" ((uint32_t)(v >> 32)), [dest] "D" (&storage)
                 : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "edx", "memory"
             );
-#else // defined(__PIC__)
+#else // defined(BOOST_ATOMIC_DETAIL_X86_ASM_PRESERVE_EBX)
             __asm__ __volatile__
             (
                 "movl %[dest_lo], %%eax\n\t"
@@ -108,7 +115,7 @@ struct gcc_dcas_x86
                 : [value_lo] "b" ((uint32_t)v), "c" ((uint32_t)(v >> 32))
                 : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "eax", "edx", "memory"
             );
-#endif // defined(__PIC__)
+#endif // defined(BOOST_ATOMIC_DETAIL_X86_ASM_PRESERVE_EBX)
         }
     }
 
@@ -154,7 +161,7 @@ struct gcc_dcas_x86
 #if defined(__clang__)
             // Clang cannot allocate eax:edx register pairs but it has sync intrinsics
             value = __sync_val_compare_and_swap(&storage, (storage_type)0, (storage_type)0);
-#elif defined(BOOST_ATOMIC_DETAIL_NO_ASM_AX_DX_PAIRS)
+#elif defined(BOOST_ATOMIC_DETAIL_X86_NO_ASM_AX_DX_PAIRS)
             uint32_t value_bits[2];
             // We don't care for comparison result here; the previous value will be stored into value anyway.
             // Also we don't care for ebx and ecx values, they just have to be equal to eax and edx before cmpxchg8b.
@@ -196,54 +203,35 @@ struct gcc_dcas_x86
         expected = __sync_val_compare_and_swap(&storage, old_expected, desired);
         return expected == old_expected;
 
-#elif defined(__PIC__)
+#elif defined(BOOST_ATOMIC_DETAIL_X86_ASM_PRESERVE_EBX)
 
-        // Make sure ebx is saved and restored properly in case
-        // of position independent code. To make this work
-        // setup register constraints such that ebx can not be
-        // used by accident e.g. as base address for the variable
-        // to be modified. Accessing "scratch" should always be okay,
-        // as it can only be placed on the stack (and therefore
-        // accessed through ebp or esp only).
-        //
-        // In theory, could push/pop ebx onto/off the stack, but movs
-        // to a prepared stack slot turn out to be faster.
-
-        uint32_t scratch;
         bool success;
 #if defined(BOOST_ATOMIC_DETAIL_ASM_HAS_FLAG_OUTPUTS)
         __asm__ __volatile__
         (
-            "movl %%ebx, %[scratch]\n\t"
-            "movl %[desired_lo], %%ebx\n\t"
+            "xchgl %%ebx, %[desired_lo]\n\t"
             "lock; cmpxchg8b (%[dest])\n\t"
-            "movl %[scratch], %%ebx\n\t"
-            : "+A" (expected), [scratch] "=m" (scratch), [success] "=@ccz" (success)
-            : [desired_lo] "Sm" ((uint32_t)desired), "c" ((uint32_t)(desired >> 32)), [dest] "D" (&storage)
+            "xchgl %%ebx, %[desired_lo]\n\t"
+            : "+A" (expected), [success] "=@ccz" (success)
+            : [desired_lo] "S" ((uint32_t)desired), "c" ((uint32_t)(desired >> 32)), [dest] "D" (&storage)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
 #else // defined(BOOST_ATOMIC_DETAIL_ASM_HAS_FLAG_OUTPUTS)
         __asm__ __volatile__
         (
-            "movl %%ebx, %[scratch]\n\t"
-            "movl %[desired_lo], %%ebx\n\t"
+            "xchgl %%ebx, %[desired_lo]\n\t"
             "lock; cmpxchg8b (%[dest])\n\t"
-            "movl %[scratch], %%ebx\n\t"
+            "xchgl %%ebx, %[desired_lo]\n\t"
             "sete %[success]\n\t"
-#if !defined(BOOST_ATOMIC_DETAIL_NO_ASM_CONSTRAINT_ALTERNATIVES)
-            : "+A,A,A,A,A,A" (expected), [scratch] "=m,m,m,m,m,m" (scratch), [success] "=q,m,q,m,q,m" (success)
-            : [desired_lo] "S,S,D,D,m,m" ((uint32_t)desired), "c,c,c,c,c,c" ((uint32_t)(desired >> 32)), [dest] "D,D,S,S,D,D" (&storage)
-#else
-            : "+A" (expected), [scratch] "=m" (scratch), [success] "=q" (success)
+            : "+A" (expected), [success] "=qm" (success)
             : [desired_lo] "S" ((uint32_t)desired), "c" ((uint32_t)(desired >> 32)), [dest] "D" (&storage)
-#endif
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
 #endif // defined(BOOST_ATOMIC_DETAIL_ASM_HAS_FLAG_OUTPUTS)
 
         return success;
 
-#else // defined(__PIC__)
+#else // defined(BOOST_ATOMIC_DETAIL_X86_ASM_PRESERVE_EBX)
 
         bool success;
 #if defined(BOOST_ATOMIC_DETAIL_ASM_HAS_FLAG_OUTPUTS)
@@ -272,7 +260,7 @@ struct gcc_dcas_x86
 
         return success;
 
-#endif // defined(__PIC__)
+#endif // defined(BOOST_ATOMIC_DETAIL_X86_ASM_PRESERVE_EBX)
     }
 
     static BOOST_FORCEINLINE bool compare_exchange_weak(
@@ -283,26 +271,45 @@ struct gcc_dcas_x86
 
     static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
-#if defined(__PIC__)
-        uint32_t scratch;
+#if defined(BOOST_ATOMIC_DETAIL_X86_ASM_PRESERVE_EBX)
+#if defined(BOOST_ATOMIC_DETAIL_X86_NO_ASM_AX_DX_PAIRS)
+        uint32_t old_bits[2];
         __asm__ __volatile__
         (
-            "movl %%ebx, %[scratch]\n\t"
-            "movl %%eax, %%ebx\n\t"
-            "movl %%edx, %%ecx\n\t"
-            "movl %[dest_lo], %%eax\n\t"
-            "movl %[dest_hi], %%edx\n\t"
+            "xchgl %%ebx, %%esi\n\t"
+            "movl (%[dest]), %%eax\n\t"
+            "movl 4(%[dest]), %%edx\n\t"
             ".align 16\n\t"
-            "1: lock; cmpxchg8b %[dest_lo]\n\t"
+            "1: lock; cmpxchg8b (%[dest])\n\t"
             "jne 1b\n\t"
-            "movl %[scratch], %%ebx\n\t"
-            : "+A" (v), [scratch] "=m" (scratch), [dest_lo] "+m" (storage), [dest_hi] "+m" (reinterpret_cast< volatile uint32_t* >(&storage)[1])
-            :
-            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "ecx", "memory"
+            "xchgl %%ebx, %%esi\n\t"
+            : "=a" (old_bits[0]), "=d" (old_bits[1])
+            : "S" ((uint32_t)v), "c" ((uint32_t)(v >> 32)), [dest] "D" (&storage)
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
-        return v;
-#else // defined(__PIC__)
-#if defined(BOOST_ATOMIC_DETAIL_NO_ASM_AX_DX_PAIRS)
+
+        storage_type old_value;
+        BOOST_ATOMIC_DETAIL_MEMCPY(&old_value, old_bits, sizeof(old_value));
+        return old_value;
+#else // defined(BOOST_ATOMIC_DETAIL_X86_NO_ASM_AX_DX_PAIRS)
+        storage_type old_value;
+        __asm__ __volatile__
+        (
+            "xchgl %%ebx, %%esi\n\t"
+            "movl (%[dest]), %%eax\n\t"
+            "movl 4(%[dest]), %%edx\n\t"
+            ".align 16\n\t"
+            "1: lock; cmpxchg8b (%[dest])\n\t"
+            "jne 1b\n\t"
+            "xchgl %%ebx, %%esi\n\t"
+            : "=A" (old_value)
+            : "S" ((uint32_t)v), "c" ((uint32_t)(v >> 32)), [dest] "D" (&storage)
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
+        );
+        return old_value;
+#endif // defined(BOOST_ATOMIC_DETAIL_X86_NO_ASM_AX_DX_PAIRS)
+#else // defined(BOOST_ATOMIC_DETAIL_X86_ASM_PRESERVE_EBX)
+#if defined(BOOST_ATOMIC_DETAIL_X86_NO_ASM_AX_DX_PAIRS)
         uint32_t old_bits[2];
         __asm__ __volatile__
         (
@@ -319,7 +326,7 @@ struct gcc_dcas_x86
         storage_type old_value;
         BOOST_ATOMIC_DETAIL_MEMCPY(&old_value, old_bits, sizeof(old_value));
         return old_value;
-#else // defined(BOOST_ATOMIC_DETAIL_NO_ASM_AX_DX_PAIRS)
+#else // defined(BOOST_ATOMIC_DETAIL_X86_NO_ASM_AX_DX_PAIRS)
         storage_type old_value;
         __asm__ __volatile__
         (
@@ -333,8 +340,8 @@ struct gcc_dcas_x86
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
         return old_value;
-#endif // defined(BOOST_ATOMIC_DETAIL_NO_ASM_AX_DX_PAIRS)
-#endif // defined(__PIC__)
+#endif // defined(BOOST_ATOMIC_DETAIL_X86_NO_ASM_AX_DX_PAIRS)
+#endif // defined(BOOST_ATOMIC_DETAIL_X86_ASM_PRESERVE_EBX)
     }
 };
 
@@ -371,7 +378,7 @@ struct gcc_dcas_x86_64
         // Clang cannot allocate rax:rdx register pairs but it has sync intrinsics
         storage_type value = storage_type();
         return __sync_val_compare_and_swap(&storage, value, value);
-#elif defined(BOOST_ATOMIC_DETAIL_NO_ASM_AX_DX_PAIRS)
+#elif defined(BOOST_ATOMIC_DETAIL_X86_NO_ASM_AX_DX_PAIRS)
         // Some compilers can't allocate rax:rdx register pair either and also don't support 128-bit __sync_val_compare_and_swap
         uint64_t value_bits[2];
 
@@ -390,7 +397,7 @@ struct gcc_dcas_x86_64
         storage_type value;
         BOOST_ATOMIC_DETAIL_MEMCPY(&value, value_bits, sizeof(value));
         return value;
-#else // defined(BOOST_ATOMIC_DETAIL_NO_ASM_AX_DX_PAIRS)
+#else // defined(BOOST_ATOMIC_DETAIL_X86_NO_ASM_AX_DX_PAIRS)
         storage_type value;
 
         // We don't care for comparison result here; the previous value will be stored into value anyway.
@@ -419,7 +426,7 @@ struct gcc_dcas_x86_64
         expected = __sync_val_compare_and_swap(&storage, old_expected, desired);
         return expected == old_expected;
 
-#elif defined(BOOST_ATOMIC_DETAIL_NO_ASM_AX_DX_PAIRS)
+#elif defined(BOOST_ATOMIC_DETAIL_X86_NO_ASM_AX_DX_PAIRS)
 
         // Some compilers can't allocate rax:rdx register pair either but also don't support 128-bit __sync_val_compare_and_swap
         bool success;
@@ -434,7 +441,7 @@ struct gcc_dcas_x86_64
 
         return success;
 
-#else // defined(BOOST_ATOMIC_DETAIL_NO_ASM_AX_DX_PAIRS)
+#else // defined(BOOST_ATOMIC_DETAIL_X86_NO_ASM_AX_DX_PAIRS)
 
         bool success;
 #if defined(BOOST_ATOMIC_DETAIL_ASM_HAS_FLAG_OUTPUTS)
@@ -463,7 +470,7 @@ struct gcc_dcas_x86_64
 
         return success;
 
-#endif // defined(BOOST_ATOMIC_DETAIL_NO_ASM_AX_DX_PAIRS)
+#endif // defined(BOOST_ATOMIC_DETAIL_X86_NO_ASM_AX_DX_PAIRS)
     }
 
     static BOOST_FORCEINLINE bool compare_exchange_weak(
@@ -474,7 +481,7 @@ struct gcc_dcas_x86_64
 
     static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
-#if defined(BOOST_ATOMIC_DETAIL_NO_ASM_AX_DX_PAIRS)
+#if defined(BOOST_ATOMIC_DETAIL_X86_NO_ASM_AX_DX_PAIRS)
         uint64_t old_bits[2];
         __asm__ __volatile__
         (
@@ -491,7 +498,7 @@ struct gcc_dcas_x86_64
         storage_type old_value;
         BOOST_ATOMIC_DETAIL_MEMCPY(&old_value, old_bits, sizeof(old_value));
         return old_value;
-#else // defined(BOOST_ATOMIC_DETAIL_NO_ASM_AX_DX_PAIRS)
+#else // defined(BOOST_ATOMIC_DETAIL_X86_NO_ASM_AX_DX_PAIRS)
         storage_type old_value;
         __asm__ __volatile__
         (
