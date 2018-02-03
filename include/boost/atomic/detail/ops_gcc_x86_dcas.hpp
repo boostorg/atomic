@@ -48,6 +48,7 @@ struct gcc_dcas_x86
 {
     typedef typename make_storage_type< 8u, Signed >::type storage_type;
     typedef typename make_storage_type< 8u, Signed >::aligned aligned_storage_type;
+    typedef uint32_t BOOST_ATOMIC_DETAIL_MAY_ALIAS aliasing_uint32_t;
 
     static BOOST_CONSTEXPR_OR_CONST bool is_always_lock_free = true;
 
@@ -111,7 +112,7 @@ struct gcc_dcas_x86
                 ".align 16\n\t"
                 "1: lock; cmpxchg8b %[dest_lo]\n\t"
                 "jne 1b\n\t"
-                : [dest_lo] "=m" (storage), [dest_hi] "=m" (reinterpret_cast< volatile uint32_t* >(&storage)[1])
+                : [dest_lo] "=m" (storage), [dest_hi] "=m" (reinterpret_cast< volatile aliasing_uint32_t* >(&storage)[1])
                 : [value_lo] "b" ((uint32_t)v), "c" ((uint32_t)(v >> 32))
                 : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "eax", "edx", "memory"
             );
@@ -325,7 +326,7 @@ struct gcc_dcas_x86
             ".align 16\n\t"
             "1: lock; cmpxchg8b %[dest_lo]\n\t"
             "jne 1b\n\t"
-            : "=&a" (old_bits[0]), "=&d" (old_bits[1]), [dest_lo] "+m" (storage), [dest_hi] "+m" (reinterpret_cast< volatile uint32_t* >(&storage)[1])
+            : "=&a" (old_bits[0]), "=&d" (old_bits[1]), [dest_lo] "+m" (storage), [dest_hi] "+m" (reinterpret_cast< volatile aliasing_uint32_t* >(&storage)[1])
             : "b" ((uint32_t)v), "c" ((uint32_t)(v >> 32))
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
@@ -344,7 +345,7 @@ struct gcc_dcas_x86
             ".align 16\n\t"
             "1: lock; cmpxchg8b %[dest_lo]\n\t"
             "jne 1b\n\t"
-            : "=&A" (old_value), [dest_lo] "+m" (storage), [dest_hi] "+m" (reinterpret_cast< volatile uint32_t* >(&storage)[1])
+            : "=&A" (old_value), [dest_lo] "+m" (storage), [dest_hi] "+m" (reinterpret_cast< volatile aliasing_uint32_t* >(&storage)[1])
             : "b" ((uint32_t)v), "c" ((uint32_t)(v >> 32))
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
@@ -364,6 +365,7 @@ struct gcc_dcas_x86_64
 {
     typedef typename make_storage_type< 16u, Signed >::type storage_type;
     typedef typename make_storage_type< 16u, Signed >::aligned aligned_storage_type;
+    typedef uint64_t BOOST_ATOMIC_DETAIL_MAY_ALIAS aliasing_uint64_t;
 
     static BOOST_CONSTEXPR_OR_CONST bool is_always_lock_free = true;
 
@@ -376,8 +378,8 @@ struct gcc_dcas_x86_64
             ".align 16\n\t"
             "1: lock; cmpxchg16b %[dest_lo]\n\t"
             "jne 1b\n\t"
-            : [dest_lo] "=m" (storage), [dest_hi] "=m" (reinterpret_cast< volatile uint64_t* >(&storage)[1])
-            : "b" (reinterpret_cast< const uint64_t* >(&v)[0]), "c" (reinterpret_cast< const uint64_t* >(&v)[1])
+            : [dest_lo] "=m" (storage), [dest_hi] "=m" (reinterpret_cast< volatile aliasing_uint64_t* >(&storage)[1])
+            : "b" (reinterpret_cast< const aliasing_uint64_t* >(&v)[0]), "c" (reinterpret_cast< const aliasing_uint64_t* >(&v)[1])
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "rax", "rdx", "memory"
         );
     }
@@ -450,8 +452,8 @@ struct gcc_dcas_x86_64
         (
             "lock; cmpxchg16b %[dest]\n\t"
             "sete %[success]\n\t"
-            : [dest] "+m" (storage), "+a" (reinterpret_cast< uint64_t* >(&expected)[0]), "+d" (reinterpret_cast< uint64_t* >(&expected)[1]), [success] "=q" (success)
-            : "b" (reinterpret_cast< const uint64_t* >(&desired)[0]), "c" (reinterpret_cast< const uint64_t* >(&desired)[1])
+            : [dest] "+m" (storage), "+a" (reinterpret_cast< aliasing_uint64_t* >(&expected)[0]), "+d" (reinterpret_cast< aliasing_uint64_t* >(&expected)[1]), [success] "=q" (success)
+            : "b" (reinterpret_cast< const aliasing_uint64_t* >(&desired)[0]), "c" (reinterpret_cast< const aliasing_uint64_t* >(&desired)[1])
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
 
@@ -466,7 +468,7 @@ struct gcc_dcas_x86_64
         (
             "lock; cmpxchg16b %[dest]\n\t"
             : "+A" (expected), [dest] "+m" (storage), "=@ccz" (success)
-            : "b" (reinterpret_cast< const uint64_t* >(&desired)[0]), "c" (reinterpret_cast< const uint64_t* >(&desired)[1])
+            : "b" (reinterpret_cast< const aliasing_uint64_t* >(&desired)[0]), "c" (reinterpret_cast< const aliasing_uint64_t* >(&desired)[1])
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
 #else // defined(BOOST_ATOMIC_DETAIL_ASM_HAS_FLAG_OUTPUTS)
@@ -476,10 +478,10 @@ struct gcc_dcas_x86_64
             "sete %[success]\n\t"
 #if !defined(BOOST_ATOMIC_DETAIL_NO_ASM_CONSTRAINT_ALTERNATIVES)
             : "+A,A" (expected), [dest] "+m,m" (storage), [success] "=q,m" (success)
-            : "b,b" (reinterpret_cast< const uint64_t* >(&desired)[0]), "c,c" (reinterpret_cast< const uint64_t* >(&desired)[1])
+            : "b,b" (reinterpret_cast< const aliasing_uint64_t* >(&desired)[0]), "c,c" (reinterpret_cast< const aliasing_uint64_t* >(&desired)[1])
 #else
             : "+A" (expected), [dest] "+m" (storage), [success] "=q" (success)
-            : "b" (reinterpret_cast< const uint64_t* >(&desired)[0]), "c" (reinterpret_cast< const uint64_t* >(&desired)[1])
+            : "b" (reinterpret_cast< const aliasing_uint64_t* >(&desired)[0]), "c" (reinterpret_cast< const aliasing_uint64_t* >(&desired)[1])
 #endif
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
@@ -507,8 +509,8 @@ struct gcc_dcas_x86_64
             ".align 16\n\t"
             "1: lock; cmpxchg16b %[dest_lo]\n\t"
             "jne 1b\n\t"
-            : [dest_lo] "+m" (storage), [dest_hi] "+m" (reinterpret_cast< volatile uint64_t* >(&storage)[1]), "=&a" (old_bits[0]), "=&d" (old_bits[1])
-            : "b" (reinterpret_cast< const uint64_t* >(&v)[0]), "c" (reinterpret_cast< const uint64_t* >(&v)[1])
+            : [dest_lo] "+m" (storage), [dest_hi] "+m" (reinterpret_cast< volatile aliasing_uint64_t* >(&storage)[1]), "=&a" (old_bits[0]), "=&d" (old_bits[1])
+            : "b" (reinterpret_cast< const aliasing_uint64_t* >(&v)[0]), "c" (reinterpret_cast< const aliasing_uint64_t* >(&v)[1])
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
 
@@ -524,8 +526,8 @@ struct gcc_dcas_x86_64
             ".align 16\n\t"
             "1: lock; cmpxchg16b %[dest_lo]\n\t"
             "jne 1b\n\t"
-            : "=&A" (old_value), [dest_lo] "+m" (storage), [dest_hi] "+m" (reinterpret_cast< volatile uint64_t* >(&storage)[1])
-            : "b" (reinterpret_cast< const uint64_t* >(&v)[0]), "c" (reinterpret_cast< const uint64_t* >(&v)[1])
+            : "=&A" (old_value), [dest_lo] "+m" (storage), [dest_hi] "+m" (reinterpret_cast< volatile aliasing_uint64_t* >(&storage)[1])
+            : "b" (reinterpret_cast< const aliasing_uint64_t* >(&v)[0]), "c" (reinterpret_cast< const aliasing_uint64_t* >(&v)[1])
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
 
