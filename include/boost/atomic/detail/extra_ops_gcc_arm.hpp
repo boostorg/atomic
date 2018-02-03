@@ -3,7 +3,7 @@
  * (See accompanying file LICENSE_1_0.txt or copy at
  * http://www.boost.org/LICENSE_1_0.txt)
  *
- * Copyright (c) 2017 Andrey Semashev
+ * Copyright (c) 2017 - 2018 Andrey Semashev
  */
 /*!
  * \file   atomic/detail/extra_ops_gcc_arm.hpp
@@ -104,6 +104,136 @@ struct extra_operations< Base, 1u, Signed > :
     {
         fetch_complement(storage, order);
     }
+
+    static BOOST_FORCEINLINE bool add_and_test(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    {
+        gcc_arm_operations_base::fence_before(order);
+        uint32_t tmp;
+        extended_storage_type original, result;
+        __asm__ __volatile__
+        (
+            BOOST_ATOMIC_DETAIL_ARM_ASM_START(%[tmp])
+            "1:\n"
+            "ldrexb   %[original], %[storage]\n"           // original = *(&storage)
+            "add      %[result], %[original], %[value]\n"  // result = original + value
+            "strexb   %[tmp], %[result], %[storage]\n"     // *(&storage) = result, tmp = store failed
+            "teq      %[tmp], #0\n"                        // flags = tmp==0
+            "bne      1b\n"                                // if (!flags.equal) goto retry
+            BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
+            : [original] "=&r" (original),  // %0
+              [result] "=&r" (result),      // %1
+              [tmp] "=&l" (tmp),            // %2
+              [storage] "+Q" (storage)      // %3
+            : [value] "Ir" ((extended_storage_type)v)              // %4
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
+        );
+        gcc_arm_operations_base::fence_after(order);
+        return !!static_cast< storage_type >(result);
+    }
+
+    static BOOST_FORCEINLINE bool sub_and_test(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    {
+        gcc_arm_operations_base::fence_before(order);
+        uint32_t tmp;
+        extended_storage_type original, result;
+        __asm__ __volatile__
+        (
+            BOOST_ATOMIC_DETAIL_ARM_ASM_START(%[tmp])
+            "1:\n"
+            "ldrexb   %[original], %[storage]\n"           // original = *(&storage)
+            "sub      %[result], %[original], %[value]\n"  // result = original - value
+            "strexb   %[tmp], %[result], %[storage]\n"     // *(&storage) = result, tmp = store failed
+            "teq      %[tmp], #0\n"                        // flags = tmp==0
+            "bne      1b\n"                                // if (!flags.equal) goto retry
+            BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
+            : [original] "=&r" (original),  // %0
+              [result] "=&r" (result),      // %1
+              [tmp] "=&l" (tmp),            // %2
+              [storage] "+Q" (storage)      // %3
+            : [value] "Ir" ((extended_storage_type)v)              // %4
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
+        );
+        gcc_arm_operations_base::fence_after(order);
+        return !!static_cast< storage_type >(result);
+    }
+
+    static BOOST_FORCEINLINE bool and_and_test(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    {
+        gcc_arm_operations_base::fence_before(order);
+        uint32_t tmp;
+        extended_storage_type original, result;
+        __asm__ __volatile__
+        (
+            BOOST_ATOMIC_DETAIL_ARM_ASM_START(%[tmp])
+            "1:\n"
+            "ldrexb   %[original], %[storage]\n"           // original = *(&storage)
+            "and      %[result], %[original], %[value]\n"  // result = original & value
+            "strexb   %[tmp], %[result], %[storage]\n"     // *(&storage) = result, tmp = store failed
+            "teq      %[tmp], #0\n"                        // flags = tmp==0
+            "bne      1b\n"                                // if (!flags.equal) goto retry
+            BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
+            : [original] "=&r" (original),  // %0
+              [result] "=&r" (result),      // %1
+              [tmp] "=&l" (tmp),            // %2
+              [storage] "+Q" (storage)      // %3
+            : [value] "Ir" ((extended_storage_type)v)              // %4
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
+        );
+        gcc_arm_operations_base::fence_after(order);
+        return !!result;
+    }
+
+    static BOOST_FORCEINLINE bool or_and_test(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    {
+        gcc_arm_operations_base::fence_before(order);
+        uint32_t tmp;
+        extended_storage_type original, result;
+        __asm__ __volatile__
+        (
+            BOOST_ATOMIC_DETAIL_ARM_ASM_START(%[tmp])
+            "1:\n"
+            "ldrexb   %[original], %[storage]\n"           // original = *(&storage)
+            "orr      %[result], %[original], %[value]\n"  // result = original | value
+            "strexb   %[tmp], %[result], %[storage]\n"     // *(&storage) = result, tmp = store failed
+            "teq      %[tmp], #0\n"                        // flags = tmp==0
+            "bne      1b\n"                                // if (!flags.equal) goto retry
+            BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
+            : [original] "=&r" (original),  // %0
+              [result] "=&r" (result),      // %1
+              [tmp] "=&l" (tmp),            // %2
+              [storage] "+Q" (storage)      // %3
+            : [value] "Ir" ((extended_storage_type)v)              // %4
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
+        );
+        gcc_arm_operations_base::fence_after(order);
+        return !!result;
+    }
+
+    static BOOST_FORCEINLINE bool xor_and_test(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    {
+        gcc_arm_operations_base::fence_before(order);
+        uint32_t tmp;
+        extended_storage_type original, result;
+        __asm__ __volatile__
+        (
+            BOOST_ATOMIC_DETAIL_ARM_ASM_START(%[tmp])
+            "1:\n"
+            "ldrexb   %[original], %[storage]\n"           // original = *(&storage)
+            "eor      %[result], %[original], %[value]\n"  // result = original ^ value
+            "strexb   %[tmp], %[result], %[storage]\n"     // *(&storage) = result, tmp = store failed
+            "teq      %[tmp], #0\n"                        // flags = tmp==0
+            "bne      1b\n"                                // if (!flags.equal) goto retry
+            BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
+            : [original] "=&r" (original),  // %0
+              [result] "=&r" (result),      // %1
+              [tmp] "=&l" (tmp),            // %2
+              [storage] "+Q" (storage)      // %3
+            : [value] "Ir" ((extended_storage_type)v)              // %4
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
+        );
+        gcc_arm_operations_base::fence_after(order);
+        return !!result;
+    }
 };
 
 #endif // defined(BOOST_ATOMIC_DETAIL_ARM_HAS_LDREXB_STREXB)
@@ -179,6 +309,136 @@ struct extra_operations< Base, 2u, Signed > :
     {
         fetch_complement(storage, order);
     }
+
+    static BOOST_FORCEINLINE bool add_and_test(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    {
+        gcc_arm_operations_base::fence_before(order);
+        uint32_t tmp;
+        extended_storage_type original, result;
+        __asm__ __volatile__
+        (
+            BOOST_ATOMIC_DETAIL_ARM_ASM_START(%[tmp])
+            "1:\n"
+            "ldrexh   %[original], %[storage]\n"           // original = *(&storage)
+            "add      %[result], %[original], %[value]\n"  // result = original + value
+            "strexh   %[tmp], %[result], %[storage]\n"     // *(&storage) = result, tmp = store failed
+            "teq      %[tmp], #0\n"                        // flags = tmp==0
+            "bne      1b\n"                                // if (!flags.equal) goto retry
+            BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
+            : [original] "=&r" (original),  // %0
+              [result] "=&r" (result),      // %1
+              [tmp] "=&l" (tmp),            // %2
+              [storage] "+Q" (storage)      // %3
+            : [value] "Ir" ((extended_storage_type)v)              // %4
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
+        );
+        gcc_arm_operations_base::fence_after(order);
+        return !!static_cast< storage_type >(result);
+    }
+
+    static BOOST_FORCEINLINE bool sub_and_test(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    {
+        gcc_arm_operations_base::fence_before(order);
+        uint32_t tmp;
+        extended_storage_type original, result;
+        __asm__ __volatile__
+        (
+            BOOST_ATOMIC_DETAIL_ARM_ASM_START(%[tmp])
+            "1:\n"
+            "ldrexh   %[original], %[storage]\n"           // original = *(&storage)
+            "sub      %[result], %[original], %[value]\n"  // result = original - value
+            "strexh   %[tmp], %[result], %[storage]\n"     // *(&storage) = result, tmp = store failed
+            "teq      %[tmp], #0\n"                        // flags = tmp==0
+            "bne      1b\n"                                // if (!flags.equal) goto retry
+            BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
+            : [original] "=&r" (original),  // %0
+              [result] "=&r" (result),      // %1
+              [tmp] "=&l" (tmp),            // %2
+              [storage] "+Q" (storage)      // %3
+            : [value] "Ir" ((extended_storage_type)v)              // %4
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
+        );
+        gcc_arm_operations_base::fence_after(order);
+        return !!static_cast< storage_type >(result);
+    }
+
+    static BOOST_FORCEINLINE bool and_and_test(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    {
+        gcc_arm_operations_base::fence_before(order);
+        uint32_t tmp;
+        extended_storage_type original, result;
+        __asm__ __volatile__
+        (
+            BOOST_ATOMIC_DETAIL_ARM_ASM_START(%[tmp])
+            "1:\n"
+            "ldrexh   %[original], %[storage]\n"           // original = *(&storage)
+            "and      %[result], %[original], %[value]\n"  // result = original & value
+            "strexh   %[tmp], %[result], %[storage]\n"     // *(&storage) = result, tmp = store failed
+            "teq      %[tmp], #0\n"                        // flags = tmp==0
+            "bne      1b\n"                                // if (!flags.equal) goto retry
+            BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
+            : [original] "=&r" (original),  // %0
+              [result] "=&r" (result),      // %1
+              [tmp] "=&l" (tmp),            // %2
+              [storage] "+Q" (storage)      // %3
+            : [value] "Ir" ((extended_storage_type)v)              // %4
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
+        );
+        gcc_arm_operations_base::fence_after(order);
+        return !!result;
+    }
+
+    static BOOST_FORCEINLINE bool or_and_test(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    {
+        gcc_arm_operations_base::fence_before(order);
+        uint32_t tmp;
+        extended_storage_type original, result;
+        __asm__ __volatile__
+        (
+            BOOST_ATOMIC_DETAIL_ARM_ASM_START(%[tmp])
+            "1:\n"
+            "ldrexh   %[original], %[storage]\n"           // original = *(&storage)
+            "orr      %[result], %[original], %[value]\n"  // result = original | value
+            "strexh   %[tmp], %[result], %[storage]\n"     // *(&storage) = result, tmp = store failed
+            "teq      %[tmp], #0\n"                        // flags = tmp==0
+            "bne      1b\n"                                // if (!flags.equal) goto retry
+            BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
+            : [original] "=&r" (original),  // %0
+              [result] "=&r" (result),      // %1
+              [tmp] "=&l" (tmp),            // %2
+              [storage] "+Q" (storage)      // %3
+            : [value] "Ir" ((extended_storage_type)v)              // %4
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
+        );
+        gcc_arm_operations_base::fence_after(order);
+        return !!result;
+    }
+
+    static BOOST_FORCEINLINE bool xor_and_test(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    {
+        gcc_arm_operations_base::fence_before(order);
+        uint32_t tmp;
+        extended_storage_type original, result;
+        __asm__ __volatile__
+        (
+            BOOST_ATOMIC_DETAIL_ARM_ASM_START(%[tmp])
+            "1:\n"
+            "ldrexh   %[original], %[storage]\n"           // original = *(&storage)
+            "eor      %[result], %[original], %[value]\n"  // result = original ^ value
+            "strexh   %[tmp], %[result], %[storage]\n"     // *(&storage) = result, tmp = store failed
+            "teq      %[tmp], #0\n"                        // flags = tmp==0
+            "bne      1b\n"                                // if (!flags.equal) goto retry
+            BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
+            : [original] "=&r" (original),  // %0
+              [result] "=&r" (result),      // %1
+              [tmp] "=&l" (tmp),            // %2
+              [storage] "+Q" (storage)      // %3
+            : [value] "Ir" ((extended_storage_type)v)              // %4
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
+        );
+        gcc_arm_operations_base::fence_after(order);
+        return !!result;
+    }
 };
 
 #endif // defined(BOOST_ATOMIC_DETAIL_ARM_HAS_LDREXH_STREXH)
@@ -250,6 +510,136 @@ struct extra_operations< Base, 4u, Signed > :
     static BOOST_FORCEINLINE void opaque_complement(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
         fetch_complement(storage, order);
+    }
+
+    static BOOST_FORCEINLINE bool add_and_test(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    {
+        gcc_arm_operations_base::fence_before(order);
+        uint32_t tmp;
+        storage_type original, result;
+        __asm__ __volatile__
+        (
+            BOOST_ATOMIC_DETAIL_ARM_ASM_START(%[tmp])
+            "1:\n"
+            "ldrex   %[original], %[storage]\n"           // original = *(&storage)
+            "add     %[result], %[original], %[value]\n"  // result = original + value
+            "strex   %[tmp], %[result], %[storage]\n"     // *(&storage) = result, tmp = store failed
+            "teq     %[tmp], #0\n"                        // flags = tmp==0
+            "bne     1b\n"                                // if (!flags.equal) goto retry
+            BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
+            : [original] "=&r" (original),  // %0
+              [result] "=&r" (result),      // %1
+              [tmp] "=&l" (tmp),            // %2
+              [storage] "+Q" (storage)      // %3
+            : [value] "Ir" (v)              // %4
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
+        );
+        gcc_arm_operations_base::fence_after(order);
+        return !!result;
+    }
+
+    static BOOST_FORCEINLINE bool sub_and_test(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    {
+        gcc_arm_operations_base::fence_before(order);
+        uint32_t tmp;
+        storage_type original, result;
+        __asm__ __volatile__
+        (
+            BOOST_ATOMIC_DETAIL_ARM_ASM_START(%[tmp])
+            "1:\n"
+            "ldrex   %[original], %[storage]\n"           // original = *(&storage)
+            "sub     %[result], %[original], %[value]\n"  // result = original - value
+            "strex   %[tmp], %[result], %[storage]\n"     // *(&storage) = result, tmp = store failed
+            "teq     %[tmp], #0\n"                        // flags = tmp==0
+            "bne     1b\n"                                // if (!flags.equal) goto retry
+            BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
+            : [original] "=&r" (original),  // %0
+              [result] "=&r" (result),      // %1
+              [tmp] "=&l" (tmp),            // %2
+              [storage] "+Q" (storage)      // %3
+            : [value] "Ir" (v)              // %4
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
+        );
+        gcc_arm_operations_base::fence_after(order);
+        return !!result;
+    }
+
+    static BOOST_FORCEINLINE bool and_and_test(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    {
+        gcc_arm_operations_base::fence_before(order);
+        uint32_t tmp;
+        storage_type original, result;
+        __asm__ __volatile__
+        (
+            BOOST_ATOMIC_DETAIL_ARM_ASM_START(%[tmp])
+            "1:\n"
+            "ldrex   %[original], %[storage]\n"           // original = *(&storage)
+            "and     %[result], %[original], %[value]\n"  // result = original & value
+            "strex   %[tmp], %[result], %[storage]\n"     // *(&storage) = result, tmp = store failed
+            "teq     %[tmp], #0\n"                        // flags = tmp==0
+            "bne     1b\n"                                // if (!flags.equal) goto retry
+            BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
+            : [original] "=&r" (original),  // %0
+              [result] "=&r" (result),      // %1
+              [tmp] "=&l" (tmp),            // %2
+              [storage] "+Q" (storage)      // %3
+            : [value] "Ir" (v)              // %4
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
+        );
+        gcc_arm_operations_base::fence_after(order);
+        return !!result;
+    }
+
+    static BOOST_FORCEINLINE bool or_and_test(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    {
+        gcc_arm_operations_base::fence_before(order);
+        uint32_t tmp;
+        storage_type original, result;
+        __asm__ __volatile__
+        (
+            BOOST_ATOMIC_DETAIL_ARM_ASM_START(%[tmp])
+            "1:\n"
+            "ldrex   %[original], %[storage]\n"           // original = *(&storage)
+            "orr     %[result], %[original], %[value]\n"  // result = original | value
+            "strex   %[tmp], %[result], %[storage]\n"     // *(&storage) = result, tmp = store failed
+            "teq     %[tmp], #0\n"                        // flags = tmp==0
+            "bne     1b\n"                                // if (!flags.equal) goto retry
+            BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
+            : [original] "=&r" (original),  // %0
+              [result] "=&r" (result),      // %1
+              [tmp] "=&l" (tmp),            // %2
+              [storage] "+Q" (storage)      // %3
+            : [value] "Ir" (v)              // %4
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
+        );
+        gcc_arm_operations_base::fence_after(order);
+        return !!result;
+    }
+
+    static BOOST_FORCEINLINE bool xor_and_test(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    {
+        gcc_arm_operations_base::fence_before(order);
+        uint32_t tmp;
+        storage_type original, result;
+        __asm__ __volatile__
+        (
+            BOOST_ATOMIC_DETAIL_ARM_ASM_START(%[tmp])
+            "1:\n"
+            "ldrex   %[original], %[storage]\n"           // original = *(&storage)
+            "eor     %[result], %[original], %[value]\n"  // result = original ^ value
+            "strex   %[tmp], %[result], %[storage]\n"     // *(&storage) = result, tmp = store failed
+            "teq     %[tmp], #0\n"                        // flags = tmp==0
+            "bne     1b\n"                                // if (!flags.equal) goto retry
+            BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
+            : [original] "=&r" (original),  // %0
+              [result] "=&r" (result),      // %1
+              [tmp] "=&l" (tmp),            // %2
+              [storage] "+Q" (storage)      // %3
+            : [value] "Ir" (v)              // %4
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
+        );
+        gcc_arm_operations_base::fence_after(order);
+        return !!result;
     }
 };
 
@@ -324,6 +714,141 @@ struct extra_operations< Base, 8u, Signed > :
     static BOOST_FORCEINLINE void opaque_complement(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
         fetch_complement(storage, order);
+    }
+
+    static BOOST_FORCEINLINE bool add_and_test(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    {
+        gcc_arm_operations_base::fence_before(order);
+        storage_type original, result;
+        uint32_t tmp;
+        __asm__ __volatile__
+        (
+            BOOST_ATOMIC_DETAIL_ARM_ASM_START(%0)
+            "1:\n"
+            "ldrexd  %1, %H1, [%3]\n"               // original = *(&storage)
+            "adds    %2, %1, %4\n"                  // result = original + value
+            "adc     %H2, %H1, %H4\n"
+            "strexd  %0, %2, %H2, [%3]\n"           // *(&storage) = result, tmp = store failed
+            "teq     %0, #0\n"                      // flags = tmp==0
+            "bne     1b\n"                          // if (!flags.equal) goto retry
+            BOOST_ATOMIC_DETAIL_ARM_ASM_END(%0)
+            : BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_CONSTRAINT(tmp), // %0
+              "=&r" (original),  // %1
+              "=&r" (result)     // %2
+            : "r" (&storage),    // %3
+              "r" (v)            // %4
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
+        );
+        gcc_arm_operations_base::fence_after(order);
+        return !!result;
+    }
+
+    static BOOST_FORCEINLINE bool sub_and_test(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    {
+        gcc_arm_operations_base::fence_before(order);
+        storage_type original, result;
+        uint32_t tmp;
+        __asm__ __volatile__
+        (
+            BOOST_ATOMIC_DETAIL_ARM_ASM_START(%0)
+            "1:\n"
+            "ldrexd  %1, %H1, [%3]\n"               // original = *(&storage)
+            "subs    %2, %1, %4\n"                  // result = original - value
+            "sbc     %H2, %H1, %H4\n"
+            "strexd  %0, %2, %H2, [%3]\n"           // *(&storage) = result, tmp = store failed
+            "teq     %0, #0\n"                      // flags = tmp==0
+            "bne     1b\n"                          // if (!flags.equal) goto retry
+            BOOST_ATOMIC_DETAIL_ARM_ASM_END(%0)
+            : BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_CONSTRAINT(tmp), // %0
+              "=&r" (original),  // %1
+              "=&r" (result)     // %2
+            : "r" (&storage),    // %3
+              "r" (v)            // %4
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
+        );
+        gcc_arm_operations_base::fence_after(order);
+        return !!result;
+    }
+
+    static BOOST_FORCEINLINE bool and_and_test(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    {
+        gcc_arm_operations_base::fence_before(order);
+        storage_type original, result;
+        uint32_t tmp;
+        __asm__ __volatile__
+        (
+            BOOST_ATOMIC_DETAIL_ARM_ASM_START(%0)
+            "1:\n"
+            "ldrexd  %1, %H1, [%3]\n"               // original = *(&storage)
+            "and     %2, %1, %4\n"                  // result = original & value
+            "and     %H2, %H1, %H4\n"
+            "strexd  %0, %2, %H2, [%3]\n"           // *(&storage) = result, tmp = store failed
+            "teq     %0, #0\n"                      // flags = tmp==0
+            "bne     1b\n"                          // if (!flags.equal) goto retry
+            BOOST_ATOMIC_DETAIL_ARM_ASM_END(%0)
+            : BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_CONSTRAINT(tmp), // %0
+              "=&r" (original),  // %1
+              "=&r" (result)     // %2
+            : "r" (&storage),    // %3
+              "r" (v)            // %4
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
+        );
+        gcc_arm_operations_base::fence_after(order);
+        return !!result;
+    }
+
+    static BOOST_FORCEINLINE bool or_and_test(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    {
+        gcc_arm_operations_base::fence_before(order);
+        storage_type original, result;
+        uint32_t tmp;
+        __asm__ __volatile__
+        (
+            BOOST_ATOMIC_DETAIL_ARM_ASM_START(%0)
+            "1:\n"
+            "ldrexd  %1, %H1, [%3]\n"               // original = *(&storage)
+            "orr     %2, %1, %4\n"                  // result = original | value
+            "orr     %H2, %H1, %H4\n"
+            "strexd  %0, %2, %H2, [%3]\n"           // *(&storage) = result, tmp = store failed
+            "teq     %0, #0\n"                      // flags = tmp==0
+            "bne     1b\n"                          // if (!flags.equal) goto retry
+            BOOST_ATOMIC_DETAIL_ARM_ASM_END(%0)
+            : BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_CONSTRAINT(tmp), // %0
+              "=&r" (original),  // %1
+              "=&r" (result)     // %2
+            : "r" (&storage),    // %3
+              "r" (v)            // %4
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
+        );
+        gcc_arm_operations_base::fence_after(order);
+        return !!result;
+    }
+
+    static BOOST_FORCEINLINE bool xor_and_test(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    {
+        gcc_arm_operations_base::fence_before(order);
+        storage_type original, result;
+        uint32_t tmp;
+        __asm__ __volatile__
+        (
+            BOOST_ATOMIC_DETAIL_ARM_ASM_START(%0)
+            "1:\n"
+            "ldrexd  %1, %H1, [%3]\n"               // original = *(&storage)
+            "eor     %2, %1, %4\n"                  // result = original ^ value
+            "eor     %H2, %H1, %H4\n"
+            "strexd  %0, %2, %H2, [%3]\n"           // *(&storage) = result, tmp = store failed
+            "teq     %0, #0\n"                      // flags = tmp==0
+            "bne     1b\n"                          // if (!flags.equal) goto retry
+            BOOST_ATOMIC_DETAIL_ARM_ASM_END(%0)
+            : BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_CONSTRAINT(tmp), // %0
+              "=&r" (original),  // %1
+              "=&r" (result)     // %2
+            : "r" (&storage),    // %3
+              "r" (v)            // %4
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
+        );
+        gcc_arm_operations_base::fence_after(order);
+        return !!result;
     }
 };
 
