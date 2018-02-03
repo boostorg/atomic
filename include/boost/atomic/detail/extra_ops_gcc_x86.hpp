@@ -117,32 +117,49 @@ struct extra_operations< Base, 1u, Signed > :
     typedef typename base_type::storage_type storage_type;
     typedef typename make_storage_type< 4u, Signed >::type temp_storage_type;
 
-#define BOOST_ATOMIC_DETAIL_CAS_LOOP(op, result)\
-    temp_storage_type new_val;\
+#define BOOST_ATOMIC_DETAIL_CAS_LOOP(op, original, result)\
     __asm__ __volatile__\
     (\
         ".align 16\n\t"\
-        "1: movzbl %[res], %2\n\t"\
+        "1: movzbl %[orig], %2\n\t"\
         op " %b2\n\t"\
         "lock; cmpxchgb %b2, %[storage]\n\t"\
         "jne 1b"\
-        : [res] "+a" (result), [storage] "+m" (storage), "=&q" (new_val)\
+        : [orig] "+a" (original), [storage] "+m" (storage), "=&q" (result)\
         : \
         : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"\
     )
 
     static BOOST_FORCEINLINE storage_type fetch_negate(storage_type volatile& storage, memory_order) BOOST_NOEXCEPT
     {
-        storage_type res = storage;
-        BOOST_ATOMIC_DETAIL_CAS_LOOP("negb", res);
-        return res;
+        storage_type original = storage;
+        temp_storage_type result;
+        BOOST_ATOMIC_DETAIL_CAS_LOOP("negb", original, result);
+        return original;
     }
 
     static BOOST_FORCEINLINE storage_type fetch_complement(storage_type volatile& storage, memory_order) BOOST_NOEXCEPT
     {
-        storage_type res = storage;
-        BOOST_ATOMIC_DETAIL_CAS_LOOP("notb", res);
-        return res;
+        storage_type original = storage;
+        temp_storage_type result;
+        BOOST_ATOMIC_DETAIL_CAS_LOOP("notb", original, result);
+        return original;
+    }
+
+    static BOOST_FORCEINLINE bool negate_and_test(storage_type volatile& storage, memory_order) BOOST_NOEXCEPT
+    {
+        storage_type original = storage;
+        temp_storage_type result;
+        BOOST_ATOMIC_DETAIL_CAS_LOOP("negb", original, result);
+        return !!static_cast< storage_type >(result);
+    }
+
+    static BOOST_FORCEINLINE bool complement_and_test(storage_type volatile& storage, memory_order) BOOST_NOEXCEPT
+    {
+        storage_type original = storage;
+        temp_storage_type result;
+        BOOST_ATOMIC_DETAIL_CAS_LOOP("notb", original, result);
+        return !!static_cast< storage_type >(result);
     }
 
 #undef BOOST_ATOMIC_DETAIL_CAS_LOOP
@@ -433,32 +450,49 @@ struct extra_operations< Base, 2u, Signed > :
     typedef typename base_type::storage_type storage_type;
     typedef typename make_storage_type< 4u, Signed >::type temp_storage_type;
 
-#define BOOST_ATOMIC_DETAIL_CAS_LOOP(op, result)\
-    temp_storage_type new_val;\
+#define BOOST_ATOMIC_DETAIL_CAS_LOOP(op, original, result)\
     __asm__ __volatile__\
     (\
         ".align 16\n\t"\
-        "1: movzwl %[res], %2\n\t"\
+        "1: movzwl %[orig], %2\n\t"\
         op " %w2\n\t"\
         "lock; cmpxchgw %w2, %[storage]\n\t"\
         "jne 1b"\
-        : [res] "+a" (result), [storage] "+m" (storage), "=&q" (new_val)\
+        : [orig] "+a" (original), [storage] "+m" (storage), "=&q" (result)\
         : \
         : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"\
     )
 
     static BOOST_FORCEINLINE storage_type fetch_negate(storage_type volatile& storage, memory_order) BOOST_NOEXCEPT
     {
-        storage_type res = storage;
-        BOOST_ATOMIC_DETAIL_CAS_LOOP("negw", res);
-        return res;
+        storage_type original = storage;
+        temp_storage_type result;
+        BOOST_ATOMIC_DETAIL_CAS_LOOP("negw", original, result);
+        return original;
     }
 
     static BOOST_FORCEINLINE storage_type fetch_complement(storage_type volatile& storage, memory_order) BOOST_NOEXCEPT
     {
-        storage_type res = storage;
-        BOOST_ATOMIC_DETAIL_CAS_LOOP("notw", res);
-        return res;
+        storage_type original = storage;
+        temp_storage_type result;
+        BOOST_ATOMIC_DETAIL_CAS_LOOP("notw", original, result);
+        return original;
+    }
+
+    static BOOST_FORCEINLINE bool negate_and_test(storage_type volatile& storage, memory_order) BOOST_NOEXCEPT
+    {
+        storage_type original = storage;
+        temp_storage_type result;
+        BOOST_ATOMIC_DETAIL_CAS_LOOP("negw", original, result);
+        return !!static_cast< storage_type >(result);
+    }
+
+    static BOOST_FORCEINLINE bool complement_and_test(storage_type volatile& storage, memory_order) BOOST_NOEXCEPT
+    {
+        storage_type original = storage;
+        temp_storage_type result;
+        BOOST_ATOMIC_DETAIL_CAS_LOOP("notw", original, result);
+        return !!static_cast< storage_type >(result);
     }
 
 #undef BOOST_ATOMIC_DETAIL_CAS_LOOP
@@ -748,32 +782,49 @@ struct extra_operations< Base, 4u, Signed > :
     typedef gcc_x86_extra_operations_common< Base > base_type;
     typedef typename base_type::storage_type storage_type;
 
-#define BOOST_ATOMIC_DETAIL_CAS_LOOP(op, result)\
-    storage_type new_val;\
+#define BOOST_ATOMIC_DETAIL_CAS_LOOP(op, original, result)\
     __asm__ __volatile__\
     (\
         ".align 16\n\t"\
-        "1: mov %[res], %[new_val]\n\t"\
-        op " %[new_val]\n\t"\
-        "lock; cmpxchgl %[new_val], %[storage]\n\t"\
+        "1: mov %[orig], %[res]\n\t"\
+        op " %[res]\n\t"\
+        "lock; cmpxchgl %[res], %[storage]\n\t"\
         "jne 1b"\
-        : [res] "+a" (result), [storage] "+m" (storage), [new_val] "=&r" (new_val)\
+        : [orig] "+a" (original), [storage] "+m" (storage), [res] "=&r" (result)\
         : \
         : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"\
     )
 
     static BOOST_FORCEINLINE storage_type fetch_negate(storage_type volatile& storage, memory_order) BOOST_NOEXCEPT
     {
-        storage_type res = storage;
-        BOOST_ATOMIC_DETAIL_CAS_LOOP("negl", res);
-        return res;
+        storage_type original = storage;
+        storage_type result;
+        BOOST_ATOMIC_DETAIL_CAS_LOOP("negl", original, result);
+        return original;
     }
 
     static BOOST_FORCEINLINE storage_type fetch_complement(storage_type volatile& storage, memory_order) BOOST_NOEXCEPT
     {
-        storage_type res = storage;
-        BOOST_ATOMIC_DETAIL_CAS_LOOP("notl", res);
-        return res;
+        storage_type original = storage;
+        storage_type result;
+        BOOST_ATOMIC_DETAIL_CAS_LOOP("notl", original, result);
+        return original;
+    }
+
+    static BOOST_FORCEINLINE bool negate_and_test(storage_type volatile& storage, memory_order) BOOST_NOEXCEPT
+    {
+        storage_type original = storage;
+        storage_type result;
+        BOOST_ATOMIC_DETAIL_CAS_LOOP("negl", original, result);
+        return !!result;
+    }
+
+    static BOOST_FORCEINLINE bool complement_and_test(storage_type volatile& storage, memory_order) BOOST_NOEXCEPT
+    {
+        storage_type original = storage;
+        storage_type result;
+        BOOST_ATOMIC_DETAIL_CAS_LOOP("notl", original, result);
+        return !!result;
     }
 
 #undef BOOST_ATOMIC_DETAIL_CAS_LOOP
@@ -1065,32 +1116,49 @@ struct extra_operations< Base, 8u, Signed > :
     typedef gcc_x86_extra_operations_common< Base > base_type;
     typedef typename base_type::storage_type storage_type;
 
-#define BOOST_ATOMIC_DETAIL_CAS_LOOP(op, result)\
-    storage_type new_val;\
+#define BOOST_ATOMIC_DETAIL_CAS_LOOP(op, original, result)\
     __asm__ __volatile__\
     (\
         ".align 16\n\t"\
-        "1: mov %[res], %[new_val]\n\t"\
-        op " %[new_val]\n\t"\
-        "lock; cmpxchgq %[new_val], %[storage]\n\t"\
+        "1: mov %[orig], %[res]\n\t"\
+        op " %[res]\n\t"\
+        "lock; cmpxchgq %[res], %[storage]\n\t"\
         "jne 1b"\
-        : [res] "+a" (result), [storage] "+m" (storage), [new_val] "=&r" (new_val)\
+        : [orig] "+a" (original), [storage] "+m" (storage), [res] "=&r" (result)\
         : \
         : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"\
     )
 
     static BOOST_FORCEINLINE storage_type fetch_negate(storage_type volatile& storage, memory_order) BOOST_NOEXCEPT
     {
-        storage_type res = storage;
-        BOOST_ATOMIC_DETAIL_CAS_LOOP("negq", res);
-        return res;
+        storage_type original = storage;
+        storage_type result;
+        BOOST_ATOMIC_DETAIL_CAS_LOOP("negq", original, result);
+        return original;
     }
 
     static BOOST_FORCEINLINE storage_type fetch_complement(storage_type volatile& storage, memory_order) BOOST_NOEXCEPT
     {
-        storage_type res = storage;
-        BOOST_ATOMIC_DETAIL_CAS_LOOP("notq", res);
-        return res;
+        storage_type original = storage;
+        storage_type result;
+        BOOST_ATOMIC_DETAIL_CAS_LOOP("notq", original, result);
+        return original;
+    }
+
+    static BOOST_FORCEINLINE bool negate_and_test(storage_type volatile& storage, memory_order) BOOST_NOEXCEPT
+    {
+        storage_type original = storage;
+        storage_type result;
+        BOOST_ATOMIC_DETAIL_CAS_LOOP("negq", original, result);
+        return !!result;
+    }
+
+    static BOOST_FORCEINLINE bool complement_and_test(storage_type volatile& storage, memory_order) BOOST_NOEXCEPT
+    {
+        storage_type original = storage;
+        storage_type result;
+        BOOST_ATOMIC_DETAIL_CAS_LOOP("notq", original, result);
+        return !!result;
     }
 
 #undef BOOST_ATOMIC_DETAIL_CAS_LOOP

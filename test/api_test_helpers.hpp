@@ -465,6 +465,22 @@ void test_negation()
         a.opaque_negate();
         BOOST_TEST_EQ( a.load(), (T)1 );
     }
+    {
+        boost::atomic<T> a((T)1);
+        bool f = a.negate_and_test();
+        BOOST_TEST_EQ( f, true );
+        BOOST_TEST_EQ( a.load(), (T)-1 );
+
+        f = a.negate_and_test();
+        BOOST_TEST_EQ( f, true );
+        BOOST_TEST_EQ( a.load(), (T)1 );
+    }
+    {
+        boost::atomic<T> a((T)0);
+        bool f = a.negate_and_test();
+        BOOST_TEST_EQ( f, false );
+        BOOST_TEST_EQ( a.load(), (T)0 );
+    }
 }
 
 template<typename T>
@@ -603,6 +619,17 @@ void test_bit_operators(T value, T delta)
         BOOST_TEST_EQ( a.load(), T(1) );
 
         f = a.xor_and_test((T)1);
+        BOOST_TEST_EQ( f, false );
+        BOOST_TEST_EQ( a.load(), T(0) );
+    }
+
+    {
+        boost::atomic<T> a((T)0);
+        bool f = a.complement_and_test();
+        BOOST_TEST_EQ( f, true );
+        BOOST_TEST_EQ( a.load(), static_cast< T >(~static_cast< T >(0)) );
+
+        f = a.complement_and_test();
         BOOST_TEST_EQ( f, false );
         BOOST_TEST_EQ( a.load(), T(0) );
     }

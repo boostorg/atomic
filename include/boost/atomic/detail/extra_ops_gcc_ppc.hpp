@@ -78,6 +78,44 @@ struct extra_operations< Base, 1u, Signed > :
         return original;
     }
 
+    static BOOST_FORCEINLINE bool negate_and_test(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
+    {
+        gcc_ppc_operations_base::fence_before(order);
+        storage_type original, result;
+        __asm__ __volatile__
+        (
+            "1:\n\t"
+            "lbarx %0,%y2\n\t"
+            "neg %1,%0\n\t"
+            "stbcx. %1,%y2\n\t"
+            "bne- 1b\n\t"
+            : "=&b" (original), "=&b" (result), "+Z" (storage)
+            :
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
+        );
+        gcc_ppc_operations_base::fence_after(order);
+        return !!result;
+    }
+
+    static BOOST_FORCEINLINE bool complement_and_test(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
+    {
+        gcc_ppc_operations_base::fence_before(order);
+        storage_type original, result;
+        __asm__ __volatile__
+        (
+            "1:\n\t"
+            "lbarx %0,%y2\n\t"
+            "nor %1,%0,%0\n\t"
+            "stbcx. %1,%y2\n\t"
+            "bne- 1b\n\t"
+            : "=&b" (original), "=&b" (result), "+Z" (storage)
+            :
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
+        );
+        gcc_ppc_operations_base::fence_after(order);
+        return !!result;
+    }
+
     static BOOST_FORCEINLINE void opaque_negate(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
         fetch_negate(storage, order);
@@ -233,6 +271,44 @@ struct extra_operations< Base, 2u, Signed > :
         return original;
     }
 
+    static BOOST_FORCEINLINE bool negate_and_test(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
+    {
+        gcc_ppc_operations_base::fence_before(order);
+        storage_type original, result;
+        __asm__ __volatile__
+        (
+            "1:\n\t"
+            "lharx %0,%y2\n\t"
+            "neg %1,%0\n\t"
+            "sthcx. %1,%y2\n\t"
+            "bne- 1b\n\t"
+            : "=&b" (original), "=&b" (result), "+Z" (storage)
+            :
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
+        );
+        gcc_ppc_operations_base::fence_after(order);
+        return !!result;
+    }
+
+    static BOOST_FORCEINLINE bool complement_and_test(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
+    {
+        gcc_ppc_operations_base::fence_before(order);
+        storage_type original, result;
+        __asm__ __volatile__
+        (
+            "1:\n\t"
+            "lharx %0,%y2\n\t"
+            "nor %1,%0,%0\n\t"
+            "sthcx. %1,%y2\n\t"
+            "bne- 1b\n\t"
+            : "=&b" (original), "=&b" (result), "+Z" (storage)
+            :
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
+        );
+        gcc_ppc_operations_base::fence_after(order);
+        return !!result;
+    }
+
     static BOOST_FORCEINLINE void opaque_negate(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
         fetch_negate(storage, order);
@@ -386,6 +462,44 @@ struct extra_operations< Base, 4u, Signed > :
         return original;
     }
 
+    static BOOST_FORCEINLINE bool negate_and_test(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
+    {
+        gcc_ppc_operations_base::fence_before(order);
+        storage_type original, result;
+        __asm__ __volatile__
+        (
+            "1:\n\t"
+            "lwarx %0,%y2\n\t"
+            "neg %1,%0\n\t"
+            "stwcx. %1,%y2\n\t"
+            "bne- 1b\n\t"
+            : "=&b" (original), "=&b" (result), "+Z" (storage)
+            :
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
+        );
+        gcc_ppc_operations_base::fence_after(order);
+        return !!result;
+    }
+
+    static BOOST_FORCEINLINE bool complement_and_test(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
+    {
+        gcc_ppc_operations_base::fence_before(order);
+        storage_type original, result;
+        __asm__ __volatile__
+        (
+            "1:\n\t"
+            "lwarx %0,%y2\n\t"
+            "nor %1,%0,%0\n\t"
+            "stwcx. %1,%y2\n\t"
+            "bne- 1b\n\t"
+            : "=&b" (original), "=&b" (result), "+Z" (storage)
+            :
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
+        );
+        gcc_ppc_operations_base::fence_after(order);
+        return !!result;
+    }
+
     static BOOST_FORCEINLINE void opaque_negate(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
         fetch_negate(storage, order);
@@ -537,6 +651,44 @@ struct extra_operations< Base, 8u, Signed > :
         );
         gcc_ppc_operations_base::fence_after(order);
         return original;
+    }
+
+    static BOOST_FORCEINLINE bool negate_and_test(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
+    {
+        gcc_ppc_operations_base::fence_before(order);
+        storage_type original, result;
+        __asm__ __volatile__
+        (
+            "1:\n\t"
+            "ldarx %0,%y2\n\t"
+            "neg %1,%0\n\t"
+            "stdcx. %1,%y2\n\t"
+            "bne- 1b\n\t"
+            : "=&b" (original), "=&b" (result), "+Z" (storage)
+            :
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
+        );
+        gcc_ppc_operations_base::fence_after(order);
+        return !!result;
+    }
+
+    static BOOST_FORCEINLINE bool complement_and_test(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
+    {
+        gcc_ppc_operations_base::fence_before(order);
+        storage_type original, result;
+        __asm__ __volatile__
+        (
+            "1:\n\t"
+            "ldarx %0,%y2\n\t"
+            "nor %1,%0,%0\n\t"
+            "stdcx. %1,%y2\n\t"
+            "bne- 1b\n\t"
+            : "=&b" (original), "=&b" (result), "+Z" (storage)
+            :
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
+        );
+        gcc_ppc_operations_base::fence_after(order);
+        return !!result;
     }
 
     static BOOST_FORCEINLINE void opaque_negate(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT

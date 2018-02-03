@@ -674,6 +674,14 @@ Additionally, as a [*Boost.Atomic] extension, the following operations are also 
       [Apply bit-wise "xor" with `v` to variable, returning nothing]
     ]
     [
+      [`bool negate_and_test(memory_order order)`]
+      [Change the sign of the value stored in the variable, returning `true` if the result is non-zero and `false` otherwise]
+    ]
+    [
+      [`bool complement_and_test(memory_order order)`]
+      [Set the variable to the one\'s complement of the current value, returning `true` if the result is non-zero and `false` otherwise]
+    ]
+    [
       [`bool add_and_test(I v, memory_order order)`]
       [Add `v` to variable, returning `true` if the result is non-zero and `false` otherwise]
     ]

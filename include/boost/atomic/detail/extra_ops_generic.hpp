@@ -55,7 +55,7 @@ struct generic_extra_operations :
 
     static BOOST_FORCEINLINE storage_type fetch_complement(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
-        return Base::fetch_xor(storage, static_cast< storage_type >(~static_cast< emulated_storage_type >(0)), order);
+        return Base::fetch_xor(storage, static_cast< storage_type >(static_cast< emulated_storage_type >(~static_cast< emulated_storage_type >(0))), order);
     }
 
     static BOOST_FORCEINLINE void opaque_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
@@ -107,6 +107,11 @@ struct generic_extra_operations :
         return !!new_val;
     }
 
+    static BOOST_FORCEINLINE bool negate_and_test(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
+    {
+        return !!(-fetch_negate(storage, order));
+    }
+
     static BOOST_FORCEINLINE bool and_and_test(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
         return !!(Base::fetch_and(storage, v, order) & v);
@@ -120,6 +125,11 @@ struct generic_extra_operations :
     static BOOST_FORCEINLINE bool xor_and_test(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
         return !!(Base::fetch_xor(storage, v, order) ^ v);
+    }
+
+    static BOOST_FORCEINLINE bool complement_and_test(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
+    {
+        return !!static_cast< emulated_storage_type >(~fetch_complement(storage, order));
     }
 
     static BOOST_FORCEINLINE bool bit_test_and_set(storage_type volatile& storage, unsigned int bit_number, memory_order order) BOOST_NOEXCEPT

@@ -393,6 +393,11 @@ public:
         return extra_operations::sub_and_test(m_storage.value, static_cast< storage_type >(v), order);
     }
 
+    BOOST_FORCEINLINE bool negate_and_test(memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
+    {
+        return extra_operations::negate_and_test(m_storage.value, order);
+    }
+
     BOOST_ATOMIC_DETAIL_HIGHLIGHT_OP_AND_TEST
     BOOST_FORCEINLINE bool and_and_test(value_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
@@ -409,6 +414,11 @@ public:
     BOOST_FORCEINLINE bool xor_and_test(value_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
         return extra_operations::xor_and_test(m_storage.value, static_cast< storage_type >(v), order);
+    }
+
+    BOOST_FORCEINLINE bool complement_and_test(memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
+    {
+        return extra_operations::complement_and_test(m_storage.value, order);
     }
 
     BOOST_FORCEINLINE bool bit_test_and_set(unsigned int bit_number, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
