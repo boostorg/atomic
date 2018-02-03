@@ -230,7 +230,7 @@ struct BOOST_ATOMIC_DETAIL_MAY_ALIAS storage128_t
 
     BOOST_FORCEINLINE bool operator! () const BOOST_NOEXCEPT
     {
-        return data[0] == 0 && data[1] == 0;
+        return (data[0] | data[1]) == 0u;
     }
 };
 
