@@ -5,7 +5,7 @@
  *
  * Copyright (c) 2009 Helge Bahmann
  * Copyright (c) 2012 Tim Blechmann
- * Copyright (c) 2014 Andrey Semashev
+ * Copyright (c) 2014 - 2018 Andrey Semashev
  */
 /*!
  * \file   atomic/detail/ops_gcc_x86_dcas.hpp
