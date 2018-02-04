@@ -65,7 +65,7 @@
 #define BOOST_ATOMIC_DETAIL_X86_NO_ASM_AX_DX_PAIRS
 #endif
 
-#if defined(__i386__) && defined(__PIC__) && !(defined(__clang__) || (defined(BOOST_GCC) && (BOOST_GCC+0) >= 50100))
+#if defined(__i386__) && (defined(__PIC__) || defined(__PIE__)) && !(defined(__clang__) || (defined(BOOST_GCC) && (BOOST_GCC+0) >= 50100))
 // This macro indicates that asm blocks should preserve ebx value unchanged. Some compilers are able to maintain ebx themselves
 // around the asm blocks. For those compilers we don't need to save/restore ebx in asm blocks.
 #define BOOST_ATOMIC_DETAIL_X86_ASM_PRESERVE_EBX
