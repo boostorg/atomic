@@ -62,7 +62,7 @@ BOOST_FORCEINLINE void non_atomic_load(buffer_storage< Size > const volatile& fr
     BOOST_ATOMIC_DETAIL_MEMCPY(to.data, const_cast< unsigned char const* >(from.data), Size);
 }
 
-template< std::size_t Size, bool Signed >
+template< std::size_t Size >
 struct make_storage_type
 {
     typedef buffer_storage< Size > type;
@@ -77,7 +77,7 @@ struct make_storage_type
 };
 
 template< >
-struct make_storage_type< 1u, false >
+struct make_storage_type< 1u >
 {
     typedef boost::uint8_t BOOST_ATOMIC_DETAIL_MAY_ALIAS type;
 
@@ -91,21 +91,7 @@ struct make_storage_type< 1u, false >
 };
 
 template< >
-struct make_storage_type< 1u, true >
-{
-    typedef boost::int8_t BOOST_ATOMIC_DETAIL_MAY_ALIAS type;
-
-    struct BOOST_ATOMIC_DETAIL_MAY_ALIAS aligned
-    {
-        type value;
-
-        BOOST_DEFAULTED_FUNCTION(aligned(), {})
-        BOOST_FORCEINLINE BOOST_CONSTEXPR explicit aligned(type v) BOOST_NOEXCEPT : value(v) {}
-    };
-};
-
-template< >
-struct make_storage_type< 2u, false >
+struct make_storage_type< 2u >
 {
     typedef boost::uint16_t BOOST_ATOMIC_DETAIL_MAY_ALIAS type;
 
@@ -119,21 +105,7 @@ struct make_storage_type< 2u, false >
 };
 
 template< >
-struct make_storage_type< 2u, true >
-{
-    typedef boost::int16_t BOOST_ATOMIC_DETAIL_MAY_ALIAS type;
-
-    struct BOOST_ATOMIC_DETAIL_MAY_ALIAS aligned
-    {
-        BOOST_ALIGNMENT(2) type value;
-
-        BOOST_DEFAULTED_FUNCTION(aligned(), {})
-        BOOST_FORCEINLINE BOOST_CONSTEXPR explicit aligned(type v) BOOST_NOEXCEPT : value(v) {}
-    };
-};
-
-template< >
-struct make_storage_type< 4u, false >
+struct make_storage_type< 4u >
 {
     typedef boost::uint32_t BOOST_ATOMIC_DETAIL_MAY_ALIAS type;
 
@@ -147,37 +119,9 @@ struct make_storage_type< 4u, false >
 };
 
 template< >
-struct make_storage_type< 4u, true >
-{
-    typedef boost::int32_t BOOST_ATOMIC_DETAIL_MAY_ALIAS type;
-
-    struct BOOST_ATOMIC_DETAIL_MAY_ALIAS aligned
-    {
-        BOOST_ALIGNMENT(4) type value;
-
-        BOOST_DEFAULTED_FUNCTION(aligned(), {})
-        BOOST_FORCEINLINE BOOST_CONSTEXPR explicit aligned(type v) BOOST_NOEXCEPT : value(v) {}
-    };
-};
-
-template< >
-struct make_storage_type< 8u, false >
+struct make_storage_type< 8u >
 {
     typedef boost::uint64_t BOOST_ATOMIC_DETAIL_MAY_ALIAS type;
-
-    struct BOOST_ATOMIC_DETAIL_MAY_ALIAS aligned
-    {
-        BOOST_ALIGNMENT(8) type value;
-
-        BOOST_DEFAULTED_FUNCTION(aligned(), {})
-        BOOST_FORCEINLINE BOOST_CONSTEXPR explicit aligned(type v) BOOST_NOEXCEPT : value(v) {}
-    };
-};
-
-template< >
-struct make_storage_type< 8u, true >
-{
-    typedef boost::int64_t BOOST_ATOMIC_DETAIL_MAY_ALIAS type;
 
     struct BOOST_ATOMIC_DETAIL_MAY_ALIAS aligned
     {
@@ -191,23 +135,9 @@ struct make_storage_type< 8u, true >
 #if defined(BOOST_HAS_INT128)
 
 template< >
-struct make_storage_type< 16u, false >
+struct make_storage_type< 16u >
 {
     typedef boost::uint128_type BOOST_ATOMIC_DETAIL_MAY_ALIAS type;
-
-    struct BOOST_ATOMIC_DETAIL_MAY_ALIAS aligned
-    {
-        BOOST_ALIGNMENT(16) type value;
-
-        BOOST_DEFAULTED_FUNCTION(aligned(), {})
-        BOOST_FORCEINLINE BOOST_CONSTEXPR explicit aligned(type v) BOOST_NOEXCEPT : value(v) {}
-    };
-};
-
-template< >
-struct make_storage_type< 16u, true >
-{
-    typedef boost::int128_type BOOST_ATOMIC_DETAIL_MAY_ALIAS type;
 
     struct BOOST_ATOMIC_DETAIL_MAY_ALIAS aligned
     {
@@ -247,8 +177,8 @@ BOOST_FORCEINLINE void non_atomic_load(storage128_t const volatile& from, storag
     to.data[1] = from.data[1];
 }
 
-template< bool Signed >
-struct make_storage_type< 16u, Signed >
+template< >
+struct make_storage_type< 16u >
 {
     typedef storage128_t type;
 

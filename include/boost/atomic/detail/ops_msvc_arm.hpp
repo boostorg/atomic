@@ -99,11 +99,15 @@ struct msvc_arm_operations_base
     }
 };
 
-template< typename T, typename Derived >
+template< std::size_t Size, bool Signed, typename Derived >
 struct msvc_arm_operations :
     public msvc_arm_operations_base
 {
-    typedef T storage_type;
+    typedef typename make_storage_type< Size >::type storage_type;
+    typedef typename make_storage_type< Size >::aligned aligned_storage_type;
+
+    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = Size;
+    static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
 
     static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
@@ -130,14 +134,10 @@ struct msvc_arm_operations :
 
 template< bool Signed >
 struct operations< 1u, Signed > :
-    public msvc_arm_operations< typename make_storage_type< 1u, Signed >::type, operations< 1u, Signed > >
+    public msvc_arm_operations< 1u, Signed, operations< 1u, Signed > >
 {
-    typedef msvc_arm_operations< typename make_storage_type< 1u, Signed >::type, operations< 1u, Signed > > base_type;
+    typedef msvc_arm_operations< 1u, Signed, operations< 1u, Signed > > base_type;
     typedef typename base_type::storage_type storage_type;
-    typedef typename make_storage_type< 1u, Signed >::aligned aligned_storage_type;
-
-    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 1u;
-    static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
 
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
@@ -299,14 +299,10 @@ struct operations< 1u, Signed > :
 
 template< bool Signed >
 struct operations< 2u, Signed > :
-    public msvc_arm_operations< typename make_storage_type< 2u, Signed >::type, operations< 2u, Signed > >
+    public msvc_arm_operations< 2u, Signed, operations< 2u, Signed > >
 {
-    typedef msvc_arm_operations< typename make_storage_type< 2u, Signed >::type, operations< 2u, Signed > > base_type;
+    typedef msvc_arm_operations< 2u, Signed, operations< 2u, Signed > > base_type;
     typedef typename base_type::storage_type storage_type;
-    typedef typename make_storage_type< 2u, Signed >::aligned aligned_storage_type;
-
-    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 2u;
-    static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
 
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
@@ -468,14 +464,10 @@ struct operations< 2u, Signed > :
 
 template< bool Signed >
 struct operations< 4u, Signed > :
-    public msvc_arm_operations< typename make_storage_type< 4u, Signed >::type, operations< 4u, Signed > >
+    public msvc_arm_operations< 4u, Signed, operations< 4u, Signed > >
 {
-    typedef msvc_arm_operations< typename make_storage_type< 4u, Signed >::type, operations< 4u, Signed > > base_type;
+    typedef msvc_arm_operations< 4u, Signed, operations< 4u, Signed > > base_type;
     typedef typename base_type::storage_type storage_type;
-    typedef typename make_storage_type< 4u, Signed >::aligned aligned_storage_type;
-
-    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 4u;
-    static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
 
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
@@ -637,14 +629,10 @@ struct operations< 4u, Signed > :
 
 template< bool Signed >
 struct operations< 8u, Signed > :
-    public msvc_arm_operations< typename make_storage_type< 8u, Signed >::type, operations< 8u, Signed > >
+    public msvc_arm_operations< 8u, Signed, operations< 8u, Signed > >
 {
-    typedef msvc_arm_operations< typename make_storage_type< 8u, Signed >::type, operations< 8u, Signed > > base_type;
+    typedef msvc_arm_operations< 8u, Signed, operations< 8u, Signed > > base_type;
     typedef typename base_type::storage_type storage_type;
-    typedef typename make_storage_type< 8u, Signed >::aligned aligned_storage_type;
-
-    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 8u;
-    static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
 
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {

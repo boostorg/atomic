@@ -20,13 +20,16 @@
 #include <boost/cstdint.hpp>
 #include <boost/assert.hpp>
 #include <boost/atomic/detail/config.hpp>
+#include <boost/atomic/detail/storage_type.hpp>
 #include <boost/atomic/detail/bitwise_cast.hpp>
+#include <boost/atomic/detail/integral_extend.hpp>
 #include <boost/atomic/detail/operations_fwd.hpp>
 #include <boost/atomic/detail/extra_operations_fwd.hpp>
 #include <boost/atomic/detail/type_traits/is_signed.hpp>
 #include <boost/atomic/detail/type_traits/is_integral.hpp>
 #include <boost/atomic/detail/type_traits/is_function.hpp>
 #include <boost/atomic/detail/type_traits/conditional.hpp>
+#include <boost/atomic/detail/type_traits/integral_constant.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once
@@ -59,7 +62,7 @@ BOOST_FORCEINLINE BOOST_CONSTEXPR bool cas_failure_order_must_not_be_stronger_th
     return (static_cast< unsigned int >(failure_order) & 15u) <= (static_cast< unsigned int >(success_order) & 15u);
 }
 
-template< typename T, bool IsFunction = boost::atomics::detail::is_function< T >::value >
+template< typename T, bool IsFunction = atomics::detail::is_function< T >::value >
 struct classify_pointer
 {
     typedef void* type;
@@ -71,7 +74,7 @@ struct classify_pointer< T, true >
     typedef void type;
 };
 
-template< typename T, bool IsInt = boost::atomics::detail::is_integral< T >::value >
+template< typename T, bool IsInt = atomics::detail::is_integral< T >::value >
 struct classify
 {
     typedef void type;
@@ -98,11 +101,6 @@ struct classify< const volatile void*, false > { typedef void type; };
 template< typename T, typename U >
 struct classify< T U::*, false > { typedef void type; };
 
-template< bool >
-struct boolean_constant {};
-typedef boolean_constant< true > true_constant;
-typedef boolean_constant< false > false_constant;
-
 
 template< typename T, typename Kind >
 class base_atomic;
@@ -116,13 +114,13 @@ public:
 
 protected:
     typedef atomics::detail::operations< storage_size_of< value_type >::value, false > operations;
-    typedef typename boost::atomics::detail::conditional< sizeof(value_type) <= sizeof(void*), value_type, value_type const& >::type value_arg_type;
+    typedef typename atomics::detail::conditional< sizeof(value_type) <= sizeof(void*), value_type, value_type const& >::type value_arg_type;
 
 public:
     typedef typename operations::storage_type storage_type;
 
 private:
-    typedef boolean_constant< sizeof(value_type) == sizeof(storage_type) > value_matches_storage;
+    typedef atomics::detail::integral_constant< bool, sizeof(value_type) == sizeof(storage_type) > value_matches_storage;
 
 protected:
     typename operations::aligned_storage_type m_storage;
@@ -186,16 +184,16 @@ public:
     BOOST_DELETED_FUNCTION(base_atomic& operator=(base_atomic const&))
 
 private:
-    BOOST_FORCEINLINE bool compare_exchange_strong_impl(value_type& expected, value_arg_type desired, memory_order success_order, memory_order failure_order, true_constant) volatile BOOST_NOEXCEPT
+    BOOST_FORCEINLINE bool compare_exchange_strong_impl(value_type& expected, value_arg_type desired, memory_order success_order, memory_order failure_order, atomics::detail::true_type) volatile BOOST_NOEXCEPT
     {
 #if defined(BOOST_ATOMIC_DETAIL_STORAGE_TYPE_MAY_ALIAS)
         return operations::compare_exchange_strong(m_storage.value, reinterpret_cast< storage_type& >(expected), atomics::detail::bitwise_cast< storage_type >(desired), success_order, failure_order);
 #else
-        return compare_exchange_strong_impl(expected, desired, success_order, failure_order, false_constant());
+        return compare_exchange_strong_impl(expected, desired, success_order, failure_order, atomics::detail::false_type());
 #endif
     }
 
-    BOOST_FORCEINLINE bool compare_exchange_strong_impl(value_type& expected, value_arg_type desired, memory_order success_order, memory_order failure_order, false_constant) volatile BOOST_NOEXCEPT
+    BOOST_FORCEINLINE bool compare_exchange_strong_impl(value_type& expected, value_arg_type desired, memory_order success_order, memory_order failure_order, atomics::detail::false_type) volatile BOOST_NOEXCEPT
     {
         storage_type old_value = atomics::detail::bitwise_cast< storage_type >(expected);
         const bool res = operations::compare_exchange_strong(m_storage.value, old_value, atomics::detail::bitwise_cast< storage_type >(desired), success_order, failure_order);
@@ -203,16 +201,16 @@ private:
         return res;
     }
 
-    BOOST_FORCEINLINE bool compare_exchange_weak_impl(value_type& expected, value_arg_type desired, memory_order success_order, memory_order failure_order, true_constant) volatile BOOST_NOEXCEPT
+    BOOST_FORCEINLINE bool compare_exchange_weak_impl(value_type& expected, value_arg_type desired, memory_order success_order, memory_order failure_order, atomics::detail::true_type) volatile BOOST_NOEXCEPT
     {
 #if defined(BOOST_ATOMIC_DETAIL_STORAGE_TYPE_MAY_ALIAS)
         return operations::compare_exchange_weak(m_storage.value, reinterpret_cast< storage_type& >(expected), atomics::detail::bitwise_cast< storage_type >(desired), success_order, failure_order);
 #else
-        return compare_exchange_weak_impl(expected, desired, success_order, failure_order, false_constant());
+        return compare_exchange_weak_impl(expected, desired, success_order, failure_order, atomics::detail::false_type());
 #endif
     }
 
-    BOOST_FORCEINLINE bool compare_exchange_weak_impl(value_type& expected, value_arg_type desired, memory_order success_order, memory_order failure_order, false_constant) volatile BOOST_NOEXCEPT
+    BOOST_FORCEINLINE bool compare_exchange_weak_impl(value_type& expected, value_arg_type desired, memory_order success_order, memory_order failure_order, atomics::detail::false_type) volatile BOOST_NOEXCEPT
     {
         storage_type old_value = atomics::detail::bitwise_cast< storage_type >(expected);
         const bool res = operations::compare_exchange_weak(m_storage.value, old_value, atomics::detail::bitwise_cast< storage_type >(desired), success_order, failure_order);
@@ -231,12 +229,15 @@ public:
     typedef T difference_type;
 
 protected:
-    typedef atomics::detail::operations< storage_size_of< value_type >::value, boost::atomics::detail::is_signed< T >::value > operations;
+    typedef atomics::detail::operations< storage_size_of< value_type >::value, atomics::detail::is_signed< T >::value > operations;
     typedef atomics::detail::extra_operations< operations, operations::storage_size, operations::is_signed > extra_operations;
     typedef value_type value_arg_type;
 
 public:
     typedef typename operations::storage_type storage_type;
+
+private:
+    typedef atomics::detail::integral_constant< bool, sizeof(value_type) == sizeof(storage_type) > value_matches_storage;
 
 protected:
     typename operations::aligned_storage_type m_storage;
@@ -252,7 +253,7 @@ public:
         BOOST_ASSERT(order != memory_order_acquire);
         BOOST_ASSERT(order != memory_order_acq_rel);
 
-        operations::store(m_storage.value, static_cast< storage_type >(v), order);
+        operations::store(m_storage.value, atomics::detail::integral_extend< operations::is_signed, storage_type >(v), order);
     }
 
     BOOST_FORCEINLINE value_type load(memory_order order = memory_order_seq_cst) const volatile BOOST_NOEXCEPT
@@ -260,22 +261,22 @@ public:
         BOOST_ASSERT(order != memory_order_release);
         BOOST_ASSERT(order != memory_order_acq_rel);
 
-        return static_cast< value_type >(operations::load(m_storage.value, order));
+        return atomics::detail::integral_truncate< value_type >(operations::load(m_storage.value, order));
     }
 
     BOOST_FORCEINLINE value_type fetch_add(difference_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        return static_cast< value_type >(operations::fetch_add(m_storage.value, static_cast< storage_type >(v), order));
+        return atomics::detail::integral_truncate< value_type >(operations::fetch_add(m_storage.value, atomics::detail::integral_extend< operations::is_signed, storage_type >(v), order));
     }
 
     BOOST_FORCEINLINE value_type fetch_sub(difference_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        return static_cast< value_type >(operations::fetch_sub(m_storage.value, static_cast< storage_type >(v), order));
+        return atomics::detail::integral_truncate< value_type >(operations::fetch_sub(m_storage.value, atomics::detail::integral_extend< operations::is_signed, storage_type >(v), order));
     }
 
     BOOST_FORCEINLINE value_type exchange(value_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        return static_cast< value_type >(operations::exchange(m_storage.value, static_cast< storage_type >(v), order));
+        return atomics::detail::integral_truncate< value_type >(operations::exchange(m_storage.value, atomics::detail::integral_extend< operations::is_signed, storage_type >(v), order));
     }
 
     BOOST_FORCEINLINE bool compare_exchange_strong(value_type& expected, value_type desired, memory_order success_order, memory_order failure_order) volatile BOOST_NOEXCEPT
@@ -284,14 +285,7 @@ public:
         BOOST_ASSERT(failure_order != memory_order_acq_rel);
         BOOST_ASSERT(cas_failure_order_must_not_be_stronger_than_success_order(success_order, failure_order));
 
-#if defined(BOOST_ATOMIC_DETAIL_STORAGE_TYPE_MAY_ALIAS)
-        return operations::compare_exchange_strong(m_storage.value, reinterpret_cast< storage_type& >(expected), static_cast< storage_type >(desired), success_order, failure_order);
-#else
-        storage_type old_value = static_cast< storage_type >(expected);
-        const bool res = operations::compare_exchange_strong(m_storage.value, old_value, static_cast< storage_type >(desired), success_order, failure_order);
-        expected = static_cast< value_type >(old_value);
-        return res;
-#endif
+        return compare_exchange_strong_impl(expected, desired, success_order, failure_order, value_matches_storage());
     }
 
     BOOST_FORCEINLINE bool compare_exchange_strong(value_type& expected, value_type desired, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
@@ -305,14 +299,7 @@ public:
         BOOST_ASSERT(failure_order != memory_order_acq_rel);
         BOOST_ASSERT(cas_failure_order_must_not_be_stronger_than_success_order(success_order, failure_order));
 
-#if defined(BOOST_ATOMIC_DETAIL_STORAGE_TYPE_MAY_ALIAS)
-        return operations::compare_exchange_weak(m_storage.value, reinterpret_cast< storage_type& >(expected), static_cast< storage_type >(desired), success_order, failure_order);
-#else
-        storage_type old_value = static_cast< storage_type >(expected);
-        const bool res = operations::compare_exchange_weak(m_storage.value, old_value, static_cast< storage_type >(desired), success_order, failure_order);
-        expected = static_cast< value_type >(old_value);
-        return res;
-#endif
+        return compare_exchange_weak_impl(expected, desired, success_order, failure_order, value_matches_storage());
     }
 
     BOOST_FORCEINLINE bool compare_exchange_weak(value_type& expected, value_type desired, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
@@ -322,38 +309,38 @@ public:
 
     BOOST_FORCEINLINE value_type fetch_and(value_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        return static_cast< value_type >(operations::fetch_and(m_storage.value, static_cast< storage_type >(v), order));
+        return atomics::detail::integral_truncate< value_type >(operations::fetch_and(m_storage.value, atomics::detail::integral_extend< operations::is_signed, storage_type >(v), order));
     }
 
     BOOST_FORCEINLINE value_type fetch_or(value_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        return static_cast< value_type >(operations::fetch_or(m_storage.value, static_cast< storage_type >(v), order));
+        return atomics::detail::integral_truncate< value_type >(operations::fetch_or(m_storage.value, atomics::detail::integral_extend< operations::is_signed, storage_type >(v), order));
     }
 
     BOOST_FORCEINLINE value_type fetch_xor(value_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        return static_cast< value_type >(operations::fetch_xor(m_storage.value, static_cast< storage_type >(v), order));
+        return atomics::detail::integral_truncate< value_type >(operations::fetch_xor(m_storage.value, atomics::detail::integral_extend< operations::is_signed, storage_type >(v), order));
     }
 
     // Boost.Atomic extensions
     BOOST_FORCEINLINE value_type fetch_negate(memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        return static_cast< value_type >(extra_operations::fetch_negate(m_storage.value, order));
+        return atomics::detail::integral_truncate< value_type >(extra_operations::fetch_negate(m_storage.value, order));
     }
 
     BOOST_FORCEINLINE value_type fetch_complement(memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        return static_cast< value_type >(extra_operations::fetch_complement(m_storage.value, order));
+        return atomics::detail::integral_truncate< value_type >(extra_operations::fetch_complement(m_storage.value, order));
     }
 
     BOOST_FORCEINLINE void opaque_add(difference_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        extra_operations::opaque_add(m_storage.value, static_cast< storage_type >(v), order);
+        extra_operations::opaque_add(m_storage.value, atomics::detail::integral_extend< operations::is_signed, storage_type >(v), order);
     }
 
     BOOST_FORCEINLINE void opaque_sub(difference_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        extra_operations::opaque_sub(m_storage.value, static_cast< storage_type >(v), order);
+        extra_operations::opaque_sub(m_storage.value, atomics::detail::integral_extend< operations::is_signed, storage_type >(v), order);
     }
 
     BOOST_FORCEINLINE void opaque_negate(memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
@@ -363,17 +350,17 @@ public:
 
     BOOST_FORCEINLINE void opaque_and(value_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        extra_operations::opaque_and(m_storage.value, static_cast< storage_type >(v), order);
+        extra_operations::opaque_and(m_storage.value, atomics::detail::integral_extend< operations::is_signed, storage_type >(v), order);
     }
 
     BOOST_FORCEINLINE void opaque_or(value_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        extra_operations::opaque_or(m_storage.value, static_cast< storage_type >(v), order);
+        extra_operations::opaque_or(m_storage.value, atomics::detail::integral_extend< operations::is_signed, storage_type >(v), order);
     }
 
     BOOST_FORCEINLINE void opaque_xor(value_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        extra_operations::opaque_xor(m_storage.value, static_cast< storage_type >(v), order);
+        extra_operations::opaque_xor(m_storage.value, atomics::detail::integral_extend< operations::is_signed, storage_type >(v), order);
     }
 
     BOOST_FORCEINLINE void opaque_complement(memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
@@ -384,13 +371,13 @@ public:
     BOOST_ATOMIC_DETAIL_HIGHLIGHT_OP_AND_TEST
     BOOST_FORCEINLINE bool add_and_test(difference_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        return extra_operations::add_and_test(m_storage.value, static_cast< storage_type >(v), order);
+        return extra_operations::add_and_test(m_storage.value, atomics::detail::integral_extend< operations::is_signed, storage_type >(v), order);
     }
 
     BOOST_ATOMIC_DETAIL_HIGHLIGHT_OP_AND_TEST
     BOOST_FORCEINLINE bool sub_and_test(difference_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        return extra_operations::sub_and_test(m_storage.value, static_cast< storage_type >(v), order);
+        return extra_operations::sub_and_test(m_storage.value, atomics::detail::integral_extend< operations::is_signed, storage_type >(v), order);
     }
 
     BOOST_FORCEINLINE bool negate_and_test(memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
@@ -401,19 +388,19 @@ public:
     BOOST_ATOMIC_DETAIL_HIGHLIGHT_OP_AND_TEST
     BOOST_FORCEINLINE bool and_and_test(value_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        return extra_operations::and_and_test(m_storage.value, static_cast< storage_type >(v), order);
+        return extra_operations::and_and_test(m_storage.value, atomics::detail::integral_extend< operations::is_signed, storage_type >(v), order);
     }
 
     BOOST_ATOMIC_DETAIL_HIGHLIGHT_OP_AND_TEST
     BOOST_FORCEINLINE bool or_and_test(value_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        return extra_operations::or_and_test(m_storage.value, static_cast< storage_type >(v), order);
+        return extra_operations::or_and_test(m_storage.value, atomics::detail::integral_extend< operations::is_signed, storage_type >(v), order);
     }
 
     BOOST_ATOMIC_DETAIL_HIGHLIGHT_OP_AND_TEST
     BOOST_FORCEINLINE bool xor_and_test(value_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        return extra_operations::xor_and_test(m_storage.value, static_cast< storage_type >(v), order);
+        return extra_operations::xor_and_test(m_storage.value, atomics::detail::integral_extend< operations::is_signed, storage_type >(v), order);
     }
 
     BOOST_FORCEINLINE bool complement_and_test(memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
@@ -487,6 +474,41 @@ public:
 
     BOOST_DELETED_FUNCTION(base_atomic(base_atomic const&))
     BOOST_DELETED_FUNCTION(base_atomic& operator=(base_atomic const&))
+
+private:
+    BOOST_FORCEINLINE bool compare_exchange_strong_impl(value_type& expected, value_arg_type desired, memory_order success_order, memory_order failure_order, atomics::detail::true_type) volatile BOOST_NOEXCEPT
+    {
+#if defined(BOOST_ATOMIC_DETAIL_STORAGE_TYPE_MAY_ALIAS)
+        return operations::compare_exchange_strong(m_storage.value, reinterpret_cast< storage_type& >(expected), atomics::detail::integral_extend< operations::is_signed, storage_type >(desired), success_order, failure_order);
+#else
+        return compare_exchange_strong_impl(expected, desired, success_order, failure_order, atomics::detail::false_type());
+#endif
+    }
+
+    BOOST_FORCEINLINE bool compare_exchange_strong_impl(value_type& expected, value_arg_type desired, memory_order success_order, memory_order failure_order, atomics::detail::false_type) volatile BOOST_NOEXCEPT
+    {
+        storage_type old_value = atomics::detail::integral_extend< operations::is_signed, storage_type >(expected);
+        const bool res = operations::compare_exchange_strong(m_storage.value, old_value, atomics::detail::integral_extend< operations::is_signed, storage_type >(desired), success_order, failure_order);
+        expected = atomics::detail::integral_truncate< value_type >(old_value);
+        return res;
+    }
+
+    BOOST_FORCEINLINE bool compare_exchange_weak_impl(value_type& expected, value_arg_type desired, memory_order success_order, memory_order failure_order, atomics::detail::true_type) volatile BOOST_NOEXCEPT
+    {
+#if defined(BOOST_ATOMIC_DETAIL_STORAGE_TYPE_MAY_ALIAS)
+        return operations::compare_exchange_weak(m_storage.value, reinterpret_cast< storage_type& >(expected), atomics::detail::integral_extend< operations::is_signed, storage_type >(desired), success_order, failure_order);
+#else
+        return compare_exchange_weak_impl(expected, desired, success_order, failure_order, atomics::detail::false_type());
+#endif
+    }
+
+    BOOST_FORCEINLINE bool compare_exchange_weak_impl(value_type& expected, value_arg_type desired, memory_order success_order, memory_order failure_order, atomics::detail::false_type) volatile BOOST_NOEXCEPT
+    {
+        storage_type old_value = atomics::detail::integral_extend< operations::is_signed, storage_type >(expected);
+        const bool res = operations::compare_exchange_weak(m_storage.value, old_value, atomics::detail::integral_extend< operations::is_signed, storage_type >(desired), success_order, failure_order);
+        expected = atomics::detail::integral_truncate< value_type >(old_value);
+        return res;
+    }
 };
 
 //! Implementation for bool
@@ -502,6 +524,9 @@ protected:
 
 public:
     typedef operations::storage_type storage_type;
+
+private:
+    typedef atomics::detail::integral_constant< bool, sizeof(value_type) == sizeof(storage_type) > value_matches_storage;
 
 protected:
     operations::aligned_storage_type m_storage;
@@ -539,14 +564,7 @@ public:
         BOOST_ASSERT(failure_order != memory_order_acq_rel);
         BOOST_ASSERT(cas_failure_order_must_not_be_stronger_than_success_order(success_order, failure_order));
 
-#if defined(BOOST_ATOMIC_DETAIL_STORAGE_TYPE_MAY_ALIAS)
-        return operations::compare_exchange_strong(m_storage.value, reinterpret_cast< storage_type& >(expected), static_cast< storage_type >(desired), success_order, failure_order);
-#else
-        storage_type old_value = static_cast< storage_type >(expected);
-        const bool res = operations::compare_exchange_strong(m_storage.value, old_value, static_cast< storage_type >(desired), success_order, failure_order);
-        expected = !!old_value;
-        return res;
-#endif
+        return compare_exchange_strong_impl(expected, desired, success_order, failure_order, value_matches_storage());
     }
 
     BOOST_FORCEINLINE bool compare_exchange_strong(value_type& expected, value_type desired, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
@@ -560,14 +578,7 @@ public:
         BOOST_ASSERT(failure_order != memory_order_acq_rel);
         BOOST_ASSERT(cas_failure_order_must_not_be_stronger_than_success_order(success_order, failure_order));
 
-#if defined(BOOST_ATOMIC_DETAIL_STORAGE_TYPE_MAY_ALIAS)
-        return operations::compare_exchange_weak(m_storage.value, reinterpret_cast< storage_type& >(expected), static_cast< storage_type >(desired), success_order, failure_order);
-#else
-        storage_type old_value = static_cast< storage_type >(expected);
-        const bool res = operations::compare_exchange_weak(m_storage.value, old_value, static_cast< storage_type >(desired), success_order, failure_order);
-        expected = !!old_value;
-        return res;
-#endif
+        return compare_exchange_weak_impl(expected, desired, success_order, failure_order, value_matches_storage());
     }
 
     BOOST_FORCEINLINE bool compare_exchange_weak(value_type& expected, value_type desired, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
@@ -577,6 +588,41 @@ public:
 
     BOOST_DELETED_FUNCTION(base_atomic(base_atomic const&))
     BOOST_DELETED_FUNCTION(base_atomic& operator=(base_atomic const&))
+
+private:
+    BOOST_FORCEINLINE bool compare_exchange_strong_impl(value_type& expected, value_arg_type desired, memory_order success_order, memory_order failure_order, atomics::detail::true_type) volatile BOOST_NOEXCEPT
+    {
+#if defined(BOOST_ATOMIC_DETAIL_STORAGE_TYPE_MAY_ALIAS)
+        return operations::compare_exchange_strong(m_storage.value, reinterpret_cast< storage_type& >(expected), static_cast< storage_type >(desired), success_order, failure_order);
+#else
+        return compare_exchange_strong_impl(expected, desired, success_order, failure_order, atomics::detail::false_type());
+#endif
+    }
+
+    BOOST_FORCEINLINE bool compare_exchange_strong_impl(value_type& expected, value_arg_type desired, memory_order success_order, memory_order failure_order, atomics::detail::false_type) volatile BOOST_NOEXCEPT
+    {
+        storage_type old_value = static_cast< storage_type >(expected);
+        const bool res = operations::compare_exchange_strong(m_storage.value, old_value, static_cast< storage_type >(desired), success_order, failure_order);
+        expected = !!old_value;
+        return res;
+    }
+
+    BOOST_FORCEINLINE bool compare_exchange_weak_impl(value_type& expected, value_arg_type desired, memory_order success_order, memory_order failure_order, atomics::detail::true_type) volatile BOOST_NOEXCEPT
+    {
+#if defined(BOOST_ATOMIC_DETAIL_STORAGE_TYPE_MAY_ALIAS)
+        return operations::compare_exchange_weak(m_storage.value, reinterpret_cast< storage_type& >(expected), static_cast< storage_type >(desired), success_order, failure_order);
+#else
+        return compare_exchange_weak_impl(expected, desired, success_order, failure_order, atomics::detail::false_type());
+#endif
+    }
+
+    BOOST_FORCEINLINE bool compare_exchange_weak_impl(value_type& expected, value_arg_type desired, memory_order success_order, memory_order failure_order, atomics::detail::false_type) volatile BOOST_NOEXCEPT
+    {
+        storage_type old_value = static_cast< storage_type >(expected);
+        const bool res = operations::compare_exchange_weak(m_storage.value, old_value, static_cast< storage_type >(desired), success_order, failure_order);
+        expected = !!old_value;
+        return res;
+    }
 };
 
 
@@ -596,12 +642,23 @@ protected:
 public:
     typedef typename operations::storage_type storage_type;
 
+private:
+    typedef atomics::detail::integral_constant< bool, sizeof(value_type) == sizeof(storage_type) > value_matches_storage;
+
+    // uintptr_storage_type is the minimal storage type that is enough to store pointers. The actual storage_type theoretically may be larger,
+    // if the target architecture only supports atomic ops on larger data. Typucally, though, they are the same type.
+#if defined(BOOST_HAS_INTPTR_T)
+    typedef uintptr_t uintptr_storage_type;
+#else
+    typedef typename atomics::detail::make_storage_type< sizeof(value_type) >::type uintptr_storage_type;
+#endif
+
 protected:
     typename operations::aligned_storage_type m_storage;
 
 public:
     BOOST_DEFAULTED_FUNCTION(base_atomic(), {})
-    BOOST_FORCEINLINE explicit base_atomic(value_type const& v) BOOST_NOEXCEPT : m_storage(atomics::detail::bitwise_cast< storage_type >(v))
+    BOOST_FORCEINLINE explicit base_atomic(value_type const& v) BOOST_NOEXCEPT : m_storage(atomics::detail::bitwise_cast< uintptr_storage_type >(v))
     {
     }
 
@@ -612,7 +669,7 @@ public:
         BOOST_ASSERT(order != memory_order_acquire);
         BOOST_ASSERT(order != memory_order_acq_rel);
 
-        operations::store(m_storage.value, atomics::detail::bitwise_cast< storage_type >(v), order);
+        operations::store(m_storage.value, atomics::detail::bitwise_cast< uintptr_storage_type >(v), order);
     }
 
     BOOST_FORCEINLINE value_type load(memory_order order = memory_order_seq_cst) const volatile BOOST_NOEXCEPT
@@ -620,22 +677,22 @@ public:
         BOOST_ASSERT(order != memory_order_release);
         BOOST_ASSERT(order != memory_order_acq_rel);
 
-        return atomics::detail::bitwise_cast< value_type >(operations::load(m_storage.value, order));
+        return atomics::detail::bitwise_cast< value_type >(static_cast< uintptr_storage_type >(operations::load(m_storage.value, order)));
     }
 
     BOOST_FORCEINLINE value_type fetch_add(difference_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        return atomics::detail::bitwise_cast< value_type >(operations::fetch_add(m_storage.value, static_cast< storage_type >(v * sizeof(T)), order));
+        return atomics::detail::bitwise_cast< value_type >(static_cast< uintptr_storage_type >(operations::fetch_add(m_storage.value, static_cast< uintptr_storage_type >(v * sizeof(T)), order)));
     }
 
     BOOST_FORCEINLINE value_type fetch_sub(difference_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        return atomics::detail::bitwise_cast< value_type >(operations::fetch_sub(m_storage.value, static_cast< storage_type >(v * sizeof(T)), order));
+        return atomics::detail::bitwise_cast< value_type >(static_cast< uintptr_storage_type >(operations::fetch_sub(m_storage.value, static_cast< uintptr_storage_type >(v * sizeof(T)), order)));
     }
 
     BOOST_FORCEINLINE value_type exchange(value_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        return atomics::detail::bitwise_cast< value_type >(operations::exchange(m_storage.value, atomics::detail::bitwise_cast< storage_type >(v), order));
+        return atomics::detail::bitwise_cast< value_type >(static_cast< uintptr_storage_type >(operations::exchange(m_storage.value, atomics::detail::bitwise_cast< uintptr_storage_type >(v), order)));
     }
 
     BOOST_FORCEINLINE bool compare_exchange_strong(value_type& expected, value_type desired, memory_order success_order, memory_order failure_order) volatile BOOST_NOEXCEPT
@@ -644,14 +701,7 @@ public:
         BOOST_ASSERT(failure_order != memory_order_acq_rel);
         BOOST_ASSERT(cas_failure_order_must_not_be_stronger_than_success_order(success_order, failure_order));
 
-#if defined(BOOST_ATOMIC_DETAIL_STORAGE_TYPE_MAY_ALIAS)
-        return operations::compare_exchange_strong(m_storage.value, reinterpret_cast< storage_type& >(expected), atomics::detail::bitwise_cast< storage_type >(desired), success_order, failure_order);
-#else
-        storage_type old_value = atomics::detail::bitwise_cast< storage_type >(expected);
-        const bool res = operations::compare_exchange_strong(m_storage.value, old_value, atomics::detail::bitwise_cast< storage_type >(desired), success_order, failure_order);
-        expected = atomics::detail::bitwise_cast< value_type >(old_value);
-        return res;
-#endif
+        return compare_exchange_strong_impl(expected, desired, success_order, failure_order, value_matches_storage());
     }
 
     BOOST_FORCEINLINE bool compare_exchange_strong(value_type& expected, value_type desired, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
@@ -665,14 +715,7 @@ public:
         BOOST_ASSERT(failure_order != memory_order_acq_rel);
         BOOST_ASSERT(cas_failure_order_must_not_be_stronger_than_success_order(success_order, failure_order));
 
-#if defined(BOOST_ATOMIC_DETAIL_STORAGE_TYPE_MAY_ALIAS)
-        return operations::compare_exchange_weak(m_storage.value, reinterpret_cast< storage_type& >(expected), atomics::detail::bitwise_cast< storage_type >(desired), success_order, failure_order);
-#else
-        storage_type old_value = atomics::detail::bitwise_cast< storage_type >(expected);
-        const bool res = operations::compare_exchange_weak(m_storage.value, old_value, atomics::detail::bitwise_cast< storage_type >(desired), success_order, failure_order);
-        expected = atomics::detail::bitwise_cast< value_type >(old_value);
-        return res;
-#endif
+        return compare_exchange_weak_impl(expected, desired, success_order, failure_order, value_matches_storage());
     }
 
     BOOST_FORCEINLINE bool compare_exchange_weak(value_type& expected, value_type desired, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
@@ -683,24 +726,24 @@ public:
     // Boost.Atomic extensions
     BOOST_FORCEINLINE void opaque_add(difference_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        extra_operations::opaque_add(m_storage.value, static_cast< storage_type >(v * sizeof(T)), order);
+        extra_operations::opaque_add(m_storage.value, static_cast< uintptr_storage_type >(v * sizeof(T)), order);
     }
 
     BOOST_FORCEINLINE void opaque_sub(difference_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        extra_operations::opaque_sub(m_storage.value, static_cast< storage_type >(v * sizeof(T)), order);
+        extra_operations::opaque_sub(m_storage.value, static_cast< uintptr_storage_type >(v * sizeof(T)), order);
     }
 
     BOOST_ATOMIC_DETAIL_HIGHLIGHT_OP_AND_TEST
     BOOST_FORCEINLINE bool add_and_test(difference_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        return extra_operations::add_and_test(m_storage.value, static_cast< storage_type >(v * sizeof(T)), order);
+        return extra_operations::add_and_test(m_storage.value, static_cast< uintptr_storage_type >(v * sizeof(T)), order);
     }
 
     BOOST_ATOMIC_DETAIL_HIGHLIGHT_OP_AND_TEST
     BOOST_FORCEINLINE bool sub_and_test(difference_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        return extra_operations::sub_and_test(m_storage.value, static_cast< storage_type >(v * sizeof(T)), order);
+        return extra_operations::sub_and_test(m_storage.value, static_cast< uintptr_storage_type >(v * sizeof(T)), order);
     }
 
     // Operators
@@ -736,6 +779,41 @@ public:
 
     BOOST_DELETED_FUNCTION(base_atomic(base_atomic const&))
     BOOST_DELETED_FUNCTION(base_atomic& operator=(base_atomic const&))
+
+private:
+    BOOST_FORCEINLINE bool compare_exchange_strong_impl(value_type& expected, value_arg_type desired, memory_order success_order, memory_order failure_order, atomics::detail::true_type) volatile BOOST_NOEXCEPT
+    {
+#if defined(BOOST_ATOMIC_DETAIL_STORAGE_TYPE_MAY_ALIAS)
+        return operations::compare_exchange_strong(m_storage.value, reinterpret_cast< storage_type& >(expected), atomics::detail::bitwise_cast< uintptr_storage_type >(desired), success_order, failure_order);
+#else
+        return compare_exchange_strong_impl(expected, desired, success_order, failure_order, atomics::detail::false_type());
+#endif
+    }
+
+    BOOST_FORCEINLINE bool compare_exchange_strong_impl(value_type& expected, value_arg_type desired, memory_order success_order, memory_order failure_order, atomics::detail::false_type) volatile BOOST_NOEXCEPT
+    {
+        storage_type old_value = atomics::detail::bitwise_cast< uintptr_storage_type >(expected);
+        const bool res = operations::compare_exchange_strong(m_storage.value, old_value, atomics::detail::bitwise_cast< uintptr_storage_type >(desired), success_order, failure_order);
+        expected = atomics::detail::bitwise_cast< value_type >(static_cast< uintptr_storage_type >(old_value));
+        return res;
+    }
+
+    BOOST_FORCEINLINE bool compare_exchange_weak_impl(value_type& expected, value_arg_type desired, memory_order success_order, memory_order failure_order, atomics::detail::true_type) volatile BOOST_NOEXCEPT
+    {
+#if defined(BOOST_ATOMIC_DETAIL_STORAGE_TYPE_MAY_ALIAS)
+        return operations::compare_exchange_weak(m_storage.value, reinterpret_cast< storage_type& >(expected), atomics::detail::bitwise_cast< uintptr_storage_type >(desired), success_order, failure_order);
+#else
+        return compare_exchange_weak_impl(expected, desired, success_order, failure_order, atomics::detail::false_type());
+#endif
+    }
+
+    BOOST_FORCEINLINE bool compare_exchange_weak_impl(value_type& expected, value_arg_type desired, memory_order success_order, memory_order failure_order, atomics::detail::false_type) volatile BOOST_NOEXCEPT
+    {
+        storage_type old_value = atomics::detail::bitwise_cast< uintptr_storage_type >(expected);
+        const bool res = operations::compare_exchange_weak(m_storage.value, old_value, atomics::detail::bitwise_cast< uintptr_storage_type >(desired), success_order, failure_order);
+        expected = atomics::detail::bitwise_cast< value_type >(static_cast< uintptr_storage_type >(old_value));
+        return res;
+    }
 };
 
 } // namespace detail

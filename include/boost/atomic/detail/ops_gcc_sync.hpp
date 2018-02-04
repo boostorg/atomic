@@ -55,11 +55,15 @@ struct gcc_sync_operations_base
     }
 };
 
-template< typename T >
+template< std::size_t Size, bool Signed >
 struct gcc_sync_operations :
     public gcc_sync_operations_base
 {
-    typedef T storage_type;
+    typedef typename make_storage_type< Size >::type storage_type;
+    typedef typename make_storage_type< Size >::aligned aligned_storage_type;
+
+    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = Size;
+    static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
 
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
@@ -152,35 +156,17 @@ struct gcc_sync_operations :
 template< bool Signed >
 struct operations< 1u, Signed > :
 #if defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_1)
-    public gcc_sync_operations< typename make_storage_type< 1u, Signed >::type >
+    public gcc_sync_operations< 1u, Signed >
 #elif defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_2)
-    public extending_cas_based_operations< gcc_sync_operations< typename make_storage_type< 2u, Signed >::type >, 1u, Signed >
+    public extending_cas_based_operations< gcc_sync_operations< 2u, Signed >, 1u, Signed >
 #elif defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_4)
-    public extending_cas_based_operations< gcc_sync_operations< typename make_storage_type< 4u, Signed >::type >, 1u, Signed >
+    public extending_cas_based_operations< gcc_sync_operations< 4u, Signed >, 1u, Signed >
 #elif defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_8)
-    public extending_cas_based_operations< gcc_sync_operations< typename make_storage_type< 8u, Signed >::type >, 1u, Signed >
+    public extending_cas_based_operations< gcc_sync_operations< 8u, Signed >, 1u, Signed >
 #else
-    public extending_cas_based_operations< gcc_sync_operations< typename make_storage_type< 16u, Signed >::type >, 1u, Signed >
+    public extending_cas_based_operations< gcc_sync_operations< 16u, Signed >, 1u, Signed >
 #endif
 {
-#if defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_1)
-    typedef typename make_storage_type< 1u, Signed >::aligned aligned_storage_type;
-    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 1u;
-#elif defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_2)
-    typedef typename make_storage_type< 2u, Signed >::aligned aligned_storage_type;
-    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 2u;
-#elif defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_4)
-    typedef typename make_storage_type< 4u, Signed >::aligned aligned_storage_type;
-    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 4u;
-#elif defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_8)
-    typedef typename make_storage_type< 8u, Signed >::aligned aligned_storage_type;
-    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 8u;
-#else
-    typedef typename make_storage_type< 16u, Signed >::aligned aligned_storage_type;
-    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 16u;
-#endif
-
-    static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
 };
 #endif
 
@@ -188,30 +174,15 @@ struct operations< 1u, Signed > :
 template< bool Signed >
 struct operations< 2u, Signed > :
 #if defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_2)
-    public gcc_sync_operations< typename make_storage_type< 2u, Signed >::type >
+    public gcc_sync_operations< 2u, Signed >
 #elif defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_4)
-    public extending_cas_based_operations< gcc_sync_operations< typename make_storage_type< 4u, Signed >::type >, 2u, Signed >
+    public extending_cas_based_operations< gcc_sync_operations< 4u, Signed >, 2u, Signed >
 #elif defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_8)
-    public extending_cas_based_operations< gcc_sync_operations< typename make_storage_type< 8u, Signed >::type >, 2u, Signed >
+    public extending_cas_based_operations< gcc_sync_operations< 8u, Signed >, 2u, Signed >
 #else
-    public extending_cas_based_operations< gcc_sync_operations< typename make_storage_type< 16u, Signed >::type >, 2u, Signed >
+    public extending_cas_based_operations< gcc_sync_operations< 16u, Signed >, 2u, Signed >
 #endif
 {
-#if defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_2)
-    typedef typename make_storage_type< 2u, Signed >::aligned aligned_storage_type;
-    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 2u;
-#elif defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_4)
-    typedef typename make_storage_type< 4u, Signed >::aligned aligned_storage_type;
-    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 4u;
-#elif defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_8)
-    typedef typename make_storage_type< 8u, Signed >::aligned aligned_storage_type;
-    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 8u;
-#else
-    typedef typename make_storage_type< 16u, Signed >::aligned aligned_storage_type;
-    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 16u;
-#endif
-
-    static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
 };
 #endif
 
@@ -219,25 +190,13 @@ struct operations< 2u, Signed > :
 template< bool Signed >
 struct operations< 4u, Signed > :
 #if defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_4)
-    public gcc_sync_operations< typename make_storage_type< 4u, Signed >::type >
+    public gcc_sync_operations< 4u, Signed >
 #elif defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_8)
-    public extending_cas_based_operations< gcc_sync_operations< typename make_storage_type< 8u, Signed >::type >, 4u, Signed >
+    public extending_cas_based_operations< gcc_sync_operations< 8u, Signed >, 4u, Signed >
 #else
-    public extending_cas_based_operations< gcc_sync_operations< typename make_storage_type< 16u, Signed >::type >, 4u, Signed >
+    public extending_cas_based_operations< gcc_sync_operations< 16u, Signed >, 4u, Signed >
 #endif
 {
-#if defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_4)
-    typedef typename make_storage_type< 4u, Signed >::aligned aligned_storage_type;
-    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 4u;
-#elif defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_8)
-    typedef typename make_storage_type< 8u, Signed >::aligned aligned_storage_type;
-    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 8u;
-#else
-    typedef typename make_storage_type< 16u, Signed >::aligned aligned_storage_type;
-    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 16u;
-#endif
-
-    static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
 };
 #endif
 
@@ -245,32 +204,19 @@ struct operations< 4u, Signed > :
 template< bool Signed >
 struct operations< 8u, Signed > :
 #if defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_8)
-    public gcc_sync_operations< typename make_storage_type< 8u, Signed >::type >
+    public gcc_sync_operations< 8u, Signed >
 #else
-    public extending_cas_based_operations< gcc_sync_operations< typename make_storage_type< 16u, Signed >::type >, 8u, Signed >
+    public extending_cas_based_operations< gcc_sync_operations< 16u, Signed >, 8u, Signed >
 #endif
 {
-#if defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_8)
-    typedef typename make_storage_type< 8u, Signed >::aligned aligned_storage_type;
-    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 8u;
-#else
-    typedef typename make_storage_type< 16u, Signed >::aligned aligned_storage_type;
-    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 16u;
-#endif
-
-    static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
 };
 #endif
 
 #if BOOST_ATOMIC_INT128_LOCK_FREE > 0
 template< bool Signed >
 struct operations< 16u, Signed > :
-    public gcc_sync_operations< typename make_storage_type< 16u, Signed >::type >
+    public gcc_sync_operations< 16u, Signed >
 {
-    typedef typename make_storage_type< 16u, Signed >::aligned aligned_storage_type;
-
-    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 16u;
-    static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
 };
 #endif
 

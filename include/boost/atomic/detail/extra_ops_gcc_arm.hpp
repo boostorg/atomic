@@ -41,7 +41,7 @@ struct extra_operations< Base, 1u, Signed > :
 {
     typedef generic_extra_operations< Base, 1u, Signed > base_type;
     typedef typename base_type::storage_type storage_type;
-    typedef typename make_storage_type< 4u, Signed >::type extended_storage_type;
+    typedef typename make_storage_type< 4u >::type extended_storage_type;
 
     static BOOST_FORCEINLINE storage_type fetch_negate(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
@@ -176,7 +176,7 @@ struct extra_operations< Base, 1u, Signed > :
               [result] "=&r" (result),      // %1
               [tmp] "=&l" (tmp),            // %2
               [storage] "+Q" (storage)      // %3
-            : [value] "Ir" ((extended_storage_type)v)              // %4
+            : [value] "Ir" (v)              // %4
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
         );
         gcc_arm_operations_base::fence_after(order);
@@ -202,7 +202,7 @@ struct extra_operations< Base, 1u, Signed > :
               [result] "=&r" (result),      // %1
               [tmp] "=&l" (tmp),            // %2
               [storage] "+Q" (storage)      // %3
-            : [value] "Ir" ((extended_storage_type)v)              // %4
+            : [value] "Ir" (v)              // %4
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
         );
         gcc_arm_operations_base::fence_after(order);
@@ -228,7 +228,7 @@ struct extra_operations< Base, 1u, Signed > :
               [result] "=&r" (result),      // %1
               [tmp] "=&l" (tmp),            // %2
               [storage] "+Q" (storage)      // %3
-            : [value] "Ir" ((extended_storage_type)v)              // %4
+            : [value] "Ir" (v)              // %4
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
         );
         gcc_arm_operations_base::fence_after(order);
@@ -254,7 +254,7 @@ struct extra_operations< Base, 1u, Signed > :
               [result] "=&r" (result),      // %1
               [tmp] "=&l" (tmp),            // %2
               [storage] "+Q" (storage)      // %3
-            : [value] "Ir" ((extended_storage_type)v)              // %4
+            : [value] "Ir" (v)              // %4
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
         );
         gcc_arm_operations_base::fence_after(order);
@@ -280,7 +280,7 @@ struct extra_operations< Base, 1u, Signed > :
               [result] "=&r" (result),      // %1
               [tmp] "=&l" (tmp),            // %2
               [storage] "+Q" (storage)      // %3
-            : [value] "Ir" ((extended_storage_type)v)              // %4
+            : [value] "Ir" (v)              // %4
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
         );
         gcc_arm_operations_base::fence_after(order);
@@ -298,7 +298,7 @@ struct extra_operations< Base, 2u, Signed > :
 {
     typedef generic_extra_operations< Base, 2u, Signed > base_type;
     typedef typename base_type::storage_type storage_type;
-    typedef typename make_storage_type< 4u, Signed >::type extended_storage_type;
+    typedef typename make_storage_type< 4u >::type extended_storage_type;
 
     static BOOST_FORCEINLINE storage_type fetch_negate(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
@@ -433,7 +433,7 @@ struct extra_operations< Base, 2u, Signed > :
               [result] "=&r" (result),      // %1
               [tmp] "=&l" (tmp),            // %2
               [storage] "+Q" (storage)      // %3
-            : [value] "Ir" ((extended_storage_type)v)              // %4
+            : [value] "Ir" (v)              // %4
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
         );
         gcc_arm_operations_base::fence_after(order);
@@ -459,7 +459,7 @@ struct extra_operations< Base, 2u, Signed > :
               [result] "=&r" (result),      // %1
               [tmp] "=&l" (tmp),            // %2
               [storage] "+Q" (storage)      // %3
-            : [value] "Ir" ((extended_storage_type)v)              // %4
+            : [value] "Ir" (v)              // %4
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
         );
         gcc_arm_operations_base::fence_after(order);
@@ -485,7 +485,7 @@ struct extra_operations< Base, 2u, Signed > :
               [result] "=&r" (result),      // %1
               [tmp] "=&l" (tmp),            // %2
               [storage] "+Q" (storage)      // %3
-            : [value] "Ir" ((extended_storage_type)v)              // %4
+            : [value] "Ir" (v)              // %4
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
         );
         gcc_arm_operations_base::fence_after(order);
@@ -511,7 +511,7 @@ struct extra_operations< Base, 2u, Signed > :
               [result] "=&r" (result),      // %1
               [tmp] "=&l" (tmp),            // %2
               [storage] "+Q" (storage)      // %3
-            : [value] "Ir" ((extended_storage_type)v)              // %4
+            : [value] "Ir" (v)              // %4
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
         );
         gcc_arm_operations_base::fence_after(order);
@@ -537,7 +537,7 @@ struct extra_operations< Base, 2u, Signed > :
               [result] "=&r" (result),      // %1
               [tmp] "=&l" (tmp),            // %2
               [storage] "+Q" (storage)      // %3
-            : [value] "Ir" ((extended_storage_type)v)              // %4
+            : [value] "Ir" (v)              // %4
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
         );
         gcc_arm_operations_base::fence_after(order);

@@ -64,8 +64,8 @@ template< bool Signed >
 struct gcc_sparc_cas32 :
     public gcc_sparc_cas_base
 {
-    typedef typename make_storage_type< 4u, Signed >::type storage_type;
-    typedef typename make_storage_type< 4u, Signed >::aligned aligned_storage_type;
+    typedef typename make_storage_type< 4u >::type storage_type;
+    typedef typename make_storage_type< 4u >::aligned aligned_storage_type;
 
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 4u;
     static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
@@ -148,8 +148,8 @@ template< bool Signed >
 struct gcc_sparc_cas64 :
     public gcc_sparc_cas_base
 {
-    typedef typename make_storage_type< 8u, Signed >::type storage_type;
-    typedef typename make_storage_type< 8u, Signed >::aligned aligned_storage_type;
+    typedef typename make_storage_type< 8u >::type storage_type;
+    typedef typename make_storage_type< 8u >::aligned aligned_storage_type;
 
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 8u;
     static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
