@@ -46,7 +46,7 @@
 #endif
 
 #if defined(__CUDACC__)
-// nvcc does not support alternatives in asm statement constraints
+// nvcc does not support alternatives ("q,m") in asm statement constraints
 #define BOOST_ATOMIC_DETAIL_NO_ASM_CONSTRAINT_ALTERNATIVES
 // nvcc does not support condition code register ("cc") clobber in asm statements
 #define BOOST_ATOMIC_DETAIL_NO_ASM_CLOBBER_CC

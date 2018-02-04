@@ -250,13 +250,8 @@ struct gcc_dcas_x86
         (
             "lock; cmpxchg8b %[dest]\n\t"
             "sete %[success]\n\t"
-#if !defined(BOOST_ATOMIC_DETAIL_NO_ASM_CONSTRAINT_ALTERNATIVES)
-            : "+A,A" (expected), [dest] "+m,m" (storage), [success] "=q,m" (success)
-            : "b,b" ((uint32_t)desired), "c,c" ((uint32_t)(desired >> 32))
-#else
-            : "+A" (expected), [dest] "+m" (storage), [success] "=q" (success)
+            : "+A" (expected), [dest] "+m" (storage), [success] "=qm" (success)
             : "b" ((uint32_t)desired), "c" ((uint32_t)(desired >> 32))
-#endif
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
 #endif // defined(BOOST_ATOMIC_DETAIL_ASM_HAS_FLAG_OUTPUTS)
@@ -476,13 +471,8 @@ struct gcc_dcas_x86_64
         (
             "lock; cmpxchg16b %[dest]\n\t"
             "sete %[success]\n\t"
-#if !defined(BOOST_ATOMIC_DETAIL_NO_ASM_CONSTRAINT_ALTERNATIVES)
-            : "+A,A" (expected), [dest] "+m,m" (storage), [success] "=q,m" (success)
-            : "b,b" (reinterpret_cast< const aliasing_uint64_t* >(&desired)[0]), "c,c" (reinterpret_cast< const aliasing_uint64_t* >(&desired)[1])
-#else
-            : "+A" (expected), [dest] "+m" (storage), [success] "=q" (success)
+            : "+A" (expected), [dest] "+m" (storage), [success] "=qm" (success)
             : "b" (reinterpret_cast< const aliasing_uint64_t* >(&desired)[0]), "c" (reinterpret_cast< const aliasing_uint64_t* >(&desired)[1])
-#endif
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
 #endif // defined(BOOST_ATOMIC_DETAIL_ASM_HAS_FLAG_OUTPUTS)
