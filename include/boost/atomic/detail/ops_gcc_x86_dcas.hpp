@@ -20,10 +20,8 @@
 #include <boost/memory_order.hpp>
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/storage_type.hpp>
+#include <boost/atomic/detail/string_ops.hpp>
 #include <boost/atomic/capabilities.hpp>
-#if defined(BOOST_ATOMIC_DETAIL_X86_NO_ASM_AX_DX_PAIRS) && !defined(BOOST_ATOMIC_DETAIL_HAS_BUILTIN_MEMCPY)
-#include <cstring>
-#endif
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once

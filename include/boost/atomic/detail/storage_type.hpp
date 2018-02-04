@@ -19,9 +19,7 @@
 #include <cstddef>
 #include <boost/cstdint.hpp>
 #include <boost/atomic/detail/config.hpp>
-#if !defined(BOOST_ATOMIC_DETAIL_HAS_BUILTIN_MEMCMP) || !defined(BOOST_ATOMIC_DETAIL_HAS_BUILTIN_MEMCPY)
-#include <cstring>
-#endif
+#include <boost/atomic/detail/string_ops.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once
