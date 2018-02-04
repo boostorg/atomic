@@ -311,7 +311,27 @@ struct gcc_dcas_x86
 
 #endif // defined(BOOST_ATOMIC_DETAIL_X86_NO_ASM_AX_DX_PAIRS)
 #else // defined(BOOST_ATOMIC_DETAIL_X86_ASM_PRESERVE_EBX)
-#if defined(BOOST_ATOMIC_DETAIL_X86_NO_ASM_AX_DX_PAIRS)
+#if defined(__MINGW32__) && ((__GNUC__+0) * 100 + (__GNUC_MINOR__+0)) < 407
+
+        // MinGW gcc up to 4.6 has problems with allocating registers in the asm blocks below
+        uint32_t old_bits[2];
+        __asm__ __volatile__
+        (
+            "movl (%[dest]), %%eax\n\t"
+            "movl 4(%[dest]), %%edx\n\t"
+            ".align 16\n\t"
+            "1: lock; cmpxchg8b (%[dest])\n\t"
+            "jne 1b\n\t"
+            : "=&a" (old_bits[0]), "=&d" (old_bits[1])
+            : "b" ((uint32_t)v), "c" ((uint32_t)(v >> 32)), [dest] "DS" (&storage)
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
+        );
+
+        storage_type old_value;
+        BOOST_ATOMIC_DETAIL_MEMCPY(&old_value, old_bits, sizeof(old_value));
+        return old_value;
+
+#elif defined(BOOST_ATOMIC_DETAIL_X86_NO_ASM_AX_DX_PAIRS)
 
         uint32_t old_bits[2];
         __asm__ __volatile__
