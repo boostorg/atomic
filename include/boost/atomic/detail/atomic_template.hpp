@@ -646,7 +646,7 @@ private:
     typedef atomics::detail::integral_constant< bool, sizeof(value_type) == sizeof(storage_type) > value_matches_storage;
 
     // uintptr_storage_type is the minimal storage type that is enough to store pointers. The actual storage_type theoretically may be larger,
-    // if the target architecture only supports atomic ops on larger data. Typucally, though, they are the same type.
+    // if the target architecture only supports atomic ops on larger data. Typically, though, they are the same type.
 #if defined(BOOST_HAS_INTPTR_T)
     typedef uintptr_t uintptr_storage_type;
 #else
