@@ -440,6 +440,19 @@ values to represent memory ordering constraints:
     ]]
 ]
 
+For compilers that support C++11 scoped enums, the library also defines scoped synonyms
+that are preferred in modern programs:
+
+[table
+    [[Pre-C++11 constant] [C++11 equivalent]]
+    [[`memory_order_relaxed`] [`memory_order::relaxed`]]
+    [[`memory_order_release`] [`memory_order::release`]]
+    [[`memory_order_acquire`] [`memory_order::acquire`]]
+    [[`memory_order_consume`] [`memory_order::consume`]]
+    [[`memory_order_acq_rel`] [`memory_order::acq_rel`]]
+    [[`memory_order_seq_cst`] [`memory_order::seq_cst`]]
+]
+
 See section [link atomic.thread_coordination ['happens-before]] for explanation
 of the various ordering constraints.
 
@@ -597,8 +610,8 @@ In addition to these explicit operations, each
 [^atomic<['T]>] object also supports
 implicit [^store] and [^load] through the use of "assignment"
 and "conversion to [^T]" operators. Avoid using these operators,
-as they do not allow explicit specification of a memory ordering
-constraint.
+as they do not allow to specify a memory ordering
+constraint which always defaults to `memory_order_seq_cst`.
 
 [endsect]
 
@@ -646,12 +659,36 @@ Additionally, as a [*Boost.Atomic] extension, the following operations are also 
       [Set the variable to the one\'s complement of the current value, returning previous value]
     ]
     [
-      [`void opaque_negate(memory_order order)`]
-      [Change the sign of the value stored in the variable, returning nothing]
+      [`I negate(memory_order order)`]
+      [Change the sign of the value stored in the variable, returning the result]
     ]
     [
-      [`void opaque_complement(memory_order order)`]
-      [Set the variable to the one\'s complement of the current value, returning nothing]
+      [`I add(I v, memory_order order)`]
+      [Add `v` to variable, returning the result]
+    ]
+    [
+      [`I sub(I v, memory_order order)`]
+      [Subtract `v` from variable, returning the result]
+    ]
+    [
+      [`I bitwise_and(I v, memory_order order)`]
+      [Apply bit-wise "and" with `v` to variable, returning the result]
+    ]
+    [
+      [`I bitwise_or(I v, memory_order order)`]
+      [Apply bit-wise "or" with `v` to variable, returning the result]
+    ]
+    [
+      [`I bitwise_xor(I v, memory_order order)`]
+      [Apply bit-wise "xor" with `v` to variable, returning the result]
+    ]
+    [
+      [`I bitwise_complement(memory_order order)`]
+      [Set the variable to the one\'s complement of the current value, returning the result]
+    ]
+    [
+      [`void opaque_negate(memory_order order)`]
+      [Change the sign of the value stored in the variable, returning nothing]
     ]
     [
       [`void opaque_add(I v, memory_order order)`]
@@ -674,12 +711,12 @@ Additionally, as a [*Boost.Atomic] extension, the following operations are also 
       [Apply bit-wise "xor" with `v` to variable, returning nothing]
     ]
     [
-      [`bool negate_and_test(memory_order order)`]
-      [Change the sign of the value stored in the variable, returning `true` if the result is non-zero and `false` otherwise]
+      [`void opaque_complement(memory_order order)`]
+      [Set the variable to the one\'s complement of the current value, returning nothing]
     ]
     [
-      [`bool complement_and_test(memory_order order)`]
-      [Set the variable to the one\'s complement of the current value, returning `true` if the result is non-zero and `false` otherwise]
+      [`bool negate_and_test(memory_order order)`]
+      [Change the sign of the value stored in the variable, returning `true` if the result is non-zero and `false` otherwise]
     ]
     [
       [`bool add_and_test(I v, memory_order order)`]
@@ -700,6 +737,10 @@ Additionally, as a [*Boost.Atomic] extension, the following operations are also 
     [
       [`bool xor_and_test(I v, memory_order order)`]
       [Apply bit-wise "xor" with `v` to variable, returning `true` if the result is non-zero and `false` otherwise]
+    ]
+    [
+      [`bool complement_and_test(memory_order order)`]
+      [Set the variable to the one\'s complement of the current value, returning `true` if the result is non-zero and `false` otherwise]
     ]
     [
       [`bool bit_test_and_set(unsigned int n, memory_order order)`]
@@ -734,8 +775,7 @@ In addition to these explicit operations, each
 [^boost::atomic<['I]>] object also
 supports implicit pre-/post- increment/decrement, as well
 as the operators `+=`, `-=`, `&=`, `|=` and `^=`.
-Avoid using these operators,
-as they do not allow explicit specification of a memory ordering
+Avoid using these operators, as they do not allow to specify a memory ordering
 constraint which always defaults to `memory_order_seq_cst`.
 
 [endsect]
@@ -764,12 +804,28 @@ Similarly to integers, the following [*Boost.Atomic] extensions are also provide
 [table
     [[Syntax] [Description]]
     [
+      [`void add(ptrdiff_t v, memory_order order)`]
+      [Add `v` to variable, returning the result]
+    ]
+    [
+      [`void sub(ptrdiff_t v, memory_order order)`]
+      [Subtract `v` from variable, returning the result]
+    ]
+    [
       [`void opaque_add(ptrdiff_t v, memory_order order)`]
       [Add `v` to variable, returning nothing]
     ]
     [
       [`void opaque_sub(ptrdiff_t v, memory_order order)`]
       [Subtract `v` from variable, returning nothing]
+    ]
+    [
+      [`bool add_and_test(ptrdiff_t v, memory_order order)`]
+      [Add `v` to variable, returning `true` if the result is non-null and `false` otherwise]
+    ]
+    [
+      [`bool sub_and_test(ptrdiff_t v, memory_order order)`]
+      [Subtract `v` from variable, returning `true` if the result is non-null and `false` otherwise]
     ]
 ]
 

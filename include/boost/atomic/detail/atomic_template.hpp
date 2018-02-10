@@ -333,6 +333,41 @@ public:
         return atomics::detail::integral_truncate< value_type >(extra_operations::fetch_complement(m_storage.value, order));
     }
 
+    BOOST_FORCEINLINE value_type add(difference_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
+    {
+        return atomics::detail::integral_truncate< value_type >(extra_operations::add(m_storage.value, atomics::detail::integral_extend< operations::is_signed, storage_type >(v), order));
+    }
+
+    BOOST_FORCEINLINE value_type sub(difference_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
+    {
+        return atomics::detail::integral_truncate< value_type >(extra_operations::sub(m_storage.value, atomics::detail::integral_extend< operations::is_signed, storage_type >(v), order));
+    }
+
+    BOOST_FORCEINLINE value_type negate(memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
+    {
+        return atomics::detail::integral_truncate< value_type >(extra_operations::negate(m_storage.value, order));
+    }
+
+    BOOST_FORCEINLINE value_type bitwise_and(value_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
+    {
+        return atomics::detail::integral_truncate< value_type >(extra_operations::bitwise_and(m_storage.value, atomics::detail::integral_extend< operations::is_signed, storage_type >(v), order));
+    }
+
+    BOOST_FORCEINLINE value_type bitwise_or(value_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
+    {
+        return atomics::detail::integral_truncate< value_type >(extra_operations::bitwise_or(m_storage.value, atomics::detail::integral_extend< operations::is_signed, storage_type >(v), order));
+    }
+
+    BOOST_FORCEINLINE value_type bitwise_xor(value_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
+    {
+        return atomics::detail::integral_truncate< value_type >(extra_operations::bitwise_xor(m_storage.value, atomics::detail::integral_extend< operations::is_signed, storage_type >(v), order));
+    }
+
+    BOOST_FORCEINLINE value_type bitwise_complement(memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
+    {
+        return atomics::detail::integral_truncate< value_type >(extra_operations::bitwise_complement(m_storage.value, order));
+    }
+
     BOOST_FORCEINLINE void opaque_add(difference_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
         extra_operations::opaque_add(m_storage.value, atomics::detail::integral_extend< operations::is_signed, storage_type >(v), order);
@@ -434,7 +469,7 @@ public:
 
     BOOST_FORCEINLINE value_type operator++() volatile BOOST_NOEXCEPT
     {
-        return fetch_add(1) + 1;
+        return add(1);
     }
 
     BOOST_FORCEINLINE value_type operator--(int) volatile BOOST_NOEXCEPT
@@ -444,32 +479,32 @@ public:
 
     BOOST_FORCEINLINE value_type operator--() volatile BOOST_NOEXCEPT
     {
-        return fetch_sub(1) - 1;
+        return sub(1);
     }
 
     BOOST_FORCEINLINE value_type operator+=(difference_type v) volatile BOOST_NOEXCEPT
     {
-        return fetch_add(v) + v;
+        return add(v);
     }
 
     BOOST_FORCEINLINE value_type operator-=(difference_type v) volatile BOOST_NOEXCEPT
     {
-        return fetch_sub(v) - v;
+        return sub(v);
     }
 
     BOOST_FORCEINLINE value_type operator&=(value_type v) volatile BOOST_NOEXCEPT
     {
-        return fetch_and(v) & v;
+        return bitwise_and(v);
     }
 
     BOOST_FORCEINLINE value_type operator|=(value_type v) volatile BOOST_NOEXCEPT
     {
-        return fetch_or(v) | v;
+        return bitwise_or(v);
     }
 
     BOOST_FORCEINLINE value_type operator^=(value_type v) volatile BOOST_NOEXCEPT
     {
-        return fetch_xor(v) ^ v;
+        return bitwise_xor(v);
     }
 
     BOOST_DELETED_FUNCTION(base_atomic(base_atomic const&))
@@ -724,6 +759,16 @@ public:
     }
 
     // Boost.Atomic extensions
+    BOOST_FORCEINLINE value_type add(difference_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
+    {
+        return atomics::detail::bitwise_cast< value_type >(static_cast< uintptr_storage_type >(extra_operations::add(m_storage.value, static_cast< uintptr_storage_type >(v * sizeof(T)), order)));
+    }
+
+    BOOST_FORCEINLINE value_type sub(difference_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
+    {
+        return atomics::detail::bitwise_cast< value_type >(static_cast< uintptr_storage_type >(extra_operations::sub(m_storage.value, static_cast< uintptr_storage_type >(v * sizeof(T)), order)));
+    }
+
     BOOST_FORCEINLINE void opaque_add(difference_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
         extra_operations::opaque_add(m_storage.value, static_cast< uintptr_storage_type >(v * sizeof(T)), order);
@@ -754,7 +799,7 @@ public:
 
     BOOST_FORCEINLINE value_type operator++() volatile BOOST_NOEXCEPT
     {
-        return fetch_add(1) + 1;
+        return add(1);
     }
 
     BOOST_FORCEINLINE value_type operator--(int) volatile BOOST_NOEXCEPT
@@ -764,17 +809,17 @@ public:
 
     BOOST_FORCEINLINE value_type operator--() volatile BOOST_NOEXCEPT
     {
-        return fetch_sub(1) - 1;
+        return sub(1);
     }
 
     BOOST_FORCEINLINE value_type operator+=(difference_type v) volatile BOOST_NOEXCEPT
     {
-        return fetch_add(v) + v;
+        return add(v);
     }
 
     BOOST_FORCEINLINE value_type operator-=(difference_type v) volatile BOOST_NOEXCEPT
     {
-        return fetch_sub(v) - v;
+        return sub(v);
     }
 
     BOOST_DELETED_FUNCTION(base_atomic(base_atomic const&))

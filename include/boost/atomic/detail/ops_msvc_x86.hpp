@@ -334,22 +334,19 @@ struct operations< 1u, Signed > :
     static BOOST_FORCEINLINE storage_type fetch_and(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
         base_type::fence_before(order);
-        int backup;
         __asm
         {
-            mov backup, ebx
-            xor edx, edx
             mov edi, storage
-            movzx ebx, v
+            movzx ecx, v
+            xor edx, edx
             movzx eax, byte ptr [edi]
             align 16
         again:
             mov dl, al
-            and dl, bl
+            and dl, cl
             lock cmpxchg byte ptr [edi], dl
             jne again
             mov v, al
-            mov ebx, backup
         };
         base_type::fence_after(order);
         return v;
@@ -358,22 +355,19 @@ struct operations< 1u, Signed > :
     static BOOST_FORCEINLINE storage_type fetch_or(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
         base_type::fence_before(order);
-        int backup;
         __asm
         {
-            mov backup, ebx
-            xor edx, edx
             mov edi, storage
-            movzx ebx, v
+            movzx ecx, v
+            xor edx, edx
             movzx eax, byte ptr [edi]
             align 16
         again:
             mov dl, al
-            or dl, bl
+            or dl, cl
             lock cmpxchg byte ptr [edi], dl
             jne again
             mov v, al
-            mov ebx, backup
         };
         base_type::fence_after(order);
         return v;
@@ -382,22 +376,19 @@ struct operations< 1u, Signed > :
     static BOOST_FORCEINLINE storage_type fetch_xor(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
         base_type::fence_before(order);
-        int backup;
         __asm
         {
-            mov backup, ebx
-            xor edx, edx
             mov edi, storage
-            movzx ebx, v
+            movzx ecx, v
+            xor edx, edx
             movzx eax, byte ptr [edi]
             align 16
         again:
             mov dl, al
-            xor dl, bl
+            xor dl, cl
             lock cmpxchg byte ptr [edi], dl
             jne again
             mov v, al
-            mov ebx, backup
         };
         base_type::fence_after(order);
         return v;
@@ -518,22 +509,19 @@ struct operations< 2u, Signed > :
     static BOOST_FORCEINLINE storage_type fetch_and(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
         base_type::fence_before(order);
-        int backup;
         __asm
         {
-            mov backup, ebx
-            xor edx, edx
             mov edi, storage
-            movzx ebx, v
+            movzx ecx, v
+            xor edx, edx
             movzx eax, word ptr [edi]
             align 16
         again:
             mov dx, ax
-            and dx, bx
+            and dx, cx
             lock cmpxchg word ptr [edi], dx
             jne again
             mov v, ax
-            mov ebx, backup
         };
         base_type::fence_after(order);
         return v;
@@ -542,22 +530,19 @@ struct operations< 2u, Signed > :
     static BOOST_FORCEINLINE storage_type fetch_or(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
         base_type::fence_before(order);
-        int backup;
         __asm
         {
-            mov backup, ebx
-            xor edx, edx
             mov edi, storage
-            movzx ebx, v
+            movzx ecx, v
+            xor edx, edx
             movzx eax, word ptr [edi]
             align 16
         again:
             mov dx, ax
-            or dx, bx
+            or dx, cx
             lock cmpxchg word ptr [edi], dx
             jne again
             mov v, ax
-            mov ebx, backup
         };
         base_type::fence_after(order);
         return v;
@@ -566,22 +551,19 @@ struct operations< 2u, Signed > :
     static BOOST_FORCEINLINE storage_type fetch_xor(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
         base_type::fence_before(order);
-        int backup;
         __asm
         {
-            mov backup, ebx
-            xor edx, edx
             mov edi, storage
-            movzx ebx, v
+            movzx ecx, v
+            xor edx, edx
             movzx eax, word ptr [edi]
             align 16
         again:
             mov dx, ax
-            xor dx, bx
+            xor dx, cx
             lock cmpxchg word ptr [edi], dx
             jne again
             mov v, ax
-            mov ebx, backup
         };
         base_type::fence_after(order);
         return v;
@@ -654,7 +636,7 @@ struct msvc_dcas_x86
         }
         else
         {
-            int backup;
+            uint32_t backup;
             __asm
             {
                 mov backup, ebx
@@ -742,7 +724,7 @@ struct msvc_dcas_x86
         expected = old_val;
 #else
         bool result;
-        int backup;
+        uint32_t backup;
         __asm
         {
             mov backup, ebx
@@ -775,7 +757,7 @@ struct msvc_dcas_x86
         BOOST_ATOMIC_DETAIL_COMPILER_BARRIER();
 
         storage_type volatile* p = &storage;
-        int backup;
+        uint32_t backup;
         __asm
         {
             mov backup, ebx

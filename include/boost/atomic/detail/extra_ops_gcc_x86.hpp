@@ -36,6 +36,16 @@ struct gcc_x86_extra_operations_common :
     typedef Base base_type;
     typedef typename base_type::storage_type storage_type;
 
+    static BOOST_FORCEINLINE storage_type add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    {
+        return static_cast< storage_type >(Base::fetch_add(storage, v, order) + v);
+    }
+
+    static BOOST_FORCEINLINE storage_type sub(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    {
+        return static_cast< storage_type >(Base::fetch_sub(storage, v, order) - v);
+    }
+
     static BOOST_FORCEINLINE bool bit_test_and_set(storage_type volatile& storage, unsigned int bit_number, memory_order) BOOST_NOEXCEPT
     {
         bool res;
@@ -110,7 +120,7 @@ struct gcc_x86_extra_operations_common :
 };
 
 template< typename Base, bool Signed >
-struct extra_operations< Base, 1u, Signed > :
+struct extra_operations< Base, 1u, Signed, true > :
     public gcc_x86_extra_operations_common< Base >
 {
     typedef gcc_x86_extra_operations_common< Base > base_type;
@@ -146,23 +156,72 @@ struct extra_operations< Base, 1u, Signed > :
         return original;
     }
 
-    static BOOST_FORCEINLINE bool negate_and_test(storage_type volatile& storage, memory_order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type negate(storage_type volatile& storage, memory_order) BOOST_NOEXCEPT
     {
         storage_type original = storage;
         temp_storage_type result;
         BOOST_ATOMIC_DETAIL_CAS_LOOP("negb", original, result);
-        return !!static_cast< storage_type >(result);
+        return static_cast< storage_type >(result);
     }
 
-    static BOOST_FORCEINLINE bool complement_and_test(storage_type volatile& storage, memory_order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type bitwise_complement(storage_type volatile& storage, memory_order) BOOST_NOEXCEPT
     {
         storage_type original = storage;
         temp_storage_type result;
         BOOST_ATOMIC_DETAIL_CAS_LOOP("notb", original, result);
-        return !!static_cast< storage_type >(result);
+        return static_cast< storage_type >(result);
     }
 
 #undef BOOST_ATOMIC_DETAIL_CAS_LOOP
+
+#define BOOST_ATOMIC_DETAIL_CAS_LOOP(op, argument, original, result)\
+    __asm__ __volatile__\
+    (\
+        ".align 16\n\t"\
+        "1: mov %[arg], %2\n\t"\
+        op " %%al, %b2\n\t"\
+        "lock; cmpxchgb %b2, %[storage]\n\t"\
+        "jne 1b"\
+        : [orig] "+a" (original), [storage] "+m" (storage), "=&q" (result)\
+        : [arg] "ir" ((temp_storage_type)argument)\
+        : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"\
+    )
+
+    static BOOST_FORCEINLINE storage_type bitwise_and(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
+    {
+        storage_type original = storage;
+        temp_storage_type result;
+        BOOST_ATOMIC_DETAIL_CAS_LOOP("andb", v, original, result);
+        return static_cast< storage_type >(result);
+    }
+
+    static BOOST_FORCEINLINE storage_type bitwise_or(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
+    {
+        storage_type original = storage;
+        temp_storage_type result;
+        BOOST_ATOMIC_DETAIL_CAS_LOOP("orb", v, original, result);
+        return static_cast< storage_type >(result);
+    }
+
+    static BOOST_FORCEINLINE storage_type bitwise_xor(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
+    {
+        storage_type original = storage;
+        temp_storage_type result;
+        BOOST_ATOMIC_DETAIL_CAS_LOOP("xorb", v, original, result);
+        return static_cast< storage_type >(result);
+    }
+
+#undef BOOST_ATOMIC_DETAIL_CAS_LOOP
+
+    static BOOST_FORCEINLINE bool negate_and_test(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
+    {
+        return !!negate(storage, order);
+    }
+
+    static BOOST_FORCEINLINE bool complement_and_test(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
+    {
+        return !!bitwise_complement(storage, order);
+    }
 
     static BOOST_FORCEINLINE void opaque_add(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
@@ -443,7 +502,7 @@ struct extra_operations< Base, 1u, Signed > :
 };
 
 template< typename Base, bool Signed >
-struct extra_operations< Base, 2u, Signed > :
+struct extra_operations< Base, 2u, Signed, true > :
     public gcc_x86_extra_operations_common< Base >
 {
     typedef gcc_x86_extra_operations_common< Base > base_type;
@@ -479,23 +538,72 @@ struct extra_operations< Base, 2u, Signed > :
         return original;
     }
 
-    static BOOST_FORCEINLINE bool negate_and_test(storage_type volatile& storage, memory_order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type negate(storage_type volatile& storage, memory_order) BOOST_NOEXCEPT
     {
         storage_type original = storage;
         temp_storage_type result;
         BOOST_ATOMIC_DETAIL_CAS_LOOP("negw", original, result);
-        return !!static_cast< storage_type >(result);
+        return static_cast< storage_type >(result);
     }
 
-    static BOOST_FORCEINLINE bool complement_and_test(storage_type volatile& storage, memory_order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type bitwise_complement(storage_type volatile& storage, memory_order) BOOST_NOEXCEPT
     {
         storage_type original = storage;
         temp_storage_type result;
         BOOST_ATOMIC_DETAIL_CAS_LOOP("notw", original, result);
-        return !!static_cast< storage_type >(result);
+        return static_cast< storage_type >(result);
     }
 
 #undef BOOST_ATOMIC_DETAIL_CAS_LOOP
+
+#define BOOST_ATOMIC_DETAIL_CAS_LOOP(op, argument, original, result)\
+    __asm__ __volatile__\
+    (\
+        ".align 16\n\t"\
+        "1: mov %[arg], %2\n\t"\
+        op " %%ax, %w2\n\t"\
+        "lock; cmpxchgw %w2, %[storage]\n\t"\
+        "jne 1b"\
+        : [orig] "+a" (original), [storage] "+m" (storage), "=&q" (result)\
+        : [arg] "ir" ((temp_storage_type)argument)\
+        : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"\
+    )
+
+    static BOOST_FORCEINLINE storage_type bitwise_and(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
+    {
+        storage_type original = storage;
+        temp_storage_type result;
+        BOOST_ATOMIC_DETAIL_CAS_LOOP("andw", v, original, result);
+        return static_cast< storage_type >(result);
+    }
+
+    static BOOST_FORCEINLINE storage_type bitwise_or(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
+    {
+        storage_type original = storage;
+        temp_storage_type result;
+        BOOST_ATOMIC_DETAIL_CAS_LOOP("orw", v, original, result);
+        return static_cast< storage_type >(result);
+    }
+
+    static BOOST_FORCEINLINE storage_type bitwise_xor(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
+    {
+        storage_type original = storage;
+        temp_storage_type result;
+        BOOST_ATOMIC_DETAIL_CAS_LOOP("xorw", v, original, result);
+        return static_cast< storage_type >(result);
+    }
+
+#undef BOOST_ATOMIC_DETAIL_CAS_LOOP
+
+    static BOOST_FORCEINLINE bool negate_and_test(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
+    {
+        return !!negate(storage, order);
+    }
+
+    static BOOST_FORCEINLINE bool complement_and_test(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
+    {
+        return !!bitwise_complement(storage, order);
+    }
 
     static BOOST_FORCEINLINE void opaque_add(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
@@ -776,7 +884,7 @@ struct extra_operations< Base, 2u, Signed > :
 };
 
 template< typename Base, bool Signed >
-struct extra_operations< Base, 4u, Signed > :
+struct extra_operations< Base, 4u, Signed, true > :
     public gcc_x86_extra_operations_common< Base >
 {
     typedef gcc_x86_extra_operations_common< Base > base_type;
@@ -811,23 +919,72 @@ struct extra_operations< Base, 4u, Signed > :
         return original;
     }
 
-    static BOOST_FORCEINLINE bool negate_and_test(storage_type volatile& storage, memory_order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type negate(storage_type volatile& storage, memory_order) BOOST_NOEXCEPT
     {
         storage_type original = storage;
         storage_type result;
         BOOST_ATOMIC_DETAIL_CAS_LOOP("negl", original, result);
-        return !!result;
+        return result;
     }
 
-    static BOOST_FORCEINLINE bool complement_and_test(storage_type volatile& storage, memory_order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type bitwise_complement(storage_type volatile& storage, memory_order) BOOST_NOEXCEPT
     {
         storage_type original = storage;
         storage_type result;
         BOOST_ATOMIC_DETAIL_CAS_LOOP("notl", original, result);
-        return !!result;
+        return result;
     }
 
 #undef BOOST_ATOMIC_DETAIL_CAS_LOOP
+
+#define BOOST_ATOMIC_DETAIL_CAS_LOOP(op, argument, original, result)\
+    __asm__ __volatile__\
+    (\
+        ".align 16\n\t"\
+        "1: mov %[arg], %[res]\n\t"\
+        op " %%eax, %[res]\n\t"\
+        "lock; cmpxchgl %[res], %[storage]\n\t"\
+        "jne 1b"\
+        : [orig] "+a" (original), [storage] "+m" (storage), [res] "=&r" (result)\
+        : [arg] "ir" (argument)\
+        : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"\
+    )
+
+    static BOOST_FORCEINLINE storage_type bitwise_and(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
+    {
+        storage_type original = storage;
+        storage_type result;
+        BOOST_ATOMIC_DETAIL_CAS_LOOP("andl", v, original, result);
+        return static_cast< storage_type >(result);
+    }
+
+    static BOOST_FORCEINLINE storage_type bitwise_or(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
+    {
+        storage_type original = storage;
+        storage_type result;
+        BOOST_ATOMIC_DETAIL_CAS_LOOP("orl", v, original, result);
+        return static_cast< storage_type >(result);
+    }
+
+    static BOOST_FORCEINLINE storage_type bitwise_xor(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
+    {
+        storage_type original = storage;
+        storage_type result;
+        BOOST_ATOMIC_DETAIL_CAS_LOOP("xorl", v, original, result);
+        return static_cast< storage_type >(result);
+    }
+
+#undef BOOST_ATOMIC_DETAIL_CAS_LOOP
+
+    static BOOST_FORCEINLINE bool negate_and_test(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
+    {
+        return !!negate(storage, order);
+    }
+
+    static BOOST_FORCEINLINE bool complement_and_test(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
+    {
+        return !!bitwise_complement(storage, order);
+    }
 
     static BOOST_FORCEINLINE void opaque_add(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
@@ -1110,7 +1267,7 @@ struct extra_operations< Base, 4u, Signed > :
 #if defined(__x86_64__)
 
 template< typename Base, bool Signed >
-struct extra_operations< Base, 8u, Signed > :
+struct extra_operations< Base, 8u, Signed, true > :
     public gcc_x86_extra_operations_common< Base >
 {
     typedef gcc_x86_extra_operations_common< Base > base_type;
@@ -1145,23 +1302,72 @@ struct extra_operations< Base, 8u, Signed > :
         return original;
     }
 
-    static BOOST_FORCEINLINE bool negate_and_test(storage_type volatile& storage, memory_order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type negate(storage_type volatile& storage, memory_order) BOOST_NOEXCEPT
     {
         storage_type original = storage;
         storage_type result;
         BOOST_ATOMIC_DETAIL_CAS_LOOP("negq", original, result);
-        return !!result;
+        return result;
     }
 
-    static BOOST_FORCEINLINE bool complement_and_test(storage_type volatile& storage, memory_order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type bitwise_complement(storage_type volatile& storage, memory_order) BOOST_NOEXCEPT
     {
         storage_type original = storage;
         storage_type result;
         BOOST_ATOMIC_DETAIL_CAS_LOOP("notq", original, result);
-        return !!result;
+        return result;
     }
 
 #undef BOOST_ATOMIC_DETAIL_CAS_LOOP
+
+#define BOOST_ATOMIC_DETAIL_CAS_LOOP(op, argument, original, result)\
+    __asm__ __volatile__\
+    (\
+        ".align 16\n\t"\
+        "1: mov %[arg], %[res]\n\t"\
+        op " %%rax, %[res]\n\t"\
+        "lock; cmpxchgq %[res], %[storage]\n\t"\
+        "jne 1b"\
+        : [orig] "+a" (original), [storage] "+m" (storage), [res] "=&r" (result)\
+        : [arg] "r" (argument)\
+        : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"\
+    )
+
+    static BOOST_FORCEINLINE storage_type bitwise_and(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
+    {
+        storage_type original = storage;
+        storage_type result;
+        BOOST_ATOMIC_DETAIL_CAS_LOOP("andq", v, original, result);
+        return static_cast< storage_type >(result);
+    }
+
+    static BOOST_FORCEINLINE storage_type bitwise_or(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
+    {
+        storage_type original = storage;
+        storage_type result;
+        BOOST_ATOMIC_DETAIL_CAS_LOOP("orq", v, original, result);
+        return static_cast< storage_type >(result);
+    }
+
+    static BOOST_FORCEINLINE storage_type bitwise_xor(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
+    {
+        storage_type original = storage;
+        storage_type result;
+        BOOST_ATOMIC_DETAIL_CAS_LOOP("xorq", v, original, result);
+        return static_cast< storage_type >(result);
+    }
+
+#undef BOOST_ATOMIC_DETAIL_CAS_LOOP
+
+    static BOOST_FORCEINLINE bool negate_and_test(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
+    {
+        return !!negate(storage, order);
+    }
+
+    static BOOST_FORCEINLINE bool complement_and_test(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
+    {
+        return !!bitwise_complement(storage, order);
+    }
 
     static BOOST_FORCEINLINE void opaque_add(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {

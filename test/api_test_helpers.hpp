@@ -421,6 +421,21 @@ void test_additive_operators_with_type(T value, D delta)
         BOOST_TEST_EQ( n, T((AddType)value - 1) );
     }
 
+    // Operations returning the actual resulting value
+    {
+        boost::atomic<T> a(value);
+        T n = a.add(delta);
+        BOOST_TEST_EQ( a.load(), T((AddType)value + delta) );
+        BOOST_TEST_EQ( n, T((AddType)value + delta) );
+    }
+
+    {
+        boost::atomic<T> a(value);
+        T n = a.sub(delta);
+        BOOST_TEST_EQ( a.load(), T((AddType)value - delta) );
+        BOOST_TEST_EQ( n, T((AddType)value - delta) );
+    }
+
     // Opaque operations
     {
         boost::atomic<T> a(value);
@@ -456,6 +471,16 @@ void test_negation()
         n = a.fetch_negate();
         BOOST_TEST_EQ( a.load(), (T)1 );
         BOOST_TEST_EQ( n, (T)-1 );
+    }
+    {
+        boost::atomic<T> a((T)1);
+        T n = a.negate();
+        BOOST_TEST_EQ( a.load(), (T)-1 );
+        BOOST_TEST_EQ( n, (T)-1 );
+
+        n = a.negate();
+        BOOST_TEST_EQ( a.load(), (T)1 );
+        BOOST_TEST_EQ( n, (T)1 );
     }
     {
         boost::atomic<T> a((T)1);
@@ -550,6 +575,35 @@ void test_bit_operators(T value, T delta)
         T n = (a ^= delta);
         BOOST_TEST_EQ( a.load(), T(value ^ delta) );
         BOOST_TEST_EQ( n, T(value ^ delta) );
+    }
+
+    // Operations returning the actual resulting value
+    {
+        boost::atomic<T> a(value);
+        T n = a.bitwise_and(delta);
+        BOOST_TEST_EQ( a.load(), T(value & delta) );
+        BOOST_TEST_EQ( n, T(value & delta) );
+    }
+
+    {
+        boost::atomic<T> a(value);
+        T n = a.bitwise_or(delta);
+        BOOST_TEST_EQ( a.load(), T(value | delta) );
+        BOOST_TEST_EQ( n, T(value | delta) );
+    }
+
+    {
+        boost::atomic<T> a(value);
+        T n = a.bitwise_xor(delta);
+        BOOST_TEST_EQ( a.load(), T(value ^ delta) );
+        BOOST_TEST_EQ( n, T(value ^ delta) );
+    }
+
+    {
+        boost::atomic<T> a(value);
+        T n = a.bitwise_complement();
+        BOOST_TEST_EQ( a.load(), T(~value) );
+        BOOST_TEST_EQ( n, T(~value) );
     }
 
     // Opaque operations
