@@ -37,6 +37,7 @@ namespace detail {
 
 struct gcc_x86_operations_base
 {
+    static BOOST_CONSTEXPR_OR_CONST bool full_cas_based = false;
     static BOOST_CONSTEXPR_OR_CONST bool is_always_lock_free = true;
 
     static BOOST_FORCEINLINE void fence_before(memory_order order) BOOST_NOEXCEPT

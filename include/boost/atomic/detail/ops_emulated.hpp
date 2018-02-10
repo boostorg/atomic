@@ -38,6 +38,7 @@ struct emulated_operations
 
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = Size;
     static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
+    static BOOST_CONSTEXPR_OR_CONST bool full_cas_based = false;
 
     static BOOST_CONSTEXPR_OR_CONST bool is_always_lock_free = false;
 

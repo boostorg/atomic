@@ -89,6 +89,7 @@ struct gcc_atomic_operations
 
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = Size;
     static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
+    static BOOST_CONSTEXPR_OR_CONST bool full_cas_based = false;
 
     // Note: In the current implementation, gcc_atomic_operations are used only when the particularly sized __atomic
     // intrinsics are always lock-free (i.e. the corresponding LOCK_FREE macro is 2). Therefore it is safe to

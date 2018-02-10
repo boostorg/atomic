@@ -73,6 +73,7 @@ namespace detail {
 
 struct msvc_x86_operations_base
 {
+    static BOOST_CONSTEXPR_OR_CONST bool full_cas_based = false;
     static BOOST_CONSTEXPR_OR_CONST bool is_always_lock_free = true;
 
     static BOOST_FORCEINLINE void hardware_full_fence() BOOST_NOEXCEPT
@@ -589,6 +590,7 @@ struct msvc_dcas_x86
     typedef typename make_storage_type< 8u >::type storage_type;
     typedef typename make_storage_type< 8u >::aligned aligned_storage_type;
 
+    static BOOST_CONSTEXPR_OR_CONST bool full_cas_based = true;
     static BOOST_CONSTEXPR_OR_CONST bool is_always_lock_free = true;
 
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 8u;
@@ -841,6 +843,7 @@ struct msvc_dcas_x86_64
     typedef typename make_storage_type< 16u >::type storage_type;
     typedef typename make_storage_type< 16u >::aligned aligned_storage_type;
 
+    static BOOST_CONSTEXPR_OR_CONST bool full_cas_based = true;
     static BOOST_CONSTEXPR_OR_CONST bool is_always_lock_free = true;
 
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 16u;
