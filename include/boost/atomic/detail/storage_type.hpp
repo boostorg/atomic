@@ -164,7 +164,7 @@ struct BOOST_ATOMIC_DETAIL_MAY_ALIAS storage128_t
 
 BOOST_FORCEINLINE bool operator== (storage128_t const& left, storage128_t const& right) BOOST_NOEXCEPT
 {
-    return left.data[0] == right.data[0] && left.data[1] == right.data[1];
+    return ((left.data[0] ^ right.data[0]) | (left.data[1] ^ right.data[1])) == 0u;
 }
 BOOST_FORCEINLINE bool operator!= (storage128_t const& left, storage128_t const& right) BOOST_NOEXCEPT
 {
