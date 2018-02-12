@@ -43,7 +43,7 @@ struct emulated_extra_operations :
     typedef Base base_type;
     typedef typename base_type::storage_type storage_type;
 
-    static BOOST_FORCEINLINE storage_type fetch_negate(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_negate(storage_type volatile& storage, memory_order) BOOST_NOEXCEPT
     {
         storage_type& s = const_cast< storage_type& >(storage);
         lockpool::scoped_lock lock(&storage);
@@ -52,7 +52,7 @@ struct emulated_extra_operations :
         return old_val;
     }
 
-    static BOOST_FORCEINLINE storage_type negate(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type negate(storage_type volatile& storage, memory_order) BOOST_NOEXCEPT
     {
         storage_type& s = const_cast< storage_type& >(storage);
         lockpool::scoped_lock lock(&storage);
@@ -111,7 +111,7 @@ struct emulated_extra_operations :
         return new_val;
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_complement(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_complement(storage_type volatile& storage, memory_order) BOOST_NOEXCEPT
     {
         storage_type& s = const_cast< storage_type& >(storage);
         lockpool::scoped_lock lock(&storage);
@@ -120,7 +120,7 @@ struct emulated_extra_operations :
         return old_val;
     }
 
-    static BOOST_FORCEINLINE storage_type bitwise_complement(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type bitwise_complement(storage_type volatile& storage, memory_order) BOOST_NOEXCEPT
     {
         storage_type& s = const_cast< storage_type& >(storage);
         lockpool::scoped_lock lock(&storage);
