@@ -693,7 +693,7 @@ public:
     typedef typename operations::storage_type storage_type;
 
 private:
-    typedef atomics::detail::integral_constant< bool, sizeof(value_type) == sizeof(storage_type) > value_matches_storage;
+    typedef atomics::detail::integral_constant< bool, atomics::detail::value_sizeof< value_type >::value == sizeof(storage_type) > value_matches_storage;
 
 protected:
     typename operations::aligned_storage_type m_storage;
