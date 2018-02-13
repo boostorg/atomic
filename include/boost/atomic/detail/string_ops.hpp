@@ -27,13 +27,9 @@
 #if __has_builtin(__builtin_memcmp)
 #define BOOST_ATOMIC_DETAIL_HAS_BUILTIN_MEMCMP
 #endif
-#if __has_builtin(__builtin_memset)
-#define BOOST_ATOMIC_DETAIL_HAS_BUILTIN_MEMSET
-#endif
 #elif defined(BOOST_GCC)
 #define BOOST_ATOMIC_DETAIL_HAS_BUILTIN_MEMCPY
 #define BOOST_ATOMIC_DETAIL_HAS_BUILTIN_MEMCMP
-#define BOOST_ATOMIC_DETAIL_HAS_BUILTIN_MEMSET
 #endif
 
 #if defined(BOOST_ATOMIC_DETAIL_HAS_BUILTIN_MEMCPY)
@@ -48,13 +44,7 @@
 #define BOOST_ATOMIC_DETAIL_MEMCMP std::memcmp
 #endif
 
-#if defined(BOOST_ATOMIC_DETAIL_HAS_BUILTIN_MEMSET)
-#define BOOST_ATOMIC_DETAIL_MEMSET __builtin_memset
-#else
-#define BOOST_ATOMIC_DETAIL_MEMSET std::memset
-#endif
-
-#if !defined(BOOST_ATOMIC_DETAIL_HAS_BUILTIN_MEMCPY) || !defined(BOOST_ATOMIC_DETAIL_HAS_BUILTIN_MEMCMP) || !defined(BOOST_ATOMIC_DETAIL_HAS_BUILTIN_MEMSET)
+#if !defined(BOOST_ATOMIC_DETAIL_HAS_BUILTIN_MEMCPY) || !defined(BOOST_ATOMIC_DETAIL_HAS_BUILTIN_MEMCMP)
 #include <cstring>
 #endif
 
