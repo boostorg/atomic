@@ -858,10 +858,12 @@ is [@https://en.wikipedia.org/wiki/Denormal_number denormalized]. This also mean
 with regard to special floating point values like NaN and signed zero is also different from normal C++.
 
 Another source of the problem is padding bits that are added to some floating point types for alignment.
-One wide-spread example of that is Intel x87 extended double format, which is typically stored as 80 bits
+One widespread example of that is Intel x87 extended double format, which is typically stored as 80 bits
 of value padded with 16 or 48 unused bits. These padding bits are often uninitialized and contain garbage,
-which makes two equal numbers have different binary representation. The library accounts for the known
-such cases, but it is possible that some exotic platforms exist that are not covered yet.
+which makes two equal numbers have different binary representation. The library attempts to account for
+the known such cases, but in general it is possible that some platforms are not covered. Note that the C++
+standard makes no guarantees about reliability of `compare_exchange*` operations in the face of padding or
+trap bits.
 
 [endsect]
 
