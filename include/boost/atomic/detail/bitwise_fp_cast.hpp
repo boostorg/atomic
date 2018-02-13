@@ -16,18 +16,11 @@
 
 #include <cstddef>
 #include <boost/atomic/detail/config.hpp>
-#include <boost/atomic/detail/addressof.hpp>
-#include <boost/atomic/detail/string_ops.hpp>
 #include <boost/atomic/detail/float_sizes.hpp>
+#include <boost/atomic/detail/bitwise_cast.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once
-#endif
-
-#if defined(BOOST_GCC) && (BOOST_GCC+0) >= 40600
-#pragma GCC diagnostic push
-// missing initializer for member var
-#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 #endif
 
 namespace boost {
@@ -83,26 +76,11 @@ struct value_sizeof< const volatile T > : value_sizeof< T > {};
 template< typename To, typename From >
 BOOST_FORCEINLINE To bitwise_fp_cast(From const& from) BOOST_NOEXCEPT
 {
-    struct
-    {
-        To to;
-    }
-    value = {};
-    BOOST_ATOMIC_DETAIL_MEMCPY
-    (
-        atomics::detail::addressof(value.to),
-        atomics::detail::addressof(from),
-        (atomics::detail::value_sizeof< From >::value < sizeof(To) ? atomics::detail::value_sizeof< From >::value : sizeof(To))
-    );
-    return value.to;
+    return atomics::detail::bitwise_cast< To, atomics::detail::value_sizeof< From >::value >(from);
 }
 
 } // namespace detail
 } // namespace atomics
 } // namespace boost
-
-#if defined(BOOST_GCC) && (BOOST_GCC+0) >= 40600
-#pragma GCC diagnostic pop
-#endif
 
 #endif // BOOST_ATOMIC_DETAIL_BITWISE_FP_CAST_HPP_INCLUDED_
