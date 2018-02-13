@@ -196,11 +196,8 @@ struct make_storage_type< 16u >
 template< typename T >
 struct storage_size_of
 {
-    enum _
-    {
-        size = sizeof(T),
-        value = (size == 3 ? 4 : (size >= 5 && size <= 7 ? 8 : (size >= 9 && size <= 15 ? 16 : size)))
-    };
+    static BOOST_CONSTEXPR_OR_CONST std::size_t size = sizeof(T);
+    static BOOST_CONSTEXPR_OR_CONST std::size_t value = (size == 3u ? 4u : (size >= 5u && size <= 7u ? 8u : (size >= 9u && size <= 15u ? 16u : size)));
 };
 
 } // namespace detail

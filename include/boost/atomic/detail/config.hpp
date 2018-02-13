@@ -82,6 +82,12 @@
 #define BOOST_ATOMIC_DETAIL_IS_CONSTANT(x) false
 #endif
 
+#if (defined(__BYTE_ORDER__) && defined(__FLOAT_WORD_ORDER__) && (__BYTE_ORDER__+0) == (__FLOAT_WORD_ORDER__+0)) ||\
+    defined(__i386__) || defined(__x86_64__) || defined(_M_IX86) || defined(_M_X64)
+// This macro indicates that integer and floating point endianness is the same
+#define BOOST_ATOMIC_DETAIL_INT_FP_ENDIAN_MATCH
+#endif
+
 // Deprecated symbols markup
 #if !defined(BOOST_ATOMIC_DETAIL_DEPRECATED) && defined(_MSC_VER)
 #if (_MSC_VER) >= 1400

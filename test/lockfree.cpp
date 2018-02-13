@@ -191,6 +191,26 @@ int main(int, char *[])
     verify_lock_free<void *>("void *", BOOST_ATOMIC_POINTER_LOCK_FREE, EXPECT_SHORT_LOCK_FREE);
     verify_lock_free<bool>("bool", BOOST_ATOMIC_BOOL_LOCK_FREE, EXPECT_BOOL_LOCK_FREE);
 
+#ifndef BOOST_ATOMIC_NO_FLOATING_POINT
+
+    verify_lock_free<float>("float", BOOST_ATOMIC_FLOAT_LOCK_FREE,
+        sizeof(float) == 1 ? EXPECT_CHAR_LOCK_FREE : (sizeof(float) == 2 ? EXPECT_SHORT_LOCK_FREE :
+        (sizeof(float) <= 4 ? EXPECT_INT_LOCK_FREE : (sizeof(float) <= 8 ? EXPECT_LLONG_LOCK_FREE : (sizeof(float) <= 16 ? EXPECT_INT128_LOCK_FREE : 0)))));
+
+    verify_lock_free<double>("double", BOOST_ATOMIC_DOUBLE_LOCK_FREE,
+        sizeof(double) == 1 ? EXPECT_CHAR_LOCK_FREE : (sizeof(double) == 2 ? EXPECT_SHORT_LOCK_FREE :
+        (sizeof(double) <= 4 ? EXPECT_INT_LOCK_FREE : (sizeof(double) <= 8 ? EXPECT_LLONG_LOCK_FREE : (sizeof(double) <= 16 ? EXPECT_INT128_LOCK_FREE : 0)))));
+
+    verify_lock_free<long double>("long double", BOOST_ATOMIC_LONG_DOUBLE_LOCK_FREE,
+        sizeof(long double) == 1 ? EXPECT_CHAR_LOCK_FREE : (sizeof(long double) == 2 ? EXPECT_SHORT_LOCK_FREE :
+        (sizeof(long double) <= 4 ? EXPECT_INT_LOCK_FREE : (sizeof(long double) <= 8 ? EXPECT_LLONG_LOCK_FREE : (sizeof(long double) <= 16 ? EXPECT_INT128_LOCK_FREE : 0)))));
+
+#ifdef BOOST_HAS_FLOAT128
+    verify_lock_free<boost::float128_type>("float128", BOOST_ATOMIC_INT128_LOCK_FREE, EXPECT_INT128_LOCK_FREE);
+#endif
+
+#endif // BOOST_ATOMIC_NO_FLOATING_POINT
+
     bool any_lock_free =
         BOOST_ATOMIC_CHAR_LOCK_FREE > 0 ||
         BOOST_ATOMIC_SHORT_LOCK_FREE > 0 ||

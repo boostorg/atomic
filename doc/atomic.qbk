@@ -375,6 +375,9 @@ The following macros affect library behavior:
       of this instruction, so running the library code on older CPUs will result in crashes, unless
       this macro is defined. Note that the macro does not affect MSVC, GCC and compatible compilers
       because the library infers this information from the compiler-defined macros.]]
+    [[`BOOST_ATOMIC_NO_FLOATING_POINT`] [When defined, support for floating point operations is disabled.
+      Floating point types shall be treated similar to trivially copyable structs and no capability macros
+      will be defined.]]
     [[`BOOST_ATOMIC_FORCE_FALLBACK`] [When defined, all operations are implemented with locks.
       This is mostly used for testing and should not be used in real world projects.]]
     [[`BOOST_ATOMIC_DYN_LINK` and `BOOST_ALL_DYN_LINK`] [Control library linking. If defined,
@@ -535,7 +538,8 @@ examples of the types compatible with this requirement:
 Note that classes with virtual functions or virtual base classes
 do not satisfy the requirements. Also be warned
 that structures with "padding" between data members may compare
-non-equal via [^memcmp] even though all members are equal.
+non-equal via [^memcmp] even though all members are equal. This may also be
+the case with some floating point types, which include padding bits themselves.
 
 [section:interface_atomic_generic [^boost::atomic<['T]>] template class]
 
@@ -780,9 +784,90 @@ constraint which always defaults to `memory_order_seq_cst`.
 
 [endsect]
 
+[section:interface_atomic_floating_point [^boost::atomic<['floating-point]>] template class]
+
+[note The support for floating point types is optional and can be disabled by defining `BOOST_ATOMIC_NO_FLOATING_POINT`.]
+
+In addition to the operations applicable to all atomic objects,
+[^boost::atomic<['F]>] for floating point
+types [^['F]] supports the following operations,
+which correspond to [^std::atomic<['F]>]:
+
+[table
+    [[Syntax] [Description]]
+    [
+      [`F fetch_add(F v, memory_order order)`]
+      [Add `v` to variable, returning previous value]
+    ]
+    [
+      [`F fetch_sub(F v, memory_order order)`]
+      [Subtract `v` from variable, returning previous value]
+    ]
+]
+
+Additionally, as a [*Boost.Atomic] extension, the following operations are also provided:
+
+[table
+    [[Syntax] [Description]]
+    [
+      [`F fetch_negate(memory_order order)`]
+      [Change the sign of the value stored in the variable, returning previous value]
+    ]
+    [
+      [`F negate(memory_order order)`]
+      [Change the sign of the value stored in the variable, returning the result]
+    ]
+    [
+      [`F add(F v, memory_order order)`]
+      [Add `v` to variable, returning the result]
+    ]
+    [
+      [`F sub(F v, memory_order order)`]
+      [Subtract `v` from variable, returning the result]
+    ]
+    [
+      [`void opaque_negate(memory_order order)`]
+      [Change the sign of the value stored in the variable, returning nothing]
+    ]
+    [
+      [`void opaque_add(F v, memory_order order)`]
+      [Add `v` to variable, returning nothing]
+    ]
+    [
+      [`void opaque_sub(F v, memory_order order)`]
+      [Subtract `v` from variable, returning nothing]
+    ]
+]
+
+`order` always has `memory_order_seq_cst` as default parameter.
+
+The [^opaque_['op]] variants of the operations
+may result in a more efficient code on some architectures because
+the original value of the atomic variable is not preserved.
+
+In addition to these explicit operations, each
+[^boost::atomic<['F]>] object also supports operators `+=` and `-=`.
+Avoid using these operators, as they do not allow to specify a memory ordering
+constraint which always defaults to `memory_order_seq_cst`.
+
+When using atomic operations with floating point types, bear in mind that [*Boost.Atomic]
+always performs bitwise comparison of the stored values. This means that operations like
+`compare_exchange*` may fail if the stored value and comparand have different binary representation,
+even if they would normally compare equal. This is typically the case when either of the numbers
+is [@https://en.wikipedia.org/wiki/Denormal_number denormalized]. This also means that the behavior
+with regard to special floating point values like NaN and signed zero is also different from normal C++.
+
+Another source of the problem is padding bits that are added to some floating point types for alignment.
+One wide-spread example of that is Intel x87 extended double format, which is typically stored as 80 bits
+of value padded with 16 or 48 unused bits. These padding bits are often uninitialized and contain garbage,
+which makes two equal numbers have different binary representation. The library accounts for the known
+such cases, but it is possible that some exotic platforms exist that are not covered yet.
+
+[endsect]
+
 [section:interface_atomic_pointer [^boost::atomic<['pointer]>] template class]
 
-In addition to the operations applicable to all atomic object,
+In addition to the operations applicable to all atomic objects,
 [^boost::atomic<['P]>] for pointer
 types [^['P]] (other than pointers to [^void], function or member pointers) support
 the following operations, which correspond to [^std::atomic<['P]>]:
@@ -1026,6 +1111,26 @@ to indicate whether the corresponding operations are lock-free or not.
 ]
 
 In the table above, `intN_type` is a type that fits storage of contiguous `N` bits, suitably aligned for atomic operations.
+
+For floating-point types the following macros are similarly defined:
+
+[table
+    [[Macro] [Description]]
+    [
+      [`BOOST_ATOMIC_FLOAT_LOCK_FREE`]
+      [Indicate whether `atomic<float>` is lock-free.]
+    ]
+    [
+      [`BOOST_ATOMIC_DOUBLE_LOCK_FREE`]
+      [Indicate whether `atomic<double>` is lock-free.]
+    ]
+    [
+      [`BOOST_ATOMIC_LONG_DOUBLE_LOCK_FREE`]
+      [Indicate whether `atomic<long double>` is lock-free.]
+    ]
+]
+
+These macros are not defined when support for floating point types is disabled by user.
 
 [endsect]
 

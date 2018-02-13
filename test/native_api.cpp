@@ -45,6 +45,13 @@ int main(int, char *[])
     test_constexpr_ctor<long>();
     test_constexpr_ctor<int*>();
 
+    test_floating_point_api<float>();
+    test_floating_point_api<double>();
+    test_floating_point_api<long double>();
+#if defined(BOOST_HAS_FLOAT128)
+    test_floating_point_api<boost::float128_type>();
+#endif
+
     test_pointer_api<int>();
 
     test_enum_api();
