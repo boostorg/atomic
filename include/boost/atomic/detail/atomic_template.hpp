@@ -114,9 +114,10 @@ template< typename T, typename U >
 struct classify< T U::*, false, false > { typedef void type; };
 
 
-#if defined(BOOST_INTEL)
+#if defined(BOOST_INTEL) || (defined(BOOST_GCC) && (BOOST_GCC+0) < 40700)
 // Intel compiler (at least 18.0 update 1) breaks if noexcept specification is used in defaulted function declarations:
 // error: the default constructor of "boost::atomics::atomic<T>" cannot be referenced -- it is a deleted function
+// GCC 4.6 doesn't seem to support that either.
 #define BOOST_ATOMIC_DETAIL_DEF_NOEXCEPT_DECL
 #define BOOST_ATOMIC_DETAIL_DEF_NOEXCEPT_IMPL BOOST_NOEXCEPT
 #else
