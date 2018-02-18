@@ -37,7 +37,7 @@ BOOST_FORCEINLINE void clear_padding(To& to, atomics::detail::true_type) BOOST_N
 }
 
 template< std::size_t FromSize, typename To >
-BOOST_FORCEINLINE void clear_padding(To& to, atomics::detail::false_type) BOOST_NOEXCEPT
+BOOST_FORCEINLINE void clear_padding(To&, atomics::detail::false_type) BOOST_NOEXCEPT
 {
 }
 
