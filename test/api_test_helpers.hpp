@@ -891,10 +891,10 @@ inline void test_floating_point_api(void)
     // Note: When support for floating point is disabled, even the base operation tests may fail because
     // the generic template specialization does not account for garbage in padding bits that are present in some FP types.
 #if !defined(BOOST_ATOMIC_NO_FLOATING_POINT)
-    test_base_operators<T>(42.1, 43.2, 44.3);
+    test_base_operators<T>(static_cast<T>(42.1), static_cast<T>(43.2), static_cast<T>(44.3));
 
-    test_fp_additive_operators<T, T>(42.5, 17.7);
-    test_fp_additive_operators<T, T>(-42.5, -17.7);
+    test_fp_additive_operators<T, T>(static_cast<T>(42.5), static_cast<T>(17.7));
+    test_fp_additive_operators<T, T>(static_cast<T>(-42.5), static_cast<T>(-17.7));
 
     test_fp_negation<T>();
 #endif
