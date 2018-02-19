@@ -29,9 +29,9 @@
 #include <boost/atomic/detail/type_traits/is_integral.hpp>
 #include <boost/atomic/detail/type_traits/is_function.hpp>
 #include <boost/atomic/detail/type_traits/is_floating_point.hpp>
+#include <boost/atomic/detail/type_traits/is_trivially_default_constructible.hpp>
 #include <boost/atomic/detail/type_traits/conditional.hpp>
 #include <boost/atomic/detail/type_traits/integral_constant.hpp>
-#include <boost/atomic/detail/type_traits/is_trivially_default_constructible.hpp>
 #if !defined(BOOST_ATOMIC_NO_FLOATING_POINT)
 #include <boost/atomic/detail/bitwise_fp_cast.hpp>
 #include <boost/atomic/detail/fp_operations_fwd.hpp>
@@ -318,7 +318,7 @@ protected:
 
 public:
     BOOST_DEFAULTED_FUNCTION(base_atomic() BOOST_ATOMIC_DETAIL_DEF_NOEXCEPT_DECL, BOOST_ATOMIC_DETAIL_DEF_NOEXCEPT_IMPL {})
-    BOOST_CONSTEXPR explicit base_atomic(value_arg_type v) BOOST_NOEXCEPT : m_storage(v) {}
+    BOOST_FORCEINLINE BOOST_CONSTEXPR explicit base_atomic(value_arg_type v) BOOST_NOEXCEPT : m_storage(v) {}
 
     // Standard methods
     BOOST_FORCEINLINE void store(value_arg_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
@@ -642,7 +642,7 @@ protected:
 
 public:
     BOOST_DEFAULTED_FUNCTION(base_atomic() BOOST_ATOMIC_DETAIL_DEF_NOEXCEPT_DECL, BOOST_ATOMIC_DETAIL_DEF_NOEXCEPT_IMPL {})
-    BOOST_CONSTEXPR explicit base_atomic(value_arg_type v) BOOST_NOEXCEPT : m_storage(v) {}
+    BOOST_FORCEINLINE BOOST_CONSTEXPR explicit base_atomic(value_arg_type v) BOOST_NOEXCEPT : m_storage(v) {}
 
     // Standard methods
     BOOST_FORCEINLINE void store(value_arg_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
@@ -1133,12 +1133,13 @@ public:
 
 public:
     BOOST_DEFAULTED_FUNCTION(atomic() BOOST_ATOMIC_DETAIL_DEF_NOEXCEPT_DECL, BOOST_ATOMIC_DETAIL_DEF_NOEXCEPT_IMPL {})
+    BOOST_FORCEINLINE BOOST_CONSTEXPR atomic(value_arg_type v) BOOST_NOEXCEPT : base_type(v) {}
 
-    // NOTE: The constructor is made explicit because gcc 4.7 complains that
-    //       operator=(value_arg_type) is considered ambiguous with operator=(atomic const&)
-    //       in assignment expressions, even though conversion to atomic<> is less preferred
-    //       than conversion to value_arg_type.
-    BOOST_FORCEINLINE explicit BOOST_CONSTEXPR atomic(value_arg_type v) BOOST_NOEXCEPT : base_type(v) {}
+    BOOST_FORCEINLINE value_type operator= (value_arg_type v) BOOST_NOEXCEPT
+    {
+        this->store(v);
+        return v;
+    }
 
     BOOST_FORCEINLINE value_type operator= (value_arg_type v) volatile BOOST_NOEXCEPT
     {
