@@ -1160,13 +1160,28 @@ While [*Boost.Atomic] strives to implement the atomic operations
 from C++11 and later as faithfully as possible, there are a few
 limitations that cannot be lifted without compiler support:
 
-* [*Using non-POD-classes as template parameter to `atomic<T>` results
-  in undefined behavior]: This means that any class containing a
-  constructor, destructor, virtual methods or access control
-  specifications is not a valid argument in C++98. C++11 relaxes
-  this slightly by allowing "trivial" classes containing only
-  empty constructors. [*Advise]: Use only POD types.
-* [*C++98 compilers may transform computation- to control-dependency]:
+* [*Aggregate initialization syntax is not supported]: Since [*Boost.Atomic]
+  sometimes uses storage type that is different from the value type,
+  the `atomic<>` template needs an initialization constructor that
+  performs the necessary conversion. This makes `atomic<>` a non-aggregate
+  type and prohibits aggregate initialization syntax (`atomic<int> a = {10}`).
+  [*Boost.Atomic] does support direct and unified initialization syntax though.
+  [*Advice]: Always use direct initialization (`atomic<int> a(10)`) or unified
+  initialization (`atomic<int> a{10}`) syntax.
+* [*Initializing constructor is not `constexpr` for some types]: For value types
+  other than integral types and `bool`, `atomic<>` initializing constructor needs
+  to perform runtime conversion to the storage type. This limitation may be
+  lifted for more categories of types in the future.
+* [*Default constructor is not trivial in C++03]: Because the initializing
+  constructor has to be defined in `atomic<>`, the default constructor
+  must also be defined. In C++03 the constructor cannot be defined as defaulted
+  and therefore it is not trivial. In C++11 the constructor is defaulted (and trivial,
+  if the default constructor of the value type is). In any case, the default
+  constructor of `atomic<>` performs default initialization of the atomic value,
+  as required in C++11. [*Advice]: In C++03, do not use [*Boost.Atomic] in contexts
+  where trivial default constructor is important (e.g. as a global variable which
+  is required to be statically initialized).
+* [*C++03 compilers may transform computation dependency to control dependency]:
   Crucially, `memory_order_consume` only affects computationally-dependent
   operations, but in general there is nothing preventing a compiler
   from transforming a computation dependency into a control dependency.
@@ -1180,16 +1195,32 @@ limitations that cannot be lifted without compiler support:
   instead. Use `memory_order_consume` only in conjunction with
   pointer values, and only if you can ensure that the compiler cannot
   speculate and transform these into control dependencies.
-* [*Fence operations enforce "too strong" compiler ordering]:
+* [*Fence operations may enforce "too strong" compiler ordering]:
   Semantically, `memory_order_acquire`/`memory_order_consume`
   and `memory_order_release` need to restrain reordering of
-  memory operations only in one direction. Since there is no
+  memory operations only in one direction. Since in C++03 there is no
   way to express this constraint to the compiler, these act
-  as "full compiler barriers" in this implementation. In corner
-  cases this may result in a less efficient code than a C++11 compiler
-  could generate.
+  as "full compiler barriers" in C++03 implementation. In corner
+  cases this may result in a slightly less efficient code than a C++11 compiler
+  could generate. [*Boost.Atomic] will use compiler intrinsics, if possible,
+  to express the proper ordering constraints.
+* [*Atomic operations may enforce "too strong" memory ordering in debug mode]:
+  On some compilers, disabling optimizations makes it impossible to provide
+  memory ordering constraints as compile-time constants to the compiler intrinsics.
+  This causes the compiler to silently ignore the provided constraints and choose
+  the "strongest" memory order (`memory_order_seq_cst`) to generate code. Not only
+  this reduces performance, this may hide bugs in the user's code (e.g. if the user
+  used a wrong memory order constraint, which caused a data race).
+  [*Advice]: Always test your code with optimizations enabled.
 * [*No interprocess fallback]: using `atomic<T>` in shared memory only works
   correctly, if `atomic<T>::is_lock_free() == true`.
+* [*Signed integers must use [@https://en.wikipedia.org/wiki/Two%27s_complement two's complement]
+  representation]: [*Boost.Atomic] makes this requirement in order to implement
+  conversions between signed and unsigned integers internally. C++11 requires all
+  atomic arithmetic operations on integers to be well defined according to two's complement
+  arithmetics, which means that Boost.Atomic has to operate on unsigned integers internally
+  to avoid undefined behavior that results from signed integer overflows. Platforms
+  with other signed integer representations are not supported.
 
 [endsect]
 
