@@ -1,6 +1,6 @@
 [/
  / Copyright (c) 2009 Helge Bahmann
- / Copyright (c) 2014, 2017 Andrey Semashev
+ / Copyright (c) 2014, 2017, 2018 Andrey Semashev
  /
  / Distributed under the Boost Software License, Version 1.0. (See accompanying
  / file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -11,7 +11,7 @@
     [authors [Bahmann, Helge][Semashev, Andrey]]
     [copyright 2011 Helge Bahmann]
     [copyright 2012 Tim Blechmann]
-    [copyright 2013, 2017 Andrey Semashev]
+    [copyright 2013, 2017, 2018 Andrey Semashev]
     [id atomic]
     [dirname atomic]
     [purpose Atomic operations]
