@@ -119,7 +119,7 @@ struct gcc_dcas_x86
         }
     }
 
-    static BOOST_FORCEINLINE storage_type load(storage_type const volatile& storage, memory_order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type load(storage_type volatile& storage, memory_order) BOOST_NOEXCEPT
     {
         storage_type value;
 
@@ -404,7 +404,7 @@ struct gcc_dcas_x86_64
         );
     }
 
-    static BOOST_FORCEINLINE storage_type load(storage_type const volatile& storage, memory_order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type load(storage_type volatile& storage, memory_order) BOOST_NOEXCEPT
     {
         // Note that despite const qualification cmpxchg16b below may issue a store to the storage. The storage value
         // will not change, but this prevents the storage to reside in read-only memory.
