@@ -29,10 +29,10 @@ matrix:
   include:
 # gcc, Linux, 64-bit
     - os: linux
-      env: TOOLSET=gcc COMPILER=g++ CXXSTD=c++03 ADDRESS_MODEL=64
+      env: TOOLSET=gcc COMPILER=g++ CXXSTD=03 ADDRESS_MODEL=64
 
     - os: linux
-      env: TOOLSET=gcc COMPILER=g++-4.7 CXXSTD=c++03 ADDRESS_MODEL=64
+      env: TOOLSET=gcc COMPILER=g++-4.7 CXXSTD=03,11 ADDRESS_MODEL=64
       addons:
         apt:
           packages:
@@ -41,16 +41,7 @@ matrix:
             - ubuntu-toolchain-r-test
 
     - os: linux
-      env: TOOLSET=gcc COMPILER=g++-4.7 CXXSTD=c++11 ADDRESS_MODEL=64
-      addons:
-        apt:
-          packages:
-            - g++-4.7
-          sources:
-            - ubuntu-toolchain-r-test
-
-    - os: linux
-      env: TOOLSET=gcc COMPILER=g++-4.8 CXXSTD=c++03 ADDRESS_MODEL=64
+      env: TOOLSET=gcc COMPILER=g++-4.8 CXXSTD=03,11 ADDRESS_MODEL=64
       addons:
         apt:
           packages:
@@ -59,16 +50,7 @@ matrix:
             - ubuntu-toolchain-r-test
 
     - os: linux
-      env: TOOLSET=gcc COMPILER=g++-4.8 CXXSTD=c++11 ADDRESS_MODEL=64
-      addons:
-        apt:
-          packages:
-            - g++-4.8
-          sources:
-            - ubuntu-toolchain-r-test
-
-    - os: linux
-      env: TOOLSET=gcc COMPILER=g++-4.9 CXXSTD=c++03 ADDRESS_MODEL=64
+      env: TOOLSET=gcc COMPILER=g++-4.9 CXXSTD=03,11 ADDRESS_MODEL=64
       addons:
         apt:
           packages:
@@ -77,16 +59,7 @@ matrix:
             - ubuntu-toolchain-r-test
 
     - os: linux
-      env: TOOLSET=gcc COMPILER=g++-4.9 CXXSTD=c++11 ADDRESS_MODEL=64
-      addons:
-        apt:
-          packages:
-            - g++-4.9
-          sources:
-            - ubuntu-toolchain-r-test
-
-    - os: linux
-      env: TOOLSET=gcc COMPILER=g++-5 CXXSTD=c++03 ADDRESS_MODEL=64
+      env: TOOLSET=gcc COMPILER=g++-5 CXXSTD=03,11,14 ADDRESS_MODEL=64
       addons:
         apt:
           packages:
@@ -95,25 +68,7 @@ matrix:
             - ubuntu-toolchain-r-test
 
     - os: linux
-      env: TOOLSET=gcc COMPILER=g++-5 CXXSTD=c++11 ADDRESS_MODEL=64
-      addons:
-        apt:
-          packages:
-            - g++-5
-          sources:
-            - ubuntu-toolchain-r-test
-
-    - os: linux
-      env: TOOLSET=gcc COMPILER=g++-5 CXXSTD=c++14 ADDRESS_MODEL=64
-      addons:
-        apt:
-          packages:
-            - g++-5
-          sources:
-            - ubuntu-toolchain-r-test
-
-    - os: linux
-      env: TOOLSET=gcc COMPILER=g++-6 CXXSTD=c++03 ADDRESS_MODEL=64
+      env: TOOLSET=gcc COMPILER=g++-6 CXXSTD=03,11,14,1z ADDRESS_MODEL=64
       addons:
         apt:
           packages:
@@ -122,34 +77,7 @@ matrix:
             - ubuntu-toolchain-r-test
 
     - os: linux
-      env: TOOLSET=gcc COMPILER=g++-6 CXXSTD=c++11 ADDRESS_MODEL=64
-      addons:
-        apt:
-          packages:
-            - g++-6
-          sources:
-            - ubuntu-toolchain-r-test
-
-    - os: linux
-      env: TOOLSET=gcc COMPILER=g++-6 CXXSTD=c++14 ADDRESS_MODEL=64
-      addons:
-        apt:
-          packages:
-            - g++-6
-          sources:
-            - ubuntu-toolchain-r-test
-
-    - os: linux
-      env: TOOLSET=gcc COMPILER=g++-6 CXXSTD=c++1z ADDRESS_MODEL=64
-      addons:
-        apt:
-          packages:
-            - g++-6
-          sources:
-            - ubuntu-toolchain-r-test
-
-    - os: linux
-      env: TOOLSET=gcc COMPILER=g++-7 CXXSTD=c++03 ADDRESS_MODEL=64
+      env: TOOLSET=gcc COMPILER=g++-7 CXXSTD=03,11,14,1z ADDRESS_MODEL=64
       addons:
         apt:
           packages:
@@ -158,77 +86,20 @@ matrix:
             - ubuntu-toolchain-r-test
 
     - os: linux
-      env: TOOLSET=gcc COMPILER=g++-7 CXXSTD=c++11 ADDRESS_MODEL=64
+      env: TOOLSET=gcc COMPILER=g++-8 CXXSTD=03,11,14,17,03-gnu,11-gnu,14-gnu,17-gnu ADDRESS_MODEL=64
       addons:
         apt:
           packages:
-            - g++-7
-          sources:
-            - ubuntu-toolchain-r-test
-
-    - os: linux
-      env: TOOLSET=gcc COMPILER=g++-7 CXXSTD=c++14 ADDRESS_MODEL=64
-      addons:
-        apt:
-          packages:
-            - g++-7
-          sources:
-            - ubuntu-toolchain-r-test
-
-    - os: linux
-      env: TOOLSET=gcc COMPILER=g++-7 CXXSTD=c++1z ADDRESS_MODEL=64
-      addons:
-        apt:
-          packages:
-            - g++-7
-          sources:
-            - ubuntu-toolchain-r-test
-
-    - os: linux
-      env: TOOLSET=gcc COMPILER=g++-7 CXXSTD=gnu++03 ADDRESS_MODEL=64
-      addons:
-        apt:
-          packages:
-            - g++-7
-          sources:
-            - ubuntu-toolchain-r-test
-
-    - os: linux
-      env: TOOLSET=gcc COMPILER=g++-7 CXXSTD=gnu++11 ADDRESS_MODEL=64
-      addons:
-        apt:
-          packages:
-            - g++-7
-          sources:
-            - ubuntu-toolchain-r-test
-
-    - os: linux
-      env: TOOLSET=gcc COMPILER=g++-7 CXXSTD=gnu++14 ADDRESS_MODEL=64
-      addons:
-        apt:
-          packages:
-            - g++-7
-          sources:
-            - ubuntu-toolchain-r-test
-
-    - os: linux
-      env: TOOLSET=gcc COMPILER=g++-7 CXXSTD=gnu++1z ADDRESS_MODEL=64
-      addons:
-        apt:
-          packages:
-            - g++-7
+            - g++-8
           sources:
             - ubuntu-toolchain-r-test
 
 # clang, Linux, 64-bit
     - os: linux
-      env: TOOLSET=clang COMPILER=clang++ CXXSTD=c++03 ADDRESS_MODEL=64
+      env: TOOLSET=clang COMPILER=clang++ CXXSTD=03,11 ADDRESS_MODEL=64
 
     - os: linux
-      env: TOOLSET=clang COMPILER=clang++ CXXSTD=c++11 ADDRESS_MODEL=64
-
-    - os: linux
-      env: TOOLSET=clang COMPILER=clang++-3.5 CXXSTD=c++03 ADDRESS_MODEL=64
+      env: TOOLSET=clang COMPILER=clang++-3.5 CXXSTD=03,11 ADDRESS_MODEL=64
       addons:
         apt:
           packages:
@@ -238,17 +109,7 @@ matrix:
             - llvm-toolchain-precise-3.5
 
     - os: linux
-      env: TOOLSET=clang COMPILER=clang++-3.5 CXXSTD=c++11 ADDRESS_MODEL=64
-      addons:
-        apt:
-          packages:
-            - clang-3.5
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-precise-3.5
-
-    - os: linux
-      env: TOOLSET=clang COMPILER=clang++-3.6 CXXSTD=c++03 ADDRESS_MODEL=64
+      env: TOOLSET=clang COMPILER=clang++-3.6 CXXSTD=03,11 ADDRESS_MODEL=64
       addons:
         apt:
           packages:
@@ -258,17 +119,7 @@ matrix:
             - llvm-toolchain-precise-3.6
 
     - os: linux
-      env: TOOLSET=clang COMPILER=clang++-3.6 CXXSTD=c++11 ADDRESS_MODEL=64
-      addons:
-        apt:
-          packages:
-            - clang-3.6
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-precise-3.6
-
-    - os: linux
-      env: TOOLSET=clang COMPILER=clang++-3.7 CXXSTD=c++03 ADDRESS_MODEL=64
+      env: TOOLSET=clang COMPILER=clang++-3.7 CXXSTD=03,11 ADDRESS_MODEL=64
       addons:
         apt:
           packages:
@@ -278,17 +129,7 @@ matrix:
             - llvm-toolchain-precise-3.7
 
     - os: linux
-      env: TOOLSET=clang COMPILER=clang++-3.7 CXXSTD=c++11 ADDRESS_MODEL=64
-      addons:
-        apt:
-          packages:
-            - clang-3.7
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-precise-3.7
-
-    - os: linux
-      env: TOOLSET=clang COMPILER=clang++-3.8 CXXSTD=c++03 ADDRESS_MODEL=64
+      env: TOOLSET=clang COMPILER=clang++-3.8 CXXSTD=03,11,14,1z ADDRESS_MODEL=64
       addons:
         apt:
           packages:
@@ -298,37 +139,7 @@ matrix:
             - llvm-toolchain-precise-3.8
 
     - os: linux
-      env: TOOLSET=clang COMPILER=clang++-3.8 CXXSTD=c++11 ADDRESS_MODEL=64
-      addons:
-        apt:
-          packages:
-            - clang-3.8
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-precise-3.8
-
-    - os: linux
-      env: TOOLSET=clang COMPILER=clang++-3.8 CXXSTD=c++14 ADDRESS_MODEL=64
-      addons:
-        apt:
-          packages:
-            - clang-3.8
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-precise-3.8
-
-    - os: linux
-      env: TOOLSET=clang COMPILER=clang++-3.8 CXXSTD=c++1z ADDRESS_MODEL=64
-      addons:
-        apt:
-          packages:
-            - clang-3.8
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-precise-3.8
-
-    - os: linux
-      env: TOOLSET=clang COMPILER=clang++-3.9 CXXSTD=c++03 ADDRESS_MODEL=64
+      env: TOOLSET=clang COMPILER=clang++-3.9 CXXSTD=03,11,14,1z ADDRESS_MODEL=64
       addons:
         apt:
           packages:
@@ -338,37 +149,7 @@ matrix:
             - llvm-toolchain-trusty-3.9
 
     - os: linux
-      env: TOOLSET=clang COMPILER=clang++-3.9 CXXSTD=c++11 ADDRESS_MODEL=64
-      addons:
-        apt:
-          packages:
-            - clang-3.9
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-trusty-3.9
-
-    - os: linux
-      env: TOOLSET=clang COMPILER=clang++-3.9 CXXSTD=c++14 ADDRESS_MODEL=64
-      addons:
-        apt:
-          packages:
-            - clang-3.9
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-trusty-3.9
-
-    - os: linux
-      env: TOOLSET=clang COMPILER=clang++-3.9 CXXSTD=c++1z ADDRESS_MODEL=64
-      addons:
-        apt:
-          packages:
-            - clang-3.9
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-trusty-3.9
-
-    - os: linux
-      env: TOOLSET=clang COMPILER=clang++-4.0 CXXSTD=c++03 ADDRESS_MODEL=64
+      env: TOOLSET=clang COMPILER=clang++-4.0 CXXSTD=03,11,14,1z ADDRESS_MODEL=64
       addons:
         apt:
           packages:
@@ -378,37 +159,7 @@ matrix:
             - llvm-toolchain-trusty-4.0
 
     - os: linux
-      env: TOOLSET=clang COMPILER=clang++-4.0 CXXSTD=c++11 ADDRESS_MODEL=64
-      addons:
-        apt:
-          packages:
-            - clang-4.0
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-trusty-4.0
-
-    - os: linux
-      env: TOOLSET=clang COMPILER=clang++-4.0 CXXSTD=c++14 ADDRESS_MODEL=64
-      addons:
-        apt:
-          packages:
-            - clang-4.0
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-trusty-4.0
-
-    - os: linux
-      env: TOOLSET=clang COMPILER=clang++-4.0 CXXSTD=c++1z ADDRESS_MODEL=64
-      addons:
-        apt:
-          packages:
-            - clang-4.0
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-trusty-4.0
-
-    - os: linux
-      env: TOOLSET=clang COMPILER=clang++-5.0 CXXSTD=c++03 ADDRESS_MODEL=64
+      env: TOOLSET=clang COMPILER=clang++-5.0 CXXSTD=03,11,14,1z ADDRESS_MODEL=64
       addons:
         apt:
           packages:
@@ -418,136 +169,44 @@ matrix:
             - llvm-toolchain-trusty-5.0
 
     - os: linux
-      env: TOOLSET=clang COMPILER=clang++-5.0 CXXSTD=c++11 ADDRESS_MODEL=64
+      env: TOOLSET=clang COMPILER=clang++-6.0 CXXSTD=03,11,14,1z ADDRESS_MODEL=64
       addons:
         apt:
           packages:
-            - clang-5.0
+            - clang-6.0
           sources:
             - ubuntu-toolchain-r-test
-            - llvm-toolchain-trusty-5.0
-
-    - os: linux
-      env: TOOLSET=clang COMPILER=clang++-5.0 CXXSTD=c++14 ADDRESS_MODEL=64
-      addons:
-        apt:
-          packages:
-            - clang-5.0
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-trusty-5.0
-
-    - os: linux
-      env: TOOLSET=clang COMPILER=clang++-5.0 CXXSTD=c++1z ADDRESS_MODEL=64
-      addons:
-        apt:
-          packages:
-            - clang-5.0
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-trusty-5.0
+            - llvm-toolchain-trusty-6.0
 
 # Travis CI capacity of OS X testers is insufficient, tests disabled until Travis CI capacity is increased
 # clang, OS X, 64-bit
 #    - os: osx
-#      env: TOOLSET=clang COMPILER=clang++ CXXSTD=c++03 ADDRESS_MODEL=64
+#      env: TOOLSET=clang COMPILER=clang++ CXXSTD=03,11,14,1z ADDRESS_MODEL=64
 #      osx_image: xcode8.3
 #
 #    - os: osx
-#      env: TOOLSET=clang COMPILER=clang++ CXXSTD=c++11 ADDRESS_MODEL=64
-#      osx_image: xcode8.3
-#
-#    - os: osx
-#      env: TOOLSET=clang COMPILER=clang++ CXXSTD=c++14 ADDRESS_MODEL=64
-#      osx_image: xcode8.3
-#
-#    - os: osx
-#      env: TOOLSET=clang COMPILER=clang++ CXXSTD=c++1z ADDRESS_MODEL=64
-#      osx_image: xcode8.3
-#
-#    - os: osx
-#      env: TOOLSET=clang COMPILER=clang++ CXXSTD=c++03 ADDRESS_MODEL=64
+#      env: TOOLSET=clang COMPILER=clang++ CXXSTD=03,11,14,1z ADDRESS_MODEL=64
 #      osx_image: xcode8.2
 #
 #    - os: osx
-#      env: TOOLSET=clang COMPILER=clang++ CXXSTD=c++11 ADDRESS_MODEL=64
-#      osx_image: xcode8.2
-#
-#    - os: osx
-#      env: TOOLSET=clang COMPILER=clang++ CXXSTD=c++14 ADDRESS_MODEL=64
-#      osx_image: xcode8.2
-#
-#    - os: osx
-#      env: TOOLSET=clang COMPILER=clang++ CXXSTD=c++1z ADDRESS_MODEL=64
+#      env: TOOLSET=clang COMPILER=clang++ CXXSTD=03,11,14,1z ADDRESS_MODEL=64
 #      osx_image: xcode8.1
 #
 #    - os: osx
-#      env: TOOLSET=clang COMPILER=clang++ CXXSTD=c++03 ADDRESS_MODEL=64
-#      osx_image: xcode8.1
-#
-#    - os: osx
-#      env: TOOLSET=clang COMPILER=clang++ CXXSTD=c++11 ADDRESS_MODEL=64
-#      osx_image: xcode8.1
-#
-#    - os: osx
-#      env: TOOLSET=clang COMPILER=clang++ CXXSTD=c++14 ADDRESS_MODEL=64
-#      osx_image: xcode8.1
-#
-#    - os: osx
-#      env: TOOLSET=clang COMPILER=clang++ CXXSTD=c++1z ADDRESS_MODEL=64
-#      osx_image: xcode8.1
-#
-#    - os: osx
-#      env: TOOLSET=clang COMPILER=clang++ CXXSTD=c++03 ADDRESS_MODEL=64
+#      env: TOOLSET=clang COMPILER=clang++ CXXSTD=03,11,14,1z ADDRESS_MODEL=64
 #      osx_image: xcode8.0
 #
 #    - os: osx
-#      env: TOOLSET=clang COMPILER=clang++ CXXSTD=c++11 ADDRESS_MODEL=64
-#      osx_image: xcode8.0
-#
-#    - os: osx
-#      env: TOOLSET=clang COMPILER=clang++ CXXSTD=c++14 ADDRESS_MODEL=64
-#      osx_image: xcode8.0
-#
-#    - os: osx
-#      env: TOOLSET=clang COMPILER=clang++ CXXSTD=c++1z ADDRESS_MODEL=64
-#      osx_image: xcode8.0
-#
-#    - os: osx
-#      env: TOOLSET=clang COMPILER=clang++ CXXSTD=c++03 ADDRESS_MODEL=64
+#      env: TOOLSET=clang COMPILER=clang++ CXXSTD=03,11,14,1z ADDRESS_MODEL=64
 #      osx_image: xcode7.3
 #
 #    - os: osx
-#      env: TOOLSET=clang COMPILER=clang++ CXXSTD=c++11 ADDRESS_MODEL=64
-#      osx_image: xcode7.3
-#
-#    - os: osx
-#      env: TOOLSET=clang COMPILER=clang++ CXXSTD=c++14 ADDRESS_MODEL=64
-#      osx_image: xcode7.3
-#
-#    - os: osx
-#      env: TOOLSET=clang COMPILER=clang++ CXXSTD=c++1z ADDRESS_MODEL=64
-#      osx_image: xcode7.3
-#
-#    - os: osx
-#      env: TOOLSET=clang COMPILER=clang++ CXXSTD=c++03 ADDRESS_MODEL=64
-#      osx_image: xcode6.4
-#
-#    - os: osx
-#      env: TOOLSET=clang COMPILER=clang++ CXXSTD=c++11 ADDRESS_MODEL=64
-#      osx_image: xcode6.4
-#
-#    - os: osx
-#      env: TOOLSET=clang COMPILER=clang++ CXXSTD=c++14 ADDRESS_MODEL=64
-#      osx_image: xcode6.4
-#
-#    - os: osx
-#      env: TOOLSET=clang COMPILER=clang++ CXXSTD=c++1z ADDRESS_MODEL=64
+#      env: TOOLSET=clang COMPILER=clang++ CXXSTD=03,11,14,1z ADDRESS_MODEL=64
 #      osx_image: xcode6.4
 
 # gcc, Linux, 32-bit
     - os: linux
-      env: TOOLSET=gcc COMPILER=g++-4.7 CXXSTD=c++11 ADDRESS_MODEL=32
+      env: TOOLSET=gcc COMPILER=g++-4.7 CXXSTD=11 ADDRESS_MODEL=32
       addons:
         apt:
           packages:
@@ -557,7 +216,7 @@ matrix:
             - ubuntu-toolchain-r-test
 
     - os: linux
-      env: TOOLSET=gcc COMPILER=g++-4.8 CXXSTD=c++11 ADDRESS_MODEL=32
+      env: TOOLSET=gcc COMPILER=g++-4.8 CXXSTD=11 ADDRESS_MODEL=32
       addons:
         apt:
           packages:
@@ -567,7 +226,7 @@ matrix:
             - ubuntu-toolchain-r-test
 
     - os: linux
-      env: TOOLSET=gcc COMPILER=g++-4.9 CXXSTD=c++11 ADDRESS_MODEL=32
+      env: TOOLSET=gcc COMPILER=g++-4.9 CXXSTD=11 ADDRESS_MODEL=32
       addons:
         apt:
           packages:
@@ -577,7 +236,7 @@ matrix:
             - ubuntu-toolchain-r-test
 
     - os: linux
-      env: TOOLSET=gcc COMPILER=g++-5 CXXSTD=c++11 ADDRESS_MODEL=32
+      env: TOOLSET=gcc COMPILER=g++-5 CXXSTD=11 ADDRESS_MODEL=32
       addons:
         apt:
           packages:
@@ -587,7 +246,7 @@ matrix:
             - ubuntu-toolchain-r-test
 
     - os: linux
-      env: TOOLSET=gcc COMPILER=g++-6 CXXSTD=c++11 ADDRESS_MODEL=32
+      env: TOOLSET=gcc COMPILER=g++-6 CXXSTD=11 ADDRESS_MODEL=32
       addons:
         apt:
           packages:
@@ -597,7 +256,7 @@ matrix:
             - ubuntu-toolchain-r-test
 
     - os: linux
-      env: TOOLSET=gcc COMPILER=g++-7 CXXSTD=c++11 ADDRESS_MODEL=32
+      env: TOOLSET=gcc COMPILER=g++-7 CXXSTD=11 ADDRESS_MODEL=32
       addons:
         apt:
           packages:
@@ -606,9 +265,19 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
 
+    - os: linux
+      env: TOOLSET=gcc COMPILER=g++-8 CXXSTD=11 ADDRESS_MODEL=32
+      addons:
+        apt:
+          packages:
+            - g++-8-multilib
+            - linux-libc-dev:i386
+          sources:
+            - ubuntu-toolchain-r-test
+
 # clang, Linux, 32-bit
     - os: linux
-      env: TOOLSET=clang COMPILER=clang++-3.5 CXXSTD=c++11 ADDRESS_MODEL=32
+      env: TOOLSET=clang COMPILER=clang++-3.5 CXXSTD=11 ADDRESS_MODEL=32
       addons:
         apt:
           packages:
@@ -620,7 +289,7 @@ matrix:
             - llvm-toolchain-precise-3.5
 
     - os: linux
-      env: TOOLSET=clang COMPILER=clang++-3.6 CXXSTD=c++11 ADDRESS_MODEL=32
+      env: TOOLSET=clang COMPILER=clang++-3.6 CXXSTD=11 ADDRESS_MODEL=32
       addons:
         apt:
           packages:
@@ -632,7 +301,7 @@ matrix:
             - llvm-toolchain-precise-3.6
 
     - os: linux
-      env: TOOLSET=clang COMPILER=clang++-3.7 CXXSTD=c++11 ADDRESS_MODEL=32
+      env: TOOLSET=clang COMPILER=clang++-3.7 CXXSTD=11 ADDRESS_MODEL=32
       addons:
         apt:
           packages:
@@ -644,7 +313,7 @@ matrix:
             - llvm-toolchain-precise-3.7
 
     - os: linux
-      env: TOOLSET=clang COMPILER=clang++-3.8 CXXSTD=c++11 ADDRESS_MODEL=32
+      env: TOOLSET=clang COMPILER=clang++-3.8 CXXSTD=11 ADDRESS_MODEL=32
       addons:
         apt:
           packages:
@@ -656,7 +325,7 @@ matrix:
             - llvm-toolchain-precise-3.8
 
     - os: linux
-      env: TOOLSET=clang COMPILER=clang++-3.9 CXXSTD=c++11 ADDRESS_MODEL=32
+      env: TOOLSET=clang COMPILER=clang++-3.9 CXXSTD=11 ADDRESS_MODEL=32
       addons:
         apt:
           packages:
@@ -668,7 +337,7 @@ matrix:
             - llvm-toolchain-trusty-3.9
 
     - os: linux
-      env: TOOLSET=clang COMPILER=clang++-4.0 CXXSTD=c++11 ADDRESS_MODEL=32
+      env: TOOLSET=clang COMPILER=clang++-4.0 CXXSTD=11 ADDRESS_MODEL=32
       addons:
         apt:
           packages:
@@ -680,7 +349,7 @@ matrix:
             - llvm-toolchain-trusty-4.0
 
     - os: linux
-      env: TOOLSET=clang COMPILER=clang++-5.0 CXXSTD=c++11 ADDRESS_MODEL=32
+      env: TOOLSET=clang COMPILER=clang++-5.0 CXXSTD=11 ADDRESS_MODEL=32
       addons:
         apt:
           packages:
@@ -690,6 +359,18 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
             - llvm-toolchain-trusty-5.0
+
+    - os: linux
+      env: TOOLSET=clang COMPILER=clang++-6.0 CXXSTD=11 ADDRESS_MODEL=32
+      addons:
+        apt:
+          packages:
+            - clang-6.0
+            - g++-4.8-multilib
+            - linux-libc-dev:i386
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-trusty-6.0
 
 
 install:
@@ -704,11 +385,11 @@ install:
   - python tools/boostdep/depinst/depinst.py atomic
   - ./bootstrap.sh
   - ./b2 headers
- 
+
 script:
   - |-
-    echo "using $TOOLSET : : $COMPILER : <cxxflags>-std=$CXXSTD ;" > ~/user-config.jam
-  - ./b2 -j3 libs/atomic/test toolset=$TOOLSET address-model=$ADDRESS_MODEL
+    echo "using $TOOLSET : : $COMPILER ;" > ~/user-config.jam
+  - ./b2 -j3 libs/atomic/test toolset=$TOOLSET address-model=$ADDRESS_MODEL cxxstd=$CXXSTD
 
 notifications:
   email:
