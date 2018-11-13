@@ -141,4 +141,4 @@ build: off
 
 test_script:
   - PATH=%ADDPATH%;%PATH%
-  - b2 libs/atomic/test variant=release toolset=%TOOLSET% address-model=%ADDRESS_MODEL% %B2_ARGS%
+  - b2 -j3 libs/atomic/test variant=release toolset=%TOOLSET% address-model=%ADDRESS_MODEL% %B2_ARGS%
