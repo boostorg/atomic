@@ -82,6 +82,7 @@ environment:
       ADDRESS_MODEL: 32
       CXXSTD: 03,11,14,03-gnu,11-gnu,14-gnu
       ADDPATH: C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1\mingw64\bin
+      PRINT_TREE: 1
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
 
 install:
@@ -101,4 +102,5 @@ build: off
 test_script:
   - PATH=%ADDPATH%;%PATH%
   - if not "%CXXSTD%" == "" set CXXSTD=cxxstd=%CXXSTD%
+  - if "%PRINT_TREE%" == "1" tree C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1 /F
   - b2 -j3 libs/atomic/test variant=release toolset=%TOOLSET% address-model=%ADDRESS_MODEL% %CXXSTD% %B2_ARGS%
