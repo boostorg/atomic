@@ -81,8 +81,8 @@ environment:
     - TOOLSET: gcc
       ADDRESS_MODEL: 32
       CXXSTD: 03,11,14,03-gnu,11-gnu,14-gnu
-      ADDPATH: C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1\mingw64\bin
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
+      ADDPATH: C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1\mingw32\bin
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
 
 install:
   - cd ..
