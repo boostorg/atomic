@@ -27,6 +27,20 @@ matrix:
     - env: BOGUS_JOB=true
 
   include:
+    # cmake self-test
+    - os: linux
+      env: TEST_CMAKE=TRUE #Only for easier identification in travis web gui
+      install:
+        - git clone --depth 1 https://github.com/boostorg/assert.git ../assert
+        - git clone --depth 1 https://github.com/boostorg/config.git ../config
+        - git clone --depth 1 https://github.com/boostorg/static_assert.git ../static_assert
+        - git clone --depth 1 https://github.com/boostorg/type_traits.git ../type_traits
+
+      script:
+        - mkdir __build__ && cd __build__
+        - cmake ../test/test_cmake
+        - cmake --build .
+
 # gcc, Linux
     - os: linux
       env: TOOLSET=gcc COMPILER=g++ CXXSTD64=03,11
