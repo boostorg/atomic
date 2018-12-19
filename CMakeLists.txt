@@ -17,3 +17,15 @@ target_link_libraries(boost_atomic
         Boost::type_traits
 )
 
+target_compile_definitions(boost_atomic PRIVATE BOOST_ATOMIC_SOURCE)
+
+if(${BUILD_SHARED_LIBS})
+    target_compile_definitions(boost_atomic PUBLIC BOOST_ATOMIC_DYN_LINK)
+else()
+    target_compile_definitions(boost_atomic PUBLIC BOOST_ATOMIC_STATIC_LINK)
+endif()
+
+if("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
+    target_compile_definitions(boost_atomic PRIVATE BOOST_USE_WINDOWS_H)
+endif()
+

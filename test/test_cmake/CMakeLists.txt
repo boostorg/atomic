@@ -7,7 +7,9 @@
 
 cmake_minimum_required( VERSION 3.5 )
 
-project( BoostBindCMakeSelfTest )
+project( BoostAtomicCMakeSelfTest )
+
+add_definitions( -DBOOST_ALL_NO_LIB )
 
 add_subdirectory( ../../../assert ${CMAKE_CURRENT_BINARY_DIR}/libs/assert )
 add_subdirectory( ../../../config ${CMAKE_CURRENT_BINARY_DIR}/libs/config )
