@@ -91,6 +91,7 @@ install:
   - git submodule init tools/build
   - git submodule init tools/boost_install
   - git submodule init libs/headers
+  - git submodule init libs/config
   - git submodule update --jobs 4
   - xcopy /s /e /q %APPVEYOR_BUILD_FOLDER% libs\atomic
   - python tools/boostdep/depinst/depinst.py atomic
