@@ -37,8 +37,11 @@ matrix:
         - git clone --depth 1 https://github.com/boostorg/type_traits.git ../type_traits
 
       script:
-        - mkdir __build__ && cd __build__
+        - mkdir __build_static__ && cd __build_static__
         - cmake ../test/test_cmake
+        - cmake --build .
+        - mkdir __build_shared__ && cd __build_shared__
+        - cmake -DBUILD_SHARED_LIBS=On  ../test/test_cmake
         - cmake --build .
 
 # gcc, Linux
