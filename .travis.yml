@@ -40,6 +40,7 @@ matrix:
         - mkdir __build_static__ && cd __build_static__
         - cmake ../test/test_cmake
         - cmake --build .
+        - cd ..
         - mkdir __build_shared__ && cd __build_shared__
         - cmake -DBUILD_SHARED_LIBS=On  ../test/test_cmake
         - cmake --build .
