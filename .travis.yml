@@ -254,7 +254,7 @@ install:
   - git submodule update --jobs 4
   - cp -r $TRAVIS_BUILD_DIR/* libs/atomic
   - python tools/boostdep/depinst/depinst.py atomic
-  - if [ -n "$TEST_CMAKE" ]; then ./bootstrap.sh; ./b2 headers; fi
+  - if [ -z "$TEST_CMAKE" -o "$TEST_CMAKE" -eq 0 ]; then ./bootstrap.sh; ./b2 headers; fi
 
 script:
   - |-
