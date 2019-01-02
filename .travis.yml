@@ -225,6 +225,22 @@ matrix:
       env: TOOLSET=clang COMPILER=clang++ CXXSTD64=03,11,14,1z
       osx_image: xcode9.4
 
+# cmake self-test
+    - os: linux
+      env: TEST_CMAKE=1
+      addons:
+        apt:
+          packages:
+            - cmake
+      script:
+        - mkdir __build_static__ && cd __build_static__
+        - cmake ../libs/atomic/test/test_cmake
+        - cmake --build .
+        - cd ..
+        - mkdir __build_shared__ && cd __build_shared__
+        - cmake -DBUILD_SHARED_LIBS=On ../libs/atomic/test/test_cmake
+        - cmake --build .
+
 
 install:
   - cd ..
@@ -238,8 +254,7 @@ install:
   - git submodule update --jobs 4
   - cp -r $TRAVIS_BUILD_DIR/* libs/atomic
   - python tools/boostdep/depinst/depinst.py atomic
-  - ./bootstrap.sh
-  - ./b2 headers
+  - if [ -n "$TEST_CMAKE" ]; then ./bootstrap.sh; ./b2 headers; fi
 
 script:
   - |-
