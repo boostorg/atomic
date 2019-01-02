@@ -103,4 +103,4 @@ build: off
 test_script:
   - PATH=%ADDPATH%;%PATH%
   - if not "%CXXSTD%" == "" set CXXSTD=cxxstd=%CXXSTD%
-  - b2 -j3 libs/atomic/test variant=release toolset=%TOOLSET% address-model=%ADDRESS_MODEL% %CXXSTD% %B2_ARGS%
+  - b2 -j %NUMBER_OF_PROCESSORS% libs/atomic/test variant=release toolset=%TOOLSET% address-model=%ADDRESS_MODEL% %CXXSTD% %B2_ARGS%
