@@ -259,8 +259,9 @@ install:
 script:
   - |-
     echo "using $TOOLSET : : $COMPILER ;" > ~/user-config.jam
-  - if [ -n "$CXXSTD64" ]; then echo ""; echo "Testing 64-bit targets"; echo ""; ./b2 -j `nproc` libs/atomic/test toolset=$TOOLSET address-model=64 cxxstd=$CXXSTD64; fi
-  - if [ -n "$CXXSTD32" ]; then echo ""; echo "Testing 32-bit targets"; echo ""; ./b2 -j `nproc` libs/atomic/test toolset=$TOOLSET address-model=32 cxxstd=$CXXSTD32; fi
+  - BUILD_JOBS=`(nproc || sysctl -n hw.ncpu) 2> /dev/null`
+  - if [ -n "$CXXSTD64" ]; then echo ""; echo "Testing 64-bit targets"; echo ""; ./b2 -j $BUILD_JOBS libs/atomic/test toolset=$TOOLSET address-model=64 cxxstd=$CXXSTD64; fi
+  - if [ -n "$CXXSTD32" ]; then echo ""; echo "Testing 32-bit targets"; echo ""; ./b2 -j $BUILD_JOBS libs/atomic/test toolset=$TOOLSET address-model=32 cxxstd=$CXXSTD32; fi
 
 notifications:
   email:
