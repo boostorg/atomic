@@ -243,6 +243,7 @@ matrix:
 
 
 install:
+  - GIT_FETCH_JOBS=8
   - cd ..
   - git clone -b $TRAVIS_BRANCH --depth 1 https://github.com/boostorg/boost.git boost-root
   - cd boost-root
@@ -251,9 +252,9 @@ install:
   - git submodule init tools/boost_install
   - git submodule init libs/headers
   - git submodule init libs/config
-  - git submodule update --jobs 4
+  - git submodule update --jobs $GIT_FETCH_JOBS
   - cp -r $TRAVIS_BUILD_DIR/* libs/atomic
-  - python tools/boostdep/depinst/depinst.py atomic
+  - python tools/boostdep/depinst/depinst.py --git_args "--jobs $GIT_FETCH_JOBS" atomic
   - if [ -z "$TEST_CMAKE" ]; then ./bootstrap.sh; ./b2 headers; fi
 
 script:
