@@ -1,5 +1,5 @@
 //  Copyright (c) 2011 Helge Bahmann
-//  Copyright (c) 2017 - 2018 Andrey Semashev
+//  Copyright (c) 2017 - 2019 Andrey Semashev
 //
 //  Distributed under the Boost Software License, Version 1.0.
 //  See accompanying file LICENSE_1_0.txt or copy at
@@ -18,6 +18,9 @@
 #include <boost/type_traits/integral_constant.hpp>
 #include <boost/type_traits/is_signed.hpp>
 #include <boost/type_traits/is_unsigned.hpp>
+#include <boost/type_traits/make_signed.hpp>
+#include <boost/type_traits/make_unsigned.hpp>
+#include <boost/type_traits/conditional.hpp>
 
 struct test_stream_type
 {
@@ -223,6 +226,13 @@ void test_constexpr_ctor()
 template< typename T, typename D, bool IsSigned = boost::is_signed< D >::value >
 struct distance_limits
 {
+    //! Difference type D promoted to the width of type T
+    typedef typename boost::conditional<
+        IsSigned,
+        typename boost::make_signed< T >::type,
+        typename boost::make_unsigned< T >::type
+    >::type promoted_difference_type;
+
     static D min BOOST_PREVENT_MACRO_SUBSTITUTION () BOOST_NOEXCEPT
     {
         return (std::numeric_limits< D >::min)();
@@ -243,6 +253,9 @@ struct distance_limits
 template< typename T, typename D >
 struct distance_limits< T*, D, true >
 {
+    //! Difference type D promoted to the width of type T
+    typedef std::ptrdiff_t promoted_difference_type;
+
     static D min BOOST_PREVENT_MACRO_SUBSTITUTION () BOOST_NOEXCEPT
     {
         const std::ptrdiff_t ptrdiff = (std::numeric_limits< std::ptrdiff_t >::min)() / static_cast< std::ptrdiff_t >(sizeof(T));
@@ -262,6 +275,9 @@ struct distance_limits< T*, D, true >
 template< typename T, typename D >
 struct distance_limits< T*, D, false >
 {
+    //! Difference type D promoted to the width of type T
+    typedef std::size_t promoted_difference_type;
+
     static D min BOOST_PREVENT_MACRO_SUBSTITUTION () BOOST_NOEXCEPT
     {
         return (std::numeric_limits< D >::min)();
@@ -281,6 +297,9 @@ struct distance_limits< T*, D, false >
 template< typename T, bool IsSigned >
 struct distance_limits< T, boost::int128_type, IsSigned >
 {
+    //! Difference type D promoted to the width of type T
+    typedef boost::int128_type promoted_difference_type;
+
     static boost::int128_type min BOOST_PREVENT_MACRO_SUBSTITUTION () BOOST_NOEXCEPT
     {
         return -(max)() - 1;
@@ -294,6 +313,9 @@ struct distance_limits< T, boost::int128_type, IsSigned >
 template< typename T, bool IsSigned >
 struct distance_limits< T, boost::uint128_type, IsSigned >
 {
+    //! Difference type D promoted to the width of type T
+    typedef boost::uint128_type promoted_difference_type;
+
     static boost::uint128_type min BOOST_PREVENT_MACRO_SUBSTITUTION () BOOST_NOEXCEPT
     {
         return 0u;
@@ -314,6 +336,8 @@ template<typename T, typename D, typename AddType>
 void test_additive_operators_with_type_and_test()
 {
     // Note: This set of tests is extracted to a separate function because otherwise MSVC-10 for x64 generates broken code
+    typedef typename distance_limits< T, D >::promoted_difference_type promoted_difference_type;
+    typedef typename boost::make_unsigned< promoted_difference_type >::type unsigned_promoted_difference_type;
     const T zero_value = 0;
     const D zero_diff = 0;
     const D one_diff = 1;
@@ -361,7 +385,13 @@ void test_additive_operators_with_type_and_test()
         boost::atomic<T> a(zero_value);
         bool f = a.sub_and_test((distance_limits< T, D >::min)());
         BOOST_TEST_EQ( f, ((distance_limits< T, D >::min)() != 0) );
-        BOOST_TEST_EQ( a.load(), T(zero_add - (distance_limits< T, D >::min)()) );
+        // Be very careful as to not cause signed overflow on negation
+        unsigned_promoted_difference_type umin = static_cast< unsigned_promoted_difference_type >(
+            static_cast< promoted_difference_type >((distance_limits< T, D >::min)()));
+        umin = -umin;
+        promoted_difference_type neg_min;
+        std::memcpy(&neg_min, &umin, sizeof(neg_min));
+        BOOST_TEST_EQ( a.load(), T(zero_add + neg_min) );
     }
 }
 
