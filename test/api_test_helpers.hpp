@@ -16,6 +16,7 @@
 #include <boost/config.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/type_traits/integral_constant.hpp>
+#include <boost/type_traits/is_pointer.hpp>
 #include <boost/type_traits/is_signed.hpp>
 #include <boost/type_traits/is_unsigned.hpp>
 #include <boost/type_traits/make_signed.hpp>
@@ -381,6 +382,11 @@ void test_additive_operators_with_type_and_test()
         BOOST_TEST_EQ( f, true );
         BOOST_TEST_EQ( a.load(), T(zero_add - (distance_limits< T, D >::max)()) );
     }
+
+#if defined(UBSAN)
+    // clang UBSAN flags this test when AddType is a pointer as it considers subtracting from a null pointer (zero_add) an UB
+    if (!boost::is_pointer< AddType >::value)
+#endif
     {
         boost::atomic<T> a(zero_value);
         bool f = a.sub_and_test((distance_limits< T, D >::min)());
