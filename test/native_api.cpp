@@ -49,7 +49,7 @@ int main(int, char *[])
     test_floating_point_api<float>();
     test_floating_point_api<double>();
     test_floating_point_api<long double>();
-#if defined(BOOST_HAS_INT128) && defined(BOOST_HAS_FLOAT128)
+#if (defined(BOOST_HAS_INT128) || !defined(BOOST_NO_ALIGNMENT)) && defined(BOOST_HAS_FLOAT128)
     test_floating_point_api<boost::float128_type>();
 #endif
 #endif
