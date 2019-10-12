@@ -40,11 +40,13 @@ int main(int, char *[])
     test_integral_api<boost::uint128_type>();
 #endif
 
+#if !defined(BOOST_ATOMIC_NO_FLOATING_POINT)
     test_floating_point_api<float>();
     test_floating_point_api<double>();
     test_floating_point_api<long double>();
-#if defined(BOOST_HAS_FLOAT128)
+#if defined(BOOST_HAS_INT128) && defined(BOOST_HAS_FLOAT128)
     test_floating_point_api<boost::float128_type>();
+#endif
 #endif
 
     test_pointer_api<int>();

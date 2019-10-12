@@ -205,7 +205,7 @@ int main(int, char *[])
         sizeof(long double) == 1 ? EXPECT_CHAR_LOCK_FREE : (sizeof(long double) == 2 ? EXPECT_SHORT_LOCK_FREE :
         (sizeof(long double) <= 4 ? EXPECT_INT_LOCK_FREE : (sizeof(long double) <= 8 ? EXPECT_LLONG_LOCK_FREE : (sizeof(long double) <= 16 ? EXPECT_INT128_LOCK_FREE : 0)))));
 
-#ifdef BOOST_HAS_FLOAT128
+#if defined(BOOST_HAS_INT128) && defined(BOOST_HAS_FLOAT128)
     verify_lock_free<boost::float128_type>("float128", BOOST_ATOMIC_INT128_LOCK_FREE, EXPECT_INT128_LOCK_FREE);
 #endif
 
