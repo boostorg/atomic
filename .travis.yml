@@ -1,4 +1,5 @@
 # Copyright 2016, 2017 Peter Dimov
+# Copyright 2019 Andrey Semashev
 # Distributed under the Boost Software License, Version 1.0.
 # (See accompanying file LICENSE_1_0.txt or copy at http://boost.org/LICENSE_1_0.txt)
 
@@ -11,6 +12,8 @@ python: "2.7"
 os:
   - linux
   - osx
+
+dist: bionic
 
 branches:
   only:
@@ -29,9 +32,8 @@ matrix:
   include:
 # gcc, Linux
     - os: linux
-      env: TOOLSET=gcc COMPILER=g++ CXXSTD64=03,11
-
-    - os: linux
+      dist: trusty
+      compiler: gcc-4.7
       env: TOOLSET=gcc COMPILER=g++-4.7 CXXSTD64=03,11 CXXSTD32=03,11
       addons:
         apt:
@@ -43,6 +45,8 @@ matrix:
             - ubuntu-toolchain-r-test
 
     - os: linux
+      dist: xenial
+      compiler: gcc-4.8
       env: TOOLSET=gcc COMPILER=g++-4.8 CXXSTD64=03,11 CXXSTD32=03,11
       addons:
         apt:
@@ -54,6 +58,8 @@ matrix:
             - ubuntu-toolchain-r-test
 
     - os: linux
+      dist: xenial
+      compiler: gcc-4.9
       env: TOOLSET=gcc COMPILER=g++-4.9 CXXSTD64=03,11 CXXSTD32=03,11
       addons:
         apt:
@@ -65,6 +71,8 @@ matrix:
             - ubuntu-toolchain-r-test
 
     - os: linux
+      dist: xenial
+      compiler: gcc-5
       env: TOOLSET=gcc COMPILER=g++-5 CXXSTD64=03,11,14 CXXSTD32=03,11
       addons:
         apt:
@@ -76,6 +84,8 @@ matrix:
             - ubuntu-toolchain-r-test
 
     - os: linux
+      dist: xenial
+      compiler: gcc-6
       env: TOOLSET=gcc COMPILER=g++-6 CXXSTD64=03,11,14,1z CXXSTD32=03,11
       addons:
         apt:
@@ -87,6 +97,8 @@ matrix:
             - ubuntu-toolchain-r-test
 
     - os: linux
+      dist: xenial
+      compiler: gcc-7
       env: TOOLSET=gcc COMPILER=g++-7 CXXSTD64=03,11,14,17 CXXSTD32=03,11
       addons:
         apt:
@@ -98,6 +110,8 @@ matrix:
             - ubuntu-toolchain-r-test
 
     - os: linux
+      dist: xenial
+      compiler: gcc-8
       env: TOOLSET=gcc COMPILER=g++-8 CXXSTD64=03,11,14,17,03-gnu,11-gnu,14-gnu,17-gnu CXXSTD32=03,11
       addons:
         apt:
@@ -108,11 +122,34 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
 
-# clang, Linux
     - os: linux
-      env: TOOLSET=clang COMPILER=clang++ CXXSTD64=03,11
+      dist: bionic
+      compiler: gcc-9
+      env: TOOLSET=gcc COMPILER=g++-9 CXXSTD64=03,11,14,17,03-gnu,11-gnu,14-gnu,17-gnu CXXSTD32=03,11
+      addons:
+        apt:
+          packages:
+            - g++-9
+            - g++-9-multilib
+            - linux-libc-dev:i386
+          sources:
+            - sourceline: "ppa:ubuntu-toolchain-r/test"
 
     - os: linux
+      dist: bionic
+      compiler: gcc-UBSAN
+      env: UBSAN=1 TOOLSET=gcc COMPILER=g++-9 CXXSTD64=03,11,14,17 UBSAN_OPTIONS=print_stacktrace=1 LINKFLAGS=-fuse-ld=gold
+      addons:
+        apt:
+          packages:
+            - g++-9
+          sources:
+            - sourceline: "ppa:ubuntu-toolchain-r/test"
+
+# clang, Linux
+    - os: linux
+      dist: trusty
+      compiler: clang-3.5
       env: TOOLSET=clang COMPILER=clang++-3.5 CXXSTD64=03,11 CXXSTD32=03,11
       addons:
         apt:
@@ -122,9 +159,12 @@ matrix:
             - linux-libc-dev:i386
           sources:
             - ubuntu-toolchain-r-test
-            - llvm-toolchain-precise-3.5
+            - sourceline: "deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-3.5 main"
+              key_url: "https://apt.llvm.org/llvm-snapshot.gpg.key"
 
     - os: linux
+      dist: trusty
+      compiler: clang-3.6
       env: TOOLSET=clang COMPILER=clang++-3.6 CXXSTD64=03,11 CXXSTD32=03,11
       addons:
         apt:
@@ -134,9 +174,12 @@ matrix:
             - linux-libc-dev:i386
           sources:
             - ubuntu-toolchain-r-test
-            - llvm-toolchain-precise-3.6
+            - sourceline: "deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-3.6 main"
+              key_url: "https://apt.llvm.org/llvm-snapshot.gpg.key"
 
     - os: linux
+      dist: trusty
+      compiler: clang-3.7
       env: TOOLSET=clang COMPILER=clang++-3.7 CXXSTD64=03,11 CXXSTD32=03,11
       addons:
         apt:
@@ -146,84 +189,156 @@ matrix:
             - linux-libc-dev:i386
           sources:
             - ubuntu-toolchain-r-test
-            - llvm-toolchain-precise-3.7
+            - sourceline: "deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-3.7 main"
+              key_url: "https://apt.llvm.org/llvm-snapshot.gpg.key"
 
     - os: linux
+      dist: xenial
+      compiler: clang-3.8
       env: TOOLSET=clang COMPILER=clang++-3.8 CXXSTD64=03,11,14,1z CXXSTD32=03,11
       addons:
         apt:
           packages:
             - clang-3.8
-            - g++-5-multilib
+            - g++-6-multilib
             - linux-libc-dev:i386
           sources:
             - ubuntu-toolchain-r-test
-            - llvm-toolchain-precise-3.8
+            - sourceline: "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-3.8 main"
+              key_url: "https://apt.llvm.org/llvm-snapshot.gpg.key"
 
     - os: linux
+      dist: xenial
+      compiler: clang-3.9
       env: TOOLSET=clang COMPILER=clang++-3.9 CXXSTD64=03,11,14,1z CXXSTD32=03,11
       addons:
         apt:
           packages:
             - clang-3.9
-            - g++-5-multilib
+            - g++-6-multilib
             - linux-libc-dev:i386
           sources:
             - ubuntu-toolchain-r-test
-            - llvm-toolchain-trusty-3.9
+            - sourceline: "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-3.9 main"
+              key_url: "https://apt.llvm.org/llvm-snapshot.gpg.key"
 
     - os: linux
+      dist: xenial
+      compiler: clang-4
       env: TOOLSET=clang COMPILER=clang++-4.0 CXXSTD64=03,11,14,1z CXXSTD32=03,11
       addons:
         apt:
           packages:
             - clang-4.0
-            - g++-5-multilib
+            - g++-6-multilib
             - linux-libc-dev:i386
           sources:
             - ubuntu-toolchain-r-test
-            - llvm-toolchain-trusty-4.0
+            - sourceline: "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-4.0 main"
+              key_url: "https://apt.llvm.org/llvm-snapshot.gpg.key"
 
     - os: linux
+      dist: xenial
+      compiler: clang-5
       env: TOOLSET=clang COMPILER=clang++-5.0 CXXSTD64=03,11,14,1z CXXSTD32=03,11
       addons:
         apt:
           packages:
             - clang-5.0
-            - g++-5-multilib
+            - g++-7-multilib
             - linux-libc-dev:i386
           sources:
             - ubuntu-toolchain-r-test
-            - llvm-toolchain-trusty-5.0
+            - sourceline: "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-5.0 main"
+              key_url: "https://apt.llvm.org/llvm-snapshot.gpg.key"
 
     - os: linux
+      dist: xenial
+      compiler: clang-6
       env: TOOLSET=clang COMPILER=clang++-6.0 CXXSTD64=03,11,14,17 CXXSTD32=03,11
       addons:
         apt:
           packages:
             - clang-6.0
-            - g++-5-multilib
+            - g++-8-multilib
             - linux-libc-dev:i386
           sources:
             - ubuntu-toolchain-r-test
-            - llvm-toolchain-trusty-6.0
+            - sourceline: "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-6.0 main"
+              key_url: "https://apt.llvm.org/llvm-snapshot.gpg.key"
 
     - os: linux
+      dist: xenial
+      compiler: clang-7
       env: TOOLSET=clang COMPILER=clang++-7 CXXSTD64=03,11,14,17 CXXSTD32=03,11
       addons:
         apt:
           packages:
             - clang-7
-            - g++-5-multilib
+            - g++-8-multilib
             - linux-libc-dev:i386
           sources:
             - ubuntu-toolchain-r-test
-            - llvm-toolchain-trusty-7
+            - sourceline: "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-7 main"
+              key_url: "https://apt.llvm.org/llvm-snapshot.gpg.key"
+
+    - os: linux
+      dist: xenial
+      compiler: clang-8
+      env: TOOLSET=clang COMPILER=clang++-8 CXXSTD64=03,11,14,17 CXXSTD32=03,11
+      addons:
+        apt:
+          packages:
+            - clang-8
+            - g++-8-multilib
+            - linux-libc-dev:i386
+          sources:
+            - ubuntu-toolchain-r-test
+            - sourceline: "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-8 main"
+              key_url: "https://apt.llvm.org/llvm-snapshot.gpg.key"
+
+    - os: linux
+      dist: bionic
+      compiler: clang-9
+      env: TOOLSET=clang COMPILER=clang++-9 CXXSTD64=03,11,14,17 CXXSTD32=03,11
+      addons:
+        apt:
+          packages:
+            - clang-9
+            - g++-9-multilib
+            - linux-libc-dev:i386
+          sources:
+            - sourceline: "ppa:ubuntu-toolchain-r/test"
+            - sourceline: "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-9 main"
+              key_url: "https://apt.llvm.org/llvm-snapshot.gpg.key"
+
+    - os: linux
+      dist: bionic
+      compiler: clang-UBSAN
+      env: UBSAN=1 TOOLSET=clang COMPILER=clang++-9 CXXSTD64=03,11,14,17 CXXSTD32=03,11 UBSAN_OPTIONS=print_stacktrace=1
+      addons:
+        apt:
+          packages:
+            - clang-9
+            - g++-9-multilib
+            - linux-libc-dev:i386
+          sources:
+            - sourceline: "ppa:ubuntu-toolchain-r/test"
+            - sourceline: "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-9 main"
+              key_url: "https://apt.llvm.org/llvm-snapshot.gpg.key"
 
 # clang, OS X, 64-bit
     - os: osx
       env: TOOLSET=clang COMPILER=clang++ CXXSTD64=03,11,14,1z
       osx_image: xcode9.4
+
+    - os: osx
+      env: TOOLSET=clang COMPILER=clang++ CXXSTD64=03,11,14,1z
+      osx_image: xcode10.3
+
+    - os: osx
+      env: TOOLSET=clang COMPILER=clang++ CXXSTD64=03,11,14,17
+      osx_image: xcode11.2
 
 # cmake self-test
     - os: linux
@@ -261,8 +376,8 @@ script:
   - |-
     echo "using $TOOLSET : : $COMPILER ;" > ~/user-config.jam
   - BUILD_JOBS=`(nproc || sysctl -n hw.ncpu) 2> /dev/null`
-  - if [ -n "$CXXSTD64" ]; then echo ""; echo "Testing 64-bit targets"; echo ""; ./b2 -j $BUILD_JOBS libs/atomic/test toolset=$TOOLSET address-model=64 cxxstd=$CXXSTD64; fi
-  - if [ -n "$CXXSTD32" ]; then echo ""; echo "Testing 32-bit targets"; echo ""; ./b2 -j $BUILD_JOBS libs/atomic/test toolset=$TOOLSET address-model=32 cxxstd=$CXXSTD32; fi
+  - if [ -n "$CXXSTD64" ]; then echo ""; echo "Testing 64-bit targets"; echo ""; ./b2 -j $BUILD_JOBS libs/atomic/test toolset=$TOOLSET address-model=64 cxxstd=$CXXSTD64 ${UBSAN:+cxxflags=-fsanitize=undefined cxxflags=-fno-sanitize-recover=undefined linkflags=-fsanitize=undefined define=UBSAN=1 debug-symbols=on} ${LINKFLAGS:+linkflags=$LINKFLAGS}; fi
+  - if [ -n "$CXXSTD32" ]; then echo ""; echo "Testing 32-bit targets"; echo ""; ./b2 -j $BUILD_JOBS libs/atomic/test toolset=$TOOLSET address-model=32 cxxstd=$CXXSTD32 ${UBSAN:+cxxflags=-fsanitize=undefined cxxflags=-fno-sanitize-recover=undefined linkflags=-fsanitize=undefined define=UBSAN=1 debug-symbols=on} ${LINKFLAGS:+linkflags=$LINKFLAGS}; fi
 
 notifications:
   email:
