@@ -38,11 +38,10 @@ environment:
       ADDRESS_MODEL: 64
       CXXSTD: 14,17
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
-# clang-win currently fails on linking stage due to Boost.Build issues
-#    - TOOLSET: clang-win
-#      ADDRESS_MODEL: 64
-#      CXXSTD: 14,17
-#      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+    - TOOLSET: clang-win
+      ADDRESS_MODEL: 64
+      CXXSTD: 14,17
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
     - TOOLSET: gcc
       ADDRESS_MODEL: 64
       CXXSTD: 03,11,03-gnu,11-gnu
@@ -82,11 +81,10 @@ environment:
       ADDRESS_MODEL: 32
       CXXSTD: 14,17
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
-# clang-win currently fails on linking stage due to Boost.Build issues
-#    - TOOLSET: clang-win
-#      ADDRESS_MODEL: 32
-#      CXXSTD: 14,17
-#      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+    - TOOLSET: clang-win
+      ADDRESS_MODEL: 32
+      CXXSTD: 14,17
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
     - TOOLSET: gcc
       ADDRESS_MODEL: 32
       CXXSTD: 03,11,03-gnu,11-gnu
