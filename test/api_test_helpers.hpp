@@ -336,6 +336,12 @@ struct distance_limits< T, boost::uint128_type, IsSigned >
 template<typename T, typename D, typename AddType>
 void test_additive_operators_with_type_and_test()
 {
+#if defined(UBSAN)
+    // clang UBSAN flags this test when AddType is a pointer as it considers subtracting from a null pointer (zero_add) an UB
+    if (boost::is_pointer< AddType >::value)
+        return;
+#endif
+
     // Note: This set of tests is extracted to a separate function because otherwise MSVC-10 for x64 generates broken code
     typedef typename distance_limits< T, D >::promoted_difference_type promoted_difference_type;
     typedef typename boost::make_unsigned< promoted_difference_type >::type unsigned_promoted_difference_type;
@@ -382,11 +388,6 @@ void test_additive_operators_with_type_and_test()
         BOOST_TEST_EQ( f, true );
         BOOST_TEST_EQ( a.load(), T(zero_add - (distance_limits< T, D >::max)()) );
     }
-
-#if defined(UBSAN)
-    // clang UBSAN flags this test when AddType is a pointer as it considers subtracting from a null pointer (zero_add) an UB
-    if (!boost::is_pointer< AddType >::value)
-#endif
     {
         boost::atomic<T> a(zero_value);
         bool f = a.sub_and_test((distance_limits< T, D >::min)());
