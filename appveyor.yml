@@ -41,6 +41,7 @@ environment:
     - TOOLSET: clang-win
       ADDRESS_MODEL: 64
       CXXSTD: 14,17
+      B2_ARGS: cxxflags=-mcx16
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
     - TOOLSET: gcc
       ADDRESS_MODEL: 64
