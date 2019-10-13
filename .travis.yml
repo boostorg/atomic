@@ -237,20 +237,20 @@ matrix:
             - sourceline: "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-4.0 main"
               key_url: "https://apt.llvm.org/llvm-snapshot.gpg.key"
 
-# Note: clang-5 fails float128 tests on 32-bit x86 target
+# Note: clang-5 fails float128 tests on 32-bit x86 target for some unknown reason. Does not reproduce locally.
     - os: linux
-      dist: trusty
+      dist: xenial
       compiler: clang-5
-      env: TOOLSET=clang COMPILER=clang++-5.0 CXXSTD64=03,11,14,1z CXXSTD32=03,11
+      env: TOOLSET=clang COMPILER=clang++-5.0 CXXSTD64=03,11,14,1z
       addons:
         apt:
           packages:
             - clang-5.0
-            - g++-5-multilib
+            - g++-7-multilib
             - linux-libc-dev:i386
           sources:
             - ubuntu-toolchain-r-test
-            - sourceline: "deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-5.0 main"
+            - sourceline: "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-5.0 main"
               key_url: "https://apt.llvm.org/llvm-snapshot.gpg.key"
 
     - os: linux
