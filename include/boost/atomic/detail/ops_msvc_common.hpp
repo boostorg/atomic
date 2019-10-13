@@ -26,7 +26,7 @@
 #if defined(__INTEL_COMPILER)
 #define BOOST_ATOMIC_DETAIL_COMPILER_BARRIER() __memory_barrier()
 #elif defined(__clang__)
-#define BOOST_ATOMIC_DETAIL_COMPILER_BARRIER() __atomic_signal_fence(__ATOMIC_SEQ_CST);
+#define BOOST_ATOMIC_DETAIL_COMPILER_BARRIER() __atomic_signal_fence(__ATOMIC_SEQ_CST)
 #elif defined(_MSC_VER) && !defined(_WIN32_WCE)
 extern "C" void _ReadWriteBarrier(void);
 #pragma intrinsic(_ReadWriteBarrier)
