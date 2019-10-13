@@ -245,7 +245,7 @@ matrix:
         apt:
           packages:
             - clang-5.0
-            - g++-6-multilib
+            - g++-7-multilib
             - linux-libc-dev:i386
           sources:
             - ubuntu-toolchain-r-test
