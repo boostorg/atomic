@@ -21,11 +21,15 @@ target_link_libraries(boost_atomic
 target_compile_definitions(boost_atomic
   PUBLIC
     BOOST_ATOMIC_NO_LIB
-    $<IF:$<BOOL:${BUILD_SHARED_LIBS}>,BOOST_ATOMIC_DYN_LINK=1,BOOST_ATOMIC_STATIC_LINK=1>
-
   PRIVATE
     BOOST_ATOMIC_SOURCE
 )
+
+if(${BUILD_SHARED_LIBS})
+  target_compile_definitions(boost_atomic PUBLIC BOOST_ATOMIC_DYN_LINK)
+else()
+  target_compile_definitions(boost_atomic PUBLIC BOOST_ATOMIC_STATIC_LINK)
+endif()
 
 if(BOOST_SUPERPROJECT_VERSION)
 
