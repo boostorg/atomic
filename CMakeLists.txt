@@ -25,7 +25,7 @@ target_compile_definitions(boost_atomic
     BOOST_ATOMIC_SOURCE
 )
 
-if(${BUILD_SHARED_LIBS})
+if(BUILD_SHARED_LIBS)
   target_compile_definitions(boost_atomic PUBLIC BOOST_ATOMIC_DYN_LINK)
 else()
   target_compile_definitions(boost_atomic PUBLIC BOOST_ATOMIC_STATIC_LINK)
