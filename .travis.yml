@@ -379,7 +379,7 @@ matrix:
       env: TEST_CMAKE=1 CMAKE_INSTALL=1
       script:
         - mkdir __build__ && cd __build__
-        - cmake -DBOOST_ENABLE_CMAKE=1 -DBoost_VERBOSE=1 -DBOOST_INCLUDE_LIBRARIES="atomic;assert;config;type_taits" -DCMAKE_INSTALL_PREFIX=~/.local ..
+        - cmake -DBOOST_ENABLE_CMAKE=1 -DBoost_VERBOSE=1 -DBOOST_INCLUDE_LIBRARIES="atomic;assert;config;type_traits" -DCMAKE_INSTALL_PREFIX=~/.local ..
         - cmake --build . --target install
         - cd ../libs/atomic/test/cmake_install_test && mkdir __build__ && cd __build__
         - cmake -DCMAKE_INSTALL_PREFIX=~/.local ..
@@ -391,7 +391,7 @@ matrix:
       env: TEST_CMAKE=1 CMAKE_INSTALL_VERSIONED=1
       script:
         - mkdir __build__ && cd __build__
-        - cmake -DBOOST_ENABLE_CMAKE=1 -DBoost_VERBOSE=1 -DBOOST_INCLUDE_LIBRARIES="atomic;assert;config;type_taits" -DCMAKE_INSTALL_PREFIX=~/.local -DBOOST_INSTALL_LAYOUT=versioned ..
+        - cmake -DBOOST_ENABLE_CMAKE=1 -DBoost_VERBOSE=1 -DBOOST_INCLUDE_LIBRARIES="atomic;assert;config;type_traits" -DCMAKE_INSTALL_PREFIX=~/.local -DBOOST_INSTALL_LAYOUT=versioned ..
         - cmake --build . --target install
         - cd ../libs/atomic/test/cmake_install_test && mkdir __build__ && cd __build__
         - cmake -DCMAKE_INSTALL_PREFIX=~/.local ..
