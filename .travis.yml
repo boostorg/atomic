@@ -346,7 +346,7 @@ matrix:
 
 # CMake subdir test
     - os: linux
-      env: TEST_CMAKE_SUBDIR=1
+      env: TEST_CMAKE=1 CMAKE_SUBDIR=1
       addons:
         apt:
           packages:
@@ -362,7 +362,7 @@ matrix:
 
 # CMake test from the Boost superproject
     - os: linux
-      env: TEST_BOOST_CMAKE=1
+      env: TEST_CMAKE=1 CMAKE_BOOST=1
       script:
         - mkdir __build_static__ && cd __build_static__
         - cmake -DBOOST_ENABLE_CMAKE=1 -DBoost_VERBOSE=1 -DBOOST_INCLUDE_LIBRARIES=atomic ..
@@ -376,7 +376,7 @@ matrix:
 
 # CMake install test
     - os: linux
-      env: TEST_CMAKE_INSTALL=1
+      env: TEST_CMAKE=1 CMAKE_INSTALL=1
       script:
         - mkdir __build__ && cd __build__
         - cmake -DBOOST_ENABLE_CMAKE=1 -DBoost_VERBOSE=1 -DBOOST_INCLUDE_LIBRARIES="atomic;assert;config;type_taits" -DCMAKE_INSTALL_PREFIX=~/.local ..
@@ -386,10 +386,24 @@ matrix:
         - cmake --build .
         - cmake --build . --target check
 
+# CMake install test, versioned layout
+    - os: linux
+      env: TEST_CMAKE=1 CMAKE_INSTALL_VERSIONED=1
+      script:
+        - mkdir __build__ && cd __build__
+        - cmake -DBOOST_ENABLE_CMAKE=1 -DBoost_VERBOSE=1 -DBOOST_INCLUDE_LIBRARIES="atomic;assert;config;type_taits" -DCMAKE_INSTALL_PREFIX=~/.local -DBOOST_INSTALL_LAYOUT=versioned ..
+        - cmake --build . --target install
+        - cd ../libs/atomic/test/cmake_install_test && mkdir __build__ && cd __build__
+        - cmake -DCMAKE_INSTALL_PREFIX=~/.local ..
+        - cmake --build .
+        - cmake --build . --target check
+
 install:
   - GIT_FETCH_JOBS=8
+  - BOOST_BRANCH=develop
+  - if [ "$TRAVIS_BRANCH" = "master" ]; then BOOST_BRANCH=master; fi
   - cd ..
-  - git clone -b $TRAVIS_BRANCH --depth 1 https://github.com/boostorg/boost.git boost-root
+  - git clone -b $BOOST_BRANCH --depth 1 https://github.com/boostorg/boost.git boost-root
   - cd boost-root
   - git submodule init tools/boostdep
   - git submodule init tools/build
