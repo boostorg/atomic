@@ -144,7 +144,6 @@ public:
     BOOST_DEFAULTED_FUNCTION(base_atomic_ref(base_atomic_ref const& that) BOOST_ATOMIC_DETAIL_DEF_NOEXCEPT_DECL, BOOST_ATOMIC_DETAIL_DEF_NOEXCEPT_IMPL : base_type(static_cast< base_type const& >(that)) {})
     BOOST_FORCEINLINE explicit base_atomic_ref(value_type& v) BOOST_NOEXCEPT : base_type(v)
     {
-        this->clear_padding_bits(has_padding_bits());
     }
 
     BOOST_FORCEINLINE void store(value_arg_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
@@ -200,23 +199,6 @@ public:
     BOOST_DELETED_FUNCTION(base_atomic_ref& operator=(base_atomic_ref const&))
 
 private:
-    BOOST_FORCEINLINE void clear_padding_bits(atomics::detail::false_type) const BOOST_NOEXCEPT
-    {
-    }
-
-    BOOST_FORCEINLINE void clear_padding_bits(atomics::detail::true_type) const BOOST_NOEXCEPT
-    {
-        storage_type old_value = operations::load(this->storage(), boost::memory_order_relaxed);
-        while (true)
-        {
-            // bitwise_cast will zero tail padding bits
-            storage_type new_value = atomics::detail::bitwise_cast< storage_type >(atomics::detail::bitwise_cast< value_type >(old_value));
-            bool res = operations::compare_exchange_weak(this->storage(), old_value, new_value, boost::memory_order_relaxed, boost::memory_order_relaxed);
-            if (BOOST_LIKELY(res))
-                break;
-        }
-    }
-
     BOOST_FORCEINLINE bool compare_exchange_strong_impl(value_type& expected, value_arg_type desired, memory_order success_order, memory_order failure_order, atomics::detail::false_type) const BOOST_NOEXCEPT
     {
 #if defined(BOOST_ATOMIC_DETAIL_STORAGE_TYPE_MAY_ALIAS)
