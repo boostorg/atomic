@@ -26,6 +26,9 @@ namespace atomics {
 namespace detail {
 
 template< std::size_t Size, bool Signed >
+struct emulated_operations;
+
+template< std::size_t Size, bool Signed >
 struct operations;
 
 } // namespace detail

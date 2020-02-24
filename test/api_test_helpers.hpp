@@ -1,5 +1,5 @@
 //  Copyright (c) 2011 Helge Bahmann
-//  Copyright (c) 2017 - 2019 Andrey Semashev
+//  Copyright (c) 2017 - 2020 Andrey Semashev
 //
 //  Distributed under the Boost Software License, Version 1.0.
 //  See accompanying file LICENSE_1_0.txt or copy at
@@ -16,12 +16,14 @@
 #include <boost/config.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/type_traits/integral_constant.hpp>
+#include <boost/type_traits/is_same.hpp>
 #include <boost/type_traits/is_pointer.hpp>
 #include <boost/type_traits/is_signed.hpp>
 #include <boost/type_traits/is_unsigned.hpp>
 #include <boost/type_traits/make_signed.hpp>
 #include <boost/type_traits/make_unsigned.hpp>
 #include <boost/type_traits/conditional.hpp>
+#include "aligned_object.hpp"
 
 struct test_stream_type
 {
@@ -110,13 +112,39 @@ const test_stream_type test_stream = {};
 
 #include "value_with_epsilon.hpp"
 
+const unsigned int max_weak_cas_loops = 1000;
+
+//! Wrapper type for atomic template
+template< typename T >
+struct atomic_wrapper
+{
+    typedef boost::atomic< T > atomic_type;
+
+    atomic_type a;
+
+    BOOST_DEFAULTED_FUNCTION(atomic_wrapper(), {})
+    explicit atomic_wrapper(T const& value) : a(value) {}
+};
+
+//! Wrapper type for atomic_ref template
+template< typename T >
+struct atomic_ref_wrapper
+{
+    typedef boost::atomic_ref< T > atomic_type;
+
+    aligned_object< T, atomic_type::required_alignment > object;
+    atomic_type a;
+
+    atomic_ref_wrapper() : a(object.get()) {}
+    explicit atomic_ref_wrapper(T const& value) : object(value), a(object.get()) {}
+};
+
 /* provide helpers that exercise whether the API
 functions of "boost::atomic" provide the correct
 operational semantic in the case of sequential
 execution */
 
-static void
-test_flag_api(void)
+inline void test_flag_api(void)
 {
 #ifndef BOOST_ATOMIC_NO_ATOMIC_FLAG_INIT
     boost::atomic_flag f = BOOST_ATOMIC_FLAG_INIT;
@@ -130,43 +158,54 @@ test_flag_api(void)
     BOOST_TEST( !f.test_and_set() );
 }
 
-template<typename T>
+template< template< typename > class Wrapper, typename T >
 void test_base_operators(T value1, T value2, T value3)
 {
-    /* explicit load/store */
+    if (boost::is_same< typename Wrapper<T>::atomic_type, boost::atomic<T> >::value)
     {
-        boost::atomic<T> a(value1);
+        BOOST_TEST_GE(sizeof(typename Wrapper<T>::atomic_type), sizeof(T));
+    }
+
+    // explicit load/store
+    {
+        Wrapper<T> wrapper(value1);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         BOOST_TEST_EQ( a.load(), value1 );
     }
 
     {
-        boost::atomic<T> a(value1);
+        Wrapper<T> wrapper(value1);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         a.store(value2);
         BOOST_TEST_EQ( a.load(), value2 );
     }
 
-    /* overloaded assignment/conversion */
+    // overloaded assignment/conversion
     {
-        boost::atomic<T> a(value1);
+        Wrapper<T> wrapper(value1);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         BOOST_TEST( value1 == a );
     }
 
     {
-        boost::atomic<T> a;
+        Wrapper<T> wrapper(value1);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         a = value2;
         BOOST_TEST( value2 == a );
     }
 
-    /* exchange-type operators */
+    // exchange-type operators
     {
-        boost::atomic<T> a(value1);
+        Wrapper<T> wrapper(value1);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         T n = a.exchange(value2);
         BOOST_TEST_EQ( a.load(), value2 );
         BOOST_TEST_EQ( n, value1 );
     }
 
     {
-        boost::atomic<T> a(value1);
+        Wrapper<T> wrapper(value1);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         T expected = value1;
         bool success = a.compare_exchange_strong(expected, value3);
         BOOST_TEST( success );
@@ -175,7 +214,8 @@ void test_base_operators(T value1, T value2, T value3)
     }
 
     {
-        boost::atomic<T> a(value1);
+        Wrapper<T> wrapper(value1);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         T expected = value2;
         bool success = a.compare_exchange_strong(expected, value3);
         BOOST_TEST( !success );
@@ -184,41 +224,51 @@ void test_base_operators(T value1, T value2, T value3)
     }
 
     {
-        boost::atomic<T> a(value1);
+        Wrapper<T> wrapper(value1);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         T expected;
-        bool success;
-        do {
+        unsigned int loops = 0;
+        bool success = false;
+        do
+        {
             expected = value1;
             success = a.compare_exchange_weak(expected, value3);
-        } while(!success);
+            ++loops;
+        }
+        while (!success && loops < max_weak_cas_loops);
         BOOST_TEST( success );
         BOOST_TEST_EQ( a.load(), value3 );
         BOOST_TEST_EQ( expected, value1 );
     }
 
     {
-        boost::atomic<T> a(value1);
+        Wrapper<T> wrapper(value1);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         T expected;
-        bool success;
-        do {
+        unsigned int loops = 0;
+        bool success = false;
+        do
+        {
             expected = value2;
             success = a.compare_exchange_weak(expected, value3);
             if (expected != value2)
                 break;
-        } while(!success);
+            ++loops;
+        }
+        while (!success && loops < max_weak_cas_loops);
         BOOST_TEST( !success );
         BOOST_TEST_EQ( a.load(), value1 );
         BOOST_TEST_EQ( expected, value1 );
     }
 }
 
-// T requires an int constructor
-template <typename T>
+//! Tests whether boost::atomic supports constexpr constructor. Note that boost::atomic_ref (as std::atomic_ref) does not support constexpr constructor.
+template< typename T >
 void test_constexpr_ctor()
 {
 #ifndef BOOST_NO_CXX11_CONSTEXPR
-    const T value(0);
-    const boost::atomic<T> tester(value);
+    constexpr T value(0);
+    constexpr boost::atomic<T> tester(value);
     BOOST_TEST( tester == value );
 #endif
 }
@@ -230,9 +280,9 @@ struct distance_limits
     //! Difference type D promoted to the width of type T
     typedef typename boost::conditional<
         IsSigned,
-        typename boost::make_signed< T >::type,
-        typename boost::make_unsigned< T >::type
-    >::type promoted_difference_type;
+        boost::make_signed< T >,
+        boost::make_unsigned< T >
+    >::type::type promoted_difference_type;
 
     static D min BOOST_PREVENT_MACRO_SUBSTITUTION () BOOST_NOEXCEPT
     {
@@ -333,7 +383,7 @@ struct distance_limits< T, boost::uint128_type, IsSigned >
 #pragma warning(pop)
 #endif
 
-template<typename T, typename D, typename AddType>
+template< template< typename > class Wrapper, typename T, typename D, typename AddType >
 void test_additive_operators_with_type_and_test()
 {
 #if defined(UBSAN)
@@ -350,7 +400,8 @@ void test_additive_operators_with_type_and_test()
     const D one_diff = 1;
     const AddType zero_add = 0;
     {
-        boost::atomic<T> a(zero_value);
+        Wrapper<T> wrapper(zero_value);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         bool f = a.add_and_test(zero_diff);
         BOOST_TEST_EQ( f, false );
         BOOST_TEST_EQ( a.load(), zero_value );
@@ -360,20 +411,23 @@ void test_additive_operators_with_type_and_test()
         BOOST_TEST_EQ( a.load(), T(zero_add + one_diff) );
     }
     {
-        boost::atomic<T> a(zero_value);
+        Wrapper<T> wrapper(zero_value);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         bool f = a.add_and_test((distance_limits< T, D >::max)());
         BOOST_TEST_EQ( f, true );
         BOOST_TEST_EQ( a.load(), T(zero_add + (distance_limits< T, D >::max)()) );
     }
     {
-        boost::atomic<T> a(zero_value);
+        Wrapper<T> wrapper(zero_value);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         bool f = a.add_and_test((distance_limits< T, D >::min)());
         BOOST_TEST_EQ( f, ((distance_limits< T, D >::min)() != 0) );
         BOOST_TEST_EQ( a.load(), T(zero_add + (distance_limits< T, D >::min)()) );
     }
 
     {
-        boost::atomic<T> a(zero_value);
+        Wrapper<T> wrapper(zero_value);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         bool f = a.sub_and_test(zero_diff);
         BOOST_TEST_EQ( f, false );
         BOOST_TEST_EQ( a.load(), zero_value );
@@ -383,13 +437,15 @@ void test_additive_operators_with_type_and_test()
         BOOST_TEST_EQ( a.load(), T(zero_add - one_diff) );
     }
     {
-        boost::atomic<T> a(zero_value);
+        Wrapper<T> wrapper(zero_value);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         bool f = a.sub_and_test((distance_limits< T, D >::max)());
         BOOST_TEST_EQ( f, true );
         BOOST_TEST_EQ( a.load(), T(zero_add - (distance_limits< T, D >::max)()) );
     }
     {
-        boost::atomic<T> a(zero_value);
+        Wrapper<T> wrapper(zero_value);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         bool f = a.sub_and_test((distance_limits< T, D >::min)());
         BOOST_TEST_EQ( f, ((distance_limits< T, D >::min)() != 0) );
         // Be very careful as to not cause signed overflow on negation
@@ -402,67 +458,75 @@ void test_additive_operators_with_type_and_test()
     }
 }
 
-template<typename T, typename D, typename AddType>
+template< template< typename > class Wrapper, typename T, typename D, typename AddType >
 void test_additive_operators_with_type(T value, D delta)
 {
     /* note: the tests explicitly cast the result of any addition
     to the type to be tested to force truncation of the result to
     the correct range in case of overflow */
 
-    /* explicit add/sub */
+    // explicit add/sub
     {
-        boost::atomic<T> a(value);
+        Wrapper<T> wrapper(value);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         T n = a.fetch_add(delta);
         BOOST_TEST_EQ( a.load(), T((AddType)value + delta) );
         BOOST_TEST_EQ( n, value );
     }
 
     {
-        boost::atomic<T> a(value);
+        Wrapper<T> wrapper(value);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         T n = a.fetch_sub(delta);
         BOOST_TEST_EQ( a.load(), T((AddType)value - delta) );
         BOOST_TEST_EQ( n, value );
     }
 
-    /* overloaded modify/assign*/
+    // overloaded modify/assign
     {
-        boost::atomic<T> a(value);
+        Wrapper<T> wrapper(value);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         T n = (a += delta);
         BOOST_TEST_EQ( a.load(), T((AddType)value + delta) );
         BOOST_TEST_EQ( n, T((AddType)value + delta) );
     }
 
     {
-        boost::atomic<T> a(value);
+        Wrapper<T> wrapper(value);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         T n = (a -= delta);
         BOOST_TEST_EQ( a.load(), T((AddType)value - delta) );
         BOOST_TEST_EQ( n, T((AddType)value - delta) );
     }
 
-    /* overloaded increment/decrement */
+    // overloaded increment/decrement
     {
-        boost::atomic<T> a(value);
+        Wrapper<T> wrapper(value);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         T n = a++;
         BOOST_TEST_EQ( a.load(), T((AddType)value + 1) );
         BOOST_TEST_EQ( n, value );
     }
 
     {
-        boost::atomic<T> a(value);
+        Wrapper<T> wrapper(value);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         T n = ++a;
         BOOST_TEST_EQ( a.load(), T((AddType)value + 1) );
         BOOST_TEST_EQ( n, T((AddType)value + 1) );
     }
 
     {
-        boost::atomic<T> a(value);
+        Wrapper<T> wrapper(value);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         T n = a--;
         BOOST_TEST_EQ( a.load(), T((AddType)value - 1) );
         BOOST_TEST_EQ( n, value );
     }
 
     {
-        boost::atomic<T> a(value);
+        Wrapper<T> wrapper(value);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         T n = --a;
         BOOST_TEST_EQ( a.load(), T((AddType)value - 1) );
         BOOST_TEST_EQ( n, T((AddType)value - 1) );
@@ -470,14 +534,16 @@ void test_additive_operators_with_type(T value, D delta)
 
     // Operations returning the actual resulting value
     {
-        boost::atomic<T> a(value);
+        Wrapper<T> wrapper(value);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         T n = a.add(delta);
         BOOST_TEST_EQ( a.load(), T((AddType)value + delta) );
         BOOST_TEST_EQ( n, T((AddType)value + delta) );
     }
 
     {
-        boost::atomic<T> a(value);
+        Wrapper<T> wrapper(value);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         T n = a.sub(delta);
         BOOST_TEST_EQ( a.load(), T((AddType)value - delta) );
         BOOST_TEST_EQ( n, T((AddType)value - delta) );
@@ -485,32 +551,35 @@ void test_additive_operators_with_type(T value, D delta)
 
     // Opaque operations
     {
-        boost::atomic<T> a(value);
+        Wrapper<T> wrapper(value);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         a.opaque_add(delta);
         BOOST_TEST_EQ( a.load(), T((AddType)value + delta) );
     }
 
     {
-        boost::atomic<T> a(value);
+        Wrapper<T> wrapper(value);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         a.opaque_sub(delta);
         BOOST_TEST_EQ( a.load(), T((AddType)value - delta) );
     }
 
     // Modify and test operations
-    test_additive_operators_with_type_and_test< T, D, AddType >();
+    test_additive_operators_with_type_and_test< Wrapper, T, D, AddType >();
 }
 
-template<typename T, typename D>
+template< template< typename > class Wrapper, typename T, typename D >
 void test_additive_operators(T value, D delta)
 {
-    test_additive_operators_with_type<T, D, T>(value, delta);
+    test_additive_operators_with_type< Wrapper, T, D, T >(value, delta);
 }
 
-template< typename T >
+template< template< typename > class Wrapper, typename T >
 void test_negation()
 {
     {
-        boost::atomic<T> a((T)1);
+        Wrapper<T> wrapper((T)1);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         T n = a.fetch_negate();
         BOOST_TEST_EQ( a.load(), (T)-1 );
         BOOST_TEST_EQ( n, (T)1 );
@@ -520,7 +589,8 @@ void test_negation()
         BOOST_TEST_EQ( n, (T)-1 );
     }
     {
-        boost::atomic<T> a((T)1);
+        Wrapper<T> wrapper((T)1);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         T n = a.negate();
         BOOST_TEST_EQ( a.load(), (T)-1 );
         BOOST_TEST_EQ( n, (T)-1 );
@@ -530,7 +600,8 @@ void test_negation()
         BOOST_TEST_EQ( n, (T)1 );
     }
     {
-        boost::atomic<T> a((T)1);
+        Wrapper<T> wrapper((T)1);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         a.opaque_negate();
         BOOST_TEST_EQ( a.load(), (T)-1 );
 
@@ -538,7 +609,8 @@ void test_negation()
         BOOST_TEST_EQ( a.load(), (T)1 );
     }
     {
-        boost::atomic<T> a((T)1);
+        Wrapper<T> wrapper((T)1);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         bool f = a.negate_and_test();
         BOOST_TEST_EQ( f, true );
         BOOST_TEST_EQ( a.load(), (T)-1 );
@@ -548,77 +620,87 @@ void test_negation()
         BOOST_TEST_EQ( a.load(), (T)1 );
     }
     {
-        boost::atomic<T> a((T)0);
+        Wrapper<T> wrapper((T)0);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         bool f = a.negate_and_test();
         BOOST_TEST_EQ( f, false );
         BOOST_TEST_EQ( a.load(), (T)0 );
     }
 }
 
-template<typename T>
+template< template< typename > class Wrapper, typename T >
 void test_additive_wrap(T value)
 {
     {
-        boost::atomic<T> a(value);
+        Wrapper<T> wrapper(value);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         T n = a.fetch_add(1) + (T)1;
         BOOST_TEST_EQ( a.load(), n );
     }
     {
-        boost::atomic<T> a(value);
+        Wrapper<T> wrapper(value);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         T n = a.fetch_sub(1) - (T)1;
         BOOST_TEST_EQ( a.load(), n );
     }
 }
 
-template<typename T>
+template< template< typename > class Wrapper, typename T >
 void test_bit_operators(T value, T delta)
 {
-    /* explicit and/or/xor */
+    // explicit and/or/xor
     {
-        boost::atomic<T> a(value);
+        Wrapper<T> wrapper(value);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         T n = a.fetch_and(delta);
         BOOST_TEST_EQ( a.load(), T(value & delta) );
         BOOST_TEST_EQ( n, value );
     }
 
     {
-        boost::atomic<T> a(value);
+        Wrapper<T> wrapper(value);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         T n = a.fetch_or(delta);
         BOOST_TEST_EQ( a.load(), T(value | delta) );
         BOOST_TEST_EQ( n, value );
     }
 
     {
-        boost::atomic<T> a(value);
+        Wrapper<T> wrapper(value);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         T n = a.fetch_xor(delta);
         BOOST_TEST_EQ( a.load(), T(value ^ delta) );
         BOOST_TEST_EQ( n, value );
     }
 
     {
-        boost::atomic<T> a(value);
+        Wrapper<T> wrapper(value);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         T n = a.fetch_complement();
         BOOST_TEST_EQ( a.load(), T(~value) );
         BOOST_TEST_EQ( n, value );
     }
 
-    /* overloaded modify/assign */
+    // overloaded modify/assign
     {
-        boost::atomic<T> a(value);
+        Wrapper<T> wrapper(value);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         T n = (a &= delta);
         BOOST_TEST_EQ( a.load(), T(value & delta) );
         BOOST_TEST_EQ( n, T(value & delta) );
     }
 
     {
-        boost::atomic<T> a(value);
+        Wrapper<T> wrapper(value);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         T n = (a |= delta);
         BOOST_TEST_EQ( a.load(), T(value | delta) );
         BOOST_TEST_EQ( n, T(value | delta) );
     }
 
     {
-        boost::atomic<T> a(value);
+        Wrapper<T> wrapper(value);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         T n = (a ^= delta);
         BOOST_TEST_EQ( a.load(), T(value ^ delta) );
         BOOST_TEST_EQ( n, T(value ^ delta) );
@@ -626,28 +708,32 @@ void test_bit_operators(T value, T delta)
 
     // Operations returning the actual resulting value
     {
-        boost::atomic<T> a(value);
+        Wrapper<T> wrapper(value);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         T n = a.bitwise_and(delta);
         BOOST_TEST_EQ( a.load(), T(value & delta) );
         BOOST_TEST_EQ( n, T(value & delta) );
     }
 
     {
-        boost::atomic<T> a(value);
+        Wrapper<T> wrapper(value);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         T n = a.bitwise_or(delta);
         BOOST_TEST_EQ( a.load(), T(value | delta) );
         BOOST_TEST_EQ( n, T(value | delta) );
     }
 
     {
-        boost::atomic<T> a(value);
+        Wrapper<T> wrapper(value);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         T n = a.bitwise_xor(delta);
         BOOST_TEST_EQ( a.load(), T(value ^ delta) );
         BOOST_TEST_EQ( n, T(value ^ delta) );
     }
 
     {
-        boost::atomic<T> a(value);
+        Wrapper<T> wrapper(value);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         T n = a.bitwise_complement();
         BOOST_TEST_EQ( a.load(), T(~value) );
         BOOST_TEST_EQ( n, T(~value) );
@@ -655,32 +741,37 @@ void test_bit_operators(T value, T delta)
 
     // Opaque operations
     {
-        boost::atomic<T> a(value);
+        Wrapper<T> wrapper(value);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         a.opaque_and(delta);
         BOOST_TEST_EQ( a.load(), T(value & delta) );
     }
 
     {
-        boost::atomic<T> a(value);
+        Wrapper<T> wrapper(value);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         a.opaque_or(delta);
         BOOST_TEST_EQ( a.load(), T(value | delta) );
     }
 
     {
-        boost::atomic<T> a(value);
+        Wrapper<T> wrapper(value);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         a.opaque_xor(delta);
         BOOST_TEST_EQ( a.load(), T(value ^ delta) );
     }
 
     {
-        boost::atomic<T> a(value);
+        Wrapper<T> wrapper(value);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         a.opaque_complement();
         BOOST_TEST_EQ( a.load(), T(~value) );
     }
 
     // Modify and test operations
     {
-        boost::atomic<T> a((T)1);
+        Wrapper<T> wrapper((T)1);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         bool f = a.and_and_test((T)1);
         BOOST_TEST_EQ( f, true );
         BOOST_TEST_EQ( a.load(), T(1) );
@@ -695,7 +786,8 @@ void test_bit_operators(T value, T delta)
     }
 
     {
-        boost::atomic<T> a((T)0);
+        Wrapper<T> wrapper((T)0);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         bool f = a.or_and_test((T)0);
         BOOST_TEST_EQ( f, false );
         BOOST_TEST_EQ( a.load(), T(0) );
@@ -710,7 +802,8 @@ void test_bit_operators(T value, T delta)
     }
 
     {
-        boost::atomic<T> a((T)0);
+        Wrapper<T> wrapper((T)0);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         bool f = a.xor_and_test((T)0);
         BOOST_TEST_EQ( f, false );
         BOOST_TEST_EQ( a.load(), T(0) );
@@ -725,7 +818,8 @@ void test_bit_operators(T value, T delta)
     }
 
     {
-        boost::atomic<T> a((T)0);
+        Wrapper<T> wrapper((T)0);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         bool f = a.complement_and_test();
         BOOST_TEST_EQ( f, true );
         BOOST_TEST_EQ( a.load(), static_cast< T >(~static_cast< T >(0)) );
@@ -737,7 +831,8 @@ void test_bit_operators(T value, T delta)
 
     // Bit test and modify operations
     {
-        boost::atomic<T> a((T)42);
+        Wrapper<T> wrapper((T)42);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         bool f = a.bit_test_and_set(0);
         BOOST_TEST_EQ( f, false );
         BOOST_TEST_EQ( a.load(), T(43) );
@@ -752,7 +847,8 @@ void test_bit_operators(T value, T delta)
     }
 
     {
-        boost::atomic<T> a((T)42);
+        Wrapper<T> wrapper((T)42);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         bool f = a.bit_test_and_reset(0);
         BOOST_TEST_EQ( f, false );
         BOOST_TEST_EQ( a.load(), T(42) );
@@ -767,7 +863,8 @@ void test_bit_operators(T value, T delta)
     }
 
     {
-        boost::atomic<T> a((T)42);
+        Wrapper<T> wrapper((T)42);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         bool f = a.bit_test_and_complement(0);
         BOOST_TEST_EQ( f, false );
         BOOST_TEST_EQ( a.load(), T(43) );
@@ -782,75 +879,77 @@ void test_bit_operators(T value, T delta)
     }
 }
 
-template<typename T>
+template< template< typename > class Wrapper, typename T >
 void do_test_integral_api(boost::false_type)
 {
-    BOOST_TEST(sizeof(boost::atomic<T>) >= sizeof(T));
-
-    test_base_operators<T>(42, 43, 44);
-    test_additive_operators<T, T>(42, 17);
-    test_bit_operators<T>((T)0x5f5f5f5f5f5f5f5fULL, (T)0xf5f5f5f5f5f5f5f5ULL);
+    test_base_operators< Wrapper, T >(42, 43, 44);
+    test_additive_operators< Wrapper, T, T >(42, 17);
+    test_bit_operators< Wrapper, T >((T)0x5f5f5f5f5f5f5f5fULL, (T)0xf5f5f5f5f5f5f5f5ULL);
 
     /* test for unsigned overflow/underflow */
-    test_additive_operators<T, T>((T)-1, 1);
-    test_additive_operators<T, T>(0, 1);
+    test_additive_operators< Wrapper, T, T >((T)-1, 1);
+    test_additive_operators< Wrapper, T, T >(0, 1);
     /* test for signed overflow/underflow */
-    test_additive_operators<T, T>(((T)-1) >> (sizeof(T) * 8 - 1), 1);
-    test_additive_operators<T, T>(1 + (((T)-1) >> (sizeof(T) * 8 - 1)), 1);
+    test_additive_operators< Wrapper, T, T >(((T)-1) >> (sizeof(T) * 8 - 1), 1);
+    test_additive_operators< Wrapper, T, T >(1 + (((T)-1) >> (sizeof(T) * 8 - 1)), 1);
 }
 
-template<typename T>
+template< template< typename > class Wrapper, typename T >
 void do_test_integral_api(boost::true_type)
 {
-    do_test_integral_api<T>(boost::false_type());
+    do_test_integral_api< Wrapper, T >(boost::false_type());
 
-    test_additive_wrap<T>(0u);
+    test_additive_wrap< Wrapper, T >(0u);
     BOOST_CONSTEXPR_OR_CONST T all_ones = ~(T)0u;
-    test_additive_wrap<T>(all_ones);
+    test_additive_wrap< Wrapper, T >(all_ones);
     BOOST_CONSTEXPR_OR_CONST T max_signed_twos_compl = all_ones >> 1;
-    test_additive_wrap<T>(all_ones ^ max_signed_twos_compl);
-    test_additive_wrap<T>(max_signed_twos_compl);
+    test_additive_wrap< Wrapper, T >(all_ones ^ max_signed_twos_compl);
+    test_additive_wrap< Wrapper, T >(max_signed_twos_compl);
 }
 
-template<typename T>
+template< template< typename > class Wrapper, typename T >
 inline void test_integral_api(void)
 {
-    do_test_integral_api<T>(boost::is_unsigned<T>());
+    do_test_integral_api< Wrapper, T >(boost::is_unsigned<T>());
 
     if (boost::is_signed<T>::value)
-        test_negation<T>();
+        test_negation< Wrapper, T >();
 }
 
 #if !defined(BOOST_ATOMIC_NO_FLOATING_POINT)
 
-template<typename T, typename D>
+template< template< typename > class Wrapper, typename T, typename D >
 void test_fp_additive_operators(T value, D delta)
 {
-    /* explicit add/sub */
+    // explicit add/sub
     {
-        boost::atomic<T> a(value);
+        Wrapper<T> wrapper(value);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         T n = a.fetch_add(delta);
         BOOST_TEST_EQ( a.load(), approx(T(value + delta)) );
         BOOST_TEST_EQ( n, approx(value) );
     }
 
     {
-        boost::atomic<T> a(value);
+        Wrapper<T> wrapper(value);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         T n = a.fetch_sub(delta);
         BOOST_TEST_EQ( a.load(), approx(T(value - delta)) );
         BOOST_TEST_EQ( n, approx(value) );
     }
 
-    /* overloaded modify/assign*/
+    // overloaded modify/assign
     {
-        boost::atomic<T> a(value);
+        Wrapper<T> wrapper(value);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         T n = (a += delta);
         BOOST_TEST_EQ( a.load(), approx(T(value + delta)) );
         BOOST_TEST_EQ( n, approx(T(value + delta)) );
     }
 
     {
-        boost::atomic<T> a(value);
+        Wrapper<T> wrapper(value);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         T n = (a -= delta);
         BOOST_TEST_EQ( a.load(), approx(T(value - delta)) );
         BOOST_TEST_EQ( n, approx(T(value - delta)) );
@@ -858,14 +957,16 @@ void test_fp_additive_operators(T value, D delta)
 
     // Operations returning the actual resulting value
     {
-        boost::atomic<T> a(value);
+        Wrapper<T> wrapper(value);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         T n = a.add(delta);
         BOOST_TEST_EQ( a.load(), approx(T(value + delta)) );
         BOOST_TEST_EQ( n, approx(T(value + delta)) );
     }
 
     {
-        boost::atomic<T> a(value);
+        Wrapper<T> wrapper(value);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         T n = a.sub(delta);
         BOOST_TEST_EQ( a.load(), approx(T(value - delta)) );
         BOOST_TEST_EQ( n, approx(T(value - delta)) );
@@ -873,23 +974,26 @@ void test_fp_additive_operators(T value, D delta)
 
     // Opaque operations
     {
-        boost::atomic<T> a(value);
+        Wrapper<T> wrapper(value);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         a.opaque_add(delta);
         BOOST_TEST_EQ( a.load(), approx(T(value + delta)) );
     }
 
     {
-        boost::atomic<T> a(value);
+        Wrapper<T> wrapper(value);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         a.opaque_sub(delta);
         BOOST_TEST_EQ( a.load(), approx(T(value - delta)) );
     }
 }
 
-template< typename T >
+template< template< typename > class Wrapper, typename T >
 void test_fp_negation()
 {
     {
-        boost::atomic<T> a((T)1);
+        Wrapper<T> wrapper((T)1);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         T n = a.fetch_negate();
         BOOST_TEST_EQ( a.load(), approx((T)-1) );
         BOOST_TEST_EQ( n, approx((T)1) );
@@ -899,7 +1003,8 @@ void test_fp_negation()
         BOOST_TEST_EQ( n, approx((T)-1) );
     }
     {
-        boost::atomic<T> a((T)1);
+        Wrapper<T> wrapper((T)1);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         T n = a.negate();
         BOOST_TEST_EQ( a.load(), approx((T)-1) );
         BOOST_TEST_EQ( n, approx((T)-1) );
@@ -909,7 +1014,8 @@ void test_fp_negation()
         BOOST_TEST_EQ( n, approx((T)1) );
     }
     {
-        boost::atomic<T> a((T)1);
+        Wrapper<T> wrapper((T)1);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
         a.opaque_negate();
         BOOST_TEST_EQ( a.load(), approx((T)-1) );
 
@@ -920,40 +1026,37 @@ void test_fp_negation()
 
 #endif // !defined(BOOST_ATOMIC_NO_FLOATING_POINT)
 
-template<typename T>
-inline void test_floating_point_api(void)
+template< template< typename > class Wrapper, typename T >
+void test_floating_point_api(void)
 {
-    BOOST_TEST(sizeof(boost::atomic<T>) >= sizeof(T));
-
     // Note: When support for floating point is disabled, even the base operation tests may fail because
     // the generic template specialization does not account for garbage in padding bits that are present in some FP types.
 #if !defined(BOOST_ATOMIC_NO_FLOATING_POINT)
-    test_base_operators<T>(static_cast<T>(42.1), static_cast<T>(43.2), static_cast<T>(44.3));
+    test_base_operators< Wrapper, T >(static_cast<T>(42.1), static_cast<T>(43.2), static_cast<T>(44.3));
 
-    test_fp_additive_operators<T, T>(static_cast<T>(42.5), static_cast<T>(17.7));
-    test_fp_additive_operators<T, T>(static_cast<T>(-42.5), static_cast<T>(-17.7));
+    test_fp_additive_operators< Wrapper, T, T >(static_cast<T>(42.5), static_cast<T>(17.7));
+    test_fp_additive_operators< Wrapper, T, T >(static_cast<T>(-42.5), static_cast<T>(-17.7));
 
-    test_fp_negation<T>();
+    test_fp_negation< Wrapper, T >();
 #endif
 }
 
 
-template<typename T>
+template< template< typename > class Wrapper, typename T >
 void test_pointer_api(void)
 {
-    BOOST_TEST_GE( sizeof(boost::atomic<T *>), sizeof(T *));
-    BOOST_TEST_GE( sizeof(boost::atomic<void *>), sizeof(T *));
-
     T values[3];
 
-    test_base_operators<T*>(&values[0], &values[1], &values[2]);
-    test_additive_operators<T*>(&values[1], 1);
+    test_base_operators< Wrapper, T* >(&values[0], &values[1], &values[2]);
+    test_additive_operators< Wrapper, T*>(&values[1], 1);
 
-    test_base_operators<void*>(&values[0], &values[1], &values[2]);
+    test_base_operators< Wrapper, void*>(&values[0], &values[1], &values[2]);
 
 #if defined(BOOST_HAS_INTPTR_T)
-    boost::atomic<void *> ptr;
-    boost::atomic<boost::intptr_t> integral;
+    Wrapper<void*> wrapper_ptr;
+    typename Wrapper<void*>::atomic_type& ptr = wrapper_ptr.a;
+    Wrapper<boost::intptr_t> wrapper_integral;
+    typename Wrapper<boost::intptr_t>::atomic_type& integral = wrapper_integral.a;
     BOOST_TEST_EQ( ptr.is_lock_free(), integral.is_lock_free() );
 #endif
 }
@@ -963,19 +1066,19 @@ enum test_enum
     foo, bar, baz
 };
 
-static void
-test_enum_api(void)
+template< template< typename > class Wrapper >
+void test_enum_api(void)
 {
-    test_base_operators(foo, bar, baz);
+    test_base_operators< Wrapper >(foo, bar, baz);
 }
 
-template<typename T>
+template< typename T >
 struct test_struct
 {
     typedef T value_type;
     value_type i;
-    inline bool operator==(const test_struct & c) const {return i == c.i;}
-    inline bool operator!=(const test_struct & c) const {return i != c.i;}
+    inline bool operator==(test_struct const& c) const { return i == c.i; }
+    inline bool operator!=(test_struct const& c) const { return !operator==(c); }
 };
 
 template< typename Char, typename Traits, typename T >
@@ -985,28 +1088,29 @@ inline std::basic_ostream< Char, Traits >& operator<< (std::basic_ostream< Char,
     return strm;
 }
 
-template<typename T>
-void
-test_struct_api(void)
+template< template< typename > class Wrapper, typename T >
+void test_struct_api(void)
 {
     T a = {1}, b = {2}, c = {3};
 
-    test_base_operators(a, b, c);
+    test_base_operators< Wrapper >(a, b, c);
 
     {
-        boost::atomic<T> sa;
-        boost::atomic<typename T::value_type> si;
+        Wrapper<T> wrapper_sa;
+        typename Wrapper<T>::atomic_type& sa = wrapper_sa.a;
+        Wrapper<typename T::value_type> wrapper_si;
+        typename Wrapper<typename T::value_type>::atomic_type& si = wrapper_si.a;
         BOOST_TEST_EQ( sa.is_lock_free(), si.is_lock_free() );
     }
 }
 
-template<typename T>
+template< typename T >
 struct test_struct_x2
 {
     typedef T value_type;
     value_type i, j;
-    inline bool operator==(const test_struct_x2 & c) const {return i == c.i && j == c.j;}
-    inline bool operator!=(const test_struct_x2 & c) const {return i != c.i && j != c.j;}
+    inline bool operator==(test_struct_x2 const& c) const { return i == c.i && j == c.j; }
+    inline bool operator!=(test_struct_x2 const& c) const { return !operator==(c); }
 };
 
 template< typename Char, typename Traits, typename T >
@@ -1016,24 +1120,23 @@ inline std::basic_ostream< Char, Traits >& operator<< (std::basic_ostream< Char,
     return strm;
 }
 
-template<typename T>
-void
-test_struct_x2_api(void)
+template< template< typename > class Wrapper, typename T >
+void test_struct_x2_api(void)
 {
     T a = {1, 1}, b = {2, 2}, c = {3, 3};
 
-    test_base_operators(a, b, c);
+    test_base_operators< Wrapper >(a, b, c);
 }
 
 struct large_struct
 {
     long data[64];
 
-    inline bool operator==(const large_struct & c) const
+    inline bool operator==(large_struct const& c) const
     {
         return std::memcmp(data, &c.data, sizeof(data)) == 0;
     }
-    inline bool operator!=(const large_struct & c) const
+    inline bool operator!=(large_struct const& c) const
     {
         return std::memcmp(data, &c.data, sizeof(data)) != 0;
     }
@@ -1046,11 +1149,11 @@ inline std::basic_ostream< Char, Traits >& operator<< (std::basic_ostream< Char,
     return strm;
 }
 
-static void
-test_large_struct_api(void)
+template< template< typename > class Wrapper >
+void test_large_struct_api(void)
 {
     large_struct a = {{1}}, b = {{2}}, c = {{3}};
-    test_base_operators(a, b, c);
+    test_base_operators< Wrapper >(a, b, c);
 }
 
 struct test_struct_with_ctor
@@ -1058,23 +1161,24 @@ struct test_struct_with_ctor
     typedef unsigned int value_type;
     value_type i;
     test_struct_with_ctor() : i(0x01234567) {}
-    inline bool operator==(const test_struct_with_ctor & c) const {return i == c.i;}
-    inline bool operator!=(const test_struct_with_ctor & c) const {return i != c.i;}
+    inline bool operator==(test_struct_with_ctor const& c) const { return i == c.i; }
+    inline bool operator!=(test_struct_with_ctor const& c) const { return !operator==(c); }
 };
 
 template< typename Char, typename Traits >
-inline std::basic_ostream< Char, Traits >& operator<< (std::basic_ostream< Char, Traits >& strm, test_struct_with_ctor const&)
+inline std::basic_ostream< Char, Traits >& operator<< (std::basic_ostream< Char, Traits >& strm, test_struct_with_ctor const& s)
 {
-    strm << "[test_struct_with_ctor]";
+    strm << "{" << s.i << "}";
     return strm;
 }
 
-static void
-test_struct_with_ctor_api(void)
+template< template< typename > class Wrapper >
+void test_struct_with_ctor_api(void)
 {
     {
         test_struct_with_ctor s;
-        boost::atomic<test_struct_with_ctor> sa;
+        Wrapper<test_struct_with_ctor> wrapper_sa;
+        typename Wrapper<test_struct_with_ctor>::atomic_type& sa = wrapper_sa.a;
         // Check that the default constructor was called
         BOOST_TEST( sa.load() == s );
     }
@@ -1084,7 +1188,7 @@ test_struct_with_ctor_api(void)
     b.i = 2;
     c.i = 3;
 
-    test_base_operators(a, b, c);
+    test_base_operators< Wrapper >(a, b, c);
 }
 
 #endif

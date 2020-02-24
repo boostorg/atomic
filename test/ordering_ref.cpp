@@ -1,9 +1,11 @@
-//  Copyright (c) 2011 Helge Bahmann
-//  Copyright (c) 2012 Tim Blechmann
+//  Copyright (c) 2020 Andrey Semashev
 //
 //  Distributed under the Boost Software License, Version 1.0.
 //  See accompanying file LICENSE_1_0.txt or copy at
 //  http://www.boost.org/LICENSE_1_0.txt)
+
+// This test is based on ordering.cpp by Helge Bahmann and Tim Blechmann.
+// The test Was modified to use atomic_ref template instead of atomic.
 
 // Attempt to determine whether the memory ordering/ fence operations
 // work as expected:
@@ -27,7 +29,9 @@
 // fences work as expected if this test program does not
 // report an error.
 
-#include <boost/atomic.hpp>
+#include <boost/memory_order.hpp>
+#include <boost/atomic/atomic.hpp>
+#include <boost/atomic/atomic_ref.hpp>
 
 #include <cstddef>
 #include <boost/bind.hpp>
@@ -66,12 +70,14 @@ private:
     void check_conflict(void);
 
 private:
-    boost::atomic<int> a_;
+    int a_value_;
+    boost::atomic_ref<int> a_;
     /* insert a bit of padding to push the two variables into
     different cache lines and increase the likelihood of detecting
     a conflict */
     char pad1_[512];
-    boost::atomic<int> b_;
+    int b_value_;
+    boost::atomic_ref<int> b_;
 
     char pad2_[512];
     boost::barrier barrier_;
@@ -88,7 +94,7 @@ private:
 
 template<boost::memory_order store_order, boost::memory_order load_order>
 total_store_order_test<store_order, load_order>::total_store_order_test(void) :
-    a_(0), b_(0), barrier_(2),
+    a_value_(0), a_(a_value_), b_value_(0), b_(b_value_), barrier_(2),
     vrfyb1_(0), vrfya2_(0),
     terminate_threads_(false), termination_consensus_(0),
     detected_conflict_(false)

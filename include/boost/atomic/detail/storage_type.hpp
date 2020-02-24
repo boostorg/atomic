@@ -5,7 +5,7 @@
  *
  * Copyright (c) 2009 Helge Bahmann
  * Copyright (c) 2012 Tim Blechmann
- * Copyright (c) 2013 - 2014 Andrey Semashev
+ * Copyright (c) 2013 - 2020 Andrey Semashev
  */
 /*!
  * \file   atomic/detail/storage_type.hpp
@@ -38,11 +38,11 @@ BOOST_FORCEINLINE void non_atomic_load(T const volatile& from, T& to) BOOST_NOEX
 template< std::size_t Size >
 struct BOOST_ATOMIC_DETAIL_MAY_ALIAS buffer_storage
 {
-    BOOST_ALIGNMENT(16) unsigned char data[Size];
+    unsigned char data[Size];
 
     BOOST_FORCEINLINE bool operator! () const BOOST_NOEXCEPT
     {
-        return (data[0] == 0u && BOOST_ATOMIC_DETAIL_MEMCMP(data, data + 1, Size - 1) == 0);
+        return (data[0] == 0u && BOOST_ATOMIC_DETAIL_MEMCMP(data, data + 1, Size - 1u) == 0);
     }
 
     BOOST_FORCEINLINE bool operator== (buffer_storage const& that) const BOOST_NOEXCEPT
@@ -67,9 +67,11 @@ struct make_storage_type
 {
     typedef buffer_storage< Size > type;
 
+    static BOOST_CONSTEXPR_OR_CONST std::size_t alignment = 16u;
+
     struct BOOST_ATOMIC_DETAIL_MAY_ALIAS aligned
     {
-        type value;
+        BOOST_ALIGNMENT(16) type value;
 
         BOOST_DEFAULTED_FUNCTION(aligned(), {})
         BOOST_FORCEINLINE BOOST_CONSTEXPR explicit aligned(type const& v) BOOST_NOEXCEPT : value(v) {}
@@ -80,6 +82,8 @@ template< >
 struct make_storage_type< 1u >
 {
     typedef boost::uint8_t BOOST_ATOMIC_DETAIL_MAY_ALIAS type;
+
+    static BOOST_CONSTEXPR_OR_CONST std::size_t alignment = 1u;
 
     struct BOOST_ATOMIC_DETAIL_MAY_ALIAS aligned
     {
@@ -95,6 +99,8 @@ struct make_storage_type< 2u >
 {
     typedef boost::uint16_t BOOST_ATOMIC_DETAIL_MAY_ALIAS type;
 
+    static BOOST_CONSTEXPR_OR_CONST std::size_t alignment = 2u;
+
     struct BOOST_ATOMIC_DETAIL_MAY_ALIAS aligned
     {
         BOOST_ALIGNMENT(2) type value;
@@ -109,6 +115,8 @@ struct make_storage_type< 4u >
 {
     typedef boost::uint32_t BOOST_ATOMIC_DETAIL_MAY_ALIAS type;
 
+    static BOOST_CONSTEXPR_OR_CONST std::size_t alignment = 4u;
+
     struct BOOST_ATOMIC_DETAIL_MAY_ALIAS aligned
     {
         BOOST_ALIGNMENT(4) type value;
@@ -122,6 +130,8 @@ template< >
 struct make_storage_type< 8u >
 {
     typedef boost::uint64_t BOOST_ATOMIC_DETAIL_MAY_ALIAS type;
+
+    static BOOST_CONSTEXPR_OR_CONST std::size_t alignment = 8u;
 
     struct BOOST_ATOMIC_DETAIL_MAY_ALIAS aligned
     {
@@ -138,6 +148,8 @@ template< >
 struct make_storage_type< 16u >
 {
     typedef boost::uint128_type BOOST_ATOMIC_DETAIL_MAY_ALIAS type;
+
+    static BOOST_CONSTEXPR_OR_CONST std::size_t alignment = 16u;
 
     struct BOOST_ATOMIC_DETAIL_MAY_ALIAS aligned
     {
@@ -181,6 +193,8 @@ template< >
 struct make_storage_type< 16u >
 {
     typedef storage128_t type;
+
+    static BOOST_CONSTEXPR_OR_CONST std::size_t alignment = 16u;
 
     struct BOOST_ATOMIC_DETAIL_MAY_ALIAS aligned
     {

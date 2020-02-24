@@ -87,6 +87,7 @@ struct operations< 4u, Signed > :
     typedef typename make_storage_type< 4u >::aligned aligned_storage_type;
 
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 4u;
+    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_alignment = 4u;
     static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
 
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
@@ -303,7 +304,7 @@ struct operations< 4u, Signed > :
 
     static BOOST_FORCEINLINE void clear(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
-        store(storage, 0, order);
+        store(storage, (storage_type)0, order);
     }
 };
 
@@ -317,6 +318,7 @@ struct operations< 1u, Signed > :
     typedef typename make_storage_type< 1u >::aligned aligned_storage_type;
 
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 1u;
+    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_alignment = 1u;
     static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
 
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
@@ -533,7 +535,7 @@ struct operations< 1u, Signed > :
 
     static BOOST_FORCEINLINE void clear(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
-        store(storage, 0, order);
+        store(storage, (storage_type)0, order);
     }
 };
 
@@ -647,6 +649,7 @@ struct operations< 2u, Signed > :
     typedef typename make_storage_type< 2u >::aligned aligned_storage_type;
 
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 2u;
+    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_alignment = 2u;
     static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
 
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
@@ -863,7 +866,7 @@ struct operations< 2u, Signed > :
 
     static BOOST_FORCEINLINE void clear(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
-        store(storage, 0, order);
+        store(storage, (storage_type)0, order);
     }
 };
 
@@ -977,6 +980,7 @@ struct operations< 8u, Signed > :
     typedef typename make_storage_type< 8u >::aligned aligned_storage_type;
 
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 8u;
+    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_alignment = 8u;
     static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
 
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
@@ -1193,7 +1197,7 @@ struct operations< 8u, Signed > :
 
     static BOOST_FORCEINLINE void clear(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
-        store(storage, 0, order);
+        store(storage, (storage_type)0, order);
     }
 };
 

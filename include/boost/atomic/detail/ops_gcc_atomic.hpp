@@ -88,6 +88,7 @@ struct gcc_atomic_operations
     typedef typename make_storage_type< Size >::aligned aligned_storage_type;
 
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = Size;
+    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_alignment = make_storage_type< Size >::alignment;
     static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
     static BOOST_CONSTEXPR_OR_CONST bool full_cas_based = false;
 
@@ -180,8 +181,6 @@ template< bool Signed >
 struct operations< 16u, Signed > :
     public cas_based_operations< gcc_dcas_x86_64< Signed > >
 {
-    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 16u;
-    static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
 };
 
 #else

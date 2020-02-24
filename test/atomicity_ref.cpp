@@ -1,8 +1,11 @@
-//  Copyright (c) 2011 Helge Bahmann
+//  Copyright (c) 2020 Andrey Semashev
 //
 //  Distributed under the Boost Software License, Version 1.0.
 //  See accompanying file LICENSE_1_0.txt or copy at
 //  http://www.boost.org/LICENSE_1_0.txt)
+
+// This test is based on atomicity.cpp by Helge Bahmann. The test
+// Was modified to use atomic_ref template instead of atomic.
 
 // Attempt to determine whether the operations on atomic variables
 // do in fact behave atomically: Let multiple threads race modifying
@@ -24,7 +27,9 @@
 // operations truly behave atomic if this test program does not
 // report an error.
 
-#include <boost/atomic.hpp>
+#include <boost/memory_order.hpp>
+#include <boost/atomic/atomic.hpp>
+#include <boost/atomic/atomic_ref.hpp>
 
 #include <cstddef>
 #include <algorithm>
@@ -55,6 +60,7 @@ public:
         runner.wait_finish(timeout);
         return !runner.failure();
     }
+
 
     concurrent_runner(const boost::function<bool(std::size_t)> & fn) :
         finished_(false), failure_(false)
@@ -148,7 +154,7 @@ double estimate_avg_race_time(void)
     double sum = 0.0;
 
     /* take 10 samples */
-    for (std::size_t n = 0; n < 10; ++n)
+    for (std::size_t n = 0; n < 10; n++)
     {
         boost::posix_time::time_duration timeout(0, 0, 10);
 
@@ -177,24 +183,25 @@ double estimate_avg_race_time(void)
 }
 
 template<typename value_type, std::size_t shift_>
-bool test_arithmetic(boost::atomic<value_type> & shared_value, std::size_t instance)
+bool test_arithmetic(value_type& shared_value, std::size_t instance)
 {
     std::size_t shift = instance * 8;
     value_type mask = 0xff << shift;
     value_type increment = 1 << shift;
 
     value_type expected = 0;
+    boost::atomic_ref<value_type> shared_value_ref(shared_value);
 
     for (std::size_t n = 0; n < 255; ++n)
     {
-        value_type tmp = shared_value.fetch_add(increment, boost::memory_order_relaxed);
+        value_type tmp = shared_value_ref.fetch_add(increment, boost::memory_order_relaxed);
         if ( (tmp & mask) != (expected << shift) )
             return false;
         ++expected;
     }
     for (std::size_t n = 0; n < 255; ++n)
     {
-        value_type tmp = shared_value.fetch_sub(increment, boost::memory_order_relaxed);
+        value_type tmp = shared_value_ref.fetch_sub(increment, boost::memory_order_relaxed);
         if ( (tmp & mask) != (expected << shift) )
             return false;
         --expected;
@@ -204,24 +211,25 @@ bool test_arithmetic(boost::atomic<value_type> & shared_value, std::size_t insta
 }
 
 template<typename value_type, std::size_t shift_>
-bool test_bitops(boost::atomic<value_type> & shared_value, std::size_t instance)
+bool test_bitops(value_type& shared_value, std::size_t instance)
 {
     std::size_t shift = instance * 8;
     value_type mask = 0xff << shift;
 
     value_type expected = 0;
+    boost::atomic_ref<value_type> shared_value_ref(shared_value);
 
     for (std::size_t k = 0; k < 8; ++k)
     {
         value_type mod = 1u << k;
-        value_type tmp = shared_value.fetch_or(mod << shift, boost::memory_order_relaxed);
+        value_type tmp = shared_value_ref.fetch_or(mod << shift, boost::memory_order_relaxed);
         if ( (tmp & mask) != (expected << shift))
             return false;
         expected = expected | mod;
     }
     for (std::size_t k = 0; k < 8; ++k)
     {
-        value_type tmp = shared_value.fetch_and(~(1u << (shift + k)), boost::memory_order_relaxed);
+        value_type tmp = shared_value_ref.fetch_and(~(1u << (shift + k)), boost::memory_order_relaxed);
         if ( (tmp & mask) != (expected << shift))
             return false;
         expected = expected & ~(1u << k);
@@ -229,13 +237,13 @@ bool test_bitops(boost::atomic<value_type> & shared_value, std::size_t instance)
     for (std::size_t k = 0; k < 8; ++k)
     {
         value_type mod = 255u ^ (1u << k);
-        value_type tmp = shared_value.fetch_xor(mod << shift, boost::memory_order_relaxed);
+        value_type tmp = shared_value_ref.fetch_xor(mod << shift, boost::memory_order_relaxed);
         if ( (tmp & mask) != (expected << shift))
             return false;
         expected = expected ^ mod;
     }
 
-    value_type tmp = shared_value.fetch_and(~mask, boost::memory_order_relaxed);
+    value_type tmp = shared_value_ref.fetch_and(~mask, boost::memory_order_relaxed);
     if ( (tmp & mask) != (expected << shift) )
         return false;
 
@@ -252,7 +260,7 @@ int main(int, char *[])
     const boost::posix_time::time_duration timeout = boost::posix_time::microseconds((long)(5.298 * avg_race_time));
 
     {
-        boost::atomic<unsigned int> value(0);
+        unsigned int value = 0;
 
         /* testing two different operations in this loop, therefore
         enlarge timeout */
@@ -267,7 +275,7 @@ int main(int, char *[])
     }
 
     {
-        boost::atomic<unsigned int> value(0);
+        unsigned int value = 0;
 
         /* testing three different operations in this loop, therefore
         enlarge timeout */
