@@ -48,6 +48,13 @@ struct atomic_flag
     {
     }
 
+    BOOST_FORCEINLINE bool test(memory_order order = memory_order_seq_cst) const volatile BOOST_NOEXCEPT
+    {
+        BOOST_ASSERT(order != memory_order_release);
+        BOOST_ASSERT(order != memory_order_acq_rel);
+        return !!operations::load(m_storage.value, order);
+    }
+
     BOOST_FORCEINLINE bool test_and_set(memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
         return operations::test_and_set(m_storage.value, order);

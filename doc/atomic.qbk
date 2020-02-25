@@ -477,12 +477,16 @@ following operations:
       [Initialize to the clear state. See the discussion below.]
     ]
     [
+      [`bool test(memory_order order)`]
+      [Returns `true` if the flag is in the set state and `false` otherwise.]
+    ]
+    [
       [`bool test_and_set(memory_order order)`]
-      [Sets the atomic flag to the set state; returns `true` if the flag had been set prior to the operation]
+      [Sets the atomic flag to the set state; returns `true` if the flag had been set prior to the operation.]
     ]
     [
       [`void clear(memory_order order)`]
-      [Sets the atomic flag to the clear state]
+      [Sets the atomic flag to the clear state.]
     ]
 ]
 

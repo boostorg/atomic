@@ -153,9 +153,13 @@ inline void test_flag_api(void)
     boost::atomic_flag f;
 #endif
 
+    BOOST_TEST( !f.test() );
     BOOST_TEST( !f.test_and_set() );
+    BOOST_TEST( f.test() );
     BOOST_TEST( f.test_and_set() );
+    BOOST_TEST( f.test() );
     f.clear();
+    BOOST_TEST( !f.test() );
     BOOST_TEST( !f.test_and_set() );
 }
 
