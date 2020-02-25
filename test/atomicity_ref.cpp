@@ -35,8 +35,8 @@
 #include <algorithm>
 #include <boost/config.hpp>
 #include <boost/ref.hpp>
-#include <boost/bind.hpp>
 #include <boost/function.hpp>
+#include <boost/bind/bind.hpp>
 #include <boost/date_time/posix_time/posix_time_types.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/thread/thread_time.hpp>
@@ -160,7 +160,7 @@ double estimate_avg_race_time(void)
 
         volatile unsigned int value(0);
         bool success = concurrent_runner::execute(
-            boost::bind(racy_add, boost::ref(value), _1),
+            boost::bind(racy_add, boost::ref(value), boost::placeholders::_1),
             timeout
         );
 
@@ -267,7 +267,7 @@ int main(int, char *[])
         boost::posix_time::time_duration tmp(timeout * 2);
 
         bool success = concurrent_runner::execute(
-            boost::bind(test_arithmetic<unsigned int, 0>, boost::ref(value), _1),
+            boost::bind(test_arithmetic<unsigned int, 0>, boost::ref(value), boost::placeholders::_1),
             tmp
         );
 
@@ -282,7 +282,7 @@ int main(int, char *[])
         boost::posix_time::time_duration tmp(timeout * 3);
 
         bool success = concurrent_runner::execute(
-            boost::bind(test_bitops<unsigned int, 0>, boost::ref(value), _1),
+            boost::bind(test_bitops<unsigned int, 0>, boost::ref(value), boost::placeholders::_1),
             tmp
         );
 

@@ -30,7 +30,7 @@
 #include <boost/atomic.hpp>
 
 #include <cstddef>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 #include <boost/date_time/posix_time/posix_time_types.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/thread/thread_time.hpp>
