@@ -1085,19 +1085,9 @@ to achieve the required alignment. [@https://www.boost.org/doc/libs/release/libs
 macro from [*Boost.Config] may be useful.
 
 Next, some types may have padding bits, which are the bits of object representation that do not contribute to
-the object value. Typically, padding bits are used for alignment purposes.
-
-    struct struct_with_padding
-    {
-        short a;  // 2 bytes
-        char b;   // 1 byte
-                  // 1 byte of uninitialized padding to maintain structure size a multiple of 2 (which is struct_with_padding alignment)
-    };
-
-[note Structures like the above are not currently supported by the library, it is used for exposition.
-Padding bits may be present not only in structures but also in some fundamental types.
-One notable example is `long double` on x86, where the value is represented by an [@https://en.wikipedia.org/wiki/Extended_precision#x86_extended_precision_format 80-bit extended precision]
-floating point number complemented by 2 to 6 bytes of padding, depending on the target ABI.]
+the object value. Typically, padding bits are used for alignment purposes. One notable example is `long double`
+on x86, where the value is represented by an [@https://en.wikipedia.org/wiki/Extended_precision#x86_extended_precision_format 80-bit extended precision]
+floating point number complemented by 2 to 6 bytes of padding, depending on the target ABI.
 
 Padding bits pose a problem for [*Boost.Atomic] because they can break binary comparison of object (as if
 by `memcmp`), which is used in `compare_exchange_weak`/`compare_exchange_strong` operations. `boost::atomic`

@@ -28,10 +28,8 @@
 #include <boost/atomic/detail/operations_fwd.hpp>
 #include <boost/atomic/detail/extra_operations_fwd.hpp>
 #include <boost/atomic/detail/memory_order_utils.hpp>
-#include <boost/atomic/detail/type_traits/is_class.hpp>
 #include <boost/atomic/detail/type_traits/is_signed.hpp>
 #include <boost/atomic/detail/type_traits/is_trivially_default_constructible.hpp>
-#include <boost/atomic/detail/type_traits/has_unique_object_representations.hpp>
 #include <boost/atomic/detail/type_traits/conditional.hpp>
 #include <boost/atomic/detail/type_traits/integral_constant.hpp>
 #if !defined(BOOST_ATOMIC_NO_FLOATING_POINT)
@@ -128,14 +126,7 @@ protected:
     typedef typename base_type::value_arg_type value_arg_type;
 
 private:
-    typedef atomics::detail::integral_constant< bool,
-        sizeof(value_type) != sizeof(storage_type)
-#if !defined(BOOST_ATOMIC_DETAIL_NO_CXX17_TYPE_TRAITS_HAS_UNIQUE_OBJECT_REPRESENTATIONS)
-        || atomics::detail::has_unique_object_representations< value_type >::value // classes with no padding
-#else
-        || atomics::detail::is_class< value_type >::value // assume all classes may have internal padding bits
-#endif
-    > has_padding_bits;
+    typedef atomics::detail::integral_constant< bool, sizeof(value_type) != sizeof(storage_type) > has_padding_bits;
 
 public:
     BOOST_DEFAULTED_FUNCTION(base_atomic() BOOST_ATOMIC_DETAIL_DEF_NOEXCEPT_DECL, BOOST_ATOMIC_DETAIL_DEF_NOEXCEPT_IMPL {})
