@@ -25,8 +25,8 @@
 #include <boost/atomic/detail/storage_type.hpp>
 #include <boost/atomic/detail/bitwise_cast.hpp>
 #include <boost/atomic/detail/integral_extend.hpp>
-#include <boost/atomic/detail/operations_fwd.hpp>
-#include <boost/atomic/detail/extra_operations_fwd.hpp>
+#include <boost/atomic/detail/operations.hpp>
+#include <boost/atomic/detail/extra_operations.hpp>
 #include <boost/atomic/detail/memory_order_utils.hpp>
 #include <boost/atomic/detail/type_traits/is_signed.hpp>
 #include <boost/atomic/detail/type_traits/is_trivially_default_constructible.hpp>
@@ -34,8 +34,8 @@
 #include <boost/atomic/detail/type_traits/integral_constant.hpp>
 #if !defined(BOOST_ATOMIC_NO_FLOATING_POINT)
 #include <boost/atomic/detail/bitwise_fp_cast.hpp>
-#include <boost/atomic/detail/fp_operations_fwd.hpp>
-#include <boost/atomic/detail/extra_fp_operations_fwd.hpp>
+#include <boost/atomic/detail/fp_operations.hpp>
+#include <boost/atomic/detail/extra_fp_operations.hpp>
 #endif
 
 #ifdef BOOST_HAS_PRAGMA_ONCE

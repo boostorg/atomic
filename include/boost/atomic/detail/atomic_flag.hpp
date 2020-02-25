@@ -17,7 +17,7 @@
 #include <boost/assert.hpp>
 #include <boost/memory_order.hpp>
 #include <boost/atomic/detail/config.hpp>
-#include <boost/atomic/detail/operations_lockfree.hpp>
+#include <boost/atomic/detail/operations.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once
