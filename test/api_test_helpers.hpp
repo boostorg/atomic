@@ -11,6 +11,7 @@
 #include <boost/atomic.hpp>
 #include <cstddef>
 #include <cstring>
+#include <cstdlib>
 #include <limits>
 #include <iostream>
 #include <boost/config.hpp>
@@ -886,6 +887,17 @@ void test_bit_operators(T value, T delta)
         f = a.bit_test_and_complement(2);
         BOOST_TEST_EQ( f, false );
         BOOST_TEST_EQ( a.load(), T(45) );
+    }
+
+    // Test that a runtime value works for the bit index. This is important for asm block constraints.
+    {
+        unsigned int runtime_bit_index = std::rand() & 7u;
+        Wrapper<T> wrapper((T)42);
+        typename Wrapper<T>::atomic_type& a = wrapper.a;
+
+        a.bit_test_and_set(runtime_bit_index);
+        a.bit_test_and_reset(runtime_bit_index);
+        a.bit_test_and_complement(runtime_bit_index);
     }
 }
 
