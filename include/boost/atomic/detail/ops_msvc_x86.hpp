@@ -595,6 +595,7 @@ struct msvc_dcas_x86
     static BOOST_CONSTEXPR_OR_CONST bool is_always_lock_free = true;
 
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 8u;
+    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_alignment = 8u;
     static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
 
     // Intel 64 and IA-32 Architectures Software Developer's Manual, Volume 3A, 8.1.1. Guaranteed Atomic Operations:
@@ -848,6 +849,7 @@ struct msvc_dcas_x86_64
     static BOOST_CONSTEXPR_OR_CONST bool is_always_lock_free = true;
 
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 16u;
+    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_alignment = 16u;
     static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
 
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT

@@ -544,9 +544,9 @@ public:
     typedef bool value_type;
 
 protected:
-    typedef typename base_type::operations operations;
+    typedef base_type::operations operations;
     typedef atomics::detail::extra_operations< operations, operations::storage_size, operations::is_signed > extra_operations;
-    typedef typename base_type::storage_type storage_type;
+    typedef base_type::storage_type storage_type;
     typedef value_type value_arg_type;
 
 public:

@@ -383,6 +383,12 @@ struct distance_limits< T, boost::uint128_type, IsSigned >
 #pragma warning(pop)
 #endif
 
+#if defined(BOOST_MSVC)
+#pragma warning(push)
+// unary minus operator applied to unsigned type, result still unsigned
+#pragma warning(disable: 4146)
+#endif
+
 template< template< typename > class Wrapper, typename T, typename D, typename AddType >
 void test_additive_operators_with_type_and_test()
 {
@@ -457,6 +463,10 @@ void test_additive_operators_with_type_and_test()
         BOOST_TEST_EQ( a.load(), T(zero_add + neg_min) );
     }
 }
+
+#if defined(BOOST_MSVC)
+#pragma warning(pop)
+#endif
 
 template< template< typename > class Wrapper, typename T, typename D, typename AddType >
 void test_additive_operators_with_type(T value, D delta)

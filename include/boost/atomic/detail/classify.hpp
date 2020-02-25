@@ -75,8 +75,4 @@ struct classify< T U::*, false, false > { typedef void type; };
 } // namespace atomics
 } // namespace boost
 
-#if defined(BOOST_MSVC)
-#pragma warning(pop)
-#endif
-
 #endif // BOOST_ATOMIC_DETAIL_CLASSIFY_HPP_INCLUDED_
