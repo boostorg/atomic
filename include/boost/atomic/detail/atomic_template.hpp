@@ -37,6 +37,7 @@
 #include <boost/atomic/detail/fp_operations.hpp>
 #include <boost/atomic/detail/extra_fp_operations.hpp>
 #endif
+#include <boost/type_traits/alignment_of.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once
@@ -126,7 +127,7 @@ protected:
     typedef typename base_type::value_arg_type value_arg_type;
 
 private:
-    typedef atomics::detail::integral_constant< bool, sizeof(value_type) != sizeof(storage_type) > has_padding_bits;
+    typedef atomics::detail::integral_constant< bool, sizeof(value_type) != sizeof(storage_type) || boost::alignment_of< value_type >::value <= operations::storage_alignment > use_bitwise_cast;
 
 public:
     BOOST_DEFAULTED_FUNCTION(base_atomic() BOOST_ATOMIC_DETAIL_DEF_NOEXCEPT_DECL, BOOST_ATOMIC_DETAIL_DEF_NOEXCEPT_IMPL {})
@@ -162,7 +163,7 @@ public:
         BOOST_ASSERT(failure_order != memory_order_acq_rel);
         BOOST_ASSERT(cas_failure_order_must_not_be_stronger_than_success_order(success_order, failure_order));
 
-        return compare_exchange_strong_impl(expected, desired, success_order, failure_order, has_padding_bits());
+        return compare_exchange_strong_impl(expected, desired, success_order, failure_order, use_bitwise_cast());
     }
 
     BOOST_FORCEINLINE bool compare_exchange_strong(value_type& expected, value_arg_type desired, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
@@ -176,7 +177,7 @@ public:
         BOOST_ASSERT(failure_order != memory_order_acq_rel);
         BOOST_ASSERT(cas_failure_order_must_not_be_stronger_than_success_order(success_order, failure_order));
 
-        return compare_exchange_weak_impl(expected, desired, success_order, failure_order, has_padding_bits());
+        return compare_exchange_weak_impl(expected, desired, success_order, failure_order, use_bitwise_cast());
     }
 
     BOOST_FORCEINLINE bool compare_exchange_weak(value_type& expected, value_arg_type desired, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
@@ -241,7 +242,7 @@ public:
     typedef typename operations::storage_type storage_type;
 
 private:
-    typedef atomics::detail::integral_constant< bool, sizeof(value_type) != sizeof(storage_type) > has_padding_bits;
+    typedef atomics::detail::integral_constant< bool, sizeof(value_type) != sizeof(storage_type) || boost::alignment_of< value_type >::value <= operations::storage_alignment > use_bitwise_cast;
 
 protected:
     typename operations::aligned_storage_type m_storage;
@@ -289,7 +290,7 @@ public:
         BOOST_ASSERT(failure_order != memory_order_acq_rel);
         BOOST_ASSERT(cas_failure_order_must_not_be_stronger_than_success_order(success_order, failure_order));
 
-        return compare_exchange_strong_impl(expected, desired, success_order, failure_order, has_padding_bits());
+        return compare_exchange_strong_impl(expected, desired, success_order, failure_order, use_bitwise_cast());
     }
 
     BOOST_FORCEINLINE bool compare_exchange_strong(value_type& expected, value_arg_type desired, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
@@ -303,7 +304,7 @@ public:
         BOOST_ASSERT(failure_order != memory_order_acq_rel);
         BOOST_ASSERT(cas_failure_order_must_not_be_stronger_than_success_order(success_order, failure_order));
 
-        return compare_exchange_weak_impl(expected, desired, success_order, failure_order, has_padding_bits());
+        return compare_exchange_weak_impl(expected, desired, success_order, failure_order, use_bitwise_cast());
     }
 
     BOOST_FORCEINLINE bool compare_exchange_weak(value_type& expected, value_arg_type desired, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
@@ -565,7 +566,7 @@ public:
     typedef operations::storage_type storage_type;
 
 private:
-    typedef atomics::detail::integral_constant< bool, sizeof(value_type) != sizeof(storage_type) > has_padding_bits;
+    typedef atomics::detail::integral_constant< bool, sizeof(value_type) != sizeof(storage_type) || boost::alignment_of< value_type >::value <= operations::storage_alignment > use_bitwise_cast;
 
 protected:
     operations::aligned_storage_type m_storage;
@@ -603,7 +604,7 @@ public:
         BOOST_ASSERT(failure_order != memory_order_acq_rel);
         BOOST_ASSERT(cas_failure_order_must_not_be_stronger_than_success_order(success_order, failure_order));
 
-        return compare_exchange_strong_impl(expected, desired, success_order, failure_order, has_padding_bits());
+        return compare_exchange_strong_impl(expected, desired, success_order, failure_order, use_bitwise_cast());
     }
 
     BOOST_FORCEINLINE bool compare_exchange_strong(value_type& expected, value_arg_type desired, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
@@ -617,7 +618,7 @@ public:
         BOOST_ASSERT(failure_order != memory_order_acq_rel);
         BOOST_ASSERT(cas_failure_order_must_not_be_stronger_than_success_order(success_order, failure_order));
 
-        return compare_exchange_weak_impl(expected, desired, success_order, failure_order, has_padding_bits());
+        return compare_exchange_weak_impl(expected, desired, success_order, failure_order, use_bitwise_cast());
     }
 
     BOOST_FORCEINLINE bool compare_exchange_weak(value_type& expected, value_arg_type desired, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
@@ -686,7 +687,9 @@ public:
     typedef typename operations::storage_type storage_type;
 
 private:
-    typedef atomics::detail::integral_constant< bool, atomics::detail::value_sizeof< value_type >::value != sizeof(storage_type) > has_padding_bits;
+    typedef atomics::detail::integral_constant< bool,
+        atomics::detail::value_sizeof< value_type >::value != sizeof(storage_type) || boost::alignment_of< value_type >::value <= operations::storage_alignment
+    > use_bitwise_cast;
 
 protected:
     typename operations::aligned_storage_type m_storage;
@@ -733,7 +736,7 @@ public:
         BOOST_ASSERT(failure_order != memory_order_acq_rel);
         BOOST_ASSERT(cas_failure_order_must_not_be_stronger_than_success_order(success_order, failure_order));
 
-        return compare_exchange_strong_impl(expected, desired, success_order, failure_order, has_padding_bits());
+        return compare_exchange_strong_impl(expected, desired, success_order, failure_order, use_bitwise_cast());
     }
 
     BOOST_FORCEINLINE bool compare_exchange_strong(value_type& expected, value_arg_type desired, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
@@ -747,7 +750,7 @@ public:
         BOOST_ASSERT(failure_order != memory_order_acq_rel);
         BOOST_ASSERT(cas_failure_order_must_not_be_stronger_than_success_order(success_order, failure_order));
 
-        return compare_exchange_weak_impl(expected, desired, success_order, failure_order, has_padding_bits());
+        return compare_exchange_weak_impl(expected, desired, success_order, failure_order, use_bitwise_cast());
     }
 
     BOOST_FORCEINLINE bool compare_exchange_weak(value_type& expected, value_arg_type desired, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
@@ -861,7 +864,7 @@ public:
     typedef typename operations::storage_type storage_type;
 
 private:
-    typedef atomics::detail::integral_constant< bool, sizeof(value_type) != sizeof(storage_type) > has_padding_bits;
+    typedef atomics::detail::integral_constant< bool, sizeof(value_type) != sizeof(storage_type) || boost::alignment_of< value_type >::value <= operations::storage_alignment > use_bitwise_cast;
 
     // uintptr_storage_type is the minimal storage type that is enough to store pointers. The actual storage_type theoretically may be larger,
     // if the target architecture only supports atomic ops on larger data. Typically, though, they are the same type.
@@ -919,7 +922,7 @@ public:
         BOOST_ASSERT(failure_order != memory_order_acq_rel);
         BOOST_ASSERT(cas_failure_order_must_not_be_stronger_than_success_order(success_order, failure_order));
 
-        return compare_exchange_strong_impl(expected, desired, success_order, failure_order, has_padding_bits());
+        return compare_exchange_strong_impl(expected, desired, success_order, failure_order, use_bitwise_cast());
     }
 
     BOOST_FORCEINLINE bool compare_exchange_strong(value_type& expected, value_arg_type desired, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
@@ -933,7 +936,7 @@ public:
         BOOST_ASSERT(failure_order != memory_order_acq_rel);
         BOOST_ASSERT(cas_failure_order_must_not_be_stronger_than_success_order(success_order, failure_order));
 
-        return compare_exchange_weak_impl(expected, desired, success_order, failure_order, has_padding_bits());
+        return compare_exchange_weak_impl(expected, desired, success_order, failure_order, use_bitwise_cast());
     }
 
     BOOST_FORCEINLINE bool compare_exchange_weak(value_type& expected, value_arg_type desired, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
