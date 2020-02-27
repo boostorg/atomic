@@ -139,7 +139,7 @@ matrix:
     - os: linux
       dist: bionic
       compiler: gcc-UBSAN
-      env: UBSAN=1 TOOLSET=gcc COMPILER=g++-9 CXXSTD64=03,11,14,17 UBSAN_OPTIONS=print_stacktrace=1 LINKFLAGS=-fuse-ld=gold
+      env: UBSAN=1 TOOLSET=gcc COMPILER=g++-9 CXXSTD64=03,11,14,17 UBSAN_OPTIONS=print_stacktrace=1 BUILD_VARIANT=debug LINKFLAGS=-fuse-ld=gold
       addons:
         apt:
           packages:
@@ -318,7 +318,7 @@ matrix:
     - os: linux
       dist: xenial
       compiler: clang-UBSAN
-      env: UBSAN=1 TOOLSET=clang COMPILER=clang++-9 CXXSTD64=03,11,14,17 UBSAN_OPTIONS=print_stacktrace=1
+      env: UBSAN=1 TOOLSET=clang COMPILER=clang++-9 CXXSTD64=03,11,14,17 UBSAN_OPTIONS=print_stacktrace=1 BUILD_VARIANT=debug
       addons:
         apt:
           packages:
@@ -341,7 +341,7 @@ matrix:
 #      osx_image: xcode10.3
 
     - os: osx
-      env: TOOLSET=clang COMPILER=clang++ CXXSTD64=03,11,14,17
+      env: TOOLSET=clang COMPILER=clang++ CXXSTD64=03,11,14,17 BUILD_VARIANT=debug
       osx_image: xcode11.2
 
 # cmake self-test
@@ -382,8 +382,9 @@ script:
   - |-
     echo "using $TOOLSET : : $COMPILER ;" > ~/user-config.jam
   - BUILD_JOBS=`(nproc || sysctl -n hw.ncpu) 2> /dev/null`
-  - if [ -n "$CXXSTD64" ]; then echo ""; echo "Testing 64-bit targets"; echo ""; ./b2 -j $BUILD_JOBS libs/atomic/test toolset=$TOOLSET address-model=64 cxxstd=$CXXSTD64 ${UBSAN:+cxxflags=-fsanitize=undefined cxxflags=-fno-sanitize-recover=undefined linkflags=-fsanitize=undefined define=UBSAN=1 debug-symbols=on} ${CXXFLAGS:+cxxflags="$CXXFLAGS"} ${LINKFLAGS:+linkflags="$LINKFLAGS"}; fi
-  - if [ -n "$CXXSTD32" ]; then echo ""; echo "Testing 32-bit targets"; echo ""; ./b2 -j $BUILD_JOBS libs/atomic/test toolset=$TOOLSET address-model=32 cxxstd=$CXXSTD32 ${UBSAN:+cxxflags=-fsanitize=undefined cxxflags=-fno-sanitize-recover=undefined linkflags=-fsanitize=undefined define=UBSAN=1 debug-symbols=on} ${CXXFLAGS:+cxxflags="$CXXFLAGS"} ${LINKFLAGS:+linkflags="$LINKFLAGS"}; fi
+  - if [ -z "$BUILD_VARIANT" ]; then BUILD_VARIANT="debug,release"; fi
+  - if [ -n "$CXXSTD64" ]; then echo ""; echo "Testing 64-bit targets"; echo ""; ./b2 -j $BUILD_JOBS libs/atomic/test toolset=$TOOLSET variant=$BUILD_VARIANT address-model=64 cxxstd=$CXXSTD64 ${UBSAN:+cxxflags=-fsanitize=undefined cxxflags=-fno-sanitize-recover=undefined linkflags=-fsanitize=undefined define=UBSAN=1 debug-symbols=on} ${CXXFLAGS:+cxxflags="$CXXFLAGS"} ${LINKFLAGS:+linkflags="$LINKFLAGS"}; fi
+  - if [ -n "$CXXSTD32" ]; then echo ""; echo "Testing 32-bit targets"; echo ""; ./b2 -j $BUILD_JOBS libs/atomic/test toolset=$TOOLSET variant=$BUILD_VARIANT address-model=32 cxxstd=$CXXSTD32 ${UBSAN:+cxxflags=-fsanitize=undefined cxxflags=-fno-sanitize-recover=undefined linkflags=-fsanitize=undefined define=UBSAN=1 debug-symbols=on} ${CXXFLAGS:+cxxflags="$CXXFLAGS"} ${LINKFLAGS:+linkflags="$LINKFLAGS"}; fi
 
 notifications:
   email:
