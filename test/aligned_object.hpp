@@ -7,39 +7,33 @@
 #ifndef BOOST_ATOMIC_TESTS_ALIGNED_OBJECT_HPP_INCLUDED_
 #define BOOST_ATOMIC_TESTS_ALIGNED_OBJECT_HPP_INCLUDED_
 
+#include <cstddef>
 #include <new>
 #include <boost/config.hpp>
-#include <boost/throw_exception.hpp>
-#include <boost/align/aligned_alloc.hpp>
+#include <boost/cstdint.hpp>
 
 //! A wrapper that creates an object that has at least the specified alignment
 template< typename T, std::size_t Alignment >
 class aligned_object
 {
 private:
-    T* const m_p;
+    T* m_p;
+    unsigned char m_storage[Alignment + sizeof(T)];
 
 public:
-    aligned_object() :
-        m_p(static_cast< T* >(boost::alignment::aligned_alloc(Alignment, sizeof(T))))
+    aligned_object()
     {
-        if (BOOST_UNLIKELY(!m_p))
-            BOOST_THROW_EXCEPTION(std::bad_alloc());
-        new (m_p) T;
+        m_p = new (get_aligned_storage()) T;
     }
 
-    explicit aligned_object(T const& value) :
-        m_p(static_cast< T* >(boost::alignment::aligned_alloc(Alignment, sizeof(T))))
+    explicit aligned_object(T const& value)
     {
-        if (BOOST_UNLIKELY(!m_p))
-            BOOST_THROW_EXCEPTION(std::bad_alloc());
-        new (m_p) T(value);
+        m_p = new (get_aligned_storage()) T(value);
     }
 
     ~aligned_object() BOOST_NOEXCEPT
     {
         m_p->~T();
-        boost::alignment::aligned_free(m_p);
     }
 
     T& get() const BOOST_NOEXCEPT
@@ -49,6 +43,19 @@ public:
 
     BOOST_DELETED_FUNCTION(aligned_object(aligned_object const&))
     BOOST_DELETED_FUNCTION(aligned_object& operator= (aligned_object const&))
+
+private:
+    unsigned char* get_aligned_storage()
+    {
+#if defined(BOOST_HAS_INTPTR_T)
+        typedef boost::uintptr_t uintptr_type;
+#else
+        typedef std::size_t uintptr_type;
+#endif
+        uintptr_type p = (uintptr_type)(unsigned char*)m_storage;
+        p = (p + (uintptr_type)(Alignment - 1u)) & ~(uintptr_type)(Alignment - 1u);
+        return (unsigned char*)p;
+    }
 };
 
 #endif // BOOST_ATOMIC_TESTS_ALIGNED_OBJECT_HPP_INCLUDED_
