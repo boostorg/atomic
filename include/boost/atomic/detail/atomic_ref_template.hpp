@@ -83,9 +83,7 @@ protected:
     typedef typename operations::storage_type storage_type;
 
 public:
-    static BOOST_CONSTEXPR_OR_CONST std::size_t required_alignment = atomics::detail::is_atomic_ref_lock_free< T, IsSigned >::value ?
-        (boost::alignment_of< value_type >::value < operations::storage_alignment ? operations::storage_alignment : boost::alignment_of< value_type >::value) :
-        boost::alignment_of< value_type >::value;
+    static BOOST_CONSTEXPR_OR_CONST std::size_t required_alignment = boost::alignment_of< value_type >::value <= operations::storage_alignment ? operations::storage_alignment : boost::alignment_of< value_type >::value;
     static BOOST_CONSTEXPR_OR_CONST bool is_always_lock_free = operations::is_always_lock_free;
 
 protected:
