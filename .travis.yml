@@ -341,7 +341,7 @@ matrix:
 #      osx_image: xcode10.3
 
     - os: osx
-      env: TOOLSET=clang COMPILER=clang++ CXXSTD64=03,11,14,17 BUILD_VARIANT=debug
+      env: TOOLSET=clang COMPILER=clang++ CXXSTD64=03,11,14,17 BUILD_VARIANT=release
       osx_image: xcode11.2
 
 # cmake self-test
