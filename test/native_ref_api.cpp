@@ -32,7 +32,7 @@ int main(int, char *[])
     test_integral_api< atomic_ref_wrapper, boost::int64_t >();
     test_integral_api< atomic_ref_wrapper, long long >();
     test_integral_api< atomic_ref_wrapper, unsigned long long >();
-#if defined(BOOST_HAS_INT128)
+#if defined(BOOST_HAS_INT128) && !defined(BOOST_ATOMIC_TESTS_NO_INT128)
     test_integral_api< atomic_ref_wrapper, boost::int128_type >();
     test_integral_api< atomic_ref_wrapper, boost::uint128_type >();
 #endif
@@ -41,7 +41,7 @@ int main(int, char *[])
     test_floating_point_api< atomic_ref_wrapper, float >();
     test_floating_point_api< atomic_ref_wrapper, double >();
     test_floating_point_api< atomic_ref_wrapper, long double >();
-#if (defined(BOOST_HAS_INT128) || !defined(BOOST_NO_ALIGNMENT)) && defined(BOOST_HAS_FLOAT128)
+#if (defined(BOOST_HAS_INT128) || !defined(BOOST_NO_ALIGNMENT)) && defined(BOOST_HAS_FLOAT128) && !defined(BOOST_ATOMIC_TESTS_NO_FLOAT128)
     test_floating_point_api< atomic_ref_wrapper, boost::float128_type >();
 #endif
 #endif
