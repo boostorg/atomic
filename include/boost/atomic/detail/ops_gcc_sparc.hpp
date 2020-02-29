@@ -19,7 +19,7 @@
 #include <cstddef>
 #include <boost/memory_order.hpp>
 #include <boost/atomic/detail/config.hpp>
-#include <boost/atomic/detail/storage_type.hpp>
+#include <boost/atomic/detail/storage_traits.hpp>
 #include <boost/atomic/detail/operations_fwd.hpp>
 #include <boost/atomic/capabilities.hpp>
 #include <boost/atomic/detail/ops_cas_based.hpp>
@@ -65,7 +65,7 @@ template< bool Signed >
 struct gcc_sparc_cas32 :
     public gcc_sparc_cas_base
 {
-    typedef typename make_storage_type< 4u >::type storage_type;
+    typedef typename storage_traits< 4u >::type storage_type;
 
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 4u;
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_alignment = 4u;
@@ -149,7 +149,7 @@ template< bool Signed >
 struct gcc_sparc_cas64 :
     public gcc_sparc_cas_base
 {
-    typedef typename make_storage_type< 8u >::type storage_type;
+    typedef typename storage_traits< 8u >::type storage_type;
 
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 8u;
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_alignment = 8u;

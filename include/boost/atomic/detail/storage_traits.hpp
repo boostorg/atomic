@@ -8,13 +8,13 @@
  * Copyright (c) 2013 - 2020 Andrey Semashev
  */
 /*!
- * \file   atomic/detail/storage_type.hpp
+ * \file   atomic/detail/storage_traits.hpp
  *
  * This header defines underlying types used as storage
  */
 
-#ifndef BOOST_ATOMIC_DETAIL_STORAGE_TYPE_HPP_INCLUDED_
-#define BOOST_ATOMIC_DETAIL_STORAGE_TYPE_HPP_INCLUDED_
+#ifndef BOOST_ATOMIC_DETAIL_STORAGE_TRAITS_HPP_INCLUDED_
+#define BOOST_ATOMIC_DETAIL_STORAGE_TRAITS_HPP_INCLUDED_
 
 #include <cstddef>
 #include <boost/cstdint.hpp>
@@ -63,7 +63,7 @@ BOOST_FORCEINLINE void non_atomic_load(buffer_storage< Size > const volatile& fr
 }
 
 template< std::size_t Size >
-struct make_storage_type
+struct storage_traits
 {
     typedef buffer_storage< Size > type;
 
@@ -72,7 +72,7 @@ struct make_storage_type
 };
 
 template< >
-struct make_storage_type< 1u >
+struct storage_traits< 1u >
 {
     typedef boost::uint8_t BOOST_ATOMIC_DETAIL_MAY_ALIAS type;
 
@@ -80,7 +80,7 @@ struct make_storage_type< 1u >
 };
 
 template< >
-struct make_storage_type< 2u >
+struct storage_traits< 2u >
 {
     typedef boost::uint16_t BOOST_ATOMIC_DETAIL_MAY_ALIAS type;
 
@@ -88,7 +88,7 @@ struct make_storage_type< 2u >
 };
 
 template< >
-struct make_storage_type< 4u >
+struct storage_traits< 4u >
 {
     typedef boost::uint32_t BOOST_ATOMIC_DETAIL_MAY_ALIAS type;
 
@@ -96,7 +96,7 @@ struct make_storage_type< 4u >
 };
 
 template< >
-struct make_storage_type< 8u >
+struct storage_traits< 8u >
 {
     typedef boost::uint64_t BOOST_ATOMIC_DETAIL_MAY_ALIAS type;
 
@@ -106,7 +106,7 @@ struct make_storage_type< 8u >
 #if defined(BOOST_HAS_INT128)
 
 template< >
-struct make_storage_type< 16u >
+struct storage_traits< 16u >
 {
     typedef boost::uint128_type BOOST_ATOMIC_DETAIL_MAY_ALIAS type;
 
@@ -143,7 +143,7 @@ BOOST_FORCEINLINE void non_atomic_load(storage128_t const volatile& from, storag
 }
 
 template< >
-struct make_storage_type< 16u >
+struct storage_traits< 16u >
 {
     typedef storage128_t type;
 
@@ -163,4 +163,4 @@ struct storage_size_of
 } // namespace atomics
 } // namespace boost
 
-#endif // BOOST_ATOMIC_DETAIL_STORAGE_TYPE_HPP_INCLUDED_
+#endif // BOOST_ATOMIC_DETAIL_STORAGE_TRAITS_HPP_INCLUDED_

@@ -21,7 +21,7 @@
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/classify.hpp>
 #include <boost/atomic/detail/addressof.hpp>
-#include <boost/atomic/detail/storage_type.hpp>
+#include <boost/atomic/detail/storage_traits.hpp>
 #include <boost/atomic/detail/bitwise_cast.hpp>
 #include <boost/atomic/detail/integral_extend.hpp>
 #include <boost/atomic/detail/operations.hpp>
@@ -887,7 +887,7 @@ private:
 #if defined(BOOST_HAS_INTPTR_T)
     typedef uintptr_t uintptr_storage_type;
 #else
-    typedef typename atomics::detail::make_storage_type< sizeof(value_type) >::type uintptr_storage_type;
+    typedef typename atomics::detail::storage_traits< sizeof(value_type) >::type uintptr_storage_type;
 #endif
 
 public:

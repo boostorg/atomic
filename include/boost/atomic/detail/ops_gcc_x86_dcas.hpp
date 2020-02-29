@@ -19,7 +19,7 @@
 #include <boost/cstdint.hpp>
 #include <boost/memory_order.hpp>
 #include <boost/atomic/detail/config.hpp>
-#include <boost/atomic/detail/storage_type.hpp>
+#include <boost/atomic/detail/storage_traits.hpp>
 #include <boost/atomic/detail/string_ops.hpp>
 #include <boost/atomic/capabilities.hpp>
 
@@ -44,7 +44,7 @@ namespace detail {
 template< bool Signed >
 struct gcc_dcas_x86
 {
-    typedef typename make_storage_type< 8u >::type storage_type;
+    typedef typename storage_traits< 8u >::type storage_type;
     typedef uint32_t BOOST_ATOMIC_DETAIL_MAY_ALIAS aliasing_uint32_t;
 
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 8u;
@@ -384,7 +384,7 @@ struct gcc_dcas_x86
 template< bool Signed >
 struct gcc_dcas_x86_64
 {
-    typedef typename make_storage_type< 16u >::type storage_type;
+    typedef typename storage_traits< 16u >::type storage_type;
     typedef uint64_t BOOST_ATOMIC_DETAIL_MAY_ALIAS aliasing_uint64_t;
 
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 16u;

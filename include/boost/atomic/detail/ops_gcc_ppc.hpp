@@ -19,7 +19,7 @@
 #include <cstddef>
 #include <boost/memory_order.hpp>
 #include <boost/atomic/detail/config.hpp>
-#include <boost/atomic/detail/storage_type.hpp>
+#include <boost/atomic/detail/storage_traits.hpp>
 #include <boost/atomic/detail/operations_fwd.hpp>
 #include <boost/atomic/detail/ops_gcc_ppc_common.hpp>
 #include <boost/atomic/capabilities.hpp>
@@ -83,7 +83,7 @@ template< bool Signed >
 struct operations< 4u, Signed > :
     public gcc_ppc_operations_base
 {
-    typedef typename make_storage_type< 4u >::type storage_type;
+    typedef typename storage_traits< 4u >::type storage_type;
 
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 4u;
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_alignment = 4u;
@@ -313,7 +313,7 @@ template< bool Signed >
 struct operations< 1u, Signed > :
     public gcc_ppc_operations_base
 {
-    typedef typename make_storage_type< 1u >::type storage_type;
+    typedef typename storage_traits< 1u >::type storage_type;
 
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 1u;
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_alignment = 1u;
@@ -643,7 +643,7 @@ template< bool Signed >
 struct operations< 2u, Signed > :
     public gcc_ppc_operations_base
 {
-    typedef typename make_storage_type< 2u >::type storage_type;
+    typedef typename storage_traits< 2u >::type storage_type;
 
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 2u;
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_alignment = 2u;
@@ -973,7 +973,7 @@ template< bool Signed >
 struct operations< 8u, Signed > :
     public gcc_ppc_operations_base
 {
-    typedef typename make_storage_type< 8u >::type storage_type;
+    typedef typename storage_traits< 8u >::type storage_type;
 
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 8u;
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_alignment = 8u;
