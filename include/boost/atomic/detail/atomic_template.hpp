@@ -30,6 +30,7 @@
 #include <boost/atomic/detail/memory_order_utils.hpp>
 #include <boost/atomic/detail/type_traits/is_signed.hpp>
 #include <boost/atomic/detail/type_traits/is_trivially_default_constructible.hpp>
+#include <boost/atomic/detail/type_traits/alignment_of.hpp>
 #include <boost/atomic/detail/type_traits/conditional.hpp>
 #include <boost/atomic/detail/type_traits/integral_constant.hpp>
 #if !defined(BOOST_ATOMIC_NO_FLOATING_POINT)
@@ -37,7 +38,6 @@
 #include <boost/atomic/detail/fp_operations.hpp>
 #include <boost/atomic/detail/extra_fp_operations.hpp>
 #endif
-#include <boost/type_traits/alignment_of.hpp>
 #if defined(BOOST_NO_CXX11_ALIGNAS)
 #include <boost/type_traits/type_with_alignment.hpp>
 #endif
@@ -73,7 +73,7 @@ protected:
     typedef typename operations::storage_type storage_type;
 
 protected:
-    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_alignment = boost::alignment_of< value_type >::value <= operations::storage_alignment ? operations::storage_alignment : boost::alignment_of< value_type >::value;
+    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_alignment = atomics::detail::alignment_of< value_type >::value <= operations::storage_alignment ? operations::storage_alignment : atomics::detail::alignment_of< value_type >::value;
 
 protected:
 #if !defined(BOOST_NO_CXX11_ALIGNAS)
@@ -168,7 +168,7 @@ protected:
     typedef typename base_type::value_arg_type value_arg_type;
 
 private:
-    typedef atomics::detail::integral_constant< bool, sizeof(value_type) != sizeof(storage_type) || boost::alignment_of< value_type >::value <= operations::storage_alignment > use_bitwise_cast;
+    typedef atomics::detail::integral_constant< bool, sizeof(value_type) != sizeof(storage_type) || atomics::detail::alignment_of< value_type >::value <= operations::storage_alignment > use_bitwise_cast;
 
 public:
     BOOST_DEFAULTED_FUNCTION(base_atomic() BOOST_ATOMIC_DETAIL_DEF_NOEXCEPT_DECL, BOOST_ATOMIC_DETAIL_DEF_NOEXCEPT_IMPL {})
@@ -285,7 +285,7 @@ protected:
     typedef value_type value_arg_type;
 
 private:
-    typedef atomics::detail::integral_constant< bool, sizeof(value_type) != sizeof(storage_type) || boost::alignment_of< value_type >::value <= operations::storage_alignment > use_bitwise_cast;
+    typedef atomics::detail::integral_constant< bool, sizeof(value_type) != sizeof(storage_type) || atomics::detail::alignment_of< value_type >::value <= operations::storage_alignment > use_bitwise_cast;
 
 public:
     BOOST_DEFAULTED_FUNCTION(base_atomic() BOOST_ATOMIC_DETAIL_DEF_NOEXCEPT_DECL, BOOST_ATOMIC_DETAIL_DEF_NOEXCEPT_IMPL {})
@@ -603,7 +603,7 @@ protected:
     typedef value_type value_arg_type;
 
 private:
-    typedef atomics::detail::integral_constant< bool, sizeof(value_type) != sizeof(storage_type) || boost::alignment_of< value_type >::value <= operations::storage_alignment > use_bitwise_cast;
+    typedef atomics::detail::integral_constant< bool, sizeof(value_type) != sizeof(storage_type) || atomics::detail::alignment_of< value_type >::value <= operations::storage_alignment > use_bitwise_cast;
 
 public:
     BOOST_DEFAULTED_FUNCTION(base_atomic() BOOST_ATOMIC_DETAIL_DEF_NOEXCEPT_DECL, BOOST_ATOMIC_DETAIL_DEF_NOEXCEPT_IMPL {})
@@ -724,7 +724,7 @@ protected:
 
 private:
     typedef atomics::detail::integral_constant< bool,
-        atomics::detail::value_sizeof< value_type >::value != sizeof(storage_type) || boost::alignment_of< value_type >::value <= operations::storage_alignment
+        atomics::detail::value_sizeof< value_type >::value != sizeof(storage_type) || atomics::detail::alignment_of< value_type >::value <= operations::storage_alignment
     > use_bitwise_cast;
 
 public:
@@ -899,7 +899,7 @@ protected:
     typedef value_type value_arg_type;
 
 private:
-    typedef atomics::detail::integral_constant< bool, sizeof(value_type) != sizeof(storage_type) || boost::alignment_of< value_type >::value <= operations::storage_alignment > use_bitwise_cast;
+    typedef atomics::detail::integral_constant< bool, sizeof(value_type) != sizeof(storage_type) || atomics::detail::alignment_of< value_type >::value <= operations::storage_alignment > use_bitwise_cast;
 
     // uintptr_storage_type is the minimal storage type that is enough to store pointers. The actual storage_type theoretically may be larger,
     // if the target architecture only supports atomic ops on larger data. Typically, though, they are the same type.
