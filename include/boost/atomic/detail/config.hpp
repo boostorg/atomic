@@ -143,23 +143,6 @@
 #define BOOST_ATOMIC_DETAIL_DEPRECATED(msg)
 #endif
 
-// In Boost.Atomic 1.67 we changed (op)_and_test methods to return true when the result is non-zero. This would be more consistent
-// with the other names used in Boost.Atomic and the C++ standard library. Since the methods were announced as experimental and
-// the previous behavior was released only in Boost 1.66, it was decided to change the result without changing the method names.
-// By defining BOOST_ATOMIC_HIGHLIGHT_OP_AND_TEST the user has a way to highlight all uses of the affected functions so
-// that it is easier to find and update the affected code (which is typically adding or removing negation of the result). This
-// highlighting functionality is a temporary measure to help users upgrade from Boost 1.66 to newer Boost versions. It will
-// be removed eventually.
-//
-// More info at:
-// https://github.com/boostorg/atomic/issues/11
-// http://boost.2283326.n4.nabble.com/atomic-op-and-test-naming-tc4701445.html
-#if defined(BOOST_ATOMIC_HIGHLIGHT_OP_AND_TEST)
-#define BOOST_ATOMIC_DETAIL_HIGHLIGHT_OP_AND_TEST BOOST_ATOMIC_DETAIL_DEPRECATED("Boost.Atomic 1.67 has changed (op)_and_test result to the opposite. The functions now return true when the result is non-zero. Please, verify your use of the operation and undefine BOOST_ATOMIC_HIGHLIGHT_OP_AND_TEST.")
-#else
-#define BOOST_ATOMIC_DETAIL_HIGHLIGHT_OP_AND_TEST
-#endif
-
 // In Boost.Atomic 1.73 we deprecated atomic<>::storage() accessor in favor of atomic<>::value(). In future releases storage() will be removed.
 #if !defined(BOOST_ATOMIC_SILENCE_STORAGE_DEPRECATION)
 #define BOOST_ATOMIC_DETAIL_STORAGE_DEPRECATED BOOST_ATOMIC_DETAIL_DEPRECATED("Boost.Atomic 1.73 has deprecated atomic<>::storage() in favor of atomic<>::value() and atomic<>::storage_type in favor of atomic<>::value_type. You can define BOOST_ATOMIC_SILENCE_STORAGE_DEPRECATION to disable this warning.")

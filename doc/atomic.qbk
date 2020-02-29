@@ -766,9 +766,7 @@ Additionally, as a [*Boost.Atomic] extension, the following operations are also 
 
 [note In Boost.Atomic 1.66 the [^['op]_and_test] operations returned the opposite value (i.e. `true` if the result is zero). This was changed
 to the current behavior in 1.67 for consistency with other operations in Boost.Atomic, as well as with conventions taken in the C++ standard library.
-Boost.Atomic 1.66 was the only release shipped with the old behavior. Users upgrading from Boost 1.66 to a later release can define
-`BOOST_ATOMIC_HIGHLIGHT_OP_AND_TEST` macro when building their code to generate deprecation warnings on the [^['op]_and_test] function calls
-(the functions are not actually deprecated though; this is just a way to highlight their use).]
+Boost.Atomic 1.66 was the only release shipped with the old behavior.]
 
 `order` always has `memory_order_seq_cst` as default parameter.
 
