@@ -61,7 +61,6 @@ struct gcc_sync_operations :
     public gcc_sync_operations_base
 {
     typedef typename make_storage_type< Size >::type storage_type;
-    typedef typename make_storage_type< Size >::aligned aligned_storage_type;
 
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = Size;
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_alignment = make_storage_type< Size >::alignment;

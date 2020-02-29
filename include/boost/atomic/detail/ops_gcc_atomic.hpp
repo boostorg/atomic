@@ -85,7 +85,6 @@ template< std::size_t Size, bool Signed >
 struct gcc_atomic_operations
 {
     typedef typename make_storage_type< Size >::type storage_type;
-    typedef typename make_storage_type< Size >::aligned aligned_storage_type;
 
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = Size;
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_alignment = make_storage_type< Size >::alignment;

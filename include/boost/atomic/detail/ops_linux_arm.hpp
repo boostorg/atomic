@@ -91,7 +91,6 @@ struct linux_arm_cas :
     public linux_arm_cas_base
 {
     typedef typename make_storage_type< 4u >::type storage_type;
-    typedef typename make_storage_type< 4u >::aligned aligned_storage_type;
 
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 4u;
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_alignment = 4u;

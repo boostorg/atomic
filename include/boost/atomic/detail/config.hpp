@@ -160,4 +160,11 @@
 #define BOOST_ATOMIC_DETAIL_HIGHLIGHT_OP_AND_TEST
 #endif
 
+// In Boost.Atomic 1.73 we deprecated atomic<>::storage() accessor in favor of atomic<>::value(). In future releases storage() will be removed.
+#if !defined(BOOST_ATOMIC_SILENCE_STORAGE_DEPRECATION)
+#define BOOST_ATOMIC_DETAIL_STORAGE_DEPRECATED BOOST_ATOMIC_DETAIL_DEPRECATED("Boost.Atomic 1.73 has deprecated atomic<>::storage() in favor of atomic<>::value() and atomic<>::storage_type in favor of atomic<>::value_type. You can define BOOST_ATOMIC_SILENCE_STORAGE_DEPRECATION to disable this warning.")
+#else
+#define BOOST_ATOMIC_DETAIL_STORAGE_DEPRECATED
+#endif
+
 #endif // BOOST_ATOMIC_DETAIL_CONFIG_HPP_INCLUDED_

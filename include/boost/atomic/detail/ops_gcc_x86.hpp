@@ -108,7 +108,6 @@ struct operations< 1u, Signed > :
 {
     typedef gcc_x86_operations< 1u, Signed, operations< 1u, Signed > > base_type;
     typedef typename base_type::storage_type storage_type;
-    typedef typename make_storage_type< 1u >::aligned aligned_storage_type;
     typedef typename make_storage_type< 4u >::type temp_storage_type;
 
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 1u;
@@ -210,7 +209,6 @@ struct operations< 2u, Signed > :
 {
     typedef gcc_x86_operations< 2u, Signed, operations< 2u, Signed > > base_type;
     typedef typename base_type::storage_type storage_type;
-    typedef typename make_storage_type< 2u >::aligned aligned_storage_type;
     typedef typename make_storage_type< 4u >::type temp_storage_type;
 
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 2u;
@@ -312,7 +310,6 @@ struct operations< 4u, Signed > :
 {
     typedef gcc_x86_operations< 4u, Signed, operations< 4u, Signed > > base_type;
     typedef typename base_type::storage_type storage_type;
-    typedef typename make_storage_type< 4u >::aligned aligned_storage_type;
 
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 4u;
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_alignment = 4u;
@@ -423,7 +420,6 @@ struct operations< 8u, Signed > :
 {
     typedef gcc_x86_operations< 8u, Signed, operations< 8u, Signed > > base_type;
     typedef typename base_type::storage_type storage_type;
-    typedef typename make_storage_type< 8u >::aligned aligned_storage_type;
 
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 8u;
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_alignment = 8u;
