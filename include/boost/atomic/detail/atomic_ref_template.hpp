@@ -77,7 +77,7 @@ protected:
     typedef typename atomics::detail::conditional<
         atomics::detail::is_atomic_ref_lock_free< T, IsSigned >::value,
         atomics::detail::operations< sizeof(value_type), IsSigned >,
-        atomics::detail::emulated_operations< sizeof(value_type), IsSigned >
+        atomics::detail::emulated_operations< sizeof(value_type), atomics::detail::alignment_of< value_type >::value, IsSigned >
     >::type operations;
     typedef typename atomics::detail::conditional< sizeof(value_type) <= sizeof(void*), value_type, value_type const& >::type value_arg_type;
     typedef typename operations::storage_type storage_type;

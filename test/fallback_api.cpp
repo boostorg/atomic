@@ -9,6 +9,8 @@
 #define BOOST_ATOMIC_FORCE_FALLBACK 1
 
 #include <boost/atomic.hpp>
+
+#include <boost/config.hpp>
 #include <boost/cstdint.hpp>
 
 #include "api_test_helpers.hpp"

@@ -46,7 +46,7 @@ int main(int, char *[])
 #endif
 #endif
 
-    test_pointer_api< atomic_ref_wrapper, int>();
+    test_pointer_api< atomic_ref_wrapper, int >();
 
     test_enum_api< atomic_ref_wrapper >();
 
@@ -66,7 +66,7 @@ int main(int, char *[])
 
     test_large_struct_api< atomic_ref_wrapper >();
 
-    // Test that boost::atomic<T> only requires T to be trivially copyable.
+    // Test that boost::atomic_ref<T> only requires T to be trivially copyable.
     // Other non-trivial constructors are allowed.
     test_struct_with_ctor_api< atomic_ref_wrapper >();
 

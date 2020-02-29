@@ -16,8 +16,9 @@
 #include <iostream>
 #include <boost/config.hpp>
 #include <boost/cstdint.hpp>
+#include <boost/type.hpp>
 #include <boost/type_traits/integral_constant.hpp>
-#include <boost/type_traits/is_same.hpp>
+#include <boost/type_traits/alignment_of.hpp>
 #include <boost/type_traits/is_pointer.hpp>
 #include <boost/type_traits/is_signed.hpp>
 #include <boost/type_traits/is_unsigned.hpp>
@@ -163,13 +164,30 @@ inline void test_flag_api(void)
     BOOST_TEST( !f.test_and_set() );
 }
 
+template< typename T >
+inline void test_atomic_type_traits(boost::type< boost::atomic< T > >)
+{
+    BOOST_TEST_GE(sizeof(boost::atomic< T >), sizeof(T));
+}
+
+template< typename T >
+inline void test_atomic_type_traits(boost::type< boost::atomic_ref< T > >)
+{
+    if (boost::atomic_ref< T >::is_always_lock_free)
+    {
+        BOOST_TEST_GE(boost::atomic_ref< T >::required_alignment, boost::alignment_of< T >::value);
+    }
+    else
+    {
+        // Lock-based implementation should not require alignment higher than alignof(T)
+        BOOST_TEST_EQ(boost::atomic_ref< T >::required_alignment, boost::alignment_of< T >::value);
+    }
+}
+
 template< template< typename > class Wrapper, typename T >
 void test_base_operators(T value1, T value2, T value3)
 {
-    if (boost::is_same< typename Wrapper<T>::atomic_type, boost::atomic<T> >::value)
-    {
-        BOOST_TEST_GE(sizeof(typename Wrapper<T>::atomic_type), sizeof(T));
-    }
+    test_atomic_type_traits(boost::type< typename Wrapper<T>::atomic_type >());
 
     // explicit load/store
     {
@@ -1156,7 +1174,7 @@ void test_struct_x2_api(void)
 
 struct large_struct
 {
-    long data[64];
+    unsigned char data[256u];
 
     inline bool operator==(large_struct const& c) const
     {

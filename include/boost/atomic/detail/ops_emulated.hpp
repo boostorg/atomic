@@ -15,12 +15,16 @@
 #define BOOST_ATOMIC_DETAIL_OPS_EMULATED_HPP_INCLUDED_
 
 #include <cstddef>
+#include <boost/static_assert.hpp>
 #include <boost/memory_order.hpp>
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/storage_traits.hpp>
 #include <boost/atomic/detail/operations_fwd.hpp>
 #include <boost/atomic/detail/lockpool.hpp>
 #include <boost/atomic/capabilities.hpp>
+#if defined(BOOST_NO_CXX11_ALIGNAS)
+#include <boost/type_traits/type_with_alignment.hpp>
+#endif
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once
@@ -30,13 +34,65 @@ namespace boost {
 namespace atomics {
 namespace detail {
 
-template< std::size_t Size, bool Signed >
-struct emulated_operations
+template< std::size_t Size, std::size_t Alignment >
+struct BOOST_ATOMIC_DETAIL_MAY_ALIAS aligned_buffer_storage
+{
+#if !defined(BOOST_NO_CXX11_ALIGNAS)
+    alignas(Alignment) buffer_storage< Size > buffer;
+#else
+    union
+    {
+        buffer_storage< Size > buffer;
+        typename boost::type_with_alignment< Alignment >::type aligner;
+    };
+#endif
+
+    BOOST_FORCEINLINE bool operator! () const BOOST_NOEXCEPT
+    {
+        return !buffer;
+    }
+
+    BOOST_FORCEINLINE bool operator== (aligned_buffer_storage const& that) const BOOST_NOEXCEPT
+    {
+        return buffer == that.buffer;
+    }
+
+    BOOST_FORCEINLINE bool operator!= (aligned_buffer_storage const& that) const BOOST_NOEXCEPT
+    {
+        return buffer != that.buffer;
+    }
+};
+
+template< std::size_t Size, std::size_t Alignment, bool = Alignment >= storage_traits< Size >::alignment >
+struct base_emulated_operations
+{
+    // Define storage_type to have alignment not greater than Alignment. This will allow operations to work with value_types
+    // that possibly have weaker alignment requirements than storage_traits< Size >::type would. This is important for atomic_ref<>.
+    // atomic<> will allow higher alignment requirement than its value_type.
+    typedef aligned_buffer_storage< Size, Alignment > storage_type;
+    BOOST_STATIC_ASSERT(sizeof(storage_type) == Size);
+
+    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = Size;
+    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_alignment = Alignment;
+};
+
+template< std::size_t Size, std::size_t Alignment >
+struct base_emulated_operations< Size, Alignment, true >
 {
     typedef typename storage_traits< Size >::type storage_type;
 
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = Size;
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_alignment = storage_traits< Size >::alignment;
+};
+
+template< std::size_t Size, std::size_t Alignment, bool Signed >
+struct emulated_operations :
+    public base_emulated_operations< Size, Alignment >
+{
+    typedef base_emulated_operations< Size, Alignment > base_type;
+
+    typedef typename base_type::storage_type storage_type;
+
     static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
     static BOOST_CONSTEXPR_OR_CONST bool full_cas_based = false;
 
@@ -151,7 +207,7 @@ struct emulated_operations
 
 template< std::size_t Size, bool Signed >
 struct operations :
-    public emulated_operations< Size, Signed >
+    public emulated_operations< Size, storage_traits< Size >::alignment, Signed >
 {
 };
 
