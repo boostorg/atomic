@@ -289,7 +289,7 @@ void test_base_operators(T value1, T value2, T value3)
 template< typename T >
 void test_constexpr_ctor()
 {
-#ifndef BOOST_NO_CXX11_CONSTEXPR
+#ifndef BOOST_ATOMIC_DETAIL_NO_CXX11_CONSTEXPR_UNION_INIT
     constexpr T value(0);
     constexpr boost::atomic<T> tester(value);
     BOOST_TEST( tester == value );

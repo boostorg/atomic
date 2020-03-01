@@ -59,6 +59,18 @@
 #define BOOST_ATOMIC_DETAIL_NO_CXX11_ALIGNAS
 #endif
 
+#if defined(BOOST_NO_CXX11_CONSTEXPR) || (defined(BOOST_GCC) && (BOOST_GCC+0) < 40800)
+// This macro indicates that the compiler doesn't support constexpr constructors that initialize one member
+// of an anonymous union member of the class.
+#define BOOST_ATOMIC_DETAIL_NO_CXX11_CONSTEXPR_UNION_INIT
+#endif
+
+#if !defined(BOOST_ATOMIC_DETAIL_NO_CXX11_CONSTEXPR_UNION_INIT)
+#define BOOST_ATOMIC_DETAIL_CONSTEXPR_UNION_INIT BOOST_CONSTEXPR
+#else
+#define BOOST_ATOMIC_DETAIL_CONSTEXPR_UNION_INIT
+#endif
+
 // Enable pointer/reference casts between storage and value when possible.
 // Note: Despite that MSVC does not employ strict aliasing rules for optimizations
 // and does not require an explicit markup for types that may alias, we still don't

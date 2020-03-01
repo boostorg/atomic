@@ -89,7 +89,7 @@ protected:
 
 public:
     BOOST_DEFAULTED_FUNCTION(base_atomic_common() BOOST_ATOMIC_DETAIL_DEF_NOEXCEPT_DECL, BOOST_ATOMIC_DETAIL_DEF_NOEXCEPT_IMPL {})
-    BOOST_FORCEINLINE BOOST_CONSTEXPR explicit base_atomic_common(storage_type v) BOOST_NOEXCEPT : m_storage(v)
+    BOOST_FORCEINLINE BOOST_ATOMIC_DETAIL_CONSTEXPR_UNION_INIT explicit base_atomic_common(storage_type v) BOOST_NOEXCEPT : m_storage(v)
     {
     }
 
@@ -289,7 +289,7 @@ private:
 
 public:
     BOOST_DEFAULTED_FUNCTION(base_atomic() BOOST_ATOMIC_DETAIL_DEF_NOEXCEPT_DECL, BOOST_ATOMIC_DETAIL_DEF_NOEXCEPT_IMPL {})
-    BOOST_FORCEINLINE BOOST_CONSTEXPR explicit base_atomic(value_arg_type v) BOOST_NOEXCEPT : base_type(static_cast< storage_type >(v)) {}
+    BOOST_FORCEINLINE BOOST_ATOMIC_DETAIL_CONSTEXPR_UNION_INIT explicit base_atomic(value_arg_type v) BOOST_NOEXCEPT : base_type(static_cast< storage_type >(v)) {}
 
     // Standard methods
     BOOST_FORCEINLINE void store(value_arg_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
@@ -607,7 +607,7 @@ private:
 
 public:
     BOOST_DEFAULTED_FUNCTION(base_atomic() BOOST_ATOMIC_DETAIL_DEF_NOEXCEPT_DECL, BOOST_ATOMIC_DETAIL_DEF_NOEXCEPT_IMPL {})
-    BOOST_FORCEINLINE BOOST_CONSTEXPR explicit base_atomic(value_arg_type v) BOOST_NOEXCEPT : base_type(static_cast< storage_type >(v)) {}
+    BOOST_FORCEINLINE BOOST_ATOMIC_DETAIL_CONSTEXPR_UNION_INIT explicit base_atomic(value_arg_type v) BOOST_NOEXCEPT : base_type(static_cast< storage_type >(v)) {}
 
     // Standard methods
     BOOST_FORCEINLINE void store(value_arg_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
@@ -1098,7 +1098,7 @@ public:
 
 public:
     BOOST_DEFAULTED_FUNCTION(atomic() BOOST_ATOMIC_DETAIL_DEF_NOEXCEPT_DECL, BOOST_ATOMIC_DETAIL_DEF_NOEXCEPT_IMPL {})
-    BOOST_FORCEINLINE BOOST_CONSTEXPR atomic(value_arg_type v) BOOST_NOEXCEPT : base_type(v) {}
+    BOOST_FORCEINLINE BOOST_ATOMIC_DETAIL_CONSTEXPR_UNION_INIT atomic(value_arg_type v) BOOST_NOEXCEPT : base_type(v) {}
 
     BOOST_FORCEINLINE value_type operator= (value_arg_type v) BOOST_NOEXCEPT
     {

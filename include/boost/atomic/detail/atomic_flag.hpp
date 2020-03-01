@@ -34,7 +34,7 @@
 namespace boost {
 namespace atomics {
 
-#if defined(BOOST_NO_CXX11_CONSTEXPR) || defined(BOOST_NO_CXX11_UNIFIED_INITIALIZATION_SYNTAX)
+#if defined(BOOST_ATOMIC_DETAIL_NO_CXX11_CONSTEXPR_UNION_INIT) || defined(BOOST_NO_CXX11_UNIFIED_INITIALIZATION_SYNTAX)
 #define BOOST_ATOMIC_NO_ATOMIC_FLAG_INIT
 #else
 #define BOOST_ATOMIC_FLAG_INIT {}
@@ -56,7 +56,7 @@ struct atomic_flag
     };
 #endif
 
-    BOOST_FORCEINLINE BOOST_CONSTEXPR atomic_flag() BOOST_NOEXCEPT : m_storage(0u)
+    BOOST_FORCEINLINE BOOST_ATOMIC_DETAIL_CONSTEXPR_UNION_INIT atomic_flag() BOOST_NOEXCEPT : m_storage(0u)
     {
     }
 
