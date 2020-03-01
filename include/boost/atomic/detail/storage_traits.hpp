@@ -134,9 +134,16 @@ struct storage_traits< 16u >
 
 #else
 
-#if __cplusplus >= 201103L
+#if __cplusplus >= 201103L || (defined(_MSVC_LANG) && _MSVC_LANG >= 201103L)
 using std::max_align_t;
 #else
+
+#if defined(BOOST_MSVC)
+#pragma warning(push)
+// alignment is sensitive to packing
+#pragma warning(disable: 4121)
+#endif
+
 class max_align_helper;
 union max_align_t
 {
@@ -153,7 +160,12 @@ union max_align_t
     boost::float128_type f128;
 #endif
 };
+
+#if defined(BOOST_MSVC)
+#pragma warning(pop)
 #endif
+
+#endif // __cplusplus >= 201103L || (defined(_MSVC_LANG) && _MSVC_LANG >= 201103L)
 
 template< >
 struct storage_traits< 16u >

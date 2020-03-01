@@ -54,8 +54,12 @@
 #endif
 #endif // defined(BOOST_NO_CXX11_HDR_TYPE_TRAITS)
 
-#if defined(BOOST_NO_CXX11_ALIGNAS) || (defined(BOOST_GCC) && (BOOST_GCC+0) < 40900)
-// This macro indicates that the compiler doesn't support alignas with a constant expression as an argument
+#if defined(BOOST_NO_CXX11_ALIGNAS) ||\
+    (defined(BOOST_GCC) && (BOOST_GCC+0) < 40900) ||\
+    (defined(BOOST_MSVC) && (BOOST_MSVC+0) < 1910 && defined(_M_IX86))
+// gcc prior to 4.9 doesn't support alignas with a constant expression as an argument.
+// MSVC 14.0 does support alignas, but in 32-bit mode emits "error C2719: formal parameter with requested alignment of N won't be aligned" for N > 4,
+// when aligned types are used in function arguments, even though the std::max_align_t type has alignment of 8.
 #define BOOST_ATOMIC_DETAIL_NO_CXX11_ALIGNAS
 #endif
 
