@@ -52,7 +52,7 @@ struct atomic_flag
     union
     {
         storage_type m_storage;
-        typename boost::type_with_alignment< operations::storage_alignment >::type m_aligner;
+        boost::type_with_alignment< operations::storage_alignment >::type m_aligner;
     };
 #endif
 
