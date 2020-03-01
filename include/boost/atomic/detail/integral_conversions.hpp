@@ -6,13 +6,13 @@
  * Copyright (c) 2018 Andrey Semashev
  */
 /*!
- * \file   atomic/detail/integral_extend.hpp
+ * \file   atomic/detail/integral_conversions.hpp
  *
- * This header defines sign/zero extension utilities for Boost.Atomic. The tools assume two's complement signed integer representation.
+ * This header defines sign/zero extension and truncation utilities for Boost.Atomic. The tools assume two's complement signed integer representation.
  */
 
-#ifndef BOOST_ATOMIC_DETAIL_INTEGRAL_EXTEND_HPP_INCLUDED_
-#define BOOST_ATOMIC_DETAIL_INTEGRAL_EXTEND_HPP_INCLUDED_
+#ifndef BOOST_ATOMIC_DETAIL_INTEGRAL_CONVERSIONS_HPP_INCLUDED_
+#define BOOST_ATOMIC_DETAIL_INTEGRAL_CONVERSIONS_HPP_INCLUDED_
 
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/bitwise_cast.hpp>
@@ -102,4 +102,4 @@ BOOST_FORCEINLINE Output integral_extend(Input input) BOOST_NOEXCEPT
 } // namespace atomics
 } // namespace boost
 
-#endif // BOOST_ATOMIC_DETAIL_INTEGRAL_EXTEND_HPP_INCLUDED_
+#endif // BOOST_ATOMIC_DETAIL_INTEGRAL_CONVERSIONS_HPP_INCLUDED_

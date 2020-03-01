@@ -18,7 +18,7 @@
 #include <boost/memory_order.hpp>
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/storage_traits.hpp>
-#include <boost/atomic/detail/integral_extend.hpp>
+#include <boost/atomic/detail/integral_conversions.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once

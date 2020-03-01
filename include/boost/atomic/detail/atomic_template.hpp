@@ -24,7 +24,7 @@
 #include <boost/atomic/detail/classify.hpp>
 #include <boost/atomic/detail/storage_traits.hpp>
 #include <boost/atomic/detail/bitwise_cast.hpp>
-#include <boost/atomic/detail/integral_extend.hpp>
+#include <boost/atomic/detail/integral_conversions.hpp>
 #include <boost/atomic/detail/operations.hpp>
 #include <boost/atomic/detail/extra_operations.hpp>
 #include <boost/atomic/detail/memory_order_utils.hpp>
