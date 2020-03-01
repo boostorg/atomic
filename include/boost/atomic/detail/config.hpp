@@ -4,7 +4,7 @@
  * http://www.boost.org/LICENSE_1_0.txt)
  *
  * Copyright (c) 2012 Hartmut Kaiser
- * Copyright (c) 2014 Andrey Semashev
+ * Copyright (c) 2014-2018, 2020 Andrey Semashev
  */
 /*!
  * \file   atomic/detail/config.hpp
