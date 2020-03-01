@@ -20,6 +20,10 @@
 #include <boost/cstdint.hpp>
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/string_ops.hpp>
+#include <boost/atomic/detail/type_traits/alignment_of.hpp>
+#if defined(BOOST_NO_CXX11_ALIGNAS)
+#include <boost/type_traits/type_with_alignment.hpp>
+#endif
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once
@@ -35,10 +39,18 @@ BOOST_FORCEINLINE void non_atomic_load(T const volatile& from, T& to) BOOST_NOEX
     to = from;
 }
 
-template< std::size_t Size >
+template< std::size_t Size, std::size_t Alignment = 1u >
 struct BOOST_ATOMIC_DETAIL_MAY_ALIAS buffer_storage
 {
-    unsigned char data[Size];
+#if !defined(BOOST_NO_CXX11_ALIGNAS)
+    alignas(Alignment) unsigned char data[Size];
+#else
+    union
+    {
+        unsigned char data[Size];
+        typename boost::type_with_alignment< Alignment >::type aligner;
+    };
+#endif
 
     BOOST_FORCEINLINE bool operator! () const BOOST_NOEXCEPT
     {
@@ -56,8 +68,8 @@ struct BOOST_ATOMIC_DETAIL_MAY_ALIAS buffer_storage
     }
 };
 
-template< std::size_t Size >
-BOOST_FORCEINLINE void non_atomic_load(buffer_storage< Size > const volatile& from, buffer_storage< Size >& to) BOOST_NOEXCEPT
+template< std::size_t Size, std::size_t Alignment >
+BOOST_FORCEINLINE void non_atomic_load(buffer_storage< Size, Alignment > const volatile& from, buffer_storage< Size, Alignment >& to) BOOST_NOEXCEPT
 {
     BOOST_ATOMIC_DETAIL_MEMCPY(to.data, const_cast< unsigned char const* >(from.data), Size);
 }
@@ -65,9 +77,11 @@ BOOST_FORCEINLINE void non_atomic_load(buffer_storage< Size > const volatile& fr
 template< std::size_t Size >
 struct storage_traits
 {
-    typedef buffer_storage< Size > type;
+    typedef buffer_storage< Size, 1u > type;
 
-    // By default, use the maximum supported alignment
+    static BOOST_CONSTEXPR_OR_CONST std::size_t native_alignment = 1u;
+
+    // By default, prefer the maximum supported alignment
     static BOOST_CONSTEXPR_OR_CONST std::size_t alignment = 16u;
 };
 
@@ -76,6 +90,7 @@ struct storage_traits< 1u >
 {
     typedef boost::uint8_t BOOST_ATOMIC_DETAIL_MAY_ALIAS type;
 
+    static BOOST_CONSTEXPR_OR_CONST std::size_t native_alignment = 1u;
     static BOOST_CONSTEXPR_OR_CONST std::size_t alignment = 1u;
 };
 
@@ -84,6 +99,7 @@ struct storage_traits< 2u >
 {
     typedef boost::uint16_t BOOST_ATOMIC_DETAIL_MAY_ALIAS type;
 
+    static BOOST_CONSTEXPR_OR_CONST std::size_t native_alignment = atomics::detail::alignment_of< boost::uint16_t >::value;
     static BOOST_CONSTEXPR_OR_CONST std::size_t alignment = 2u;
 };
 
@@ -92,6 +108,7 @@ struct storage_traits< 4u >
 {
     typedef boost::uint32_t BOOST_ATOMIC_DETAIL_MAY_ALIAS type;
 
+    static BOOST_CONSTEXPR_OR_CONST std::size_t native_alignment = atomics::detail::alignment_of< boost::uint32_t >::value;
     static BOOST_CONSTEXPR_OR_CONST std::size_t alignment = 4u;
 };
 
@@ -100,6 +117,7 @@ struct storage_traits< 8u >
 {
     typedef boost::uint64_t BOOST_ATOMIC_DETAIL_MAY_ALIAS type;
 
+    static BOOST_CONSTEXPR_OR_CONST std::size_t native_alignment = atomics::detail::alignment_of< boost::uint64_t >::value;
     static BOOST_CONSTEXPR_OR_CONST std::size_t alignment = 8u;
 };
 
@@ -110,43 +128,18 @@ struct storage_traits< 16u >
 {
     typedef boost::uint128_type BOOST_ATOMIC_DETAIL_MAY_ALIAS type;
 
+    static BOOST_CONSTEXPR_OR_CONST std::size_t native_alignment = atomics::detail::alignment_of< boost::uint128_type >::value;
     static BOOST_CONSTEXPR_OR_CONST std::size_t alignment = 16u;
 };
 
-#elif !defined(BOOST_NO_ALIGNMENT)
-
-struct BOOST_ATOMIC_DETAIL_MAY_ALIAS storage128_t
-{
-    typedef boost::uint64_t BOOST_ATOMIC_DETAIL_MAY_ALIAS element_type;
-
-    BOOST_ALIGNMENT(16) element_type data[2u];
-
-    BOOST_FORCEINLINE bool operator! () const BOOST_NOEXCEPT
-    {
-        return (data[0] | data[1]) == 0u;
-    }
-};
-
-BOOST_FORCEINLINE bool operator== (storage128_t const& left, storage128_t const& right) BOOST_NOEXCEPT
-{
-    return ((left.data[0] ^ right.data[0]) | (left.data[1] ^ right.data[1])) == 0u;
-}
-BOOST_FORCEINLINE bool operator!= (storage128_t const& left, storage128_t const& right) BOOST_NOEXCEPT
-{
-    return !(left == right);
-}
-
-BOOST_FORCEINLINE void non_atomic_load(storage128_t const volatile& from, storage128_t& to) BOOST_NOEXCEPT
-{
-    to.data[0] = from.data[0];
-    to.data[1] = from.data[1];
-}
+#else
 
 template< >
 struct storage_traits< 16u >
 {
-    typedef storage128_t type;
+    typedef buffer_storage< 16u, 16u > type;
 
+    static BOOST_CONSTEXPR_OR_CONST std::size_t native_alignment = 16u;
     static BOOST_CONSTEXPR_OR_CONST std::size_t alignment = 16u;
 };
 
