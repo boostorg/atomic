@@ -21,7 +21,7 @@
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/string_ops.hpp>
 #include <boost/atomic/detail/type_traits/alignment_of.hpp>
-#if defined(BOOST_NO_CXX11_ALIGNAS)
+#if defined(BOOST_ATOMIC_DETAIL_NO_CXX11_ALIGNAS)
 #include <boost/type_traits/type_with_alignment.hpp>
 #endif
 
