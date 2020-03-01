@@ -134,7 +134,8 @@ struct storage_traits< 16u >
 
 #else
 
-#if __cplusplus >= 201103L || (defined(_MSVC_LANG) && _MSVC_LANG >= 201103L)
+#if (__cplusplus >= 201103L || (defined(_MSVC_LANG) && _MSVC_LANG >= 201103L)) &&\
+    (!defined(BOOST_GCC_VERSION) || BOOST_GCC_VERSION >= 40800)
 using std::max_align_t;
 #else
 
