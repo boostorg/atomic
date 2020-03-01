@@ -134,12 +134,33 @@ struct storage_traits< 16u >
 
 #else
 
+#if __cplusplus >= 201103L
+using std::max_align_t;
+#else
+class max_align_helper;
+union max_align_t
+{
+    void* ptr;
+    void (*fun_ptr)();
+    int max_align_helper::*mem_ptr;
+    void (max_align_helper::*mem_fun_ptr)();
+    long long ll;
+    long double ld;
+#if defined(BOOST_HAS_INT128)
+    boost::int128_type i128;
+#endif
+#if defined(BOOST_HAS_FLOAT128)
+    boost::float128_type f128;
+#endif
+};
+#endif
+
 template< >
 struct storage_traits< 16u >
 {
-    typedef buffer_storage< 16u, 16u > type;
+    typedef buffer_storage< 16u, atomics::detail::alignment_of< atomics::detail::max_align_t >::value > type;
 
-    static BOOST_CONSTEXPR_OR_CONST std::size_t native_alignment = 16u;
+    static BOOST_CONSTEXPR_OR_CONST std::size_t native_alignment = atomics::detail::alignment_of< atomics::detail::max_align_t >::value;
     static BOOST_CONSTEXPR_OR_CONST std::size_t alignment = 16u;
 };
 
