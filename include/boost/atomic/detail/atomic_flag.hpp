@@ -45,7 +45,7 @@ struct atomic_flag
     typedef atomics::detail::operations< 1u, false > operations;
     typedef operations::storage_type storage_type;
 
-#if !defined(BOOST_NO_CXX11_ALIGNAS)
+#if !defined(BOOST_ATOMIC_DETAIL_NO_CXX11_ALIGNAS)
     alignas(operations::storage_alignment) storage_type m_storage;
 #else
     // Note: Some compilers cannot use constant expressions in alignment attributes, so we have to use the union trick

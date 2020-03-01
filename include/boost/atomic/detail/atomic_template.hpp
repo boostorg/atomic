@@ -76,7 +76,7 @@ protected:
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_alignment = atomics::detail::alignment_of< value_type >::value <= operations::storage_alignment ? operations::storage_alignment : atomics::detail::alignment_of< value_type >::value;
 
 protected:
-#if !defined(BOOST_NO_CXX11_ALIGNAS)
+#if !defined(BOOST_ATOMIC_DETAIL_NO_CXX11_ALIGNAS)
     alignas(storage_alignment) storage_type m_storage;
 #else
     // Note: Some compilers cannot use constant expressions in alignment attributes, so we have to use the union trick

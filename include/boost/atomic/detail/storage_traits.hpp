@@ -42,7 +42,7 @@ BOOST_FORCEINLINE void non_atomic_load(T const volatile& from, T& to) BOOST_NOEX
 template< std::size_t Size, std::size_t Alignment = 1u >
 struct BOOST_ATOMIC_DETAIL_MAY_ALIAS buffer_storage
 {
-#if !defined(BOOST_NO_CXX11_ALIGNAS)
+#if !defined(BOOST_ATOMIC_DETAIL_NO_CXX11_ALIGNAS)
     alignas(Alignment) unsigned char data[Size];
 #else
     union

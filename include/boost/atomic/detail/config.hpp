@@ -54,6 +54,11 @@
 #endif
 #endif // defined(BOOST_NO_CXX11_HDR_TYPE_TRAITS)
 
+#if defined(BOOST_NO_CXX11_ALIGNAS) || (defined(BOOST_GCC) && (BOOST_GCC+0) < 40900)
+// This macro indicates that the compiler doesn't support alignas with a constant expression as an argument
+#define BOOST_ATOMIC_DETAIL_NO_CXX11_ALIGNAS
+#endif
+
 // Enable pointer/reference casts between storage and value when possible.
 // Note: Despite that MSVC does not employ strict aliasing rules for optimizations
 // and does not require an explicit markup for types that may alias, we still don't
