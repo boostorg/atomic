@@ -19,6 +19,7 @@
 #include <cstddef>
 #include <boost/cstdint.hpp>
 #include <boost/assert.hpp>
+#include <boost/static_assert.hpp>
 #include <boost/memory_order.hpp>
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/classify.hpp>
@@ -29,6 +30,7 @@
 #include <boost/atomic/detail/extra_operations.hpp>
 #include <boost/atomic/detail/memory_order_utils.hpp>
 #include <boost/atomic/detail/type_traits/is_signed.hpp>
+#include <boost/atomic/detail/type_traits/is_trivially_copyable.hpp>
 #include <boost/atomic/detail/type_traits/is_trivially_default_constructible.hpp>
 #include <boost/atomic/detail/type_traits/alignment_of.hpp>
 #include <boost/atomic/detail/type_traits/conditional.hpp>
@@ -1092,6 +1094,11 @@ public:
     // Deprecated, use value_type instead
     BOOST_ATOMIC_DETAIL_STORAGE_DEPRECATED
     typedef typename base_type::storage_type storage_type;
+
+    BOOST_STATIC_ASSERT_MSG(sizeof(value_type) > 0u, "boost::atomic<T> requires T to be a complete type");
+#if !defined(BOOST_ATOMIC_DETAIL_NO_CXX11_IS_TRIVIALLY_COPYABLE)
+    BOOST_STATIC_ASSERT_MSG(atomics::detail::is_trivially_copyable< value_type >::value, "boost::atomic<T> requires T to be a trivially copyable type");
+#endif
 
 public:
     static BOOST_CONSTEXPR_OR_CONST bool is_always_lock_free = base_type::operations::is_always_lock_free;
