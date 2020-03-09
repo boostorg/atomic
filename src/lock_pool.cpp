@@ -23,12 +23,14 @@
 #include <boost/atomic/detail/lock_pool.hpp>
 #include <boost/atomic/detail/pause.hpp>
 
-#if BOOST_ATOMIC_FLAG_LOCK_FREE != 2 && !defined(BOOST_HAS_PTHREADS)
-#error Boost.Atomic: Unsupported target platform, POSIX threads are required when native atomic operations are not available
-#else
+#if BOOST_ATOMIC_FLAG_LOCK_FREE != 2
+#if defined(BOOST_HAS_PTHREADS)
 #include <pthread.h>
 #define BOOST_ATOMIC_USE_PTHREAD
+#else
+#error Boost.Atomic: Unsupported target platform, POSIX threads are required when native atomic operations are not available
 #endif
+#endif // BOOST_ATOMIC_FLAG_LOCK_FREE != 2
 
 #if defined(BOOST_MSVC)
 #pragma warning(push)
