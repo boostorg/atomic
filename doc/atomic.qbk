@@ -1005,15 +1005,15 @@ and only refers to an external object of type [^['T]].
 
 There are certain requirements on the objects compatible with `boost::atomic_ref`:
 
-* The referred object lifetime must not end before the last `boost::atomic_ref`
+* The referenced object lifetime must not end before the last `boost::atomic_ref`
   referring to the object is destroyed.
-* The referred object must have alignment not less than indicated by the
+* The referenced object must have alignment not less than indicated by the
   [^boost::atomic_ref<['T]>::required_alignment] constant. That constant may be larger
   than the natural alignment of type [^['T]]. In [*Boost.Atomic], `required_alignment` indicates
   the alignment at which operations on the object are lock-free; otherwise, if lock-free
   operations are not possible, `required_alignment` shall not be less than the natural
   alignment of [^['T]].
-* The referred object must not be a [@https://en.cppreference.com/w/cpp/language/object#Subobjects ['potentially overlapping object]].
+* The referenced object must not be a [@https://en.cppreference.com/w/cpp/language/object#Subobjects ['potentially overlapping object]].
   It must be the ['most derived object] (that is it must not be a base class subobject of
   an object of a derived class) and it must not be marked with the `[[no_unique_address]]`
   attribute.
@@ -1034,13 +1034,13 @@ There are certain requirements on the objects compatible with `boost::atomic_ref
   ```
   In the above example, `ref` may silently corrupt the value of `x.c` because it
   resides in the trailing padding of the `Base` base class subobject of `x`.
-* The referred object must not reside in read-only memory. Even for non-modifying
+* The referenced object must not reside in read-only memory. Even for non-modifying
   operations, like `load()`, `boost::atomic_ref` may issue read-modify-write CPU instructions
   that require write access.
 * While at least one `boost::atomic_ref` referencing an object exists, that object must not
   be accessed by any other means, other than through `boost::atomic_ref`.
 
-Multiple `boost::atomic_ref` referencing the same referred object are allowed, and operations
+Multiple `boost::atomic_ref` referencing the same object are allowed, and operations
 through any such reference are atomic and ordered with regard to each other, according to
 the memory order arguments. [^boost::atomic_ref<['T]>] supports the same set of properties and
 operations as [^boost::atomic<['T]>], depending on the type [^['T]], with the following exceptions:
@@ -1057,25 +1057,25 @@ operations as [^boost::atomic<['T]>], depending on the type [^['T]], with the fo
     ]
     [
       [`atomic_ref(atomic_ref const& that) noexcept`]
-      [Creates an atomic reference, referring to the object referred to by `that`.]
+      [Creates an atomic reference, referencing the object referred to by `that`.]
     ]
     [
       [`static constexpr std::size_t required_alignment`]
       [A constant, indicating required alignment of objects of type [^['T]] so that they are compatible with `atomic_ref`.
       Shall not be less than [^alignof(['T])]. In [*Boost.Atomic], indicates the alignment required by lock-free operations
-      on the referred object, if lock-free operations are possible.]
+      on the referenced object, if lock-free operations are possible.]
     ]
 ]
 
 Note that `boost::atomic_ref` cannot be changed to refer to a different object after construction.
 Assigning to `boost::atomic_ref` will invoke an atomic operation of storing the new value to the
-referred object.
+referenced object.
 
 [section:caveats Caveats]
 
 There are a several disadvantages of using `boost::atomic_ref` compared to `boost::atomic`.
 
-First, the user is required to maintain proper alignment of the referred objects. This means that the user
+First, the user is required to maintain proper alignment of the referenced objects. This means that the user
 has to plan beforehand which variables will require atomic access in the program. In C++11 and later,
 the user can ensure the required alignment by applying `alignas` specifier:
 
@@ -1093,14 +1093,14 @@ floating point number complemented by 2 to 6 bytes of padding, depending on the 
 
 Padding bits pose a problem for [*Boost.Atomic] because they can break binary comparison of object (as if
 by `memcmp`), which is used in `compare_exchange_weak`/`compare_exchange_strong` operations. `boost::atomic`
-manages the internal object representation and is able to initialize the padding bits so that binary
-comparison yields the expected result. This is not possible with `boost::atomic_ref` because the referred
-object is initialized by external means, which do not guarantee any particular content in the padding bits.
+manages the internal object representation and in some cases it is able to initialize the padding bits so that
+binary comparison yields the expected result. This is not possible with `boost::atomic_ref` because the referenced
+object is initialized by external means and any particular content in the padding bits cannot be guaranteed.
 This requires `boost::atomic_ref` to initialize padding bits on construction. Since there may be other atomic
 references referring to the same object, this initialization must be atomic. As a result, `boost::atomic_ref`
-construction can be relatively expensive and may potentially disrupt atomic operations that are performed on
-the same referred object through other atomic references. It is recommended to avoid constructing
-`boost::atomic_ref` in tight loops.
+construction can be relatively expensive and may potentially disrupt atomic operations that are being performed
+on the same object through other atomic references. It is recommended to avoid constructing `boost::atomic_ref`
+in tight loops.
 
 Finally, target platform may not have the necessary means to implement atomic operations on objects of some
 sizes. For example, on many hardware architectures atomic operations on the following structure are not possible:
@@ -1112,7 +1112,7 @@ sizes. For example, on many hardware architectures atomic operations on the foll
 
 `boost::atomic<rgb>` is able to implement lock-free operations if the target CPU supports 32-bit atomic instructions
 by padding `rgb` structure internally to the size of 4 bytes. This is not possible for `boost::atomic_ref<rgb>`, as it
-has to operate on external objects. Thus, `boost::atomic_ref<rgb>` will not provide lock-free operations and resort
+has to operate on external objects. Thus, `boost::atomic_ref<rgb>` will not provide lock-free operations and will resort
 to locking.
 
 In general, it is advised to use `boost::atomic` wherever possible, as it is easier to use and is more efficient. Use
