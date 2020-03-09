@@ -22,6 +22,7 @@
 #include <boost/static_assert.hpp>
 #include <boost/memory_order.hpp>
 #include <boost/atomic/detail/config.hpp>
+#include <boost/atomic/detail/intptr.hpp>
 #include <boost/atomic/detail/classify.hpp>
 #include <boost/atomic/detail/storage_traits.hpp>
 #include <boost/atomic/detail/bitwise_cast.hpp>
@@ -905,11 +906,7 @@ private:
 
     // uintptr_storage_type is the minimal storage type that is enough to store pointers. The actual storage_type theoretically may be larger,
     // if the target architecture only supports atomic ops on larger data. Typically, though, they are the same type.
-#if defined(BOOST_HAS_INTPTR_T)
-    typedef uintptr_t uintptr_storage_type;
-#else
-    typedef typename atomics::detail::storage_traits< sizeof(value_type) >::type uintptr_storage_type;
-#endif
+    typedef atomics::detail::uintptr_t uintptr_storage_type;
 
 public:
     BOOST_DEFAULTED_FUNCTION(base_atomic() BOOST_ATOMIC_DETAIL_DEF_NOEXCEPT_DECL, BOOST_ATOMIC_DETAIL_DEF_NOEXCEPT_IMPL {})
@@ -1213,8 +1210,8 @@ typedef atomic< std::size_t > atomic_size_t;
 typedef atomic< std::ptrdiff_t > atomic_ptrdiff_t;
 
 #if defined(BOOST_HAS_INTPTR_T)
-typedef atomic< intptr_t > atomic_intptr_t;
-typedef atomic< uintptr_t > atomic_uintptr_t;
+typedef atomic< boost::intptr_t > atomic_intptr_t;
+typedef atomic< boost::uintptr_t > atomic_uintptr_t;
 #endif
 
 } // namespace atomics

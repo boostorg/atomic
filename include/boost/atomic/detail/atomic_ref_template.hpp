@@ -20,6 +20,7 @@
 #include <boost/static_assert.hpp>
 #include <boost/memory_order.hpp>
 #include <boost/atomic/detail/config.hpp>
+#include <boost/atomic/detail/intptr.hpp>
 #include <boost/atomic/detail/classify.hpp>
 #include <boost/atomic/detail/addressof.hpp>
 #include <boost/atomic/detail/storage_traits.hpp>
@@ -886,11 +887,7 @@ private:
 
     // uintptr_storage_type is the minimal storage type that is enough to store pointers. The actual storage_type theoretically may be larger,
     // if the target architecture only supports atomic ops on larger data. Typically, though, they are the same type.
-#if defined(BOOST_HAS_INTPTR_T)
-    typedef uintptr_t uintptr_storage_type;
-#else
-    typedef typename atomics::detail::storage_traits< sizeof(value_type) >::type uintptr_storage_type;
-#endif
+    typedef atomics::detail::uintptr_t uintptr_storage_type;
 
 public:
     BOOST_DEFAULTED_FUNCTION(base_atomic_ref(base_atomic_ref const& that) BOOST_ATOMIC_DETAIL_DEF_NOEXCEPT_DECL, BOOST_ATOMIC_DETAIL_DEF_NOEXCEPT_IMPL : base_type(static_cast< base_type const& >(that)) {})
@@ -1084,8 +1081,8 @@ public:
     BOOST_DEFAULTED_FUNCTION(atomic_ref(atomic_ref const& that) BOOST_ATOMIC_DETAIL_DEF_NOEXCEPT_DECL, BOOST_ATOMIC_DETAIL_DEF_NOEXCEPT_IMPL : base_type(static_cast< base_type const& >(that)) {})
     BOOST_FORCEINLINE explicit atomic_ref(value_type& v) BOOST_NOEXCEPT : base_type(v)
     {
-        // Check that referred object alignment satisfies required alignment
-        BOOST_ASSERT((((std::size_t)this->m_value) & (base_type::required_alignment - 1u)) == 0u);
+        // Check that referenced object alignment satisfies required alignment
+        BOOST_ASSERT((((atomics::detail::uintptr_t)this->m_value) & (base_type::required_alignment - 1u)) == 0u);
     }
 
     BOOST_FORCEINLINE value_type operator= (value_arg_type v) BOOST_NOEXCEPT

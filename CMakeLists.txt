@@ -6,7 +6,7 @@
 cmake_minimum_required(VERSION 3.5...3.16)
 project(boost_atomic VERSION "${BOOST_SUPERPROJECT_VERSION}" LANGUAGES CXX)
 
-add_library(boost_atomic src/lockpool.cpp)
+add_library(boost_atomic src/lock_pool.cpp)
 add_library(Boost::atomic ALIAS boost_atomic)
 
 target_include_directories(boost_atomic PUBLIC include)

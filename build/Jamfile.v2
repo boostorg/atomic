@@ -25,7 +25,7 @@ project boost/atomic
     ;
 
 alias atomic_sources
-   : lockpool.cpp
+   : lock_pool.cpp
    ;
 
 explicit atomic_sources ;
