@@ -41,11 +41,15 @@ void verify_lock_free(const char* type_name, int lock_free_macro_val, int lock_f
 
     std::cout << "atomic<" << type_name << "> is " << lock_free_level[lock_free_macro_val] << " lock free\n";
 
-    aligned_object<T, boost::atomic_ref<T>::required_alignment> object;
-    boost::atomic_ref<T> ref(object.get());
+    // atomic<T> may use larger storage than sizeof(T) to achieve lock-free property. In this case atomic_ref<T> may not be lock-free.
+    if (sizeof(boost::atomic<T>) == sizeof(T))
+    {
+        aligned_object<T, boost::atomic_ref<T>::required_alignment> object;
+        boost::atomic_ref<T> ref(object.get());
 
-    BOOST_TEST_EQ(ref.is_lock_free(), value.is_lock_free());
-    BOOST_TEST_EQ(boost::atomic_ref<T>::is_always_lock_free, boost::atomic<T>::is_always_lock_free);
+        BOOST_TEST_EQ(ref.is_lock_free(), value.is_lock_free());
+        BOOST_TEST_EQ(boost::atomic_ref<T>::is_always_lock_free, boost::atomic<T>::is_always_lock_free);
+    }
 }
 
 #if (defined(__GNUC__) || defined(__SUNPRO_CC)) && defined(__i386__)
