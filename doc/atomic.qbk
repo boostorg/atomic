@@ -1090,7 +1090,7 @@ macro from [*Boost.Config] may be useful.
 alignment will satisfy the `atomic_ref<T>::required_alignment` constraint. There are real world cases when the
 default alignment is below the required alignment for atomic references. For example, on 32-bit x86 targets it
 is common that 64-bit integers and floating point numbers have alignment of 4, which is not enough for `atomic_ref`.
-Users must always explicitly ensure the objects are aligned to `atomic_ref<T>::required_alignment`.]
+Users must always explicitly ensure the referenced objects are aligned to `atomic_ref<T>::required_alignment`.]
 
 Next, some types may have padding bits, which are the bits of object representation that do not contribute to
 the object value. Typically, padding bits are used for alignment purposes. One notable example is `long double`
