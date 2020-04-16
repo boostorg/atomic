@@ -87,6 +87,7 @@
 // IBM XL C++ Compiler has to be checked before GCC/Clang as it pretends to be one but does not support __atomic* intrinsics.
 // It does support GCC inline assembler though.
 #if !(defined(__ibmxl__) || defined(__IBMCPP__)) &&\
+    !defined(BOOST_EMBTC) &&\
     ((defined(__GNUC__) && ((__GNUC__ * 100 + __GNUC_MINOR__) >= 407)) ||\
         (defined(BOOST_CLANG) && ((__clang_major__ * 100 + __clang_minor__) >= 302))) &&\
     (\

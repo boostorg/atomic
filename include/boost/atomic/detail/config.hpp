@@ -36,12 +36,12 @@
 #define BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA
 #endif
 
-#if (defined(__i386__) || defined(__x86_64__)) && (defined(__clang__) || (defined(BOOST_GCC) && (BOOST_GCC+0) < 40500) || defined(__SUNPRO_CC))
+#if (defined(__i386__) || defined(__x86_64__)) && (defined(__clang__) && !defined(__CODEGEARC__) || (defined(BOOST_GCC) && (BOOST_GCC+0) < 40500) || defined(__SUNPRO_CC))
 // This macro indicates that the compiler does not support allocating eax:edx or rax:rdx register pairs ("A") in asm blocks
 #define BOOST_ATOMIC_DETAIL_X86_NO_ASM_AX_DX_PAIRS
 #endif
 
-#if defined(__i386__) && (defined(__PIC__) || defined(__PIE__)) && !(defined(__clang__) || (defined(BOOST_GCC) && (BOOST_GCC+0) >= 50100))
+#if defined(__i386__) && (defined(__PIC__) || defined(__PIE__)) && !(defined(__clang__) && !defined(__CODEGEARC__) || (defined(BOOST_GCC) && (BOOST_GCC+0) >= 50100))
 // This macro indicates that asm blocks should preserve ebx value unchanged. Some compilers are able to maintain ebx themselves
 // around the asm blocks. For those compilers we don't need to save/restore ebx in asm blocks.
 #define BOOST_ATOMIC_DETAIL_X86_ASM_PRESERVE_EBX
@@ -92,8 +92,8 @@
 #endif
 
 #if defined(BOOST_INTEL) || (defined(BOOST_GCC) && (BOOST_GCC+0) < 40700) ||\
-    (defined(BOOST_CLANG) && !defined(__apple_build_version__) && ((__clang_major__+0) * 100 + (__clang_minor__+0)) < 302) ||\
-    (defined(__clang__) && defined(__apple_build_version__) && ((__clang_major__+0) * 100 + (__clang_minor__+0)) < 402)
+    (defined(BOOST_CLANG) && !defined(BOOST_EMBTC) && !defined(__apple_build_version__) && ((__clang_major__+0) * 100 + (__clang_minor__+0)) < 302) ||\
+    (defined(__clang__) && !defined(__CODEGEARC__) && defined(__apple_build_version__) && ((__clang_major__+0) * 100 + (__clang_minor__+0)) < 402)
 // Intel compiler (at least 18.0 update 1) breaks if noexcept specification is used in defaulted function declarations:
 // error: the default constructor of "boost::atomics::atomic<T>" cannot be referenced -- it is a deleted function
 // GCC 4.6 doesn't seem to support that either. Clang 3.1 deduces wrong noexcept for the defaulted function and fails as well.
