@@ -20,10 +20,8 @@
 #include <boost/cstdint.hpp>
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/string_ops.hpp>
+#include <boost/atomic/detail/aligned_variable.hpp>
 #include <boost/atomic/detail/type_traits/alignment_of.hpp>
-#if defined(BOOST_ATOMIC_DETAIL_NO_CXX11_ALIGNAS)
-#include <boost/type_traits/type_with_alignment.hpp>
-#endif
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once
@@ -42,15 +40,7 @@ BOOST_FORCEINLINE void non_atomic_load(T const volatile& from, T& to) BOOST_NOEX
 template< std::size_t Size, std::size_t Alignment = 1u >
 struct BOOST_ATOMIC_DETAIL_MAY_ALIAS buffer_storage
 {
-#if !defined(BOOST_ATOMIC_DETAIL_NO_CXX11_ALIGNAS)
-    alignas(Alignment) unsigned char data[Size];
-#else
-    union
-    {
-        unsigned char data[Size];
-        typename boost::type_with_alignment< Alignment >::type aligner;
-    };
-#endif
+    BOOST_ATOMIC_DETAIL_ALIGNED_VAR_TPL(Alignment, unsigned char, data[Size]);
 
     BOOST_FORCEINLINE bool operator! () const BOOST_NOEXCEPT
     {

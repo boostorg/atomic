@@ -18,9 +18,7 @@
 #include <boost/memory_order.hpp>
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/operations.hpp>
-#if defined(BOOST_ATOMIC_DETAIL_NO_CXX11_ALIGNAS)
-#include <boost/type_traits/type_with_alignment.hpp>
-#endif
+#include <boost/atomic/detail/aligned_variable.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once
@@ -45,16 +43,7 @@ struct atomic_flag
     typedef atomics::detail::operations< 1u, false > operations;
     typedef operations::storage_type storage_type;
 
-#if !defined(BOOST_ATOMIC_DETAIL_NO_CXX11_ALIGNAS)
-    alignas(operations::storage_alignment) storage_type m_storage;
-#else
-    // Note: Some compilers cannot use constant expressions in alignment attributes, so we have to use the union trick
-    union
-    {
-        storage_type m_storage;
-        boost::type_with_alignment< operations::storage_alignment >::type m_aligner;
-    };
-#endif
+    BOOST_ATOMIC_DETAIL_ALIGNED_VAR(operations::storage_alignment, storage_type, m_storage);
 
     BOOST_FORCEINLINE BOOST_ATOMIC_DETAIL_CONSTEXPR_UNION_INIT atomic_flag() BOOST_NOEXCEPT : m_storage(0u)
     {

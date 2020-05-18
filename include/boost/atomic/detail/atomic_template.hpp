@@ -30,6 +30,7 @@
 #include <boost/atomic/detail/operations.hpp>
 #include <boost/atomic/detail/extra_operations.hpp>
 #include <boost/atomic/detail/memory_order_utils.hpp>
+#include <boost/atomic/detail/aligned_variable.hpp>
 #include <boost/atomic/detail/type_traits/is_signed.hpp>
 #include <boost/atomic/detail/type_traits/is_trivially_copyable.hpp>
 #include <boost/atomic/detail/type_traits/is_trivially_default_constructible.hpp>
@@ -40,9 +41,6 @@
 #include <boost/atomic/detail/bitwise_fp_cast.hpp>
 #include <boost/atomic/detail/fp_operations.hpp>
 #include <boost/atomic/detail/extra_fp_operations.hpp>
-#endif
-#if defined(BOOST_ATOMIC_DETAIL_NO_CXX11_ALIGNAS)
-#include <boost/type_traits/type_with_alignment.hpp>
 #endif
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
@@ -79,16 +77,7 @@ protected:
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_alignment = atomics::detail::alignment_of< value_type >::value <= operations::storage_alignment ? operations::storage_alignment : atomics::detail::alignment_of< value_type >::value;
 
 protected:
-#if !defined(BOOST_ATOMIC_DETAIL_NO_CXX11_ALIGNAS)
-    alignas(storage_alignment) storage_type m_storage;
-#else
-    // Note: Some compilers cannot use constant expressions in alignment attributes, so we have to use the union trick
-    union
-    {
-        storage_type m_storage;
-        typename boost::type_with_alignment< storage_alignment >::type m_aligner;
-    };
-#endif
+    BOOST_ATOMIC_DETAIL_ALIGNED_VAR_TPL(storage_alignment, storage_type, m_storage);
 
 public:
     BOOST_DEFAULTED_FUNCTION(base_atomic_common() BOOST_ATOMIC_DETAIL_DEF_NOEXCEPT_DECL, BOOST_ATOMIC_DETAIL_DEF_NOEXCEPT_IMPL {})
