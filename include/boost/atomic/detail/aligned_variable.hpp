@@ -26,27 +26,27 @@
 
 #if !defined(BOOST_ATOMIC_DETAIL_NO_CXX11_ALIGNAS)
 
-#define BOOST_ATOMIC_DETAIL_ALIGNED_VAR(alignment, type, name) \
-    alignas(alignment) type name
+#define BOOST_ATOMIC_DETAIL_ALIGNED_VAR(var_alignment, var_type, var_name) \
+    alignas(var_alignment) var_type var_name
 
-#define BOOST_ATOMIC_DETAIL_ALIGNED_VAR_TPL(alignment, type, name) \
-    alignas(alignment) type name
+#define BOOST_ATOMIC_DETAIL_ALIGNED_VAR_TPL(var_alignment, var_type, var_name) \
+    alignas(var_alignment) var_type var_name
 
 #else // !defined(BOOST_ATOMIC_DETAIL_NO_CXX11_ALIGNAS)
 
 // Note: Some compilers cannot use constant expressions in alignment attributes or alignas, so we have to use the union trick
-#define BOOST_ATOMIC_DETAIL_ALIGNED_VAR(alignment, type, name) \
+#define BOOST_ATOMIC_DETAIL_ALIGNED_VAR(var_alignment, var_type, var_name) \
     union \
     { \
-        type name; \
-        boost::type_with_alignment< alignment >::type BOOST_JOIN(_aligner_for_, name); \
+        var_type var_name; \
+        boost::type_with_alignment< var_alignment >::type BOOST_JOIN(_aligner_for_, var_name); \
     }
 
-#define BOOST_ATOMIC_DETAIL_ALIGNED_VAR_TPL(alignment, type, name) \
+#define BOOST_ATOMIC_DETAIL_ALIGNED_VAR_TPL(var_alignment, var_type, var_name) \
     union \
     { \
-        type name; \
-        typename boost::type_with_alignment< alignment >::type BOOST_JOIN(_aligner_for_, name); \
+        var_type var_name; \
+        typename boost::type_with_alignment< var_alignment >::type BOOST_JOIN(_aligner_for_, var_name); \
     }
 
 #endif // !defined(BOOST_ATOMIC_DETAIL_NO_CXX11_ALIGNAS)
