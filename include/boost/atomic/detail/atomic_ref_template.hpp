@@ -26,6 +26,7 @@
 #include <boost/atomic/detail/storage_traits.hpp>
 #include <boost/atomic/detail/bitwise_cast.hpp>
 #include <boost/atomic/detail/operations.hpp>
+#include <boost/atomic/detail/wait_operations.hpp>
 #include <boost/atomic/detail/extra_operations.hpp>
 #include <boost/atomic/detail/memory_order_utils.hpp>
 #include <boost/atomic/detail/type_traits/is_signed.hpp>
@@ -81,6 +82,7 @@ protected:
         atomics::detail::operations< sizeof(value_type), IsSigned >,
         atomics::detail::emulated_operations< sizeof(value_type), atomics::detail::alignment_of< value_type >::value, IsSigned >
     >::type operations;
+    typedef atomics::detail::wait_operations< operations, sizeof(value_type) > wait_operations;
     typedef typename atomics::detail::conditional< sizeof(value_type) <= sizeof(void*), value_type, value_type const& >::type value_arg_type;
     typedef typename operations::storage_type storage_type;
     BOOST_STATIC_ASSERT_MSG(sizeof(storage_type) == sizeof(value_type), "Boost.Atomic internal error: atomic_ref storage size doesn't match the value size");
@@ -97,10 +99,31 @@ public:
     {
     }
 
+    BOOST_FORCEINLINE value_type& value() const BOOST_NOEXCEPT { return *m_value; }
+
 protected:
     BOOST_FORCEINLINE storage_type& storage() const BOOST_NOEXCEPT
     {
         return *reinterpret_cast< storage_type* >(m_value);
+    }
+
+public:
+    BOOST_FORCEINLINE bool is_lock_free() const BOOST_NOEXCEPT
+    {
+        // C++20 specifies that is_lock_free returns true if operations on *all* objects of the atomic_ref<T> type are lock-free.
+        // This does not allow to return true or false depending on the referenced object runtime alignment. Currently, Boost.Atomic
+        // follows this specification, although we may support runtime alignment checking in the future.
+        return is_always_lock_free;
+    }
+
+    BOOST_FORCEINLINE void notify_one() const BOOST_NOEXCEPT
+    {
+        wait_operations::notify_one(this->storage());
+    }
+
+    BOOST_FORCEINLINE void notify_all() const BOOST_NOEXCEPT
+    {
+        wait_operations::notify_all(this->storage());
     }
 };
 
@@ -128,6 +151,7 @@ public:
 
 protected:
     typedef typename base_type::operations operations;
+    typedef typename base_type::wait_operations wait_operations;
     typedef typename base_type::storage_type storage_type;
     typedef typename base_type::value_arg_type value_arg_type;
 
@@ -190,6 +214,14 @@ public:
         return compare_exchange_weak(expected, desired, order, atomics::detail::deduce_failure_order(order));
     }
 
+    BOOST_FORCEINLINE value_type wait(value_arg_type old_val, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
+    {
+        BOOST_ASSERT(order != memory_order_release);
+        BOOST_ASSERT(order != memory_order_acq_rel);
+
+        return atomics::detail::bitwise_cast< value_type >(wait_operations::wait(this->storage(), atomics::detail::bitwise_cast< storage_type >(old_val), order));
+    }
+
     BOOST_DELETED_FUNCTION(base_atomic_ref& operator=(base_atomic_ref const&))
 
 private:
@@ -243,6 +275,7 @@ public:
 
 protected:
     typedef typename base_type::operations operations;
+    typedef typename base_type::wait_operations wait_operations;
     typedef atomics::detail::extra_operations< operations, operations::storage_size, operations::is_signed > extra_operations;
     typedef typename base_type::storage_type storage_type;
     typedef value_type value_arg_type;
@@ -512,6 +545,14 @@ public:
         return bitwise_xor(v);
     }
 
+    BOOST_FORCEINLINE value_type wait(value_arg_type old_val, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
+    {
+        BOOST_ASSERT(order != memory_order_release);
+        BOOST_ASSERT(order != memory_order_acq_rel);
+
+        return atomics::detail::bitwise_cast< value_type >(wait_operations::wait(this->storage(), static_cast< storage_type >(old_val), order));
+    }
+
     BOOST_DELETED_FUNCTION(base_atomic_ref& operator=(base_atomic_ref const&))
 
 private:
@@ -563,6 +604,7 @@ public:
 
 protected:
     typedef base_type::operations operations;
+    typedef base_type::wait_operations wait_operations;
     typedef atomics::detail::extra_operations< operations, operations::storage_size, operations::is_signed > extra_operations;
     typedef base_type::storage_type storage_type;
     typedef value_type value_arg_type;
@@ -627,6 +669,14 @@ public:
         return compare_exchange_weak(expected, desired, order, atomics::detail::deduce_failure_order(order));
     }
 
+    BOOST_FORCEINLINE value_type wait(value_arg_type old_val, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
+    {
+        BOOST_ASSERT(order != memory_order_release);
+        BOOST_ASSERT(order != memory_order_acq_rel);
+
+        return !!wait_operations::wait(this->storage(), static_cast< storage_type >(old_val), order);
+    }
+
     BOOST_DELETED_FUNCTION(base_atomic_ref& operator=(base_atomic_ref const&))
 
 private:
@@ -682,6 +732,7 @@ public:
 
 protected:
     typedef typename base_type::operations operations;
+    typedef typename base_type::wait_operations wait_operations;
     typedef atomics::detail::extra_operations< operations, operations::storage_size, operations::is_signed > extra_operations;
     typedef atomics::detail::fp_operations< extra_operations, value_type, operations::storage_size > fp_operations;
     typedef atomics::detail::extra_fp_operations< fp_operations, value_type, operations::storage_size > extra_fp_operations;
@@ -806,6 +857,14 @@ public:
         return sub(v);
     }
 
+    BOOST_FORCEINLINE value_type wait(value_arg_type old_val, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
+    {
+        BOOST_ASSERT(order != memory_order_release);
+        BOOST_ASSERT(order != memory_order_acq_rel);
+
+        return atomics::detail::bitwise_fp_cast< value_type >(wait_operations::wait(this->storage(), atomics::detail::bitwise_fp_cast< storage_type >(old_val), order));
+    }
+
     BOOST_DELETED_FUNCTION(base_atomic_ref& operator=(base_atomic_ref const&))
 
 private:
@@ -878,6 +937,7 @@ public:
 
 protected:
     typedef typename base_type::operations operations;
+    typedef typename base_type::wait_operations wait_operations;
     typedef atomics::detail::extra_operations< operations, operations::storage_size, operations::is_signed > extra_operations;
     typedef typename base_type::storage_type storage_type;
     typedef value_type value_arg_type;
@@ -1014,6 +1074,14 @@ public:
         return sub(v);
     }
 
+    BOOST_FORCEINLINE value_type wait(value_arg_type old_val, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
+    {
+        BOOST_ASSERT(order != memory_order_release);
+        BOOST_ASSERT(order != memory_order_acq_rel);
+
+        return atomics::detail::bitwise_cast< value_type >(wait_operations::wait(this->storage(), atomics::detail::bitwise_cast< storage_type >(old_val), order));
+    }
+
     BOOST_DELETED_FUNCTION(base_atomic_ref& operator=(base_atomic_ref const&))
 
 private:
@@ -1091,16 +1159,6 @@ public:
     {
         return this->load();
     }
-
-    BOOST_FORCEINLINE bool is_lock_free() const BOOST_NOEXCEPT
-    {
-        // C++20 specifies that is_lock_free returns true if operations on *all* objects of the atomic_ref<T> type are lock-free.
-        // This does not allow to return true or false depending on the referenced object runtime alignment. Currently, Boost.Atomic
-        // follows this specification, although we may support runtime alignment checking in the future.
-        return base_type::is_always_lock_free;
-    }
-
-    BOOST_FORCEINLINE value_type& value() const BOOST_NOEXCEPT { return *this->m_value; }
 
     BOOST_DELETED_FUNCTION(atomic_ref& operator= (atomic_ref const&))
 };

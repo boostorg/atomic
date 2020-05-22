@@ -4,7 +4,7 @@
  * http://www.boost.org/LICENSE_1_0.txt)
  *
  * Copyright (c) 2009 Helge Bahmann
- * Copyright (c) 2014 Andrey Semashev
+ * Copyright (c) 2014-2018, 2020 Andrey Semashev
  */
 /*!
  * \file   atomic/detail/platform.hpp
@@ -12,8 +12,8 @@
  * This header defines macros for the target platform detection
  */
 
-#ifndef BOOST_ATOMIC_DETAIL_PLATFORM_HPP_INCLUDED_
-#define BOOST_ATOMIC_DETAIL_PLATFORM_HPP_INCLUDED_
+#ifndef BOOST_ATOMIC_DETAIL_COMPILER_CONFIG_HPP_INCLUDED_
+#define BOOST_ATOMIC_DETAIL_COMPILER_CONFIG_HPP_INCLUDED_
 
 #include <boost/atomic/detail/config.hpp>
 
@@ -51,34 +51,34 @@
 
 #if defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__))
 
-#define BOOST_ATOMIC_DETAIL_PLATFORM gcc_x86
+#define BOOST_ATOMIC_DETAIL_COMPILER_CONFIG gcc_x86
 #define BOOST_ATOMIC_DETAIL_EXTRA_BACKEND gcc_x86
 
 #elif defined(__GNUC__) && (defined(__POWERPC__) || defined(__PPC__))
 
-#define BOOST_ATOMIC_DETAIL_PLATFORM gcc_ppc
+#define BOOST_ATOMIC_DETAIL_COMPILER_CONFIG gcc_ppc
 #define BOOST_ATOMIC_DETAIL_EXTRA_BACKEND gcc_ppc
 
 #elif defined(__GNUC__) && defined(__arm__) && (BOOST_ATOMIC_DETAIL_ARM_ARCH+0) >= 6
 
-#define BOOST_ATOMIC_DETAIL_PLATFORM gcc_arm
+#define BOOST_ATOMIC_DETAIL_COMPILER_CONFIG gcc_arm
 #define BOOST_ATOMIC_DETAIL_EXTRA_BACKEND gcc_arm
 
 #elif (defined(__GNUC__) || defined(__SUNPRO_CC)) && (defined(__sparcv8plus) || defined(__sparc_v9__))
 
-#define BOOST_ATOMIC_DETAIL_PLATFORM gcc_sparc
+#define BOOST_ATOMIC_DETAIL_COMPILER_CONFIG gcc_sparc
 
 #elif defined(__GNUC__) && defined(__alpha__)
 
-#define BOOST_ATOMIC_DETAIL_PLATFORM gcc_alpha
+#define BOOST_ATOMIC_DETAIL_COMPILER_CONFIG gcc_alpha
 
 #elif defined(_MSC_VER) && (defined(_M_IX86) || defined(_M_X64))
 
-#define BOOST_ATOMIC_DETAIL_PLATFORM msvc_x86
+#define BOOST_ATOMIC_DETAIL_COMPILER_CONFIG msvc_x86
 
 #elif defined(_MSC_VER) && _MSC_VER >= 1700 && (defined(_M_ARM) || defined(_M_ARM64))
 
-#define BOOST_ATOMIC_DETAIL_PLATFORM msvc_arm
+#define BOOST_ATOMIC_DETAIL_COMPILER_CONFIG msvc_arm
 
 #endif
 
@@ -98,11 +98,11 @@
         (__GCC_ATOMIC_LLONG_LOCK_FREE + 0) == 2\
     )
 
-#define BOOST_ATOMIC_DETAIL_BACKEND gcc_atomic
+#define BOOST_ATOMIC_DETAIL_CORE_BACKEND gcc_atomic
 
-#elif defined(BOOST_ATOMIC_DETAIL_PLATFORM)
+#elif defined(BOOST_ATOMIC_DETAIL_COMPILER_CONFIG)
 
-#define BOOST_ATOMIC_DETAIL_BACKEND BOOST_ATOMIC_DETAIL_PLATFORM
+#define BOOST_ATOMIC_DETAIL_CORE_BACKEND BOOST_ATOMIC_DETAIL_COMPILER_CONFIG
 
 #elif defined(__GNUC__) && ((__GNUC__ * 100 + __GNUC_MINOR__) >= 401) &&\
     (\
@@ -113,30 +113,30 @@
         defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_16)\
     )
 
-#define BOOST_ATOMIC_DETAIL_BACKEND gcc_sync
+#define BOOST_ATOMIC_DETAIL_CORE_BACKEND gcc_sync
 
 #endif
 
 // OS-based backends
 
-#if !defined(BOOST_ATOMIC_DETAIL_BACKEND)
+#if !defined(BOOST_ATOMIC_DETAIL_CORE_BACKEND)
 
 #if defined(__linux__) && defined(__arm__)
 
-#define BOOST_ATOMIC_DETAIL_BACKEND linux_arm
+#define BOOST_ATOMIC_DETAIL_CORE_BACKEND linux_arm
 
 #elif defined(BOOST_WINDOWS) || defined(_WIN32_CE)
 
-#define BOOST_ATOMIC_DETAIL_BACKEND windows
+#define BOOST_ATOMIC_DETAIL_CORE_BACKEND windows
 
 #endif
 
-#endif // !defined(BOOST_ATOMIC_DETAIL_BACKEND)
+#endif // !defined(BOOST_ATOMIC_DETAIL_CORE_BACKEND)
 
 #endif // !defined(BOOST_ATOMIC_FORCE_FALLBACK)
 
-#if !defined(BOOST_ATOMIC_DETAIL_BACKEND)
-#define BOOST_ATOMIC_DETAIL_BACKEND emulated
+#if !defined(BOOST_ATOMIC_DETAIL_CORE_BACKEND)
+#define BOOST_ATOMIC_DETAIL_CORE_BACKEND emulated
 #define BOOST_ATOMIC_EMULATED
 #endif
 
@@ -155,9 +155,15 @@
 #define BOOST_ATOMIC_DETAIL_EXTRA_FP_BACKEND_GENERIC
 #endif
 
-#define BOOST_ATOMIC_DETAIL_BACKEND_HEADER(prefix) <BOOST_JOIN(prefix, BOOST_ATOMIC_DETAIL_BACKEND).hpp>
+#if !defined(BOOST_ATOMIC_DETAIL_WAIT_BACKEND)
+#define BOOST_ATOMIC_DETAIL_WAIT_BACKEND generic
+#define BOOST_ATOMIC_DETAIL_WAIT_BACKEND_GENERIC
+#endif
+
+#define BOOST_ATOMIC_DETAIL_CORE_BACKEND_HEADER(prefix) <BOOST_JOIN(prefix, BOOST_ATOMIC_DETAIL_CORE_BACKEND).hpp>
 #define BOOST_ATOMIC_DETAIL_FP_BACKEND_HEADER(prefix) <BOOST_JOIN(prefix, BOOST_ATOMIC_DETAIL_FP_BACKEND).hpp>
 #define BOOST_ATOMIC_DETAIL_EXTRA_BACKEND_HEADER(prefix) <BOOST_JOIN(prefix, BOOST_ATOMIC_DETAIL_EXTRA_BACKEND).hpp>
 #define BOOST_ATOMIC_DETAIL_EXTRA_FP_BACKEND_HEADER(prefix) <BOOST_JOIN(prefix, BOOST_ATOMIC_DETAIL_EXTRA_FP_BACKEND).hpp>
+#define BOOST_ATOMIC_DETAIL_WAIT_BACKEND_HEADER(prefix) <BOOST_JOIN(prefix, BOOST_ATOMIC_DETAIL_WAIT_BACKEND).hpp>
 
-#endif // BOOST_ATOMIC_DETAIL_PLATFORM_HPP_INCLUDED_
+#endif // BOOST_ATOMIC_DETAIL_COMPILER_CONFIG_HPP_INCLUDED_

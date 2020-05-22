@@ -25,123 +25,12 @@
 #include <boost/type_traits/make_signed.hpp>
 #include <boost/type_traits/make_unsigned.hpp>
 #include <boost/type_traits/conditional.hpp>
-#include "aligned_object.hpp"
 
-struct test_stream_type
-{
-    typedef std::ios_base& (*ios_base_manip)(std::ios_base&);
-    typedef std::basic_ios< char, std::char_traits< char > >& (*basic_ios_manip)(std::basic_ios< char, std::char_traits< char > >&);
-    typedef std::ostream& (*stream_manip)(std::ostream&);
-
-    template< typename T >
-    test_stream_type const& operator<< (T const& value) const
-    {
-        std::cerr << value;
-        return *this;
-    }
-
-    test_stream_type const& operator<< (ios_base_manip manip) const
-    {
-        std::cerr << manip;
-        return *this;
-    }
-    test_stream_type const& operator<< (basic_ios_manip manip) const
-    {
-        std::cerr << manip;
-        return *this;
-    }
-    test_stream_type const& operator<< (stream_manip manip) const
-    {
-        std::cerr << manip;
-        return *this;
-    }
-
-    // Make sure characters are printed as numbers if tests fail
-    test_stream_type const& operator<< (char value) const
-    {
-        std::cerr << static_cast< int >(value);
-        return *this;
-    }
-    test_stream_type const& operator<< (signed char value) const
-    {
-        std::cerr << static_cast< int >(value);
-        return *this;
-    }
-    test_stream_type const& operator<< (unsigned char value) const
-    {
-        std::cerr << static_cast< unsigned int >(value);
-        return *this;
-    }
-    test_stream_type const& operator<< (short value) const
-    {
-        std::cerr << static_cast< int >(value);
-        return *this;
-    }
-    test_stream_type const& operator<< (unsigned short value) const
-    {
-        std::cerr << static_cast< unsigned int >(value);
-        return *this;
-    }
-
-#if defined(BOOST_HAS_INT128)
-    // Some GCC versions don't provide output operators for __int128
-    test_stream_type const& operator<< (boost::int128_type const& v) const
-    {
-        std::cerr << static_cast< long long >(v);
-        return *this;
-    }
-    test_stream_type const& operator<< (boost::uint128_type const& v) const
-    {
-        std::cerr << static_cast< unsigned long long >(v);
-        return *this;
-    }
-#endif // defined(BOOST_HAS_INT128)
-#if defined(BOOST_HAS_FLOAT128)
-    // libstdc++ does not provide output operators for __float128
-    test_stream_type const& operator<< (boost::float128_type const& v) const
-    {
-        std::cerr << static_cast< double >(v);
-        return *this;
-    }
-#endif // defined(BOOST_HAS_FLOAT128)
-};
-
-const test_stream_type test_stream = {};
-
-#define BOOST_LIGHTWEIGHT_TEST_OSTREAM test_stream
-
-#include <boost/core/lightweight_test.hpp>
-
+#include "lightweight_test_stream.hpp"
 #include "value_with_epsilon.hpp"
+#include "atomic_wrapper.hpp"
 
 const unsigned int max_weak_cas_loops = 1000;
-
-//! Wrapper type for atomic template
-template< typename T >
-struct atomic_wrapper
-{
-    typedef boost::atomic< T > atomic_type;
-    typedef atomic_type& atomic_reference_type;
-
-    atomic_type a;
-
-    BOOST_DEFAULTED_FUNCTION(atomic_wrapper(), {})
-    explicit atomic_wrapper(T const& value) : a(value) {}
-};
-
-//! Wrapper type for atomic_ref template
-template< typename T >
-struct atomic_ref_wrapper
-{
-    typedef boost::atomic_ref< T > atomic_type;
-    typedef atomic_type const& atomic_reference_type;
-
-    aligned_object< T, atomic_type::required_alignment > object;
-    const atomic_type a;
-
-    atomic_ref_wrapper() : a(object.get()) {}
-    explicit atomic_ref_wrapper(T const& value) : object(value), a(object.get()) {}
-};
 
 /* provide helpers that exercise whether the API
 functions of "boost::atomic" provide the correct

@@ -18,6 +18,7 @@
 #include <boost/memory_order.hpp>
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/operations.hpp>
+#include <boost/atomic/detail/wait_operations.hpp>
 #include <boost/atomic/detail/aligned_variable.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
@@ -41,6 +42,7 @@ namespace atomics {
 struct atomic_flag
 {
     typedef atomics::detail::operations< 1u, false > operations;
+    typedef atomics::detail::wait_operations< operations, 1u > wait_operations;
     typedef operations::storage_type storage_type;
 
     BOOST_ATOMIC_DETAIL_ALIGNED_VAR(operations::storage_alignment, storage_type, m_storage);
@@ -67,6 +69,24 @@ struct atomic_flag
         BOOST_ASSERT(order != memory_order_acquire);
         BOOST_ASSERT(order != memory_order_acq_rel);
         operations::clear(m_storage, order);
+    }
+
+    BOOST_FORCEINLINE bool wait(bool old_val, memory_order order = memory_order_seq_cst) const volatile BOOST_NOEXCEPT
+    {
+        BOOST_ASSERT(order != memory_order_release);
+        BOOST_ASSERT(order != memory_order_acq_rel);
+
+        return !!wait_operations::wait(m_storage, static_cast< storage_type >(old_val), order);
+    }
+
+    BOOST_FORCEINLINE void notify_one() volatile BOOST_NOEXCEPT
+    {
+        wait_operations::notify_one(m_storage);
+    }
+
+    BOOST_FORCEINLINE void notify_all() volatile BOOST_NOEXCEPT
+    {
+        wait_operations::notify_all(m_storage);
     }
 
     BOOST_DELETED_FUNCTION(atomic_flag(atomic_flag const&))

@@ -28,6 +28,7 @@
 #include <boost/atomic/detail/bitwise_cast.hpp>
 #include <boost/atomic/detail/integral_conversions.hpp>
 #include <boost/atomic/detail/operations.hpp>
+#include <boost/atomic/detail/wait_operations.hpp>
 #include <boost/atomic/detail/extra_operations.hpp>
 #include <boost/atomic/detail/memory_order_utils.hpp>
 #include <boost/atomic/detail/aligned_variable.hpp>
@@ -70,11 +71,15 @@ public:
 
 protected:
     typedef atomics::detail::operations< storage_size_of< value_type >::value, IsSigned > operations;
+    typedef atomics::detail::wait_operations< operations, storage_size_of< value_type >::value > wait_operations;
     typedef typename atomics::detail::conditional< sizeof(value_type) <= sizeof(void*), value_type, value_type const& >::type value_arg_type;
     typedef typename operations::storage_type storage_type;
 
 protected:
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_alignment = atomics::detail::alignment_of< value_type >::value <= operations::storage_alignment ? operations::storage_alignment : atomics::detail::alignment_of< value_type >::value;
+
+public:
+    static BOOST_CONSTEXPR_OR_CONST bool is_always_lock_free = operations::is_always_lock_free;
 
 protected:
     BOOST_ATOMIC_DETAIL_ALIGNED_VAR_TPL(storage_alignment, storage_type, m_storage);
@@ -95,7 +100,30 @@ protected:
     BOOST_FORCEINLINE storage_type volatile& storage() volatile BOOST_NOEXCEPT { return m_storage; }
     BOOST_FORCEINLINE storage_type const& storage() const BOOST_NOEXCEPT { return m_storage; }
     BOOST_FORCEINLINE storage_type const volatile& storage() const volatile BOOST_NOEXCEPT { return m_storage; }
+
+public:
+    BOOST_FORCEINLINE bool is_lock_free() const volatile BOOST_NOEXCEPT
+    {
+        // C++17 requires all instances of atomic<> return a value consistent with is_always_lock_free here.
+        // Boost.Atomic also enforces the required alignment of the atomic storage, so we can always return is_always_lock_free.
+        return is_always_lock_free;
+    }
+
+    BOOST_FORCEINLINE void notify_one() volatile BOOST_NOEXCEPT
+    {
+        wait_operations::notify_one(this->storage());
+    }
+
+    BOOST_FORCEINLINE void notify_all() volatile BOOST_NOEXCEPT
+    {
+        wait_operations::notify_all(this->storage());
+    }
 };
+
+#if defined(BOOST_NO_CXX17_INLINE_VARIABLES)
+template< typename T, bool IsSigned >
+BOOST_CONSTEXPR_OR_CONST bool base_atomic_common< T, IsSigned >::is_always_lock_free;
+#endif
 
 
 template< typename T, bool IsTriviallyDefaultConstructible = atomics::detail::is_trivially_default_constructible< T >::value >
@@ -156,6 +184,7 @@ public:
 
 protected:
     typedef typename base_type::operations operations;
+    typedef typename base_type::wait_operations wait_operations;
     typedef typename base_type::storage_type storage_type;
     typedef typename base_type::value_arg_type value_arg_type;
 
@@ -218,6 +247,14 @@ public:
         return compare_exchange_weak(expected, desired, order, atomics::detail::deduce_failure_order(order));
     }
 
+    BOOST_FORCEINLINE value_type wait(value_arg_type old_val, memory_order order = memory_order_seq_cst) const volatile BOOST_NOEXCEPT
+    {
+        BOOST_ASSERT(order != memory_order_release);
+        BOOST_ASSERT(order != memory_order_acq_rel);
+
+        return atomics::detail::bitwise_cast< value_type >(wait_operations::wait(this->storage(), atomics::detail::bitwise_cast< storage_type >(old_val), order));
+    }
+
     BOOST_DELETED_FUNCTION(base_atomic(base_atomic const&))
     BOOST_DELETED_FUNCTION(base_atomic& operator=(base_atomic const&))
 
@@ -272,6 +309,7 @@ public:
 
 protected:
     typedef typename base_type::operations operations;
+    typedef typename base_type::wait_operations wait_operations;
     typedef atomics::detail::extra_operations< operations, operations::storage_size, operations::is_signed > extra_operations;
     typedef typename base_type::storage_type storage_type;
     typedef value_type value_arg_type;
@@ -539,6 +577,14 @@ public:
         return bitwise_xor(v);
     }
 
+    BOOST_FORCEINLINE value_type wait(value_type old_val, memory_order order = memory_order_seq_cst) const volatile BOOST_NOEXCEPT
+    {
+        BOOST_ASSERT(order != memory_order_release);
+        BOOST_ASSERT(order != memory_order_acq_rel);
+
+        return atomics::detail::integral_truncate< value_type >(wait_operations::wait(this->storage(), static_cast< storage_type >(old_val), order));
+    }
+
     BOOST_DELETED_FUNCTION(base_atomic(base_atomic const&))
     BOOST_DELETED_FUNCTION(base_atomic& operator=(base_atomic const&))
 
@@ -591,6 +637,7 @@ public:
 
 protected:
     typedef base_type::operations operations;
+    typedef base_type::wait_operations wait_operations;
     typedef base_type::storage_type storage_type;
     typedef value_type value_arg_type;
 
@@ -652,6 +699,14 @@ public:
         return compare_exchange_weak(expected, desired, order, atomics::detail::deduce_failure_order(order));
     }
 
+    BOOST_FORCEINLINE value_type wait(value_type old_val, memory_order order = memory_order_seq_cst) const volatile BOOST_NOEXCEPT
+    {
+        BOOST_ASSERT(order != memory_order_release);
+        BOOST_ASSERT(order != memory_order_acq_rel);
+
+        return !!wait_operations::wait(this->storage(), static_cast< storage_type >(old_val), order);
+    }
+
     BOOST_DELETED_FUNCTION(base_atomic(base_atomic const&))
     BOOST_DELETED_FUNCTION(base_atomic& operator=(base_atomic const&))
 
@@ -708,6 +763,7 @@ public:
 
 protected:
     typedef typename base_type::operations operations;
+    typedef typename base_type::wait_operations wait_operations;
     typedef atomics::detail::extra_operations< operations, operations::storage_size, operations::is_signed > extra_operations;
     typedef atomics::detail::fp_operations< extra_operations, value_type, operations::storage_size > fp_operations;
     typedef atomics::detail::extra_fp_operations< fp_operations, value_type, operations::storage_size > extra_fp_operations;
@@ -830,6 +886,14 @@ public:
         return sub(v);
     }
 
+    BOOST_FORCEINLINE value_type wait(value_arg_type old_val, memory_order order = memory_order_seq_cst) const volatile BOOST_NOEXCEPT
+    {
+        BOOST_ASSERT(order != memory_order_release);
+        BOOST_ASSERT(order != memory_order_acq_rel);
+
+        return atomics::detail::bitwise_fp_cast< value_type >(wait_operations::wait(this->storage(), atomics::detail::bitwise_fp_cast< storage_type >(old_val), order));
+    }
+
     BOOST_DELETED_FUNCTION(base_atomic(base_atomic const&))
     BOOST_DELETED_FUNCTION(base_atomic& operator=(base_atomic const&))
 
@@ -886,6 +950,7 @@ public:
 
 protected:
     typedef typename base_type::operations operations;
+    typedef typename base_type::wait_operations wait_operations;
     typedef atomics::detail::extra_operations< operations, operations::storage_size, operations::is_signed > extra_operations;
     typedef typename base_type::storage_type storage_type;
     typedef value_type value_arg_type;
@@ -1026,6 +1091,14 @@ public:
         return sub(v);
     }
 
+    BOOST_FORCEINLINE value_type wait(value_arg_type old_val, memory_order order = memory_order_seq_cst) const volatile BOOST_NOEXCEPT
+    {
+        BOOST_ASSERT(order != memory_order_release);
+        BOOST_ASSERT(order != memory_order_acq_rel);
+
+        return atomics::detail::bitwise_cast< value_type >(static_cast< uintptr_storage_type >(wait_operations::wait(this->storage(), atomics::detail::bitwise_cast< uintptr_storage_type >(old_val), order)));
+    }
+
     BOOST_DELETED_FUNCTION(base_atomic(base_atomic const&))
     BOOST_DELETED_FUNCTION(base_atomic& operator=(base_atomic const&))
 
@@ -1087,9 +1160,6 @@ public:
 #endif
 
 public:
-    static BOOST_CONSTEXPR_OR_CONST bool is_always_lock_free = base_type::operations::is_always_lock_free;
-
-public:
     BOOST_DEFAULTED_FUNCTION(atomic() BOOST_ATOMIC_DETAIL_DEF_NOEXCEPT_DECL, BOOST_ATOMIC_DETAIL_DEF_NOEXCEPT_IMPL {})
     BOOST_FORCEINLINE BOOST_ATOMIC_DETAIL_CONSTEXPR_UNION_INIT atomic(value_arg_type v) BOOST_NOEXCEPT : base_type(v) {}
 
@@ -1110,12 +1180,6 @@ public:
         return this->load();
     }
 
-    BOOST_FORCEINLINE bool is_lock_free() const volatile BOOST_NOEXCEPT
-    {
-        // C++17 requires all instances of atomic<> return a value consistent with is_always_lock_free here
-        return is_always_lock_free;
-    }
-
     // Deprecated, use value() instead
     BOOST_ATOMIC_DETAIL_STORAGE_DEPRECATED
     BOOST_FORCEINLINE typename base_type::storage_type& storage() BOOST_NOEXCEPT { return base_type::storage(); }
@@ -1130,11 +1194,6 @@ public:
     BOOST_DELETED_FUNCTION(atomic& operator= (atomic const&))
     BOOST_DELETED_FUNCTION(atomic& operator= (atomic const&) volatile)
 };
-
-#if defined(BOOST_NO_CXX17_INLINE_VARIABLES)
-template< typename T >
-BOOST_CONSTEXPR_OR_CONST bool atomic< T >::is_always_lock_free;
-#endif
 
 typedef atomic< char > atomic_char;
 typedef atomic< unsigned char > atomic_uchar;

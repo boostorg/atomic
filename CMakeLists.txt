@@ -17,7 +17,16 @@ target_link_libraries(boost_atomic
     Boost::config
     Boost::static_assert
     Boost::type_traits
+  PRIVATE
+    Boost::predef
 )
+
+if(WIN32)
+  target_link_libraries(boost_atomic
+    PRIVATE
+      Boost::winapi
+  )
+endif()
 
 target_compile_definitions(boost_atomic
   PUBLIC

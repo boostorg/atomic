@@ -13,8 +13,12 @@ add_definitions( -DBOOST_ALL_NO_LIB )
 
 add_subdirectory( ../../../assert ${CMAKE_CURRENT_BINARY_DIR}/libs/assert )
 add_subdirectory( ../../../config ${CMAKE_CURRENT_BINARY_DIR}/libs/config )
+add_subdirectory( ../../../predef ${CMAKE_CURRENT_BINARY_DIR}/libs/predef )
 add_subdirectory( ../../../static_assert ${CMAKE_CURRENT_BINARY_DIR}/libs/static_assert )
 add_subdirectory( ../../../type_traits ${CMAKE_CURRENT_BINARY_DIR}/libs/type_traits )
+if(WIN32)
+  add_subdirectory( ../../../winapi ${CMAKE_CURRENT_BINARY_DIR}/libs/winapi )
+endif()
 
 add_subdirectory( ../.. ${CMAKE_CURRENT_BINARY_DIR}/libs/boost_atomic )
 

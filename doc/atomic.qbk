@@ -345,9 +345,9 @@ on the same or different atomic variables, or use a "stand-alone"
 
 The library contains header-only and compiled parts. The library is
 header-only for lock-free cases but requires a separate binary to
-implement the lock-based emulation. Users are able to detect whether
-linking to the compiled part is required by checking the
-[link atomic.interface.feature_macros feature macros].
+implement the lock-based emulation and waiting and notifying operations
+on some platforms. Users are able to detect whether linking to the compiled
+part is required by checking the [link atomic.interface.feature_macros feature macros].
 
 The following macros affect library behavior:
 
@@ -431,10 +431,11 @@ values to represent memory ordering constraints:
     ]]
     [[`memory_order_consume`] [
       Perform `consume` operation. More relaxed (and
-      on some architectures more efficient) than `memory_order_acquire`
+      on some architectures potentially more efficient) than `memory_order_acquire`
       as it only affects succeeding operations that are
       computationally-dependent on the value retrieved from
-      an atomic variable.
+      an atomic variable. Currently equivalent to `memory_order_acquire`
+      on all supported architectures (see [link atomic.limitations Limitations] section for an explanation).
     ]]
     [[`memory_order_acq_rel`] [Perform both `release` and `acquire` operation]]
     [[`memory_order_seq_cst`] [
@@ -488,9 +489,23 @@ following operations:
       [`void clear(memory_order order)`]
       [Sets the atomic flag to the clear state.]
     ]
+    [
+      [`bool wait(bool old_val, memory_order order)`]
+      [Potentially blocks the calling thread until unblocked by a notifying operation and `test(order)` returns value other than `old_val`. Returns the result of `test(order)`.]
+    ]
+    [
+      [`void notify_one()`]
+      [Unblocks at least one thread blocked in a waiting operation on this atomic object.]
+    ]
+    [
+      [`void notify_all()`]
+      [Unblocks all threads blocked in waiting operations on this atomic object.]
+    ]
 ]
 
 `order` always has `memory_order_seq_cst` as default parameter.
+
+Waiting and notifying operations are described in detail in [link atomic.interface.interface_wait_notify_ops this] section.
 
 Note that the default constructor `atomic_flag()` is unlike `std::atomic_flag`, which
 leaves the default-constructed object uninitialized. This potentially requires dynamic
@@ -561,7 +576,7 @@ All atomic objects support the following operations and properties:
     ]
     [
       [`bool is_lock_free()`]
-      [Checks if the atomic object is lock-free; the returned value is consistent with the `is_always_lock_free` static constant, see below]
+      [Checks if the atomic object is lock-free; the returned value is consistent with the `is_always_lock_free` static constant, see below.]
     ]
     [
       [`T load(memory_order order)`]
@@ -602,12 +617,26 @@ All atomic objects support the following operations and properties:
       previous value back in `expected`.]
     ]
     [
+      [`T wait(T old_val, memory_order order)`]
+      [Potentially blocks the calling thread until unblocked by a notifying operation and `load(order)` returns value other than `old_val`. Returns the result of `load(order)`.]
+    ]
+    [
+      [`void notify_one()`]
+      [Unblocks at least one thread blocked in a waiting operation on this atomic object.]
+    ]
+    [
+      [`void notify_all()`]
+      [Unblocks all threads blocked in waiting operations on this atomic object.]
+    ]
+    [
       [`static constexpr bool is_always_lock_free`]
       [This static boolean constant indicates if any atomic object of this type is lock-free]
     ]
 ]
 
 `order` always has `memory_order_seq_cst` as default parameter.
+
+Waiting and notifying operations are described in detail in [link atomic.interface.interface_wait_notify_ops this] section.
 
 The `compare_exchange_weak`/`compare_exchange_strong` variants
 taking four parameters differ from the three parameter variants
@@ -1006,7 +1035,7 @@ and only refers to an external object of type [^['T]].
 There are certain requirements on the objects compatible with `boost::atomic_ref`:
 
 * The referenced object lifetime must not end before the last `boost::atomic_ref`
-  referring to the object is destroyed.
+  referencing the object is destroyed.
 * The referenced object must have alignment not less than indicated by the
   [^boost::atomic_ref<['T]>::required_alignment] constant. That constant may be larger
   than the natural alignment of type [^['T]]. In [*Boost.Atomic], `required_alignment` indicates
@@ -1128,6 +1157,35 @@ In general, it is advised to use `boost::atomic` wherever possible, as it is eas
 
 [endsect]
 
+[section:interface_wait_notify_ops Waiting and notifying operations]
+
+`boost::atomic_flag`, [^boost::atomic<['T]>] and [^boost::atomic_ref<['T]>] support ['waiting] and ['notifying] operations that were introduced in C++20. Waiting operations have the following forms:
+
+* [^['T] wait(['T] old_val, memory_order order)] (where ['T] is `bool` for `boost::atomic_flag`)
+
+Here, `order` must not be `memory_order_release` or `memory_order_acq_rel`. Note that unlike C++20, the `wait` operation returns ['T] instead of `void`. This is a [*Boost.Atomic] extension.
+
+The waiting operation performs the following steps repeatedly:
+
+* Loads the current value `new_val` of the atomic object using the memory ordering constraint `order`.
+* If the `new_val` representation is different from `old_val` (i.e. when compared as if by `memcmp`), returns `new_val`.
+* Blocks the calling thread until unblocked by a notifying operation or spuriously.
+
+Note that a waiting operation is allowed to return spuriously, i.e. without a corresponding notifying operation. It is also allowed to ['not] return if the atomic object value is different from `old_val` only momentarily (this is known as [@https://en.wikipedia.org/wiki/ABA_problem ABA problem]).
+
+Notifying operations have the following forms:
+
+* `void notify_one()`
+* `void notify_all()`
+
+The `notify_one` operation unblocks at least one thread blocked in the waiting operation on the same atomic object, and `notify_all` unblocks all such threads. Notifying operations do not enforce memory ordering and should normally be preceeded with a store operation or a fence with the appropriate memory ordering constraint.
+
+Waiting and notifying operations require special support from the operating system, which may not be universally available. Even for atomic objects that support lock-free operations (as indicated by the `is_always_lock_free` property or the corresponding [link atomic.interface.feature_macros macro]), the waiting and notifying operations may involve locking and require linking with [*Boost.Atomic] compiled library.
+
+Waiting and notifying operations are not address-free, meaning that the implementation may use process-local state and process-local addresses of the atomic objects to implement the operations. In particular, this means these operations cannot be used for communication between processes (when the atomic object is located in shared memory) or when the atomic object is mapped at different memory addresses in the same process.
+
+[endsect]
+
 [section:interface_fences Fences]
 
     #include <boost/atomic/fences.hpp>
@@ -1171,6 +1229,10 @@ sometimes require a lock, and to `2` if they are always lock-free:
     [
       [`BOOST_ATOMIC_CHAR_LOCK_FREE`]
       [Indicate whether `atomic<char>` (including signed/unsigned variants) is lock-free]
+    ]
+    [
+      [`BOOST_ATOMIC_CHAR8_T_LOCK_FREE`]
+      [Indicate whether `atomic<char8_t>` (including signed/unsigned variants) is lock-free]
     ]
     [
       [`BOOST_ATOMIC_CHAR16_T_LOCK_FREE`]
@@ -1249,7 +1311,7 @@ to indicate whether the corresponding operations are lock-free or not.
     ]
 ]
 
-In the table above, `intN_type` is a type that fits storage of contiguous `N` bits, suitably aligned for atomic operations.
+In the table above, [^int['N]_type] is a type that fits storage of contiguous ['N] bits, suitably aligned for atomic operations.
 
 For floating-point types the following macros are similarly defined:
 
