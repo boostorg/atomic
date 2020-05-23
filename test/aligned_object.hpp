@@ -52,9 +52,11 @@ private:
 #else
         typedef std::size_t uintptr_type;
 #endif
-        uintptr_type p = (uintptr_type)(unsigned char*)m_storage;
-        p = (p + (uintptr_type)(Alignment - 1u)) & ~(uintptr_type)(Alignment - 1u);
-        return (unsigned char*)p;
+        unsigned char* p = m_storage;
+        uintptr_type misalignment = ((uintptr_type)p) & (Alignment - 1u);
+        if (misalignment > 0)
+            p += Alignment - misalignment;
+        return p;
     }
 };
 
