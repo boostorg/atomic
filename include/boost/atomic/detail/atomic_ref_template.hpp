@@ -257,7 +257,7 @@ public:
     }
 
     // Standard methods
-    BOOST_FORCEINLINE void store(value_arg_type v, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE void store(value_arg_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         BOOST_ASSERT(order != memory_order_consume);
         BOOST_ASSERT(order != memory_order_acquire);
@@ -274,22 +274,22 @@ public:
         return atomics::detail::integral_truncate< value_type >(operations::load(this->storage(), order));
     }
 
-    BOOST_FORCEINLINE value_type fetch_add(difference_type v, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE value_type fetch_add(difference_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         return atomics::detail::integral_truncate< value_type >(operations::fetch_add(this->storage(), static_cast< storage_type >(v), order));
     }
 
-    BOOST_FORCEINLINE value_type fetch_sub(difference_type v, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE value_type fetch_sub(difference_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         return atomics::detail::integral_truncate< value_type >(operations::fetch_sub(this->storage(), static_cast< storage_type >(v), order));
     }
 
-    BOOST_FORCEINLINE value_type exchange(value_arg_type v, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE value_type exchange(value_arg_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         return atomics::detail::integral_truncate< value_type >(operations::exchange(this->storage(), static_cast< storage_type >(v), order));
     }
 
-    BOOST_FORCEINLINE bool compare_exchange_strong(value_type& expected, value_arg_type desired, memory_order success_order, memory_order failure_order) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE bool compare_exchange_strong(value_type& expected, value_arg_type desired, memory_order success_order, memory_order failure_order) const BOOST_NOEXCEPT
     {
         BOOST_ASSERT(failure_order != memory_order_release);
         BOOST_ASSERT(failure_order != memory_order_acq_rel);
@@ -298,12 +298,12 @@ public:
         return compare_exchange_strong_impl(expected, desired, success_order, failure_order, use_bitwise_cast());
     }
 
-    BOOST_FORCEINLINE bool compare_exchange_strong(value_type& expected, value_arg_type desired, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE bool compare_exchange_strong(value_type& expected, value_arg_type desired, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         return compare_exchange_strong(expected, desired, order, atomics::detail::deduce_failure_order(order));
     }
 
-    BOOST_FORCEINLINE bool compare_exchange_weak(value_type& expected, value_arg_type desired, memory_order success_order, memory_order failure_order) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE bool compare_exchange_weak(value_type& expected, value_arg_type desired, memory_order success_order, memory_order failure_order) const BOOST_NOEXCEPT
     {
         BOOST_ASSERT(failure_order != memory_order_release);
         BOOST_ASSERT(failure_order != memory_order_acq_rel);
@@ -312,202 +312,202 @@ public:
         return compare_exchange_weak_impl(expected, desired, success_order, failure_order, use_bitwise_cast());
     }
 
-    BOOST_FORCEINLINE bool compare_exchange_weak(value_type& expected, value_arg_type desired, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE bool compare_exchange_weak(value_type& expected, value_arg_type desired, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         return compare_exchange_weak(expected, desired, order, atomics::detail::deduce_failure_order(order));
     }
 
-    BOOST_FORCEINLINE value_type fetch_and(value_arg_type v, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE value_type fetch_and(value_arg_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         return atomics::detail::integral_truncate< value_type >(operations::fetch_and(this->storage(), static_cast< storage_type >(v), order));
     }
 
-    BOOST_FORCEINLINE value_type fetch_or(value_arg_type v, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE value_type fetch_or(value_arg_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         return atomics::detail::integral_truncate< value_type >(operations::fetch_or(this->storage(), static_cast< storage_type >(v), order));
     }
 
-    BOOST_FORCEINLINE value_type fetch_xor(value_arg_type v, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE value_type fetch_xor(value_arg_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         return atomics::detail::integral_truncate< value_type >(operations::fetch_xor(this->storage(), static_cast< storage_type >(v), order));
     }
 
     // Boost.Atomic extensions
-    BOOST_FORCEINLINE value_type fetch_negate(memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE value_type fetch_negate(memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         return atomics::detail::integral_truncate< value_type >(extra_operations::fetch_negate(this->storage(), order));
     }
 
-    BOOST_FORCEINLINE value_type fetch_complement(memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE value_type fetch_complement(memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         return atomics::detail::integral_truncate< value_type >(extra_operations::fetch_complement(this->storage(), order));
     }
 
-    BOOST_FORCEINLINE value_type add(difference_type v, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE value_type add(difference_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         return atomics::detail::integral_truncate< value_type >(extra_operations::add(this->storage(), static_cast< storage_type >(v), order));
     }
 
-    BOOST_FORCEINLINE value_type sub(difference_type v, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE value_type sub(difference_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         return atomics::detail::integral_truncate< value_type >(extra_operations::sub(this->storage(), static_cast< storage_type >(v), order));
     }
 
-    BOOST_FORCEINLINE value_type negate(memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE value_type negate(memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         return atomics::detail::integral_truncate< value_type >(extra_operations::negate(this->storage(), order));
     }
 
-    BOOST_FORCEINLINE value_type bitwise_and(value_arg_type v, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE value_type bitwise_and(value_arg_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         return atomics::detail::integral_truncate< value_type >(extra_operations::bitwise_and(this->storage(), static_cast< storage_type >(v), order));
     }
 
-    BOOST_FORCEINLINE value_type bitwise_or(value_arg_type v, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE value_type bitwise_or(value_arg_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         return atomics::detail::integral_truncate< value_type >(extra_operations::bitwise_or(this->storage(), static_cast< storage_type >(v), order));
     }
 
-    BOOST_FORCEINLINE value_type bitwise_xor(value_arg_type v, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE value_type bitwise_xor(value_arg_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         return atomics::detail::integral_truncate< value_type >(extra_operations::bitwise_xor(this->storage(), static_cast< storage_type >(v), order));
     }
 
-    BOOST_FORCEINLINE value_type bitwise_complement(memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE value_type bitwise_complement(memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         return atomics::detail::integral_truncate< value_type >(extra_operations::bitwise_complement(this->storage(), order));
     }
 
-    BOOST_FORCEINLINE void opaque_add(difference_type v, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE void opaque_add(difference_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         extra_operations::opaque_add(this->storage(), static_cast< storage_type >(v), order);
     }
 
-    BOOST_FORCEINLINE void opaque_sub(difference_type v, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE void opaque_sub(difference_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         extra_operations::opaque_sub(this->storage(), static_cast< storage_type >(v), order);
     }
 
-    BOOST_FORCEINLINE void opaque_negate(memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE void opaque_negate(memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         extra_operations::opaque_negate(this->storage(), order);
     }
 
-    BOOST_FORCEINLINE void opaque_and(value_arg_type v, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE void opaque_and(value_arg_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         extra_operations::opaque_and(this->storage(), static_cast< storage_type >(v), order);
     }
 
-    BOOST_FORCEINLINE void opaque_or(value_arg_type v, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE void opaque_or(value_arg_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         extra_operations::opaque_or(this->storage(), static_cast< storage_type >(v), order);
     }
 
-    BOOST_FORCEINLINE void opaque_xor(value_arg_type v, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE void opaque_xor(value_arg_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         extra_operations::opaque_xor(this->storage(), static_cast< storage_type >(v), order);
     }
 
-    BOOST_FORCEINLINE void opaque_complement(memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE void opaque_complement(memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         extra_operations::opaque_complement(this->storage(), order);
     }
 
-    BOOST_FORCEINLINE bool add_and_test(difference_type v, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE bool add_and_test(difference_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         return extra_operations::add_and_test(this->storage(), static_cast< storage_type >(v), order);
     }
 
-    BOOST_FORCEINLINE bool sub_and_test(difference_type v, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE bool sub_and_test(difference_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         return extra_operations::sub_and_test(this->storage(), static_cast< storage_type >(v), order);
     }
 
-    BOOST_FORCEINLINE bool negate_and_test(memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE bool negate_and_test(memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         return extra_operations::negate_and_test(this->storage(), order);
     }
 
-    BOOST_FORCEINLINE bool and_and_test(value_arg_type v, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE bool and_and_test(value_arg_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         return extra_operations::and_and_test(this->storage(), static_cast< storage_type >(v), order);
     }
 
-    BOOST_FORCEINLINE bool or_and_test(value_arg_type v, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE bool or_and_test(value_arg_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         return extra_operations::or_and_test(this->storage(), static_cast< storage_type >(v), order);
     }
 
-    BOOST_FORCEINLINE bool xor_and_test(value_arg_type v, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE bool xor_and_test(value_arg_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         return extra_operations::xor_and_test(this->storage(), static_cast< storage_type >(v), order);
     }
 
-    BOOST_FORCEINLINE bool complement_and_test(memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE bool complement_and_test(memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         return extra_operations::complement_and_test(this->storage(), order);
     }
 
-    BOOST_FORCEINLINE bool bit_test_and_set(unsigned int bit_number, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE bool bit_test_and_set(unsigned int bit_number, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         BOOST_ASSERT(bit_number < sizeof(value_type) * 8u);
         return extra_operations::bit_test_and_set(this->storage(), bit_number, order);
     }
 
-    BOOST_FORCEINLINE bool bit_test_and_reset(unsigned int bit_number, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE bool bit_test_and_reset(unsigned int bit_number, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         BOOST_ASSERT(bit_number < sizeof(value_type) * 8u);
         return extra_operations::bit_test_and_reset(this->storage(), bit_number, order);
     }
 
-    BOOST_FORCEINLINE bool bit_test_and_complement(unsigned int bit_number, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE bool bit_test_and_complement(unsigned int bit_number, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         BOOST_ASSERT(bit_number < sizeof(value_type) * 8u);
         return extra_operations::bit_test_and_complement(this->storage(), bit_number, order);
     }
 
     // Operators
-    BOOST_FORCEINLINE value_type operator++(int) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE value_type operator++(int) const BOOST_NOEXCEPT
     {
         return fetch_add(1);
     }
 
-    BOOST_FORCEINLINE value_type operator++() BOOST_NOEXCEPT
+    BOOST_FORCEINLINE value_type operator++() const BOOST_NOEXCEPT
     {
         return add(1);
     }
 
-    BOOST_FORCEINLINE value_type operator--(int) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE value_type operator--(int) const BOOST_NOEXCEPT
     {
         return fetch_sub(1);
     }
 
-    BOOST_FORCEINLINE value_type operator--() BOOST_NOEXCEPT
+    BOOST_FORCEINLINE value_type operator--() const BOOST_NOEXCEPT
     {
         return sub(1);
     }
 
-    BOOST_FORCEINLINE value_type operator+=(difference_type v) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE value_type operator+=(difference_type v) const BOOST_NOEXCEPT
     {
         return add(v);
     }
 
-    BOOST_FORCEINLINE value_type operator-=(difference_type v) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE value_type operator-=(difference_type v) const BOOST_NOEXCEPT
     {
         return sub(v);
     }
 
-    BOOST_FORCEINLINE value_type operator&=(value_type v) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE value_type operator&=(value_type v) const BOOST_NOEXCEPT
     {
         return bitwise_and(v);
     }
 
-    BOOST_FORCEINLINE value_type operator|=(value_type v) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE value_type operator|=(value_type v) const BOOST_NOEXCEPT
     {
         return bitwise_or(v);
     }
 
-    BOOST_FORCEINLINE value_type operator^=(value_type v) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE value_type operator^=(value_type v) const BOOST_NOEXCEPT
     {
         return bitwise_xor(v);
     }
@@ -577,7 +577,7 @@ public:
     }
 
     // Standard methods
-    BOOST_FORCEINLINE void store(value_arg_type v, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE void store(value_arg_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         BOOST_ASSERT(order != memory_order_consume);
         BOOST_ASSERT(order != memory_order_acquire);
@@ -594,12 +594,12 @@ public:
         return !!operations::load(this->storage(), order);
     }
 
-    BOOST_FORCEINLINE value_type exchange(value_arg_type v, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE value_type exchange(value_arg_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         return !!operations::exchange(this->storage(), static_cast< storage_type >(v), order);
     }
 
-    BOOST_FORCEINLINE bool compare_exchange_strong(value_type& expected, value_arg_type desired, memory_order success_order, memory_order failure_order) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE bool compare_exchange_strong(value_type& expected, value_arg_type desired, memory_order success_order, memory_order failure_order) const BOOST_NOEXCEPT
     {
         BOOST_ASSERT(failure_order != memory_order_release);
         BOOST_ASSERT(failure_order != memory_order_acq_rel);
@@ -608,12 +608,12 @@ public:
         return compare_exchange_strong_impl(expected, desired, success_order, failure_order, use_bitwise_cast());
     }
 
-    BOOST_FORCEINLINE bool compare_exchange_strong(value_type& expected, value_arg_type desired, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE bool compare_exchange_strong(value_type& expected, value_arg_type desired, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         return compare_exchange_strong(expected, desired, order, atomics::detail::deduce_failure_order(order));
     }
 
-    BOOST_FORCEINLINE bool compare_exchange_weak(value_type& expected, value_arg_type desired, memory_order success_order, memory_order failure_order) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE bool compare_exchange_weak(value_type& expected, value_arg_type desired, memory_order success_order, memory_order failure_order) const BOOST_NOEXCEPT
     {
         BOOST_ASSERT(failure_order != memory_order_release);
         BOOST_ASSERT(failure_order != memory_order_acq_rel);
@@ -622,7 +622,7 @@ public:
         return compare_exchange_weak_impl(expected, desired, success_order, failure_order, use_bitwise_cast());
     }
 
-    BOOST_FORCEINLINE bool compare_exchange_weak(value_type& expected, value_arg_type desired, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE bool compare_exchange_weak(value_type& expected, value_arg_type desired, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         return compare_exchange_weak(expected, desired, order, atomics::detail::deduce_failure_order(order));
     }
@@ -699,7 +699,7 @@ public:
         this->clear_padding_bits(has_padding_bits());
     }
 
-    BOOST_FORCEINLINE void store(value_arg_type v, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE void store(value_arg_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         BOOST_ASSERT(order != memory_order_consume);
         BOOST_ASSERT(order != memory_order_acquire);
@@ -716,22 +716,22 @@ public:
         return atomics::detail::bitwise_fp_cast< value_type >(operations::load(this->storage(), order));
     }
 
-    BOOST_FORCEINLINE value_type fetch_add(difference_type v, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE value_type fetch_add(difference_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         return fp_operations::fetch_add(this->storage(), v, order);
     }
 
-    BOOST_FORCEINLINE value_type fetch_sub(difference_type v, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE value_type fetch_sub(difference_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         return fp_operations::fetch_sub(this->storage(), v, order);
     }
 
-    BOOST_FORCEINLINE value_type exchange(value_arg_type v, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE value_type exchange(value_arg_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         return atomics::detail::bitwise_fp_cast< value_type >(operations::exchange(this->storage(), atomics::detail::bitwise_fp_cast< storage_type >(v), order));
     }
 
-    BOOST_FORCEINLINE bool compare_exchange_strong(value_type& expected, value_arg_type desired, memory_order success_order, memory_order failure_order) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE bool compare_exchange_strong(value_type& expected, value_arg_type desired, memory_order success_order, memory_order failure_order) const BOOST_NOEXCEPT
     {
         BOOST_ASSERT(failure_order != memory_order_release);
         BOOST_ASSERT(failure_order != memory_order_acq_rel);
@@ -740,12 +740,12 @@ public:
         return compare_exchange_strong_impl(expected, desired, success_order, failure_order, use_bitwise_cast());
     }
 
-    BOOST_FORCEINLINE bool compare_exchange_strong(value_type& expected, value_arg_type desired, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE bool compare_exchange_strong(value_type& expected, value_arg_type desired, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         return compare_exchange_strong(expected, desired, order, atomics::detail::deduce_failure_order(order));
     }
 
-    BOOST_FORCEINLINE bool compare_exchange_weak(value_type& expected, value_arg_type desired, memory_order success_order, memory_order failure_order) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE bool compare_exchange_weak(value_type& expected, value_arg_type desired, memory_order success_order, memory_order failure_order) const BOOST_NOEXCEPT
     {
         BOOST_ASSERT(failure_order != memory_order_release);
         BOOST_ASSERT(failure_order != memory_order_acq_rel);
@@ -754,54 +754,54 @@ public:
         return compare_exchange_weak_impl(expected, desired, success_order, failure_order, use_bitwise_cast());
     }
 
-    BOOST_FORCEINLINE bool compare_exchange_weak(value_type& expected, value_arg_type desired, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE bool compare_exchange_weak(value_type& expected, value_arg_type desired, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         return compare_exchange_weak(expected, desired, order, atomics::detail::deduce_failure_order(order));
     }
 
     // Boost.Atomic extensions
-    BOOST_FORCEINLINE value_type fetch_negate(memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE value_type fetch_negate(memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         return extra_fp_operations::fetch_negate(this->storage(), order);
     }
 
-    BOOST_FORCEINLINE value_type add(difference_type v, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE value_type add(difference_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         return extra_fp_operations::add(this->storage(), v, order);
     }
 
-    BOOST_FORCEINLINE value_type sub(difference_type v, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE value_type sub(difference_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         return extra_fp_operations::sub(this->storage(), v, order);
     }
 
-    BOOST_FORCEINLINE value_type negate(memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE value_type negate(memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         return extra_fp_operations::negate(this->storage(), order);
     }
 
-    BOOST_FORCEINLINE void opaque_add(difference_type v, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE void opaque_add(difference_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         extra_fp_operations::opaque_add(this->storage(), v, order);
     }
 
-    BOOST_FORCEINLINE void opaque_sub(difference_type v, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE void opaque_sub(difference_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         extra_fp_operations::opaque_sub(this->storage(), v, order);
     }
 
-    BOOST_FORCEINLINE void opaque_negate(memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE void opaque_negate(memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         extra_fp_operations::opaque_negate(this->storage(), order);
     }
 
     // Operators
-    BOOST_FORCEINLINE value_type operator+=(difference_type v) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE value_type operator+=(difference_type v) const BOOST_NOEXCEPT
     {
         return add(v);
     }
 
-    BOOST_FORCEINLINE value_type operator-=(difference_type v) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE value_type operator-=(difference_type v) const BOOST_NOEXCEPT
     {
         return sub(v);
     }
@@ -896,7 +896,7 @@ public:
     }
 
     // Standard methods
-    BOOST_FORCEINLINE void store(value_arg_type v, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE void store(value_arg_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         BOOST_ASSERT(order != memory_order_consume);
         BOOST_ASSERT(order != memory_order_acquire);
@@ -913,22 +913,22 @@ public:
         return atomics::detail::bitwise_cast< value_type >(static_cast< uintptr_storage_type >(operations::load(this->storage(), order)));
     }
 
-    BOOST_FORCEINLINE value_type fetch_add(difference_type v, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE value_type fetch_add(difference_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         return atomics::detail::bitwise_cast< value_type >(static_cast< uintptr_storage_type >(operations::fetch_add(this->storage(), static_cast< uintptr_storage_type >(v * sizeof(T)), order)));
     }
 
-    BOOST_FORCEINLINE value_type fetch_sub(difference_type v, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE value_type fetch_sub(difference_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         return atomics::detail::bitwise_cast< value_type >(static_cast< uintptr_storage_type >(operations::fetch_sub(this->storage(), static_cast< uintptr_storage_type >(v * sizeof(T)), order)));
     }
 
-    BOOST_FORCEINLINE value_type exchange(value_type v, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE value_type exchange(value_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         return atomics::detail::bitwise_cast< value_type >(static_cast< uintptr_storage_type >(operations::exchange(this->storage(), atomics::detail::bitwise_cast< uintptr_storage_type >(v), order)));
     }
 
-    BOOST_FORCEINLINE bool compare_exchange_strong(value_type& expected, value_arg_type desired, memory_order success_order, memory_order failure_order) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE bool compare_exchange_strong(value_type& expected, value_arg_type desired, memory_order success_order, memory_order failure_order) const BOOST_NOEXCEPT
     {
         BOOST_ASSERT(failure_order != memory_order_release);
         BOOST_ASSERT(failure_order != memory_order_acq_rel);
@@ -937,12 +937,12 @@ public:
         return compare_exchange_strong_impl(expected, desired, success_order, failure_order, use_bitwise_cast());
     }
 
-    BOOST_FORCEINLINE bool compare_exchange_strong(value_type& expected, value_arg_type desired, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE bool compare_exchange_strong(value_type& expected, value_arg_type desired, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         return compare_exchange_strong(expected, desired, order, atomics::detail::deduce_failure_order(order));
     }
 
-    BOOST_FORCEINLINE bool compare_exchange_weak(value_type& expected, value_arg_type desired, memory_order success_order, memory_order failure_order) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE bool compare_exchange_weak(value_type& expected, value_arg_type desired, memory_order success_order, memory_order failure_order) const BOOST_NOEXCEPT
     {
         BOOST_ASSERT(failure_order != memory_order_release);
         BOOST_ASSERT(failure_order != memory_order_acq_rel);
@@ -951,69 +951,69 @@ public:
         return compare_exchange_weak_impl(expected, desired, success_order, failure_order, use_bitwise_cast());
     }
 
-    BOOST_FORCEINLINE bool compare_exchange_weak(value_type& expected, value_arg_type desired, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE bool compare_exchange_weak(value_type& expected, value_arg_type desired, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         return compare_exchange_weak(expected, desired, order, atomics::detail::deduce_failure_order(order));
     }
 
     // Boost.Atomic extensions
-    BOOST_FORCEINLINE value_type add(difference_type v, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE value_type add(difference_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         return atomics::detail::bitwise_cast< value_type >(static_cast< uintptr_storage_type >(extra_operations::add(this->storage(), static_cast< uintptr_storage_type >(v * sizeof(T)), order)));
     }
 
-    BOOST_FORCEINLINE value_type sub(difference_type v, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE value_type sub(difference_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         return atomics::detail::bitwise_cast< value_type >(static_cast< uintptr_storage_type >(extra_operations::sub(this->storage(), static_cast< uintptr_storage_type >(v * sizeof(T)), order)));
     }
 
-    BOOST_FORCEINLINE void opaque_add(difference_type v, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE void opaque_add(difference_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         extra_operations::opaque_add(this->storage(), static_cast< uintptr_storage_type >(v * sizeof(T)), order);
     }
 
-    BOOST_FORCEINLINE void opaque_sub(difference_type v, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE void opaque_sub(difference_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         extra_operations::opaque_sub(this->storage(), static_cast< uintptr_storage_type >(v * sizeof(T)), order);
     }
 
-    BOOST_FORCEINLINE bool add_and_test(difference_type v, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE bool add_and_test(difference_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         return extra_operations::add_and_test(this->storage(), static_cast< uintptr_storage_type >(v * sizeof(T)), order);
     }
 
-    BOOST_FORCEINLINE bool sub_and_test(difference_type v, memory_order order = memory_order_seq_cst) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE bool sub_and_test(difference_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
         return extra_operations::sub_and_test(this->storage(), static_cast< uintptr_storage_type >(v * sizeof(T)), order);
     }
 
     // Operators
-    BOOST_FORCEINLINE value_type operator++(int) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE value_type operator++(int) const BOOST_NOEXCEPT
     {
         return fetch_add(1);
     }
 
-    BOOST_FORCEINLINE value_type operator++() BOOST_NOEXCEPT
+    BOOST_FORCEINLINE value_type operator++() const BOOST_NOEXCEPT
     {
         return add(1);
     }
 
-    BOOST_FORCEINLINE value_type operator--(int) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE value_type operator--(int) const BOOST_NOEXCEPT
     {
         return fetch_sub(1);
     }
 
-    BOOST_FORCEINLINE value_type operator--() BOOST_NOEXCEPT
+    BOOST_FORCEINLINE value_type operator--() const BOOST_NOEXCEPT
     {
         return sub(1);
     }
 
-    BOOST_FORCEINLINE value_type operator+=(difference_type v) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE value_type operator+=(difference_type v) const BOOST_NOEXCEPT
     {
         return add(v);
     }
 
-    BOOST_FORCEINLINE value_type operator-=(difference_type v) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE value_type operator-=(difference_type v) const BOOST_NOEXCEPT
     {
         return sub(v);
     }
@@ -1085,7 +1085,7 @@ public:
         BOOST_ASSERT((((atomics::detail::uintptr_t)this->m_value) & (base_type::required_alignment - 1u)) == 0u);
     }
 
-    BOOST_FORCEINLINE value_type operator= (value_arg_type v) BOOST_NOEXCEPT
+    BOOST_FORCEINLINE value_type operator= (value_arg_type v) const BOOST_NOEXCEPT
     {
         this->store(v);
         return v;
