@@ -84,6 +84,7 @@ protected:
     >::type operations;
     typedef typename atomics::detail::conditional< sizeof(value_type) <= sizeof(void*), value_type, value_type const& >::type value_arg_type;
     typedef typename operations::storage_type storage_type;
+    BOOST_STATIC_ASSERT_MSG(sizeof(storage_type) == sizeof(value_type), "Boost.Atomic internal error: atomic_ref storage size doesn't match the value size");
 
 public:
     static BOOST_CONSTEXPR_OR_CONST std::size_t required_alignment = atomics::detail::alignment_of< value_type >::value <= operations::storage_alignment ? operations::storage_alignment : atomics::detail::alignment_of< value_type >::value;
@@ -885,10 +886,6 @@ protected:
 private:
     typedef atomics::detail::integral_constant< bool, atomics::detail::alignment_of< value_type >::value <= operations::storage_alignment > use_bitwise_cast;
 
-    // uintptr_storage_type is the minimal storage type that is enough to store pointers. The actual storage_type theoretically may be larger,
-    // if the target architecture only supports atomic ops on larger data. Typically, though, they are the same type.
-    typedef atomics::detail::uintptr_t uintptr_storage_type;
-
 public:
     BOOST_DEFAULTED_FUNCTION(base_atomic_ref(base_atomic_ref const& that) BOOST_ATOMIC_DETAIL_DEF_NOEXCEPT_DECL, BOOST_ATOMIC_DETAIL_DEF_NOEXCEPT_IMPL : base_type(static_cast< base_type const& >(that)) {})
     BOOST_FORCEINLINE explicit base_atomic_ref(value_type& v) BOOST_NOEXCEPT : base_type(v)
@@ -902,7 +899,7 @@ public:
         BOOST_ASSERT(order != memory_order_acquire);
         BOOST_ASSERT(order != memory_order_acq_rel);
 
-        operations::store(this->storage(), atomics::detail::bitwise_cast< uintptr_storage_type >(v), order);
+        operations::store(this->storage(), atomics::detail::bitwise_cast< storage_type >(v), order);
     }
 
     BOOST_FORCEINLINE value_type load(memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
@@ -910,22 +907,22 @@ public:
         BOOST_ASSERT(order != memory_order_release);
         BOOST_ASSERT(order != memory_order_acq_rel);
 
-        return atomics::detail::bitwise_cast< value_type >(static_cast< uintptr_storage_type >(operations::load(this->storage(), order)));
+        return atomics::detail::bitwise_cast< value_type >(operations::load(this->storage(), order));
     }
 
     BOOST_FORCEINLINE value_type fetch_add(difference_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
-        return atomics::detail::bitwise_cast< value_type >(static_cast< uintptr_storage_type >(operations::fetch_add(this->storage(), static_cast< uintptr_storage_type >(v * sizeof(T)), order)));
+        return atomics::detail::bitwise_cast< value_type >(operations::fetch_add(this->storage(), static_cast< storage_type >(v * sizeof(T)), order));
     }
 
     BOOST_FORCEINLINE value_type fetch_sub(difference_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
-        return atomics::detail::bitwise_cast< value_type >(static_cast< uintptr_storage_type >(operations::fetch_sub(this->storage(), static_cast< uintptr_storage_type >(v * sizeof(T)), order)));
+        return atomics::detail::bitwise_cast< value_type >(operations::fetch_sub(this->storage(), static_cast< storage_type >(v * sizeof(T)), order));
     }
 
     BOOST_FORCEINLINE value_type exchange(value_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
-        return atomics::detail::bitwise_cast< value_type >(static_cast< uintptr_storage_type >(operations::exchange(this->storage(), atomics::detail::bitwise_cast< uintptr_storage_type >(v), order)));
+        return atomics::detail::bitwise_cast< value_type >(operations::exchange(this->storage(), atomics::detail::bitwise_cast< storage_type >(v), order));
     }
 
     BOOST_FORCEINLINE bool compare_exchange_strong(value_type& expected, value_arg_type desired, memory_order success_order, memory_order failure_order) const BOOST_NOEXCEPT
@@ -959,32 +956,32 @@ public:
     // Boost.Atomic extensions
     BOOST_FORCEINLINE value_type add(difference_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
-        return atomics::detail::bitwise_cast< value_type >(static_cast< uintptr_storage_type >(extra_operations::add(this->storage(), static_cast< uintptr_storage_type >(v * sizeof(T)), order)));
+        return atomics::detail::bitwise_cast< value_type >(extra_operations::add(this->storage(), static_cast< storage_type >(v * sizeof(T)), order));
     }
 
     BOOST_FORCEINLINE value_type sub(difference_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
-        return atomics::detail::bitwise_cast< value_type >(static_cast< uintptr_storage_type >(extra_operations::sub(this->storage(), static_cast< uintptr_storage_type >(v * sizeof(T)), order)));
+        return atomics::detail::bitwise_cast< value_type >(extra_operations::sub(this->storage(), static_cast< storage_type >(v * sizeof(T)), order));
     }
 
     BOOST_FORCEINLINE void opaque_add(difference_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
-        extra_operations::opaque_add(this->storage(), static_cast< uintptr_storage_type >(v * sizeof(T)), order);
+        extra_operations::opaque_add(this->storage(), static_cast< storage_type >(v * sizeof(T)), order);
     }
 
     BOOST_FORCEINLINE void opaque_sub(difference_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
-        extra_operations::opaque_sub(this->storage(), static_cast< uintptr_storage_type >(v * sizeof(T)), order);
+        extra_operations::opaque_sub(this->storage(), static_cast< storage_type >(v * sizeof(T)), order);
     }
 
     BOOST_FORCEINLINE bool add_and_test(difference_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
-        return extra_operations::add_and_test(this->storage(), static_cast< uintptr_storage_type >(v * sizeof(T)), order);
+        return extra_operations::add_and_test(this->storage(), static_cast< storage_type >(v * sizeof(T)), order);
     }
 
     BOOST_FORCEINLINE bool sub_and_test(difference_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
-        return extra_operations::sub_and_test(this->storage(), static_cast< uintptr_storage_type >(v * sizeof(T)), order);
+        return extra_operations::sub_and_test(this->storage(), static_cast< storage_type >(v * sizeof(T)), order);
     }
 
     // Operators
@@ -1024,7 +1021,7 @@ private:
     BOOST_FORCEINLINE bool compare_exchange_strong_impl(value_type& expected, value_arg_type desired, memory_order success_order, memory_order failure_order, atomics::detail::false_type) const BOOST_NOEXCEPT
     {
 #if defined(BOOST_ATOMIC_DETAIL_STORAGE_TYPE_MAY_ALIAS)
-        return operations::compare_exchange_strong(this->storage(), reinterpret_cast< storage_type& >(expected), atomics::detail::bitwise_cast< uintptr_storage_type >(desired), success_order, failure_order);
+        return operations::compare_exchange_strong(this->storage(), reinterpret_cast< storage_type& >(expected), atomics::detail::bitwise_cast< storage_type >(desired), success_order, failure_order);
 #else
         return compare_exchange_strong_impl(expected, desired, success_order, failure_order, atomics::detail::true_type());
 #endif
@@ -1032,16 +1029,16 @@ private:
 
     BOOST_FORCEINLINE bool compare_exchange_strong_impl(value_type& expected, value_arg_type desired, memory_order success_order, memory_order failure_order, atomics::detail::true_type) const BOOST_NOEXCEPT
     {
-        storage_type old_value = atomics::detail::bitwise_cast< uintptr_storage_type >(expected);
-        const bool res = operations::compare_exchange_strong(this->storage(), old_value, atomics::detail::bitwise_cast< uintptr_storage_type >(desired), success_order, failure_order);
-        expected = atomics::detail::bitwise_cast< value_type >(static_cast< uintptr_storage_type >(old_value));
+        storage_type old_value = atomics::detail::bitwise_cast< storage_type >(expected);
+        const bool res = operations::compare_exchange_strong(this->storage(), old_value, atomics::detail::bitwise_cast< storage_type >(desired), success_order, failure_order);
+        expected = atomics::detail::bitwise_cast< value_type >(old_value);
         return res;
     }
 
     BOOST_FORCEINLINE bool compare_exchange_weak_impl(value_type& expected, value_arg_type desired, memory_order success_order, memory_order failure_order, atomics::detail::false_type) const BOOST_NOEXCEPT
     {
 #if defined(BOOST_ATOMIC_DETAIL_STORAGE_TYPE_MAY_ALIAS)
-        return operations::compare_exchange_weak(this->storage(), reinterpret_cast< storage_type& >(expected), atomics::detail::bitwise_cast< uintptr_storage_type >(desired), success_order, failure_order);
+        return operations::compare_exchange_weak(this->storage(), reinterpret_cast< storage_type& >(expected), atomics::detail::bitwise_cast< storage_type >(desired), success_order, failure_order);
 #else
         return compare_exchange_weak_impl(expected, desired, success_order, failure_order, atomics::detail::true_type());
 #endif
@@ -1049,9 +1046,9 @@ private:
 
     BOOST_FORCEINLINE bool compare_exchange_weak_impl(value_type& expected, value_arg_type desired, memory_order success_order, memory_order failure_order, atomics::detail::true_type) const BOOST_NOEXCEPT
     {
-        storage_type old_value = atomics::detail::bitwise_cast< uintptr_storage_type >(expected);
-        const bool res = operations::compare_exchange_weak(this->storage(), old_value, atomics::detail::bitwise_cast< uintptr_storage_type >(desired), success_order, failure_order);
-        expected = atomics::detail::bitwise_cast< value_type >(static_cast< uintptr_storage_type >(old_value));
+        storage_type old_value = atomics::detail::bitwise_cast< storage_type >(expected);
+        const bool res = operations::compare_exchange_weak(this->storage(), old_value, atomics::detail::bitwise_cast< storage_type >(desired), success_order, failure_order);
+        expected = atomics::detail::bitwise_cast< value_type >(old_value);
         return res;
     }
 };
