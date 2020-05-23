@@ -39,14 +39,14 @@
     union \
     { \
         var_type var_name; \
-        boost::type_with_alignment< var_alignment >::type BOOST_JOIN(_aligner_for_, var_name); \
+        boost::type_with_alignment< var_alignment >::type BOOST_JOIN(var_name, _aligner); \
     }
 
 #define BOOST_ATOMIC_DETAIL_ALIGNED_VAR_TPL(var_alignment, var_type, var_name) \
     union \
     { \
         var_type var_name; \
-        typename boost::type_with_alignment< var_alignment >::type BOOST_JOIN(_aligner_for_, var_name); \
+        typename boost::type_with_alignment< var_alignment >::type BOOST_JOIN(var_name, _aligner); \
     }
 
 #endif // !defined(BOOST_ATOMIC_DETAIL_NO_CXX11_ALIGNAS)
