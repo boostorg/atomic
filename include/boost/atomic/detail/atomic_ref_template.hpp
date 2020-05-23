@@ -25,7 +25,6 @@
 #include <boost/atomic/detail/addressof.hpp>
 #include <boost/atomic/detail/storage_traits.hpp>
 #include <boost/atomic/detail/bitwise_cast.hpp>
-#include <boost/atomic/detail/integral_conversions.hpp>
 #include <boost/atomic/detail/operations.hpp>
 #include <boost/atomic/detail/extra_operations.hpp>
 #include <boost/atomic/detail/memory_order_utils.hpp>
@@ -272,22 +271,22 @@ public:
         BOOST_ASSERT(order != memory_order_release);
         BOOST_ASSERT(order != memory_order_acq_rel);
 
-        return atomics::detail::integral_truncate< value_type >(operations::load(this->storage(), order));
+        return atomics::detail::bitwise_cast< value_type >(operations::load(this->storage(), order));
     }
 
     BOOST_FORCEINLINE value_type fetch_add(difference_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
-        return atomics::detail::integral_truncate< value_type >(operations::fetch_add(this->storage(), static_cast< storage_type >(v), order));
+        return atomics::detail::bitwise_cast< value_type >(operations::fetch_add(this->storage(), static_cast< storage_type >(v), order));
     }
 
     BOOST_FORCEINLINE value_type fetch_sub(difference_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
-        return atomics::detail::integral_truncate< value_type >(operations::fetch_sub(this->storage(), static_cast< storage_type >(v), order));
+        return atomics::detail::bitwise_cast< value_type >(operations::fetch_sub(this->storage(), static_cast< storage_type >(v), order));
     }
 
     BOOST_FORCEINLINE value_type exchange(value_arg_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
-        return atomics::detail::integral_truncate< value_type >(operations::exchange(this->storage(), static_cast< storage_type >(v), order));
+        return atomics::detail::bitwise_cast< value_type >(operations::exchange(this->storage(), static_cast< storage_type >(v), order));
     }
 
     BOOST_FORCEINLINE bool compare_exchange_strong(value_type& expected, value_arg_type desired, memory_order success_order, memory_order failure_order) const BOOST_NOEXCEPT
@@ -320,63 +319,63 @@ public:
 
     BOOST_FORCEINLINE value_type fetch_and(value_arg_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
-        return atomics::detail::integral_truncate< value_type >(operations::fetch_and(this->storage(), static_cast< storage_type >(v), order));
+        return atomics::detail::bitwise_cast< value_type >(operations::fetch_and(this->storage(), static_cast< storage_type >(v), order));
     }
 
     BOOST_FORCEINLINE value_type fetch_or(value_arg_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
-        return atomics::detail::integral_truncate< value_type >(operations::fetch_or(this->storage(), static_cast< storage_type >(v), order));
+        return atomics::detail::bitwise_cast< value_type >(operations::fetch_or(this->storage(), static_cast< storage_type >(v), order));
     }
 
     BOOST_FORCEINLINE value_type fetch_xor(value_arg_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
-        return atomics::detail::integral_truncate< value_type >(operations::fetch_xor(this->storage(), static_cast< storage_type >(v), order));
+        return atomics::detail::bitwise_cast< value_type >(operations::fetch_xor(this->storage(), static_cast< storage_type >(v), order));
     }
 
     // Boost.Atomic extensions
     BOOST_FORCEINLINE value_type fetch_negate(memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
-        return atomics::detail::integral_truncate< value_type >(extra_operations::fetch_negate(this->storage(), order));
+        return atomics::detail::bitwise_cast< value_type >(extra_operations::fetch_negate(this->storage(), order));
     }
 
     BOOST_FORCEINLINE value_type fetch_complement(memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
-        return atomics::detail::integral_truncate< value_type >(extra_operations::fetch_complement(this->storage(), order));
+        return atomics::detail::bitwise_cast< value_type >(extra_operations::fetch_complement(this->storage(), order));
     }
 
     BOOST_FORCEINLINE value_type add(difference_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
-        return atomics::detail::integral_truncate< value_type >(extra_operations::add(this->storage(), static_cast< storage_type >(v), order));
+        return atomics::detail::bitwise_cast< value_type >(extra_operations::add(this->storage(), static_cast< storage_type >(v), order));
     }
 
     BOOST_FORCEINLINE value_type sub(difference_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
-        return atomics::detail::integral_truncate< value_type >(extra_operations::sub(this->storage(), static_cast< storage_type >(v), order));
+        return atomics::detail::bitwise_cast< value_type >(extra_operations::sub(this->storage(), static_cast< storage_type >(v), order));
     }
 
     BOOST_FORCEINLINE value_type negate(memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
-        return atomics::detail::integral_truncate< value_type >(extra_operations::negate(this->storage(), order));
+        return atomics::detail::bitwise_cast< value_type >(extra_operations::negate(this->storage(), order));
     }
 
     BOOST_FORCEINLINE value_type bitwise_and(value_arg_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
-        return atomics::detail::integral_truncate< value_type >(extra_operations::bitwise_and(this->storage(), static_cast< storage_type >(v), order));
+        return atomics::detail::bitwise_cast< value_type >(extra_operations::bitwise_and(this->storage(), static_cast< storage_type >(v), order));
     }
 
     BOOST_FORCEINLINE value_type bitwise_or(value_arg_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
-        return atomics::detail::integral_truncate< value_type >(extra_operations::bitwise_or(this->storage(), static_cast< storage_type >(v), order));
+        return atomics::detail::bitwise_cast< value_type >(extra_operations::bitwise_or(this->storage(), static_cast< storage_type >(v), order));
     }
 
     BOOST_FORCEINLINE value_type bitwise_xor(value_arg_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
-        return atomics::detail::integral_truncate< value_type >(extra_operations::bitwise_xor(this->storage(), static_cast< storage_type >(v), order));
+        return atomics::detail::bitwise_cast< value_type >(extra_operations::bitwise_xor(this->storage(), static_cast< storage_type >(v), order));
     }
 
     BOOST_FORCEINLINE value_type bitwise_complement(memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
     {
-        return atomics::detail::integral_truncate< value_type >(extra_operations::bitwise_complement(this->storage(), order));
+        return atomics::detail::bitwise_cast< value_type >(extra_operations::bitwise_complement(this->storage(), order));
     }
 
     BOOST_FORCEINLINE void opaque_add(difference_type v, memory_order order = memory_order_seq_cst) const BOOST_NOEXCEPT
@@ -529,7 +528,7 @@ private:
     {
         storage_type old_value = static_cast< storage_type >(expected);
         const bool res = operations::compare_exchange_strong(this->storage(), old_value, static_cast< storage_type >(desired), success_order, failure_order);
-        expected = atomics::detail::integral_truncate< value_type >(old_value);
+        expected = atomics::detail::bitwise_cast< value_type >(old_value);
         return res;
     }
 
@@ -546,7 +545,7 @@ private:
     {
         storage_type old_value = static_cast< storage_type >(expected);
         const bool res = operations::compare_exchange_weak(this->storage(), old_value, static_cast< storage_type >(desired), success_order, failure_order);
-        expected = atomics::detail::integral_truncate< value_type >(old_value);
+        expected = atomics::detail::bitwise_cast< value_type >(old_value);
         return res;
     }
 };
