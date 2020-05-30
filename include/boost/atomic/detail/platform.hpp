@@ -139,6 +139,12 @@
 
 #if defined(BOOST_ATOMIC_DETAIL_HAS_FUTEX)
 #define BOOST_ATOMIC_DETAIL_WAIT_BACKEND futex
+#elif defined(__FreeBSD__)
+#include <sys/param.h>
+// FreeBSD prior to 7.0 had _umtx_op with a different signature
+#if defined(__FreeBSD_version) && __FreeBSD_version >= 700000
+#define BOOST_ATOMIC_DETAIL_WAIT_BACKEND freebsd_umtx
+#endif // defined(__FreeBSD_version) && __FreeBSD_version >= 700000
 #endif
 #endif // !defined(BOOST_WINDOWS)
 
