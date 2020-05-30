@@ -372,6 +372,10 @@ matrix:
       env: TOOLSET=clang COMPILER=clang++ CXXSTD64=03,11,14,17 BUILD_VARIANT=release
       osx_image: xcode11.2
 
+# clang, FreeBSD, 64-bit
+    - os: freebsd
+      env: TOOLSET=clang COMPILER=clang++ CXXSTD64=03,11,14,17 BUILD_VARIANT=release
+
 # cmake self-test
     - os: linux
       env: TEST_CMAKE=1
