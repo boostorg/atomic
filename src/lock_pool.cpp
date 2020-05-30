@@ -36,6 +36,7 @@
 #include <boost/atomic/detail/extra_operations.hpp>
 #include <boost/atomic/detail/lock_pool.hpp>
 #include <boost/atomic/detail/pause.hpp>
+#include <boost/atomic/detail/once_flag.hpp>
 #include <boost/atomic/detail/type_traits/alignment_of.hpp>
 
 #if BOOST_OS_WINDOWS
@@ -1070,13 +1071,7 @@ void cleanup_lock_pool()
     }
 }
 
-typedef atomics::detail::operations< 1u, false > once_operations;
-BOOST_STATIC_ASSERT_MSG(once_operations::is_always_lock_free, "Boost.Atomic unsupported target platform: native atomic operations not implemented for bytes");
-
-struct once_flag
-{
-    BOOST_ATOMIC_DETAIL_ALIGNED_VAR(once_operations::storage_alignment, once_operations::storage_type, m_flag);
-};
+BOOST_STATIC_ASSERT_MSG(once_flag_operations::is_always_lock_free, "Boost.Atomic unsupported target platform: native atomic operations not implemented for bytes");
 static once_flag g_pool_cleanup_registered = {};
 
 //! Returns index of the lock pool entry for the given pointer value
@@ -1169,9 +1164,9 @@ inline void wait_state_list::erase(wait_state* w) BOOST_NOEXCEPT
 //! Allocates new buffer for the list entries
 wait_state_list::header* wait_state_list::allocate_buffer(std::size_t new_capacity, header* old_header) BOOST_NOEXCEPT
 {
-    if (BOOST_UNLIKELY(once_operations::load(g_pool_cleanup_registered.m_flag, boost::memory_order_relaxed) == 0u))
+    if (BOOST_UNLIKELY(once_flag_operations::load(g_pool_cleanup_registered.m_flag, boost::memory_order_relaxed) == 0u))
     {
-        if (once_operations::exchange(g_pool_cleanup_registered.m_flag, 1u, boost::memory_order_relaxed) == 0u)
+        if (once_flag_operations::exchange(g_pool_cleanup_registered.m_flag, 1u, boost::memory_order_relaxed) == 0u)
             std::atexit(&cleanup_lock_pool);
     }
 

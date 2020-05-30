@@ -134,7 +134,12 @@
 #endif // !defined(BOOST_ATOMIC_DETAIL_CORE_BACKEND)
 
 // Waiting and notifying operations backends
-#if !defined(BOOST_WINDOWS)
+#if defined(BOOST_WINDOWS)
+
+#define BOOST_ATOMIC_DETAIL_WAIT_BACKEND windows
+
+#else // defined(BOOST_WINDOWS)
+
 #include <boost/atomic/detail/futex.hpp>
 
 #if defined(BOOST_ATOMIC_DETAIL_HAS_FUTEX)
@@ -148,7 +153,8 @@
 #elif defined(__DragonFly__)
 #define BOOST_ATOMIC_DETAIL_WAIT_BACKEND dragonfly_umtx
 #endif
-#endif // !defined(BOOST_WINDOWS)
+
+#endif // defined(BOOST_WINDOWS)
 
 #endif // !defined(BOOST_ATOMIC_FORCE_FALLBACK)
 

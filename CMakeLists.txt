@@ -6,7 +6,12 @@
 cmake_minimum_required(VERSION 3.5...3.16)
 project(boost_atomic VERSION "${BOOST_SUPERPROJECT_VERSION}" LANGUAGES CXX)
 
-add_library(boost_atomic src/lock_pool.cpp)
+set(boost_atomic_sources src/lock_pool.cpp)
+if(WIN32)
+  set(boost_atomic_sources ${boost_atomic_sources} src/wait_ops_windows.cpp)
+endif()
+
+add_library(boost_atomic ${boost_atomic_sources})
 add_library(Boost::atomic ALIAS boost_atomic)
 
 target_include_directories(boost_atomic PUBLIC include)
@@ -23,7 +28,7 @@ target_link_libraries(boost_atomic
 
 if(WIN32)
   target_link_libraries(boost_atomic
-    PRIVATE
+    PUBLIC
       Boost::winapi
   )
 endif()
