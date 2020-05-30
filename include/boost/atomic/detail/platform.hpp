@@ -133,6 +133,15 @@
 
 #endif // !defined(BOOST_ATOMIC_DETAIL_CORE_BACKEND)
 
+// Waiting and notifying operations backends
+#if !defined(BOOST_WINDOWS)
+#include <boost/atomic/detail/futex.hpp>
+
+#if defined(BOOST_ATOMIC_DETAIL_HAS_FUTEX)
+#define BOOST_ATOMIC_DETAIL_WAIT_BACKEND futex
+#endif
+#endif // !defined(BOOST_WINDOWS)
+
 #endif // !defined(BOOST_ATOMIC_FORCE_FALLBACK)
 
 #if !defined(BOOST_ATOMIC_DETAIL_CORE_BACKEND)
