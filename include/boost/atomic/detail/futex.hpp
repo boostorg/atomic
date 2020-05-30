@@ -23,15 +23,22 @@
 #pragma once
 #endif
 
-#if defined(__linux__) || defined(__OpenBSD__)
+#if defined(__linux__) || defined(__OpenBSD__) || defined(__NETBSD__) || defined(__NetBSD__)
 
 #include <sys/syscall.h>
 
-// Some Android NDKs (Google NDK and older Crystax.NET NDK versions) don't define SYS_futex
+// Some Android NDKs (Google NDK and older Crystax.NET NDK versions) don't define SYS_futex.
 #if defined(SYS_futex)
 #define BOOST_ATOMIC_DETAIL_SYS_FUTEX SYS_futex
 #elif defined(__NR_futex)
 #define BOOST_ATOMIC_DETAIL_SYS_FUTEX __NR_futex
+#elif defined(SYS___futex)
+// NetBSD defines SYS___futex, which has slightly different parameters. Basically, it has decoupled timeout and val2 parameters:
+// int __futex(int *addr1, int op, int val1, const struct timespec *timeout, int *addr2, int val2, int val3);
+// https://ftp.netbsd.org/pub/NetBSD/NetBSD-current/src/sys/sys/syscall.h
+// http://bxr.su/NetBSD/sys/kern/sys_futex.c
+#define BOOST_ATOMIC_DETAIL_SYS_FUTEX SYS___futex
+#define BOOST_ATOMIC_DETAIL_NETBSD_FUTEX
 #endif
 
 #if defined(BOOST_ATOMIC_DETAIL_SYS_FUTEX)
@@ -59,13 +66,23 @@ namespace detail {
 //! Invokes an operation on the futex
 BOOST_FORCEINLINE int futex_invoke(void* addr1, int op, unsigned int val1, const void* timeout = NULL, void* addr2 = NULL, unsigned int val3 = 0) BOOST_NOEXCEPT
 {
+#if !defined(BOOST_ATOMIC_DETAIL_NETBSD_FUTEX)
     return ::syscall(BOOST_ATOMIC_DETAIL_SYS_FUTEX, addr1, op, val1, timeout, addr2, val3);
+#else
+    // Pass 0 in val2.
+    return ::syscall(BOOST_ATOMIC_DETAIL_SYS_FUTEX, addr1, op, val1, timeout, addr2, 0u, val3);
+#endif
 }
 
 //! Invokes an operation on the futex
 BOOST_FORCEINLINE int futex_invoke(void* addr1, int op, unsigned int val1, unsigned int val2, void* addr2 = NULL, unsigned int val3 = 0) BOOST_NOEXCEPT
 {
+#if !defined(BOOST_ATOMIC_DETAIL_NETBSD_FUTEX)
     return ::syscall(BOOST_ATOMIC_DETAIL_SYS_FUTEX, addr1, op, val1, static_cast< atomics::detail::uintptr_t >(val2), addr2, val3);
+#else
+    // Pass NULL in timeout.
+    return ::syscall(BOOST_ATOMIC_DETAIL_SYS_FUTEX, addr1, op, val1, static_cast< void* >(NULL), addr2, val2, val3);
+#endif
 }
 
 //! Checks that the value \c pval is \c expected and blocks
@@ -122,6 +139,6 @@ BOOST_FORCEINLINE int futex_requeue_private(void* pval1, void* pval2, unsigned i
 
 #endif // defined(BOOST_ATOMIC_DETAIL_SYS_FUTEX)
 
-#endif // defined(__linux__) || defined(__OpenBSD__)
+#endif // defined(__linux__) || defined(__OpenBSD__) || defined(__NETBSD__) || defined(__NetBSD__)
 
 #endif // BOOST_ATOMIC_DETAIL_FUTEX_HPP_INCLUDED_
