@@ -145,6 +145,8 @@
 #if defined(__FreeBSD_version) && __FreeBSD_version >= 700000
 #define BOOST_ATOMIC_DETAIL_WAIT_BACKEND freebsd_umtx
 #endif // defined(__FreeBSD_version) && __FreeBSD_version >= 700000
+#elif defined(__DragonFly__)
+#define BOOST_ATOMIC_DETAIL_WAIT_BACKEND dragonfly_umtx
 #endif
 #endif // !defined(BOOST_WINDOWS)
 
