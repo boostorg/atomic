@@ -252,8 +252,6 @@ bool test_bitops(value_type& shared_value, std::size_t instance)
 
 int main(int, char *[])
 {
-    boost::posix_time::time_duration reciprocal_lambda;
-
     double avg_race_time = estimate_avg_race_time();
 
     /* 5.298 = 0.995 quantile of exponential distribution */
