@@ -8,6 +8,7 @@
 #  http://www.boost.org/LICENSE_1_0.txt)
 
 import common ;
+import project ;
 
 project boost/atomic
     : requirements
@@ -41,6 +42,7 @@ lib boost_atomic
    : ## sources ##
      lock_pool.cpp
    : ## requirements ##
+     <include>../src
      <conditional>@select-platform-specific-sources
    ;
 

@@ -1,5 +1,6 @@
 # Copyright 2018 Mike Dev
 # Copyright 2019 Peter Dimov
+# Copyright 2020 Andrey Semashev
 # Distributed under the Boost Software License, Version 1.0.
 # See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt
 
@@ -15,6 +16,7 @@ add_library(boost_atomic ${boost_atomic_sources})
 add_library(Boost::atomic ALIAS boost_atomic)
 
 target_include_directories(boost_atomic PUBLIC include)
+target_include_directories(boost_atomic PRIVATE src)
 
 target_link_libraries(boost_atomic
   PUBLIC
@@ -24,6 +26,7 @@ target_link_libraries(boost_atomic
     Boost::type_traits
   PRIVATE
     Boost::predef
+    Boost::preprocessor
 )
 
 if(WIN32)
