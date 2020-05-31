@@ -41,8 +41,9 @@ namespace atomics {
 
 struct atomic_flag
 {
-    typedef atomics::detail::operations< 1u, false > operations;
-    typedef atomics::detail::wait_operations< operations, 1u > wait_operations;
+    // Prefer 4-byte storage as most platforms support waiting/notifying operations without a lock pool for 32-bit integers
+    typedef atomics::detail::operations< 4u, false > operations;
+    typedef atomics::detail::wait_operations< operations > wait_operations;
     typedef operations::storage_type storage_type;
 
     BOOST_ATOMIC_DETAIL_ALIGNED_VAR(operations::storage_alignment, storage_type, m_storage);

@@ -25,7 +25,7 @@ namespace boost {
 namespace atomics {
 namespace detail {
 
-template< typename Base, typename Value, std::size_t Size, bool = Base::is_always_lock_free >
+template< typename Base, typename Value, std::size_t Size = sizeof(typename Base::storage_type), bool = Base::is_always_lock_free >
 struct fp_operations;
 
 } // namespace detail

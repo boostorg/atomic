@@ -71,7 +71,7 @@ public:
 
 protected:
     typedef atomics::detail::operations< storage_size_of< value_type >::value, IsSigned > operations;
-    typedef atomics::detail::wait_operations< operations, storage_size_of< value_type >::value > wait_operations;
+    typedef atomics::detail::wait_operations< operations > wait_operations;
     typedef typename atomics::detail::conditional< sizeof(value_type) <= sizeof(void*), value_type, value_type const& >::type value_arg_type;
     typedef typename operations::storage_type storage_type;
 
@@ -310,7 +310,7 @@ public:
 protected:
     typedef typename base_type::operations operations;
     typedef typename base_type::wait_operations wait_operations;
-    typedef atomics::detail::extra_operations< operations, operations::storage_size, operations::is_signed > extra_operations;
+    typedef atomics::detail::extra_operations< operations > extra_operations;
     typedef typename base_type::storage_type storage_type;
     typedef value_type value_arg_type;
 
@@ -764,9 +764,9 @@ public:
 protected:
     typedef typename base_type::operations operations;
     typedef typename base_type::wait_operations wait_operations;
-    typedef atomics::detail::extra_operations< operations, operations::storage_size, operations::is_signed > extra_operations;
-    typedef atomics::detail::fp_operations< extra_operations, value_type, operations::storage_size > fp_operations;
-    typedef atomics::detail::extra_fp_operations< fp_operations, value_type, operations::storage_size > extra_fp_operations;
+    typedef atomics::detail::extra_operations< operations > extra_operations;
+    typedef atomics::detail::fp_operations< extra_operations, value_type > fp_operations;
+    typedef atomics::detail::extra_fp_operations< fp_operations > extra_fp_operations;
     typedef typename base_type::storage_type storage_type;
     typedef value_type value_arg_type;
 
@@ -951,7 +951,7 @@ public:
 protected:
     typedef typename base_type::operations operations;
     typedef typename base_type::wait_operations wait_operations;
-    typedef atomics::detail::extra_operations< operations, operations::storage_size, operations::is_signed > extra_operations;
+    typedef atomics::detail::extra_operations< operations > extra_operations;
     typedef typename base_type::storage_type storage_type;
     typedef value_type value_arg_type;
 

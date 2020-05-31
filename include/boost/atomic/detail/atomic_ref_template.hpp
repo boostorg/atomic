@@ -82,7 +82,7 @@ protected:
         atomics::detail::operations< sizeof(value_type), IsSigned >,
         atomics::detail::emulated_operations< sizeof(value_type), atomics::detail::alignment_of< value_type >::value, IsSigned >
     >::type operations;
-    typedef atomics::detail::wait_operations< operations, sizeof(value_type) > wait_operations;
+    typedef atomics::detail::wait_operations< operations > wait_operations;
     typedef typename atomics::detail::conditional< sizeof(value_type) <= sizeof(void*), value_type, value_type const& >::type value_arg_type;
     typedef typename operations::storage_type storage_type;
     BOOST_STATIC_ASSERT_MSG(sizeof(storage_type) == sizeof(value_type), "Boost.Atomic internal error: atomic_ref storage size doesn't match the value size");
@@ -276,7 +276,7 @@ public:
 protected:
     typedef typename base_type::operations operations;
     typedef typename base_type::wait_operations wait_operations;
-    typedef atomics::detail::extra_operations< operations, operations::storage_size, operations::is_signed > extra_operations;
+    typedef atomics::detail::extra_operations< operations > extra_operations;
     typedef typename base_type::storage_type storage_type;
     typedef value_type value_arg_type;
 
@@ -605,7 +605,7 @@ public:
 protected:
     typedef base_type::operations operations;
     typedef base_type::wait_operations wait_operations;
-    typedef atomics::detail::extra_operations< operations, operations::storage_size, operations::is_signed > extra_operations;
+    typedef atomics::detail::extra_operations< operations > extra_operations;
     typedef base_type::storage_type storage_type;
     typedef value_type value_arg_type;
 
@@ -733,9 +733,9 @@ public:
 protected:
     typedef typename base_type::operations operations;
     typedef typename base_type::wait_operations wait_operations;
-    typedef atomics::detail::extra_operations< operations, operations::storage_size, operations::is_signed > extra_operations;
-    typedef atomics::detail::fp_operations< extra_operations, value_type, operations::storage_size > fp_operations;
-    typedef atomics::detail::extra_fp_operations< fp_operations, value_type, operations::storage_size > extra_fp_operations;
+    typedef atomics::detail::extra_operations< operations > extra_operations;
+    typedef atomics::detail::fp_operations< extra_operations, value_type > fp_operations;
+    typedef atomics::detail::extra_fp_operations< fp_operations > extra_fp_operations;
     typedef typename base_type::storage_type storage_type;
     typedef value_type value_arg_type;
 
@@ -938,7 +938,7 @@ public:
 protected:
     typedef typename base_type::operations operations;
     typedef typename base_type::wait_operations wait_operations;
-    typedef atomics::detail::extra_operations< operations, operations::storage_size, operations::is_signed > extra_operations;
+    typedef atomics::detail::extra_operations< operations > extra_operations;
     typedef typename base_type::storage_type storage_type;
     typedef value_type value_arg_type;
 
