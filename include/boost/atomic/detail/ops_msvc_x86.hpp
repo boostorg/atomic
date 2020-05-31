@@ -19,6 +19,7 @@
 #include <cstddef>
 #include <boost/memory_order.hpp>
 #include <boost/atomic/detail/config.hpp>
+#include <boost/atomic/detail/intptr.hpp>
 #include <boost/atomic/detail/interlocked.hpp>
 #include <boost/atomic/detail/storage_traits.hpp>
 #include <boost/atomic/detail/operations_fwd.hpp>
@@ -609,7 +610,7 @@ struct msvc_dcas_x86
         BOOST_ATOMIC_DETAIL_COMPILER_BARRIER();
 
         storage_type volatile* p = &storage;
-        if (((uint32_t)p & 0x00000007) == 0)
+        if (((uintptr_t)p & 0x00000007) == 0)
         {
 #if defined(_M_IX86_FP) && _M_IX86_FP >= 2
 #if defined(__AVX__)
@@ -665,7 +666,7 @@ struct msvc_dcas_x86
         storage_type const volatile* p = &storage;
         storage_type value;
 
-        if (((uint32_t)p & 0x00000007) == 0)
+        if (((uintptr_t)p & 0x00000007) == 0)
         {
 #if defined(_M_IX86_FP) && _M_IX86_FP >= 2
 #if defined(__AVX__)
