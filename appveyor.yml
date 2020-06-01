@@ -102,6 +102,8 @@ environment:
       CXXSTD: 03,11,14,03-gnu,11-gnu,14-gnu
       ADDPATH: C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1\mingw32\bin
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+    - TEST_CMAKE: 1
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
 
 install:
   - set GIT_FETCH_JOBS=8
@@ -127,3 +129,17 @@ test_script:
   - PATH=%ADDPATH%;%PATH%
   - if not "%CXXSTD%" == "" set CXXSTD=cxxstd=%CXXSTD%
   - b2 -j %NUMBER_OF_PROCESSORS% libs/atomic/test variant=release toolset=%TOOLSET% address-model=%ADDRESS_MODEL% %CXXSTD% %B2_ARGS%
+
+for:
+  - matrix:
+      only: [TEST_CMAKE: 1]
+    test_script:
+      - mkdir __build_static__
+      - cd __build_static__
+      - cmake ../libs/atomic/test/test_cmake
+      - cmake --build .
+      - cd ..
+      - mkdir __build_shared__
+      - cd __build_shared__
+      - cmake -DBUILD_SHARED_LIBS=On ../libs/atomic/test/test_cmake
+      - cmake --build .
