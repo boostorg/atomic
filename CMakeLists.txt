@@ -48,10 +48,3 @@ if(BUILD_SHARED_LIBS)
 else()
   target_compile_definitions(boost_atomic PUBLIC BOOST_ATOMIC_STATIC_LINK)
 endif()
-
-if(BOOST_SUPERPROJECT_VERSION)
-
-  include(BoostInstall)
-  boost_install(TARGETS boost_atomic HEADER_DIRECTORY include/)
-
-endif()
