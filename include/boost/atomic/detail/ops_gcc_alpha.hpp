@@ -117,15 +117,15 @@ struct operations< 4u, Signed > :
         fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n"
-            "mov %3, %1\n"
-            "ldl_l %0, %2\n"
-            "stl_c %1, %2\n"
-            "beq %1, 2f\n"
+            "1:\n\t"
+            "mov %3, %1\n\t"
+            "ldl_l %0, %2\n\t"
+            "stl_c %1, %2\n\t"
+            "beq %1, 2f\n\t"
 
-            ".subsection 2\n"
-            "2: br 1b\n"
-            ".previous\n"
+            ".subsection 2\n\t"
+            "2: br 1b\n\t"
+            ".previous\n\t"
 
             : "=&r" (original),  // %0
               "=&r" (tmp)        // %1
@@ -145,14 +145,14 @@ struct operations< 4u, Signed > :
         storage_type current;
         __asm__ __volatile__
         (
-            "1:\n"
-            "ldl_l %2, %4\n"                // current = *(&storage)
-            "cmpeq %2, %0, %3\n"            // success = current == expected
-            "mov %2, %0\n"                  // expected = current
-            "beq %3, 2f\n"                  // if (success == 0) goto end
-            "stl_c %1, %4\n"                // storage = desired; desired = store succeeded
-            "mov %1, %3\n"                  // success = desired
-            "2:\n"
+            "1:\n\t"
+            "ldl_l %2, %4\n\t"                // current = *(&storage)
+            "cmpeq %2, %0, %3\n\t"            // success = current == expected
+            "mov %2, %0\n\t"                  // expected = current
+            "beq %3, 2f\n\t"                  // if (success == 0) goto end
+            "stl_c %1, %4\n\t"                // storage = desired; desired = store succeeded
+            "mov %1, %3\n\t"                  // success = desired
+            "2:\n\t"
             : "+&r" (expected),  // %0
               "+&r" (desired),   // %1
               "=&r" (current),   // %2
@@ -175,20 +175,20 @@ struct operations< 4u, Signed > :
         fence_before(success_order);
         __asm__ __volatile__
         (
-            "1:\n"
-            "mov %5, %1\n"                  // tmp = desired
-            "ldl_l %2, %4\n"                // current = *(&storage)
-            "cmpeq %2, %0, %3\n"            // success = current == expected
-            "mov %2, %0\n"                  // expected = current
-            "beq %3, 2f\n"                  // if (success == 0) goto end
-            "stl_c %1, %4\n"                // storage = tmp; tmp = store succeeded
-            "beq %1, 3f\n"                  // if (tmp == 0) goto retry
-            "mov %1, %3\n"                  // success = tmp
-            "2:\n"
+            "1:\n\t"
+            "mov %5, %1\n\t"                  // tmp = desired
+            "ldl_l %2, %4\n\t"                // current = *(&storage)
+            "cmpeq %2, %0, %3\n\t"            // success = current == expected
+            "mov %2, %0\n\t"                  // expected = current
+            "beq %3, 2f\n\t"                  // if (success == 0) goto end
+            "stl_c %1, %4\n\t"                // storage = tmp; tmp = store succeeded
+            "beq %1, 3f\n\t"                  // if (tmp == 0) goto retry
+            "mov %1, %3\n\t"                  // success = tmp
+            "2:\n\t"
 
-            ".subsection 2\n"
-            "3: br 1b\n"
-            ".previous\n"
+            ".subsection 2\n\t"
+            "3: br 1b\n\t"
+            ".previous\n\t"
 
             : "+&r" (expected),  // %0
               "=&r" (tmp),       // %1
@@ -211,15 +211,15 @@ struct operations< 4u, Signed > :
         fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n"
-            "ldl_l %0, %2\n"
-            "addl %0, %3, %1\n"
-            "stl_c %1, %2\n"
-            "beq %1, 2f\n"
+            "1:\n\t"
+            "ldl_l %0, %2\n\t"
+            "addl %0, %3, %1\n\t"
+            "stl_c %1, %2\n\t"
+            "beq %1, 2f\n\t"
 
-            ".subsection 2\n"
-            "2: br 1b\n"
-            ".previous\n"
+            ".subsection 2\n\t"
+            "2: br 1b\n\t"
+            ".previous\n\t"
 
             : "=&r" (original),  // %0
               "=&r" (modified)   // %1
@@ -237,15 +237,15 @@ struct operations< 4u, Signed > :
         fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n"
-            "ldl_l %0, %2\n"
-            "subl %0, %3, %1\n"
-            "stl_c %1, %2\n"
-            "beq %1, 2f\n"
+            "1:\n\t"
+            "ldl_l %0, %2\n\t"
+            "subl %0, %3, %1\n\t"
+            "stl_c %1, %2\n\t"
+            "beq %1, 2f\n\t"
 
-            ".subsection 2\n"
-            "2: br 1b\n"
-            ".previous\n"
+            ".subsection 2\n\t"
+            "2: br 1b\n\t"
+            ".previous\n\t"
 
             : "=&r" (original),  // %0
               "=&r" (modified)   // %1
@@ -263,15 +263,15 @@ struct operations< 4u, Signed > :
         fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n"
-            "ldl_l %0, %2\n"
-            "and %0, %3, %1\n"
-            "stl_c %1, %2\n"
-            "beq %1, 2f\n"
+            "1:\n\t"
+            "ldl_l %0, %2\n\t"
+            "and %0, %3, %1\n\t"
+            "stl_c %1, %2\n\t"
+            "beq %1, 2f\n\t"
 
-            ".subsection 2\n"
-            "2: br 1b\n"
-            ".previous\n"
+            ".subsection 2\n\t"
+            "2: br 1b\n\t"
+            ".previous\n\t"
 
             : "=&r" (original),  // %0
               "=&r" (modified)   // %1
@@ -289,15 +289,15 @@ struct operations< 4u, Signed > :
         fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n"
-            "ldl_l %0, %2\n"
-            "bis %0, %3, %1\n"
-            "stl_c %1, %2\n"
-            "beq %1, 2f\n"
+            "1:\n\t"
+            "ldl_l %0, %2\n\t"
+            "bis %0, %3, %1\n\t"
+            "stl_c %1, %2\n\t"
+            "beq %1, 2f\n\t"
 
-            ".subsection 2\n"
-            "2: br 1b\n"
-            ".previous\n"
+            ".subsection 2\n\t"
+            "2: br 1b\n\t"
+            ".previous\n\t"
 
             : "=&r" (original),  // %0
               "=&r" (modified)   // %1
@@ -315,15 +315,15 @@ struct operations< 4u, Signed > :
         fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n"
-            "ldl_l %0, %2\n"
-            "xor %0, %3, %1\n"
-            "stl_c %1, %2\n"
-            "beq %1, 2f\n"
+            "1:\n\t"
+            "ldl_l %0, %2\n\t"
+            "xor %0, %3, %1\n\t"
+            "stl_c %1, %2\n\t"
+            "beq %1, 2f\n\t"
 
-            ".subsection 2\n"
-            "2: br 1b\n"
-            ".previous\n"
+            ".subsection 2\n\t"
+            "2: br 1b\n\t"
+            ".previous\n\t"
 
             : "=&r" (original),  // %0
               "=&r" (modified)   // %1
@@ -357,19 +357,19 @@ struct operations< 1u, false > :
     static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
         storage_type original, modified;
-        fence_before(order);
+        base_type::fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n"
-            "ldl_l %0, %2\n"
-            "addl %0, %3, %1\n"
-            "zapnot %1, #1, %1\n"
-            "stl_c %1, %2\n"
-            "beq %1, 2f\n"
+            "1:\n\t"
+            "ldl_l %0, %2\n\t"
+            "addl %0, %3, %1\n\t"
+            "zapnot %1, 1, %1\n\t"
+            "stl_c %1, %2\n\t"
+            "beq %1, 2f\n\t"
 
-            ".subsection 2\n"
-            "2: br 1b\n"
-            ".previous\n"
+            ".subsection 2\n\t"
+            "2: br 1b\n\t"
+            ".previous\n\t"
 
             : "=&r" (original),  // %0
               "=&r" (modified)   // %1
@@ -377,26 +377,26 @@ struct operations< 1u, false > :
               "r" (v)            // %3
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
         );
-        fence_after(order);
+        base_type::fence_after(order);
         return original;
     }
 
     static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
         storage_type original, modified;
-        fence_before(order);
+        base_type::fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n"
-            "ldl_l %0, %2\n"
-            "subl %0, %3, %1\n"
-            "zapnot %1, #1, %1\n"
-            "stl_c %1, %2\n"
-            "beq %1, 2f\n"
+            "1:\n\t"
+            "ldl_l %0, %2\n\t"
+            "subl %0, %3, %1\n\t"
+            "zapnot %1, 1, %1\n\t"
+            "stl_c %1, %2\n\t"
+            "beq %1, 2f\n\t"
 
-            ".subsection 2\n"
-            "2: br 1b\n"
-            ".previous\n"
+            ".subsection 2\n\t"
+            "2: br 1b\n\t"
+            ".previous\n\t"
 
             : "=&r" (original),  // %0
               "=&r" (modified)   // %1
@@ -404,7 +404,7 @@ struct operations< 1u, false > :
               "r" (v)            // %3
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
         );
-        fence_after(order);
+        base_type::fence_after(order);
         return original;
     }
 };
@@ -419,19 +419,19 @@ struct operations< 1u, true > :
     static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
         storage_type original, modified;
-        fence_before(order);
+        base_type::fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n"
-            "ldl_l %0, %2\n"
-            "addl %0, %3, %1\n"
-            "sextb %1, %1\n"
-            "stl_c %1, %2\n"
-            "beq %1, 2f\n"
+            "1:\n\t"
+            "ldl_l %0, %2\n\t"
+            "addl %0, %3, %1\n\t"
+            "sextb %1, %1\n\t"
+            "stl_c %1, %2\n\t"
+            "beq %1, 2f\n\t"
 
-            ".subsection 2\n"
-            "2: br 1b\n"
-            ".previous\n"
+            ".subsection 2\n\t"
+            "2: br 1b\n\t"
+            ".previous\n\t"
 
             : "=&r" (original),  // %0
               "=&r" (modified)   // %1
@@ -439,26 +439,26 @@ struct operations< 1u, true > :
               "r" (v)            // %3
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
         );
-        fence_after(order);
+        base_type::fence_after(order);
         return original;
     }
 
     static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
         storage_type original, modified;
-        fence_before(order);
+        base_type::fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n"
-            "ldl_l %0, %2\n"
-            "subl %0, %3, %1\n"
-            "sextb %1, %1\n"
-            "stl_c %1, %2\n"
-            "beq %1, 2f\n"
+            "1:\n\t"
+            "ldl_l %0, %2\n\t"
+            "subl %0, %3, %1\n\t"
+            "sextb %1, %1\n\t"
+            "stl_c %1, %2\n\t"
+            "beq %1, 2f\n\t"
 
-            ".subsection 2\n"
-            "2: br 1b\n"
-            ".previous\n"
+            ".subsection 2\n\t"
+            "2: br 1b\n\t"
+            ".previous\n\t"
 
             : "=&r" (original),  // %0
               "=&r" (modified)   // %1
@@ -466,7 +466,7 @@ struct operations< 1u, true > :
               "r" (v)            // %3
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
         );
-        fence_after(order);
+        base_type::fence_after(order);
         return original;
     }
 };
@@ -482,19 +482,19 @@ struct operations< 2u, false > :
     static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
         storage_type original, modified;
-        fence_before(order);
+        base_type::fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n"
-            "ldl_l %0, %2\n"
-            "addl %0, %3, %1\n"
-            "zapnot %1, #3, %1\n"
-            "stl_c %1, %2\n"
-            "beq %1, 2f\n"
+            "1:\n\t"
+            "ldl_l %0, %2\n\t"
+            "addl %0, %3, %1\n\t"
+            "zapnot %1, 3, %1\n\t"
+            "stl_c %1, %2\n\t"
+            "beq %1, 2f\n\t"
 
-            ".subsection 2\n"
-            "2: br 1b\n"
-            ".previous\n"
+            ".subsection 2\n\t"
+            "2: br 1b\n\t"
+            ".previous\n\t"
 
             : "=&r" (original),  // %0
               "=&r" (modified)   // %1
@@ -502,26 +502,26 @@ struct operations< 2u, false > :
               "r" (v)            // %3
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
         );
-        fence_after(order);
+        base_type::fence_after(order);
         return original;
     }
 
     static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
         storage_type original, modified;
-        fence_before(order);
+        base_type::fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n"
-            "ldl_l %0, %2\n"
-            "subl %0, %3, %1\n"
-            "zapnot %1, #3, %1\n"
-            "stl_c %1, %2\n"
-            "beq %1, 2f\n"
+            "1:\n\t"
+            "ldl_l %0, %2\n\t"
+            "subl %0, %3, %1\n\t"
+            "zapnot %1, 3, %1\n\t"
+            "stl_c %1, %2\n\t"
+            "beq %1, 2f\n\t"
 
-            ".subsection 2\n"
-            "2: br 1b\n"
-            ".previous\n"
+            ".subsection 2\n\t"
+            "2: br 1b\n\t"
+            ".previous\n\t"
 
             : "=&r" (original),  // %0
               "=&r" (modified)   // %1
@@ -529,7 +529,7 @@ struct operations< 2u, false > :
               "r" (v)            // %3
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
         );
-        fence_after(order);
+        base_type::fence_after(order);
         return original;
     }
 };
@@ -544,19 +544,19 @@ struct operations< 2u, true > :
     static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
         storage_type original, modified;
-        fence_before(order);
+        base_type::fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n"
-            "ldl_l %0, %2\n"
-            "addl %0, %3, %1\n"
-            "sextw %1, %1\n"
-            "stl_c %1, %2\n"
-            "beq %1, 2f\n"
+            "1:\n\t"
+            "ldl_l %0, %2\n\t"
+            "addl %0, %3, %1\n\t"
+            "sextw %1, %1\n\t"
+            "stl_c %1, %2\n\t"
+            "beq %1, 2f\n\t"
 
-            ".subsection 2\n"
-            "2: br 1b\n"
-            ".previous\n"
+            ".subsection 2\n\t"
+            "2: br 1b\n\t"
+            ".previous\n\t"
 
             : "=&r" (original),  // %0
               "=&r" (modified)   // %1
@@ -564,26 +564,26 @@ struct operations< 2u, true > :
               "r" (v)            // %3
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
         );
-        fence_after(order);
+        base_type::fence_after(order);
         return original;
     }
 
     static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
         storage_type original, modified;
-        fence_before(order);
+        base_type::fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n"
-            "ldl_l %0, %2\n"
-            "subl %0, %3, %1\n"
-            "sextw %1, %1\n"
-            "stl_c %1, %2\n"
-            "beq %1, 2f\n"
+            "1:\n\t"
+            "ldl_l %0, %2\n\t"
+            "subl %0, %3, %1\n\t"
+            "sextw %1, %1\n\t"
+            "stl_c %1, %2\n\t"
+            "beq %1, 2f\n\t"
 
-            ".subsection 2\n"
-            "2: br 1b\n"
-            ".previous\n"
+            ".subsection 2\n\t"
+            "2: br 1b\n\t"
+            ".previous\n\t"
 
             : "=&r" (original),  // %0
               "=&r" (modified)   // %1
@@ -591,7 +591,7 @@ struct operations< 2u, true > :
               "r" (v)            // %3
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
         );
-        fence_after(order);
+        base_type::fence_after(order);
         return original;
     }
 };
@@ -627,15 +627,15 @@ struct operations< 8u, Signed > :
         fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n"
-            "mov %3, %1\n"
-            "ldq_l %0, %2\n"
-            "stq_c %1, %2\n"
-            "beq %1, 2f\n"
+            "1:\n\t"
+            "mov %3, %1\n\t"
+            "ldq_l %0, %2\n\t"
+            "stq_c %1, %2\n\t"
+            "beq %1, 2f\n\t"
 
-            ".subsection 2\n"
-            "2: br 1b\n"
-            ".previous\n"
+            ".subsection 2\n\t"
+            "2: br 1b\n\t"
+            ".previous\n\t"
 
             : "=&r" (original),  // %0
               "=&r" (tmp)        // %1
@@ -655,14 +655,14 @@ struct operations< 8u, Signed > :
         storage_type current;
         __asm__ __volatile__
         (
-            "1:\n"
-            "ldq_l %2, %4\n"                // current = *(&storage)
-            "cmpeq %2, %0, %3\n"            // success = current == expected
-            "mov %2, %0\n"                  // expected = current
-            "beq %3, 2f\n"                  // if (success == 0) goto end
-            "stq_c %1, %4\n"                // storage = desired; desired = store succeeded
-            "mov %1, %3\n"                  // success = desired
-            "2:\n"
+            "1:\n\t"
+            "ldq_l %2, %4\n\t"                // current = *(&storage)
+            "cmpeq %2, %0, %3\n\t"            // success = current == expected
+            "mov %2, %0\n\t"                  // expected = current
+            "beq %3, 2f\n\t"                  // if (success == 0) goto end
+            "stq_c %1, %4\n\t"                // storage = desired; desired = store succeeded
+            "mov %1, %3\n\t"                  // success = desired
+            "2:\n\t"
             : "+&r" (expected),  // %0
               "+&r" (desired),   // %1
               "=&r" (current),   // %2
@@ -685,20 +685,20 @@ struct operations< 8u, Signed > :
         fence_before(success_order);
         __asm__ __volatile__
         (
-            "1:\n"
-            "mov %5, %1\n"                  // tmp = desired
-            "ldq_l %2, %4\n"                // current = *(&storage)
-            "cmpeq %2, %0, %3\n"            // success = current == expected
-            "mov %2, %0\n"                  // expected = current
-            "beq %3, 2f\n"                  // if (success == 0) goto end
-            "stq_c %1, %4\n"                // storage = tmp; tmp = store succeeded
-            "beq %1, 3f\n"                  // if (tmp == 0) goto retry
-            "mov %1, %3\n"                  // success = tmp
-            "2:\n"
+            "1:\n\t"
+            "mov %5, %1\n\t"                  // tmp = desired
+            "ldq_l %2, %4\n\t"                // current = *(&storage)
+            "cmpeq %2, %0, %3\n\t"            // success = current == expected
+            "mov %2, %0\n\t"                  // expected = current
+            "beq %3, 2f\n\t"                  // if (success == 0) goto end
+            "stq_c %1, %4\n\t"                // storage = tmp; tmp = store succeeded
+            "beq %1, 3f\n\t"                  // if (tmp == 0) goto retry
+            "mov %1, %3\n\t"                  // success = tmp
+            "2:\n\t"
 
-            ".subsection 2\n"
-            "3: br 1b\n"
-            ".previous\n"
+            ".subsection 2\n\t"
+            "3: br 1b\n\t"
+            ".previous\n\t"
 
             : "+&r" (expected),  // %0
               "=&r" (tmp),       // %1
@@ -721,15 +721,15 @@ struct operations< 8u, Signed > :
         fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n"
-            "ldq_l %0, %2\n"
-            "addq %0, %3, %1\n"
-            "stq_c %1, %2\n"
-            "beq %1, 2f\n"
+            "1:\n\t"
+            "ldq_l %0, %2\n\t"
+            "addq %0, %3, %1\n\t"
+            "stq_c %1, %2\n\t"
+            "beq %1, 2f\n\t"
 
-            ".subsection 2\n"
-            "2: br 1b\n"
-            ".previous\n"
+            ".subsection 2\n\t"
+            "2: br 1b\n\t"
+            ".previous\n\t"
 
             : "=&r" (original),  // %0
               "=&r" (modified)   // %1
@@ -747,15 +747,15 @@ struct operations< 8u, Signed > :
         fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n"
-            "ldq_l %0, %2\n"
-            "subq %0, %3, %1\n"
-            "stq_c %1, %2\n"
-            "beq %1, 2f\n"
+            "1:\n\t"
+            "ldq_l %0, %2\n\t"
+            "subq %0, %3, %1\n\t"
+            "stq_c %1, %2\n\t"
+            "beq %1, 2f\n\t"
 
-            ".subsection 2\n"
-            "2: br 1b\n"
-            ".previous\n"
+            ".subsection 2\n\t"
+            "2: br 1b\n\t"
+            ".previous\n\t"
 
             : "=&r" (original),  // %0
               "=&r" (modified)   // %1
@@ -773,15 +773,15 @@ struct operations< 8u, Signed > :
         fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n"
-            "ldq_l %0, %2\n"
-            "and %0, %3, %1\n"
-            "stq_c %1, %2\n"
-            "beq %1, 2f\n"
+            "1:\n\t"
+            "ldq_l %0, %2\n\t"
+            "and %0, %3, %1\n\t"
+            "stq_c %1, %2\n\t"
+            "beq %1, 2f\n\t"
 
-            ".subsection 2\n"
-            "2: br 1b\n"
-            ".previous\n"
+            ".subsection 2\n\t"
+            "2: br 1b\n\t"
+            ".previous\n\t"
 
             : "=&r" (original),  // %0
               "=&r" (modified)   // %1
@@ -799,15 +799,15 @@ struct operations< 8u, Signed > :
         fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n"
-            "ldq_l %0, %2\n"
-            "bis %0, %3, %1\n"
-            "stq_c %1, %2\n"
-            "beq %1, 2f\n"
+            "1:\n\t"
+            "ldq_l %0, %2\n\t"
+            "bis %0, %3, %1\n\t"
+            "stq_c %1, %2\n\t"
+            "beq %1, 2f\n\t"
 
-            ".subsection 2\n"
-            "2: br 1b\n"
-            ".previous\n"
+            ".subsection 2\n\t"
+            "2: br 1b\n\t"
+            ".previous\n\t"
 
             : "=&r" (original),  // %0
               "=&r" (modified)   // %1
@@ -825,15 +825,15 @@ struct operations< 8u, Signed > :
         fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n"
-            "ldq_l %0, %2\n"
-            "xor %0, %3, %1\n"
-            "stq_c %1, %2\n"
-            "beq %1, 2f\n"
+            "1:\n\t"
+            "ldq_l %0, %2\n\t"
+            "xor %0, %3, %1\n\t"
+            "stq_c %1, %2\n\t"
+            "beq %1, 2f\n\t"
 
-            ".subsection 2\n"
-            "2: br 1b\n"
-            ".previous\n"
+            ".subsection 2\n\t"
+            "2: br 1b\n\t"
+            ".previous\n\t"
 
             : "=&r" (original),  // %0
               "=&r" (modified)   // %1
