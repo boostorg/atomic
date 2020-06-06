@@ -16,5 +16,6 @@
 
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/capabilities.hpp>
+#include <boost/atomic/detail/wait_capabilities.hpp>
 
 #endif // BOOST_ATOMIC_CAPABILITIES_HPP_INCLUDED_

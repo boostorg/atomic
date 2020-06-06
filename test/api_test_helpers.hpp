@@ -17,6 +17,7 @@
 #include <boost/config.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/type.hpp>
+#include <boost/core/enable_if.hpp>
 #include <boost/type_traits/integral_constant.hpp>
 #include <boost/type_traits/alignment_of.hpp>
 #include <boost/type_traits/is_pointer.hpp>
@@ -32,17 +33,49 @@
 
 const unsigned int max_weak_cas_loops = 1000;
 
-/* provide helpers that exercise whether the API
-functions of "boost::atomic" provide the correct
-operational semantic in the case of sequential
-execution */
+template< typename T >
+struct is_atomic :
+    public boost::false_type
+{
+};
 
+template< typename T >
+struct is_atomic< boost::atomic< T > > :
+    public boost::true_type
+{
+};
+
+template< typename T >
+struct is_atomic< boost::ipc_atomic< T > > :
+    public boost::true_type
+{
+};
+
+template< typename T >
+struct is_atomic_ref :
+    public boost::false_type
+{
+};
+
+template< typename T >
+struct is_atomic_ref< boost::atomic_ref< T > > :
+    public boost::true_type
+{
+};
+
+template< typename T >
+struct is_atomic_ref< boost::ipc_atomic_ref< T > > :
+    public boost::true_type
+{
+};
+
+template< typename Flag >
 inline void test_flag_api(void)
 {
 #ifndef BOOST_ATOMIC_NO_ATOMIC_FLAG_INIT
-    boost::atomic_flag f = BOOST_ATOMIC_FLAG_INIT;
+    Flag f = BOOST_ATOMIC_FLAG_INIT;
 #else
-    boost::atomic_flag f;
+    Flag f;
 #endif
 
     BOOST_TEST( !f.test() );
@@ -56,22 +89,22 @@ inline void test_flag_api(void)
 }
 
 template< typename T >
-inline void test_atomic_type_traits(boost::type< boost::atomic< T > >)
+inline typename boost::enable_if< is_atomic< T > >::type test_atomic_type_traits(boost::type< T >)
 {
-    BOOST_TEST_GE(sizeof(boost::atomic< T >), sizeof(T));
+    BOOST_TEST_GE(sizeof(T), sizeof(typename T::value_type));
 }
 
 template< typename T >
-inline void test_atomic_type_traits(boost::type< boost::atomic_ref< T > >)
+inline typename boost::enable_if< is_atomic_ref< T > >::type test_atomic_type_traits(boost::type< T >)
 {
-    if (boost::atomic_ref< T >::is_always_lock_free)
+    if (T::is_always_lock_free)
     {
-        BOOST_TEST_GE(boost::atomic_ref< T >::required_alignment, boost::alignment_of< T >::value);
+        BOOST_TEST_GE(T::required_alignment, boost::alignment_of< typename T::value_type >::value);
     }
     else
     {
         // Lock-based implementation should not require alignment higher than alignof(T)
-        BOOST_TEST_EQ(boost::atomic_ref< T >::required_alignment, boost::alignment_of< T >::value);
+        BOOST_TEST_EQ(T::required_alignment, boost::alignment_of< typename T::value_type >::value);
     }
 }
 

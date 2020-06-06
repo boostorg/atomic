@@ -61,7 +61,7 @@ struct gcc_sparc_cas_base
     }
 };
 
-template< bool Signed >
+template< bool Signed, bool Interprocess >
 struct gcc_sparc_cas32 :
     public gcc_sparc_cas_base
 {
@@ -70,6 +70,7 @@ struct gcc_sparc_cas32 :
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 4u;
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_alignment = 4u;
     static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
+    static BOOST_CONSTEXPR_OR_CONST bool is_interprocess = Interprocess;
 
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
@@ -127,25 +128,25 @@ struct gcc_sparc_cas32 :
     }
 };
 
-template< bool Signed >
-struct operations< 4u, Signed > :
-    public cas_based_operations< gcc_sparc_cas32< Signed > >
+template< bool Signed, bool Interprocess >
+struct operations< 4u, Signed, Interprocess > :
+    public cas_based_operations< gcc_sparc_cas32< Signed, Interprocess > >
 {
 };
 
-template< bool Signed >
-struct operations< 1u, Signed > :
-    public extending_cas_based_operations< operations< 4u, Signed >, 1u, Signed >
+template< bool Signed, bool Interprocess >
+struct operations< 1u, Signed, Interprocess > :
+    public extending_cas_based_operations< operations< 4u, Signed, Interprocess >, 1u, Signed >
 {
 };
 
-template< bool Signed >
-struct operations< 2u, Signed > :
-    public extending_cas_based_operations< operations< 4u, Signed >, 2u, Signed >
+template< bool Signed, bool Interprocess >
+struct operations< 2u, Signed, Interprocess > :
+    public extending_cas_based_operations< operations< 4u, Signed, Interprocess >, 2u, Signed >
 {
 };
 
-template< bool Signed >
+template< bool Signed, bool Interprocess >
 struct gcc_sparc_cas64 :
     public gcc_sparc_cas_base
 {
@@ -154,6 +155,7 @@ struct gcc_sparc_cas64 :
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 8u;
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_alignment = 8u;
     static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
+    static BOOST_CONSTEXPR_OR_CONST bool is_interprocess = Interprocess;
 
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
@@ -197,9 +199,9 @@ struct gcc_sparc_cas64 :
     }
 };
 
-template< bool Signed >
-struct operations< 8u, Signed > :
-    public cas_based_operations< cas_based_exchange< gcc_sparc_cas64< Signed > > >
+template< bool Signed, bool Interprocess >
+struct operations< 8u, Signed, Interprocess > :
+    public cas_based_operations< cas_based_exchange< gcc_sparc_cas64< Signed, Interprocess > > >
 {
 };
 

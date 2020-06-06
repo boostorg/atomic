@@ -4,11 +4,11 @@
 //  See accompanying file LICENSE_1_0.txt or copy at
 //  http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_ATOMIC_TEST_WAIT_TEST_HELPERS_HPP_INCLUDED_
-#define BOOST_ATOMIC_TEST_WAIT_TEST_HELPERS_HPP_INCLUDED_
+#ifndef BOOST_ATOMIC_TEST_IPC_WAIT_TEST_HELPERS_HPP_INCLUDED_
+#define BOOST_ATOMIC_TEST_IPC_WAIT_TEST_HELPERS_HPP_INCLUDED_
 
 #include <boost/memory_order.hpp>
-#include <boost/atomic/atomic_flag.hpp>
+#include <boost/atomic/ipc_atomic_flag.hpp>
 
 #include <cstdlib>
 #include <cstring>
@@ -121,20 +121,29 @@ public:
         if (second_state->m_wakeup_time < first_state->m_wakeup_time)
             std::swap(first_state, second_state);
 
-        if ((first_state->m_wakeup_time - start_time) < chrono::milliseconds(200))
+        if (m_wrapper.a.has_native_wait_notify())
         {
-            std::cout << "notify_one_test: first thread woke up too soon: " << chrono::duration_cast< chrono::milliseconds >(first_state->m_wakeup_time - start_time).count() << " ms" << std::endl;
-            return false;
-        }
+            if ((first_state->m_wakeup_time - start_time) < chrono::milliseconds(200))
+            {
+                std::cout << "notify_one_test: first thread woke up too soon: " << chrono::duration_cast< chrono::milliseconds >(first_state->m_wakeup_time - start_time).count() << " ms" << std::endl;
+                return false;
+            }
 
-        if ((second_state->m_wakeup_time - start_time) < chrono::milliseconds(400))
+            if ((second_state->m_wakeup_time - start_time) < chrono::milliseconds(400))
+            {
+                std::cout << "notify_one_test: second thread woke up too soon: " << chrono::duration_cast< chrono::milliseconds >(second_state->m_wakeup_time - start_time).count() << " ms" << std::endl;
+                return false;
+            }
+
+            BOOST_TEST_EQ(first_state->m_received_value, m_value2);
+            BOOST_TEST_EQ(second_state->m_received_value, m_value3);
+        }
+        else
         {
-            std::cout << "notify_one_test: second thread woke up too soon: " << chrono::duration_cast< chrono::milliseconds >(second_state->m_wakeup_time - start_time).count() << " ms" << std::endl;
-            return false;
+            // With the emulated wait/notify the threads are most likely to return prior to notify
+            BOOST_TEST_EQ(first_state->m_received_value, m_value2);
+            BOOST_TEST(second_state->m_received_value == m_value2 || second_state->m_received_value == m_value3);
         }
-
-        BOOST_TEST_EQ(first_state->m_received_value, m_value2);
-        BOOST_TEST_EQ(second_state->m_received_value, m_value3);
 
         return true;
     }
@@ -229,16 +238,19 @@ public:
             std::abort();
         }
 
-        if ((m_thread1_state.m_wakeup_time - start_time) < chrono::milliseconds(200))
+        if (m_wrapper.a.has_native_wait_notify())
         {
-            std::cout << "notify_all_test: first thread woke up too soon: " << chrono::duration_cast< chrono::milliseconds >(m_thread1_state.m_wakeup_time - start_time).count() << " ms" << std::endl;
-            return false;
-        }
+            if ((m_thread1_state.m_wakeup_time - start_time) < chrono::milliseconds(200))
+            {
+                std::cout << "notify_all_test: first thread woke up too soon: " << chrono::duration_cast< chrono::milliseconds >(m_thread1_state.m_wakeup_time - start_time).count() << " ms" << std::endl;
+                return false;
+            }
 
-        if ((m_thread2_state.m_wakeup_time - start_time) < chrono::milliseconds(200))
-        {
-            std::cout << "notify_all_test: second thread woke up too soon: " << chrono::duration_cast< chrono::milliseconds >(m_thread2_state.m_wakeup_time - start_time).count() << " ms" << std::endl;
-            return false;
+            if ((m_thread2_state.m_wakeup_time - start_time) < chrono::milliseconds(200))
+            {
+                std::cout << "notify_all_test: second thread woke up too soon: " << chrono::duration_cast< chrono::milliseconds >(m_thread2_state.m_wakeup_time - start_time).count() << " ms" << std::endl;
+                return false;
+            }
         }
 
         BOOST_TEST_EQ(m_thread1_state.m_received_value, m_value2);
@@ -283,9 +295,9 @@ void test_wait_notify_api(T value1, T value2, T value3)
 inline void test_flag_wait_notify_api()
 {
 #ifndef BOOST_ATOMIC_NO_ATOMIC_FLAG_INIT
-    boost::atomic_flag f = BOOST_ATOMIC_FLAG_INIT;
+    boost::ipc_atomic_flag f = BOOST_ATOMIC_FLAG_INIT;
 #else
-    boost::atomic_flag f;
+    boost::ipc_atomic_flag f;
 #endif
 
     bool received_value = f.wait(true);
@@ -294,46 +306,4 @@ inline void test_flag_wait_notify_api()
     f.notify_all();
 }
 
-struct struct_3_bytes
-{
-    unsigned char data[3u];
-
-    inline bool operator==(struct_3_bytes const& c) const
-    {
-        return std::memcmp(data, &c.data, sizeof(data)) == 0;
-    }
-    inline bool operator!=(struct_3_bytes const& c) const
-    {
-        return std::memcmp(data, &c.data, sizeof(data)) != 0;
-    }
-};
-
-template< typename Char, typename Traits >
-inline std::basic_ostream< Char, Traits >& operator<< (std::basic_ostream< Char, Traits >& strm, struct_3_bytes const&)
-{
-    strm << "[struct_3_bytes]";
-    return strm;
-}
-
-struct large_struct
-{
-    unsigned char data[256u];
-
-    inline bool operator==(large_struct const& c) const
-    {
-        return std::memcmp(data, &c.data, sizeof(data)) == 0;
-    }
-    inline bool operator!=(large_struct const& c) const
-    {
-        return std::memcmp(data, &c.data, sizeof(data)) != 0;
-    }
-};
-
-template< typename Char, typename Traits >
-inline std::basic_ostream< Char, Traits >& operator<< (std::basic_ostream< Char, Traits >& strm, large_struct const&)
-{
-    strm << "[large_struct]";
-    return strm;
-}
-
-#endif // BOOST_ATOMIC_TEST_WAIT_TEST_HELPERS_HPP_INCLUDED_
+#endif // BOOST_ATOMIC_TEST_IPC_WAIT_TEST_HELPERS_HPP_INCLUDED_

@@ -53,11 +53,16 @@ struct gcc_x86_operations_base
     }
 };
 
-template< std::size_t Size, bool Signed, typename Derived >
+template< std::size_t Size, bool Signed, bool Interprocess, typename Derived >
 struct gcc_x86_operations :
     public gcc_x86_operations_base
 {
     typedef typename storage_traits< Size >::type storage_type;
+
+    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = Size;
+    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_alignment = Size;
+    static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
+    static BOOST_CONSTEXPR_OR_CONST bool is_interprocess = Interprocess;
 
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
@@ -102,17 +107,13 @@ struct gcc_x86_operations :
     }
 };
 
-template< bool Signed >
-struct operations< 1u, Signed > :
-    public gcc_x86_operations< 1u, Signed, operations< 1u, Signed > >
+template< bool Signed, bool Interprocess >
+struct operations< 1u, Signed, Interprocess > :
+    public gcc_x86_operations< 1u, Signed, Interprocess, operations< 1u, Signed, Interprocess > >
 {
-    typedef gcc_x86_operations< 1u, Signed, operations< 1u, Signed > > base_type;
+    typedef gcc_x86_operations< 1u, Signed, Interprocess, operations< 1u, Signed, Interprocess > > base_type;
     typedef typename base_type::storage_type storage_type;
     typedef typename storage_traits< 4u >::type temp_storage_type;
-
-    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 1u;
-    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_alignment = 1u;
-    static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
 
     static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
@@ -203,17 +204,13 @@ struct operations< 1u, Signed > :
 #undef BOOST_ATOMIC_DETAIL_CAS_LOOP
 };
 
-template< bool Signed >
-struct operations< 2u, Signed > :
-    public gcc_x86_operations< 2u, Signed, operations< 2u, Signed > >
+template< bool Signed, bool Interprocess >
+struct operations< 2u, Signed, Interprocess > :
+    public gcc_x86_operations< 2u, Signed, Interprocess, operations< 2u, Signed, Interprocess > >
 {
-    typedef gcc_x86_operations< 2u, Signed, operations< 2u, Signed > > base_type;
+    typedef gcc_x86_operations< 2u, Signed, Interprocess, operations< 2u, Signed, Interprocess > > base_type;
     typedef typename base_type::storage_type storage_type;
     typedef typename storage_traits< 4u >::type temp_storage_type;
-
-    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 2u;
-    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_alignment = 2u;
-    static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
 
     static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
@@ -304,16 +301,12 @@ struct operations< 2u, Signed > :
 #undef BOOST_ATOMIC_DETAIL_CAS_LOOP
 };
 
-template< bool Signed >
-struct operations< 4u, Signed > :
-    public gcc_x86_operations< 4u, Signed, operations< 4u, Signed > >
+template< bool Signed, bool Interprocess >
+struct operations< 4u, Signed, Interprocess > :
+    public gcc_x86_operations< 4u, Signed, Interprocess, operations< 4u, Signed, Interprocess > >
 {
-    typedef gcc_x86_operations< 4u, Signed, operations< 4u, Signed > > base_type;
+    typedef gcc_x86_operations< 4u, Signed, Interprocess, operations< 4u, Signed, Interprocess > > base_type;
     typedef typename base_type::storage_type storage_type;
-
-    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 4u;
-    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_alignment = 4u;
-    static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
 
     static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
@@ -406,24 +399,20 @@ struct operations< 4u, Signed > :
 
 #if defined(BOOST_ATOMIC_DETAIL_X86_HAS_CMPXCHG8B)
 
-template< bool Signed >
-struct operations< 8u, Signed > :
-    public cas_based_operations< gcc_dcas_x86< Signed > >
+template< bool Signed, bool Interprocess >
+struct operations< 8u, Signed, Interprocess > :
+    public cas_based_operations< gcc_dcas_x86< Signed, Interprocess > >
 {
 };
 
 #elif defined(__x86_64__)
 
-template< bool Signed >
-struct operations< 8u, Signed > :
-    public gcc_x86_operations< 8u, Signed, operations< 8u, Signed > >
+template< bool Signed, bool Interprocess >
+struct operations< 8u, Signed, Interprocess > :
+    public gcc_x86_operations< 8u, Signed, Interprocess, operations< 8u, Signed, Interprocess > >
 {
-    typedef gcc_x86_operations< 8u, Signed, operations< 8u, Signed > > base_type;
+    typedef gcc_x86_operations< 8u, Signed, Interprocess, operations< 8u, Signed, Interprocess > > base_type;
     typedef typename base_type::storage_type storage_type;
-
-    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 8u;
-    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_alignment = 8u;
-    static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
 
     static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
@@ -518,9 +507,9 @@ struct operations< 8u, Signed > :
 
 #if defined(BOOST_ATOMIC_DETAIL_X86_HAS_CMPXCHG16B)
 
-template< bool Signed >
-struct operations< 16u, Signed > :
-    public cas_based_operations< gcc_dcas_x86_64< Signed > >
+template< bool Signed, bool Interprocess >
+struct operations< 16u, Signed, Interprocess > :
+    public cas_based_operations< gcc_dcas_x86_64< Signed, Interprocess > >
 {
 };
 

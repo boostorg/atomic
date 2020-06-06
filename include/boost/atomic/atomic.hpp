@@ -42,10 +42,10 @@ namespace atomics {
 //! Atomic object
 template< typename T >
 class atomic :
-    public atomics::detail::base_atomic< T, typename atomics::detail::classify< T >::type >
+    public atomics::detail::base_atomic< T, typename atomics::detail::classify< T >::type, false >
 {
 private:
-    typedef atomics::detail::base_atomic< T, typename atomics::detail::classify< T >::type > base_type;
+    typedef atomics::detail::base_atomic< T, typename atomics::detail::classify< T >::type, false > base_type;
     typedef typename base_type::value_arg_type value_arg_type;
 
 public:

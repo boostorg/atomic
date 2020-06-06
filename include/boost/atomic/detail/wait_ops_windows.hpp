@@ -61,10 +61,18 @@ BOOST_FORCEINLINE void ensure_wait_functions_initialized() BOOST_NOEXCEPT
 
 template< typename Base, std::size_t Size >
 struct windows_wait_operations :
-    public atomics::detail::generic_wait_operations< Base >
+    public atomics::detail::generic_wait_operations< Base, false >
 {
-    typedef atomics::detail::generic_wait_operations< Base > base_type;
+    typedef atomics::detail::generic_wait_operations< Base, false > base_type;
     typedef typename base_type::storage_type storage_type;
+
+    static BOOST_CONSTEXPR_OR_CONST bool always_has_native_wait_notify = false;
+
+    static BOOST_FORCEINLINE bool has_native_wait_notify(storage_type const volatile&) BOOST_NOEXCEPT
+    {
+        ensure_wait_functions_initialized();
+        return atomics::detail::wait_on_address != NULL;
+    }
 
     static BOOST_FORCEINLINE storage_type wait(storage_type const volatile& storage, storage_type old_val, memory_order order) BOOST_NOEXCEPT
     {
@@ -109,25 +117,25 @@ struct windows_wait_operations :
 };
 
 template< typename Base >
-struct wait_operations< Base, 1u, true > :
+struct wait_operations< Base, 1u, true, false > :
     public windows_wait_operations< Base, 1u >
 {
 };
 
 template< typename Base >
-struct wait_operations< Base, 2u, true > :
+struct wait_operations< Base, 2u, true, false > :
     public windows_wait_operations< Base, 2u >
 {
 };
 
 template< typename Base >
-struct wait_operations< Base, 4u, true > :
+struct wait_operations< Base, 4u, true, false > :
     public windows_wait_operations< Base, 4u >
 {
 };
 
 template< typename Base >
-struct wait_operations< Base, 8u, true > :
+struct wait_operations< Base, 8u, true, false > :
     public windows_wait_operations< Base, 8u >
 {
 };

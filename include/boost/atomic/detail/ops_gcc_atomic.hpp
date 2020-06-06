@@ -81,7 +81,7 @@ BOOST_FORCEINLINE BOOST_CONSTEXPR int convert_memory_order_to_gcc(memory_order o
         (order == memory_order_acq_rel ? __ATOMIC_ACQ_REL : __ATOMIC_SEQ_CST)))));
 }
 
-template< std::size_t Size, bool Signed >
+template< std::size_t Size, bool Signed, bool Interprocess >
 struct gcc_atomic_operations
 {
     typedef typename storage_traits< Size >::type storage_type;
@@ -89,6 +89,7 @@ struct gcc_atomic_operations
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = Size;
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_alignment = storage_traits< Size >::alignment;
     static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
+    static BOOST_CONSTEXPR_OR_CONST bool is_interprocess = Interprocess;
     static BOOST_CONSTEXPR_OR_CONST bool full_cas_based = false;
 
     // Note: In the current implementation, gcc_atomic_operations are used only when the particularly sized __atomic
@@ -176,17 +177,17 @@ struct gcc_atomic_operations
 // Clang 3.4 does not implement 128-bit __atomic* intrinsics even though it defines __GCC_HAVE_SYNC_COMPARE_AND_SWAP_16
 // A similar problem exists with gcc 7 as well, as it requires to link with libatomic to use 16-byte intrinsics:
 // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=80878
-template< bool Signed >
-struct operations< 16u, Signed > :
-    public cas_based_operations< gcc_dcas_x86_64< Signed > >
+template< bool Signed, bool Interprocess >
+struct operations< 16u, Signed, Interprocess > :
+    public cas_based_operations< gcc_dcas_x86_64< Signed, Interprocess > >
 {
 };
 
 #else
 
-template< bool Signed >
-struct operations< 16u, Signed > :
-    public gcc_atomic_operations< 16u, Signed >
+template< bool Signed, bool Interprocess >
+struct operations< 16u, Signed, Interprocess > :
+    public gcc_atomic_operations< 16u, Signed, Interprocess >
 {
 };
 
@@ -198,9 +199,9 @@ struct operations< 16u, Signed > :
 #if defined(__clang__) && defined(BOOST_ATOMIC_DETAIL_X86_HAS_CMPXCHG8B)
 
 // Workaround for clang bug http://llvm.org/bugs/show_bug.cgi?id=19355
-template< bool Signed >
-struct operations< 8u, Signed > :
-    public cas_based_operations< gcc_dcas_x86< Signed > >
+template< bool Signed, bool Interprocess >
+struct operations< 8u, Signed, Interprocess > :
+    public cas_based_operations< gcc_dcas_x86< Signed, Interprocess > >
 {
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 8u;
     static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
@@ -214,17 +215,17 @@ struct operations< 8u, Signed > :
 
 #define BOOST_ATOMIC_DETAIL_INT64_EXTENDED
 
-template< bool Signed >
-struct operations< 8u, Signed > :
-    public extending_cas_based_operations< gcc_atomic_operations< 16u, Signed >, 8u, Signed >
+template< bool Signed, bool Interprocess >
+struct operations< 8u, Signed, Interprocess > :
+    public extending_cas_based_operations< gcc_atomic_operations< 16u, Signed, Interprocess >, 8u, Signed >
 {
 };
 
 #else
 
-template< bool Signed >
-struct operations< 8u, Signed > :
-    public gcc_atomic_operations< 8u, Signed >
+template< bool Signed, bool Interprocess >
+struct operations< 8u, Signed, Interprocess > :
+    public gcc_atomic_operations< 8u, Signed, Interprocess >
 {
 };
 
@@ -242,17 +243,17 @@ struct operations< 8u, Signed > :
 
 #if !defined(BOOST_ATOMIC_DETAIL_INT64_EXTENDED)
 
-template< bool Signed >
-struct operations< 4u, Signed > :
-    public extending_cas_based_operations< gcc_atomic_operations< 8u, Signed >, 4u, Signed >
+template< bool Signed, bool Interprocess >
+struct operations< 4u, Signed, Interprocess > :
+    public extending_cas_based_operations< gcc_atomic_operations< 8u, Signed, Interprocess >, 4u, Signed >
 {
 };
 
 #else // !defined(BOOST_ATOMIC_DETAIL_INT64_EXTENDED)
 
-template< bool Signed >
-struct operations< 4u, Signed > :
-    public extending_cas_based_operations< gcc_atomic_operations< 16u, Signed >, 4u, Signed >
+template< bool Signed, bool Interprocess >
+struct operations< 4u, Signed, Interprocess > :
+    public extending_cas_based_operations< gcc_atomic_operations< 16u, Signed, Interprocess >, 4u, Signed >
 {
 };
 
@@ -260,9 +261,9 @@ struct operations< 4u, Signed > :
 
 #else
 
-template< bool Signed >
-struct operations< 4u, Signed > :
-    public gcc_atomic_operations< 4u, Signed >
+template< bool Signed, bool Interprocess >
+struct operations< 4u, Signed, Interprocess > :
+    public gcc_atomic_operations< 4u, Signed, Interprocess >
 {
 };
 
@@ -280,25 +281,25 @@ struct operations< 4u, Signed > :
 
 #if !defined(BOOST_ATOMIC_DETAIL_INT32_EXTENDED)
 
-template< bool Signed >
-struct operations< 2u, Signed > :
-    public extending_cas_based_operations< gcc_atomic_operations< 4u, Signed >, 2u, Signed >
+template< bool Signed, bool Interprocess >
+struct operations< 2u, Signed, Interprocess > :
+    public extending_cas_based_operations< gcc_atomic_operations< 4u, Signed, Interprocess >, 2u, Signed >
 {
 };
 
 #elif !defined(BOOST_ATOMIC_DETAIL_INT64_EXTENDED)
 
-template< bool Signed >
-struct operations< 2u, Signed > :
-    public extending_cas_based_operations< gcc_atomic_operations< 8u, Signed >, 2u, Signed >
+template< bool Signed, bool Interprocess >
+struct operations< 2u, Signed, Interprocess > :
+    public extending_cas_based_operations< gcc_atomic_operations< 8u, Signed, Interprocess >, 2u, Signed >
 {
 };
 
 #else
 
-template< bool Signed >
-struct operations< 2u, Signed > :
-    public extending_cas_based_operations< gcc_atomic_operations< 16u, Signed >, 2u, Signed >
+template< bool Signed, bool Interprocess >
+struct operations< 2u, Signed, Interprocess > :
+    public extending_cas_based_operations< gcc_atomic_operations< 16u, Signed, Interprocess >, 2u, Signed >
 {
 };
 
@@ -306,9 +307,9 @@ struct operations< 2u, Signed > :
 
 #else
 
-template< bool Signed >
-struct operations< 2u, Signed > :
-    public gcc_atomic_operations< 2u, Signed >
+template< bool Signed, bool Interprocess >
+struct operations< 2u, Signed, Interprocess > :
+    public gcc_atomic_operations< 2u, Signed, Interprocess >
 {
 };
 
@@ -326,33 +327,33 @@ struct operations< 2u, Signed > :
 
 #if !defined(BOOST_ATOMIC_DETAIL_INT16_EXTENDED)
 
-template< bool Signed >
-struct operations< 1u, Signed > :
-    public extending_cas_based_operations< gcc_atomic_operations< 2u, Signed >, 1u, Signed >
+template< bool Signed, bool Interprocess >
+struct operations< 1u, Signed, Interprocess > :
+    public extending_cas_based_operations< gcc_atomic_operations< 2u, Signed, Interprocess >, 1u, Signed >
 {
 };
 
 #elif !defined(BOOST_ATOMIC_DETAIL_INT32_EXTENDED)
 
-template< bool Signed >
-struct operations< 1u, Signed > :
-    public extending_cas_based_operations< gcc_atomic_operations< 4u, Signed >, 1u, Signed >
+template< bool Signed, bool Interprocess >
+struct operations< 1u, Signed, Interprocess > :
+    public extending_cas_based_operations< gcc_atomic_operations< 4u, Signed, Interprocess >, 1u, Signed >
 {
 };
 
 #elif !defined(BOOST_ATOMIC_DETAIL_INT64_EXTENDED)
 
-template< bool Signed >
-struct operations< 1u, Signed > :
-    public extending_cas_based_operations< gcc_atomic_operations< 8u, Signed >, 1u, Signed >
+template< bool Signed, bool Interprocess >
+struct operations< 1u, Signed, Interprocess > :
+    public extending_cas_based_operations< gcc_atomic_operations< 8u, Signed, Interprocess >, 1u, Signed >
 {
 };
 
 #else
 
-template< bool Signed >
-struct operations< 1u, Signed > :
-    public extending_cas_based_operations< gcc_atomic_operations< 16u, Signed >, 1u, Signed >
+template< bool Signed, bool Interprocess >
+struct operations< 1u, Signed, Interprocess > :
+    public extending_cas_based_operations< gcc_atomic_operations< 16u, Signed, Interprocess >, 1u, Signed >
 {
 };
 
@@ -360,9 +361,9 @@ struct operations< 1u, Signed > :
 
 #else
 
-template< bool Signed >
-struct operations< 1u, Signed > :
-    public gcc_atomic_operations< 1u, Signed >
+template< bool Signed, bool Interprocess >
+struct operations< 1u, Signed, Interprocess > :
+    public gcc_atomic_operations< 1u, Signed, Interprocess >
 {
 };
 

@@ -25,10 +25,10 @@ namespace boost {
 namespace atomics {
 namespace detail {
 
-template< std::size_t Size, std::size_t Alignment, bool Signed >
+template< std::size_t Size, std::size_t Alignment, bool Signed, bool Interprocess >
 struct emulated_operations;
 
-template< std::size_t Size, bool Signed >
+template< std::size_t Size, bool Signed, bool Interprocess >
 struct operations;
 
 } // namespace detail

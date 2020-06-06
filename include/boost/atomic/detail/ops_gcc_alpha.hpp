@@ -87,8 +87,8 @@ struct gcc_alpha_operations_base
 };
 
 
-template< bool Signed >
-struct operations< 4u, Signed > :
+template< bool Signed, bool Interprocess >
+struct operations< 4u, Signed, Interprocess > :
     public gcc_alpha_operations_base
 {
     typedef typename storage_traits< 4u >::type storage_type;
@@ -96,6 +96,7 @@ struct operations< 4u, Signed > :
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 4u;
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_alignment = 4u;
     static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
+    static BOOST_CONSTEXPR_OR_CONST bool is_interprocess = Interprocess;
 
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
@@ -347,12 +348,12 @@ struct operations< 4u, Signed > :
 };
 
 
-template< >
-struct operations< 1u, false > :
-    public operations< 4u, false >
+template< bool Interprocess >
+struct operations< 1u, false, Interprocess > :
+    public operations< 4u, false, Interprocess >
 {
-    typedef operations< 4u, false > base_type;
-    typedef base_type::storage_type storage_type;
+    typedef operations< 4u, false, Interprocess > base_type;
+    typedef typename base_type::storage_type storage_type;
 
     static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
@@ -409,12 +410,12 @@ struct operations< 1u, false > :
     }
 };
 
-template< >
-struct operations< 1u, true > :
-    public operations< 4u, true >
+template< bool Interprocess >
+struct operations< 1u, true, Interprocess > :
+    public operations< 4u, true, Interprocess >
 {
-    typedef operations< 4u, true > base_type;
-    typedef base_type::storage_type storage_type;
+    typedef operations< 4u, true, Interprocess > base_type;
+    typedef typename base_type::storage_type storage_type;
 
     static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
@@ -472,12 +473,12 @@ struct operations< 1u, true > :
 };
 
 
-template< >
-struct operations< 2u, false > :
-    public operations< 4u, false >
+template< bool Interprocess >
+struct operations< 2u, false, Interprocess > :
+    public operations< 4u, false, Interprocess >
 {
-    typedef operations< 4u, false > base_type;
-    typedef base_type::storage_type storage_type;
+    typedef operations< 4u, false, Interprocess > base_type;
+    typedef typename base_type::storage_type storage_type;
 
     static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
@@ -534,12 +535,12 @@ struct operations< 2u, false > :
     }
 };
 
-template< >
-struct operations< 2u, true > :
-    public operations< 4u, true >
+template< bool Interprocess >
+struct operations< 2u, true, Interprocess > :
+    public operations< 4u, true, Interprocess >
 {
-    typedef operations< 4u, true > base_type;
-    typedef base_type::storage_type storage_type;
+    typedef operations< 4u, true, Interprocess > base_type;
+    typedef typename base_type::storage_type storage_type;
 
     static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
@@ -597,8 +598,8 @@ struct operations< 2u, true > :
 };
 
 
-template< bool Signed >
-struct operations< 8u, Signed > :
+template< bool Signed, bool Interprocess >
+struct operations< 8u, Signed, Interprocess > :
     public gcc_alpha_operations_base
 {
     typedef typename storage_traits< 8u >::type storage_type;
@@ -606,6 +607,7 @@ struct operations< 8u, Signed > :
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 8u;
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_alignment = 8u;
     static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
+    static BOOST_CONSTEXPR_OR_CONST bool is_interprocess = Interprocess;
 
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {

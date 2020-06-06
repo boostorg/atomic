@@ -40,6 +40,13 @@ struct freebsd_umtx_wait_operations_common :
     typedef Base base_type;
     typedef typename base_type::storage_type storage_type;
 
+    static BOOST_CONSTEXPR_OR_CONST bool always_has_native_wait_notify = true;
+
+    static BOOST_FORCEINLINE bool has_native_wait_notify(storage_type const volatile&) BOOST_NOEXCEPT
+    {
+        return true;
+    }
+
     static BOOST_FORCEINLINE void notify_one(storage_type volatile& storage) BOOST_NOEXCEPT
     {
         ::_umtx_op(const_cast< storage_type* >(&storage), UMTX_OP_WAKE, 1u, NULL, NULL);
@@ -56,8 +63,8 @@ struct freebsd_umtx_wait_operations_common :
 // UMTX_OP_WAIT_UINT only appeared in FreeBSD 8.0
 #if defined(UMTX_OP_WAIT_UINT) && BOOST_ATOMIC_DETAIL_SIZEOF_INT < BOOST_ATOMIC_DETAIL_SIZEOF_LONG
 
-template< typename Base >
-struct wait_operations< Base, sizeof(unsigned int), true > :
+template< typename Base, bool Interprocess >
+struct wait_operations< Base, sizeof(unsigned int), true, Interprocess > :
     public freebsd_umtx_wait_operations_common< Base >
 {
     typedef freebsd_umtx_wait_operations_common< Base > base_type;
@@ -80,8 +87,8 @@ struct wait_operations< Base, sizeof(unsigned int), true > :
 
 #if defined(UMTX_OP_WAIT)
 
-template< typename Base >
-struct wait_operations< Base, sizeof(unsigned long), true > :
+template< typename Base, bool Interprocess >
+struct wait_operations< Base, sizeof(unsigned long), true, Interprocess > :
     public freebsd_umtx_wait_operations_common< Base >
 {
     typedef freebsd_umtx_wait_operations_common< Base > base_type;

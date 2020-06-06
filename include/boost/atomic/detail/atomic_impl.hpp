@@ -59,14 +59,14 @@ namespace boost {
 namespace atomics {
 namespace detail {
 
-template< typename T, bool IsSigned >
+template< typename T, bool Signed, bool Interprocess >
 class base_atomic_common
 {
 public:
     typedef T value_type;
 
 protected:
-    typedef atomics::detail::operations< storage_size_of< value_type >::value, IsSigned > operations;
+    typedef atomics::detail::operations< storage_size_of< value_type >::value, Signed, Interprocess > operations;
     typedef atomics::detail::wait_operations< operations > wait_operations;
     typedef typename atomics::detail::conditional< sizeof(value_type) <= sizeof(void*), value_type, value_type const& >::type value_arg_type;
     typedef typename operations::storage_type storage_type;
@@ -76,6 +76,7 @@ protected:
 
 public:
     static BOOST_CONSTEXPR_OR_CONST bool is_always_lock_free = operations::is_always_lock_free;
+    static BOOST_CONSTEXPR_OR_CONST bool always_has_native_wait_notify = wait_operations::always_has_native_wait_notify;
 
 protected:
     BOOST_ATOMIC_DETAIL_ALIGNED_VAR_TPL(storage_alignment, storage_type, m_storage);
@@ -105,6 +106,11 @@ public:
         return is_always_lock_free;
     }
 
+    BOOST_FORCEINLINE bool has_native_wait_notify() const volatile BOOST_NOEXCEPT
+    {
+        return wait_operations::has_native_wait_notify(this->storage());
+    }
+
     BOOST_FORCEINLINE void notify_one() volatile BOOST_NOEXCEPT
     {
         wait_operations::notify_one(this->storage());
@@ -117,20 +123,22 @@ public:
 };
 
 #if defined(BOOST_NO_CXX17_INLINE_VARIABLES)
-template< typename T, bool IsSigned >
-BOOST_CONSTEXPR_OR_CONST bool base_atomic_common< T, IsSigned >::is_always_lock_free;
+template< typename T, bool Signed, bool Interprocess >
+BOOST_CONSTEXPR_OR_CONST bool base_atomic_common< T, Signed, Interprocess >::is_always_lock_free;
+template< typename T, bool Signed, bool Interprocess >
+BOOST_CONSTEXPR_OR_CONST bool base_atomic_common< T, Signed, Interprocess >::always_has_native_wait_notify;
 #endif
 
 
-template< typename T, bool IsTriviallyDefaultConstructible = atomics::detail::is_trivially_default_constructible< T >::value >
+template< typename T, bool Interprocess, bool IsTriviallyDefaultConstructible = atomics::detail::is_trivially_default_constructible< T >::value >
 class base_atomic_generic;
 
-template< typename T >
-class base_atomic_generic< T, true > :
-    public base_atomic_common< T, false >
+template< typename T, bool Interprocess >
+class base_atomic_generic< T, Interprocess, true > :
+    public base_atomic_common< T, false, Interprocess >
 {
 private:
-    typedef base_atomic_common< T, false > base_type;
+    typedef base_atomic_common< T, false, Interprocess > base_type;
 
 protected:
     typedef typename base_type::storage_type storage_type;
@@ -143,12 +151,12 @@ public:
     }
 };
 
-template< typename T >
-class base_atomic_generic< T, false > :
-    public base_atomic_common< T, false >
+template< typename T, bool Interprocess >
+class base_atomic_generic< T, Interprocess, false > :
+    public base_atomic_common< T, false, Interprocess >
 {
 private:
-    typedef base_atomic_common< T, false > base_type;
+    typedef base_atomic_common< T, false, Interprocess > base_type;
 
 public:
     typedef typename base_type::value_type value_type;
@@ -164,16 +172,16 @@ public:
 };
 
 
-template< typename T, typename Kind >
+template< typename T, typename Kind, bool Interprocess >
 class base_atomic;
 
 //! General template. Implementation for user-defined types, such as structs and enums, and pointers to non-object types
-template< typename T >
-class base_atomic< T, void > :
-    public base_atomic_generic< T >
+template< typename T, bool Interprocess >
+class base_atomic< T, void, Interprocess > :
+    public base_atomic_generic< T, Interprocess >
 {
 private:
-    typedef base_atomic_generic< T > base_type;
+    typedef base_atomic_generic< T, Interprocess > base_type;
 
 public:
     typedef typename base_type::value_type value_type;
@@ -292,12 +300,12 @@ private:
 
 
 //! Implementation for integers
-template< typename T >
-class base_atomic< T, int > :
-    public base_atomic_common< T, atomics::detail::is_signed< T >::value >
+template< typename T, bool Interprocess >
+class base_atomic< T, int, Interprocess > :
+    public base_atomic_common< T, atomics::detail::is_signed< T >::value, Interprocess >
 {
 private:
-    typedef base_atomic_common< T, atomics::detail::is_signed< T >::value > base_type;
+    typedef base_atomic_common< T, atomics::detail::is_signed< T >::value, Interprocess > base_type;
 
 public:
     typedef typename base_type::value_type value_type;
@@ -621,20 +629,20 @@ private:
 };
 
 //! Implementation for bool
-template< >
-class base_atomic< bool, int > :
-    public base_atomic_common< bool, false >
+template< bool Interprocess >
+class base_atomic< bool, int, Interprocess > :
+    public base_atomic_common< bool, false, Interprocess >
 {
 private:
-    typedef base_atomic_common< bool, false > base_type;
+    typedef base_atomic_common< bool, false, Interprocess > base_type;
 
 public:
-    typedef base_type::value_type value_type;
+    typedef typename base_type::value_type value_type;
 
 protected:
-    typedef base_type::operations operations;
-    typedef base_type::wait_operations wait_operations;
-    typedef base_type::storage_type storage_type;
+    typedef typename base_type::operations operations;
+    typedef typename base_type::wait_operations wait_operations;
+    typedef typename base_type::storage_type storage_type;
     typedef value_type value_arg_type;
 
 private:
@@ -746,12 +754,12 @@ private:
 #if !defined(BOOST_ATOMIC_NO_FLOATING_POINT)
 
 //! Implementation for floating point types
-template< typename T >
-class base_atomic< T, float > :
-    public base_atomic_common< T, false >
+template< typename T, bool Interprocess >
+class base_atomic< T, float, Interprocess > :
+    public base_atomic_common< T, false, Interprocess >
 {
 private:
-    typedef base_atomic_common< T, false > base_type;
+    typedef base_atomic_common< T, false, Interprocess > base_type;
 
 public:
     typedef typename base_type::value_type value_type;
@@ -933,12 +941,12 @@ private:
 
 
 //! Implementation for pointers to object types
-template< typename T >
-class base_atomic< T*, void* > :
-    public base_atomic_common< T*, false >
+template< typename T, bool Interprocess >
+class base_atomic< T*, void*, Interprocess > :
+    public base_atomic_common< T*, false, Interprocess >
 {
 private:
-    typedef base_atomic_common< T*, false > base_type;
+    typedef base_atomic_common< T*, false, Interprocess > base_type;
 
 public:
     typedef typename base_type::value_type value_type;

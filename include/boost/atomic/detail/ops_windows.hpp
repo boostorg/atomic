@@ -64,7 +64,7 @@ struct windows_operations_base
     }
 };
 
-template< std::size_t Size, bool Signed, typename Derived >
+template< std::size_t Size, bool Signed, bool Interprocess, typename Derived >
 struct windows_operations :
     public windows_operations_base
 {
@@ -73,6 +73,7 @@ struct windows_operations :
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = Size;
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_alignment = storage_traits< Size >::alignment;
     static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
+    static BOOST_CONSTEXPR_OR_CONST bool is_interprocess = Interprocess;
 
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
@@ -107,11 +108,11 @@ struct windows_operations :
     }
 };
 
-template< bool Signed >
-struct operations< 4u, Signed > :
-    public windows_operations< 4u, Signed, operations< 4u, Signed > >
+template< bool Signed, bool Interprocess >
+struct operations< 4u, Signed, bool Interprocess > :
+    public windows_operations< 4u, Signed, Interprocess, operations< 4u, Signed, Interprocess > >
 {
-    typedef windows_operations< 4u, Signed, operations< 4u, Signed > > base_type;
+    typedef windows_operations< 4u, Signed, Interprocess, operations< 4u, Signed, Interprocess > > base_type;
     typedef typename base_type::storage_type storage_type;
 
     static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
@@ -185,15 +186,15 @@ struct operations< 4u, Signed > :
     }
 };
 
-template< bool Signed >
-struct operations< 1u, Signed > :
-    public extending_cas_based_operations< operations< 4u, Signed >, 1u, Signed >
+template< bool Signed, bool Interprocess >
+struct operations< 1u, Signed, Interprocess > :
+    public extending_cas_based_operations< operations< 4u, Signed, Interprocess >, 1u, Signed >
 {
 };
 
-template< bool Signed >
-struct operations< 2u, Signed > :
-    public extending_cas_based_operations< operations< 4u, Signed >, 2u, Signed >
+template< bool Signed, bool Interprocess >
+struct operations< 2u, Signed, Interprocess > :
+    public extending_cas_based_operations< operations< 4u, Signed, Interprocess >, 2u, Signed >
 {
 };
 

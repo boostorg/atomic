@@ -17,6 +17,7 @@
 #include <cstddef>
 #include <boost/memory_order.hpp>
 #include <boost/atomic/detail/config.hpp>
+#include <boost/atomic/detail/pause.hpp>
 #include <boost/atomic/detail/lock_pool.hpp>
 #include <boost/atomic/detail/wait_operations_fwd.hpp>
 
@@ -29,14 +30,24 @@ namespace atomics {
 namespace detail {
 
 //! Generic implementation of wait/notify operations
+template< typename Base, bool Interprocess >
+struct generic_wait_operations;
+
 template< typename Base >
-struct generic_wait_operations :
+struct generic_wait_operations< Base, false > :
     public Base
 {
     typedef Base base_type;
     typedef typename base_type::storage_type storage_type;
     typedef lock_pool::scoped_lock< base_type::storage_alignment, true > scoped_lock;
     typedef lock_pool::scoped_wait_state< base_type::storage_alignment > scoped_wait_state;
+
+    static BOOST_CONSTEXPR_OR_CONST bool always_has_native_wait_notify = false;
+
+    static BOOST_FORCEINLINE bool has_native_wait_notify(storage_type const volatile&) BOOST_NOEXCEPT
+    {
+        return false;
+    }
 
     static BOOST_FORCEINLINE storage_type wait(storage_type const volatile& storage, storage_type old_val, memory_order order) BOOST_NOEXCEPT
     {
@@ -68,9 +79,57 @@ struct generic_wait_operations :
     }
 };
 
-template< typename Base, std::size_t Size >
-struct wait_operations< Base, Size, true > :
-    public generic_wait_operations< Base >
+template< typename Base >
+struct generic_wait_operations< Base, true > :
+    public Base
+{
+    typedef Base base_type;
+    typedef typename base_type::storage_type storage_type;
+
+    static BOOST_CONSTEXPR_OR_CONST bool always_has_native_wait_notify = false;
+
+    static BOOST_FORCEINLINE bool has_native_wait_notify(storage_type const volatile&) BOOST_NOEXCEPT
+    {
+        return false;
+    }
+
+    static BOOST_FORCEINLINE storage_type wait(storage_type const volatile& storage, storage_type old_val, memory_order order) BOOST_NOEXCEPT
+    {
+        storage_type new_val = base_type::load(storage, order);
+        if (new_val == old_val)
+        {
+            for (unsigned int i = 0u; i < 16u; ++i)
+            {
+                atomics::detail::pause();
+                new_val = base_type::load(storage, order);
+                if (new_val != old_val)
+                    goto finish;
+            }
+
+            do
+            {
+                atomics::detail::wait_some();
+                new_val = base_type::load(storage, order);
+            }
+            while (new_val == old_val);
+        }
+
+    finish:
+        return new_val;
+    }
+
+    static BOOST_FORCEINLINE void notify_one(storage_type volatile& storage) BOOST_NOEXCEPT
+    {
+    }
+
+    static BOOST_FORCEINLINE void notify_all(storage_type volatile& storage) BOOST_NOEXCEPT
+    {
+    }
+};
+
+template< typename Base, std::size_t Size, bool Interprocess >
+struct wait_operations< Base, Size, true, Interprocess > :
+    public generic_wait_operations< Base, Interprocess >
 {
 };
 

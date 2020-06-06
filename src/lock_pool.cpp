@@ -288,7 +288,7 @@ inline void wait_state::wait(lock_state& state) BOOST_NOEXCEPT
 
 #elif defined(BOOST_ATOMIC_USE_FUTEX)
 
-typedef atomics::detail::operations< 4u, false > futex_operations;
+typedef atomics::detail::operations< 4u, false, false > futex_operations;
 // The storage type must be a 32-bit object, as required by futex API
 BOOST_STATIC_ASSERT_MSG(futex_operations::is_always_lock_free && sizeof(futex_operations::storage_type) == 4u, "Boost.Atomic unsupported target platform: native atomic operations not implemented for 32-bit integers");
 typedef atomics::detail::extra_operations< futex_operations, futex_operations::storage_size, futex_operations::is_signed > futex_extra_operations;
@@ -533,7 +533,7 @@ inline void wait_state::wait(lock_state& state) BOOST_NOEXCEPT
 
 #else // BOOST_USE_WINAPI_VERSION >= BOOST_WINAPI_VERSION_WIN6
 
-typedef atomics::detail::operations< 4u, false > mutex_operations;
+typedef atomics::detail::operations< 4u, false, false > mutex_operations;
 BOOST_STATIC_ASSERT_MSG(mutex_operations::is_always_lock_free, "Boost.Atomic unsupported target platform: native atomic operations not implemented for 32-bit integers");
 
 namespace fallback_mutex_bits {

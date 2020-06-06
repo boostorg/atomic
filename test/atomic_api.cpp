@@ -14,7 +14,7 @@
 
 int main(int, char *[])
 {
-    test_flag_api();
+    test_flag_api< boost::atomic_flag >();
 
     test_integral_api< atomic_wrapper, char >();
     test_integral_api< atomic_wrapper, signed char >();

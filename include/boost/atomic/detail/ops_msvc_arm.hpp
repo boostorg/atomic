@@ -100,7 +100,7 @@ struct msvc_arm_operations_base
     }
 };
 
-template< std::size_t Size, bool Signed, typename Derived >
+template< std::size_t Size, bool Signed, bool Interprocess, typename Derived >
 struct msvc_arm_operations :
     public msvc_arm_operations_base
 {
@@ -109,6 +109,7 @@ struct msvc_arm_operations :
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = Size;
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_alignment = storage_traits< Size >::alignment;
     static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
+    static BOOST_CONSTEXPR_OR_CONST bool is_interprocess = Interprocess;
 
     static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
@@ -133,11 +134,11 @@ struct msvc_arm_operations :
     }
 };
 
-template< bool Signed >
-struct operations< 1u, Signed > :
-    public msvc_arm_operations< 1u, Signed, operations< 1u, Signed > >
+template< bool Signed, bool Interprocess >
+struct operations< 1u, Signed, Interprocess > :
+    public msvc_arm_operations< 1u, Signed, Interprocess, operations< 1u, Signed, Interprocess > >
 {
-    typedef msvc_arm_operations< 1u, Signed, operations< 1u, Signed > > base_type;
+    typedef msvc_arm_operations< 1u, Signed, Interprocess, operations< 1u, Signed, Interprocess > > base_type;
     typedef typename base_type::storage_type storage_type;
 
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
@@ -298,11 +299,11 @@ struct operations< 1u, Signed > :
     }
 };
 
-template< bool Signed >
-struct operations< 2u, Signed > :
-    public msvc_arm_operations< 2u, Signed, operations< 2u, Signed > >
+template< bool Signed, bool Interprocess >
+struct operations< 2u, Signed, Interprocess > :
+    public msvc_arm_operations< 2u, Signed, Interprocess, operations< 2u, Signed, Interprocess > >
 {
-    typedef msvc_arm_operations< 2u, Signed, operations< 2u, Signed > > base_type;
+    typedef msvc_arm_operations< 2u, Signed, Interprocess, operations< 2u, Signed, Interprocess > > base_type;
     typedef typename base_type::storage_type storage_type;
 
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
@@ -463,11 +464,11 @@ struct operations< 2u, Signed > :
     }
 };
 
-template< bool Signed >
-struct operations< 4u, Signed > :
-    public msvc_arm_operations< 4u, Signed, operations< 4u, Signed > >
+template< bool Signed, bool Interprocess >
+struct operations< 4u, Signed, Interprocess > :
+    public msvc_arm_operations< 4u, Signed, Interprocess, operations< 4u, Signed, Interprocess > >
 {
-    typedef msvc_arm_operations< 4u, Signed, operations< 4u, Signed > > base_type;
+    typedef msvc_arm_operations< 4u, Signed, Interprocess, operations< 4u, Signed, Interprocess > > base_type;
     typedef typename base_type::storage_type storage_type;
 
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
@@ -628,11 +629,11 @@ struct operations< 4u, Signed > :
     }
 };
 
-template< bool Signed >
-struct operations< 8u, Signed > :
-    public msvc_arm_operations< 8u, Signed, operations< 8u, Signed > >
+template< bool Signed, bool Interprocess >
+struct operations< 8u, Signed, Interprocess > :
+    public msvc_arm_operations< 8u, Signed, Interprocess, operations< 8u, Signed, Interprocess > >
 {
-    typedef msvc_arm_operations< 8u, Signed, operations< 8u, Signed > > base_type;
+    typedef msvc_arm_operations< 8u, Signed, Interprocess, operations< 8u, Signed, Interprocess > > base_type;
     typedef typename base_type::storage_type storage_type;
 
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT

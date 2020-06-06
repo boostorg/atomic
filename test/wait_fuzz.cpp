@@ -10,7 +10,8 @@
 // while incrementing the atomic object. The test ends when the atomic counter reaches the predefined limit.
 // The goal of the test is to verify that (a) it doesn't crash and (b) all threads get unblocked in the end.
 
-#include <boost/atomic.hpp>
+#include <boost/memory_order.hpp>
+#include <boost/atomic/atomic.hpp>
 
 #include <iostream>
 #include <boost/config.hpp>

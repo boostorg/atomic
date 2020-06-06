@@ -56,7 +56,7 @@ struct gcc_sync_operations_base
     }
 };
 
-template< std::size_t Size, bool Signed >
+template< std::size_t Size, bool Signed, bool Interprocess >
 struct gcc_sync_operations :
     public gcc_sync_operations_base
 {
@@ -65,6 +65,7 @@ struct gcc_sync_operations :
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = Size;
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_alignment = storage_traits< Size >::alignment;
     static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
+    static BOOST_CONSTEXPR_OR_CONST bool is_interprocess = Interprocess;
 
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
@@ -154,69 +155,69 @@ struct gcc_sync_operations :
 };
 
 #if BOOST_ATOMIC_INT8_LOCK_FREE > 0
-template< bool Signed >
-struct operations< 1u, Signed > :
+template< bool Signed, bool Interprocess >
+struct operations< 1u, Signed, Interprocess > :
 #if defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_1)
-    public gcc_sync_operations< 1u, Signed >
+    public gcc_sync_operations< 1u, Signed, Interprocess >
 #elif defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_2)
-    public extending_cas_based_operations< gcc_sync_operations< 2u, Signed >, 1u, Signed >
+    public extending_cas_based_operations< gcc_sync_operations< 2u, Signed, Interprocess >, 1u, Signed >
 #elif defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_4)
-    public extending_cas_based_operations< gcc_sync_operations< 4u, Signed >, 1u, Signed >
+    public extending_cas_based_operations< gcc_sync_operations< 4u, Signed, Interprocess >, 1u, Signed >
 #elif defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_8)
-    public extending_cas_based_operations< gcc_sync_operations< 8u, Signed >, 1u, Signed >
+    public extending_cas_based_operations< gcc_sync_operations< 8u, Signed, Interprocess >, 1u, Signed >
 #else
-    public extending_cas_based_operations< gcc_sync_operations< 16u, Signed >, 1u, Signed >
+    public extending_cas_based_operations< gcc_sync_operations< 16u, Signed, Interprocess >, 1u, Signed >
 #endif
 {
 };
 #endif
 
 #if BOOST_ATOMIC_INT16_LOCK_FREE > 0
-template< bool Signed >
-struct operations< 2u, Signed > :
+template< bool Signed, bool Interprocess >
+struct operations< 2u, Signed, Interprocess > :
 #if defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_2)
-    public gcc_sync_operations< 2u, Signed >
+    public gcc_sync_operations< 2u, Signed, Interprocess >
 #elif defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_4)
-    public extending_cas_based_operations< gcc_sync_operations< 4u, Signed >, 2u, Signed >
+    public extending_cas_based_operations< gcc_sync_operations< 4u, Signed, Interprocess >, 2u, Signed >
 #elif defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_8)
-    public extending_cas_based_operations< gcc_sync_operations< 8u, Signed >, 2u, Signed >
+    public extending_cas_based_operations< gcc_sync_operations< 8u, Signed, Interprocess >, 2u, Signed >
 #else
-    public extending_cas_based_operations< gcc_sync_operations< 16u, Signed >, 2u, Signed >
+    public extending_cas_based_operations< gcc_sync_operations< 16u, Signed, Interprocess >, 2u, Signed >
 #endif
 {
 };
 #endif
 
 #if BOOST_ATOMIC_INT32_LOCK_FREE > 0
-template< bool Signed >
-struct operations< 4u, Signed > :
+template< bool Signed, bool Interprocess >
+struct operations< 4u, Signed, Interprocess > :
 #if defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_4)
-    public gcc_sync_operations< 4u, Signed >
+    public gcc_sync_operations< 4u, Signed, Interprocess >
 #elif defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_8)
-    public extending_cas_based_operations< gcc_sync_operations< 8u, Signed >, 4u, Signed >
+    public extending_cas_based_operations< gcc_sync_operations< 8u, Signed, Interprocess >, 4u, Signed >
 #else
-    public extending_cas_based_operations< gcc_sync_operations< 16u, Signed >, 4u, Signed >
+    public extending_cas_based_operations< gcc_sync_operations< 16u, Signed, Interprocess >, 4u, Signed >
 #endif
 {
 };
 #endif
 
 #if BOOST_ATOMIC_INT64_LOCK_FREE > 0
-template< bool Signed >
-struct operations< 8u, Signed > :
+template< bool Signed, bool Interprocess >
+struct operations< 8u, Signed, Interprocess > :
 #if defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_8)
-    public gcc_sync_operations< 8u, Signed >
+    public gcc_sync_operations< 8u, Signed, Interprocess >
 #else
-    public extending_cas_based_operations< gcc_sync_operations< 16u, Signed >, 8u, Signed >
+    public extending_cas_based_operations< gcc_sync_operations< 16u, Signed, Interprocess >, 8u, Signed >
 #endif
 {
 };
 #endif
 
 #if BOOST_ATOMIC_INT128_LOCK_FREE > 0
-template< bool Signed >
-struct operations< 16u, Signed > :
-    public gcc_sync_operations< 16u, Signed >
+template< bool Signed, bool Interprocess >
+struct operations< 16u, Signed, Interprocess > :
+    public gcc_sync_operations< 16u, Signed, Interprocess >
 {
 };
 #endif

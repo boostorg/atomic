@@ -41,7 +41,7 @@ namespace detail {
 
 #if defined(BOOST_ATOMIC_DETAIL_X86_HAS_CMPXCHG8B)
 
-template< bool Signed >
+template< bool Signed, bool Interprocess >
 struct gcc_dcas_x86
 {
     typedef typename storage_traits< 8u >::type storage_type;
@@ -50,6 +50,7 @@ struct gcc_dcas_x86
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 8u;
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_alignment = 8u;
     static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
+    static BOOST_CONSTEXPR_OR_CONST bool is_interprocess = Interprocess;
     static BOOST_CONSTEXPR_OR_CONST bool full_cas_based = true;
     static BOOST_CONSTEXPR_OR_CONST bool is_always_lock_free = true;
 
@@ -381,7 +382,7 @@ struct gcc_dcas_x86
 
 #if defined(BOOST_ATOMIC_DETAIL_X86_HAS_CMPXCHG16B)
 
-template< bool Signed >
+template< bool Signed, bool Interprocess >
 struct gcc_dcas_x86_64
 {
     typedef typename storage_traits< 16u >::type storage_type;
@@ -390,6 +391,7 @@ struct gcc_dcas_x86_64
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 16u;
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_alignment = 16u;
     static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
+    static BOOST_CONSTEXPR_OR_CONST bool is_interprocess = Interprocess;
     static BOOST_CONSTEXPR_OR_CONST bool full_cas_based = true;
     static BOOST_CONSTEXPR_OR_CONST bool is_always_lock_free = true;
 

@@ -98,7 +98,7 @@ As a consequence a program such as:
     x = 1;
     y = 1;
 
-  thread2
+  thread2:
     if (y == 1) {
       assert(x == 1);
     }
@@ -240,6 +240,13 @@ the following way:
 This provides the same ordering guarantees as previously, but
 elides a (possibly expensive) memory ordering operation in
 the case C is executed.
+
+[note Atomic fences are only indended to constraint ordering of
+regular and atomic loads and stores for the purpose of thread
+synchronization. `atomic_thread_fence` is not intended to be used
+to order some architecture-specific memory accesses, such as
+non-temporal loads and stores on x86 or write combining memory
+accesses. Use specialized instructions for these purposes.]
 
 [endsect]
 
@@ -482,6 +489,14 @@ following operations:
       [Initialize to the clear state. See the discussion below.]
     ]
     [
+      [`bool is_lock_free()`]
+      [Checks if the atomic flag is lock-free; the returned value is consistent with the `is_always_lock_free` static constant, see below.]
+    ]
+    [
+      [`bool has_native_wait_notify()`]
+      [Indicates if the target platform natively supports waiting and notifying operations for this object. Returns `true` if `always_has_native_wait_notify` is `true`.]
+    ]
+    [
       [`bool test(memory_order order)`]
       [Returns `true` if the flag is in the set state and `false` otherwise.]
     ]
@@ -504,6 +519,14 @@ following operations:
     [
       [`void notify_all()`]
       [Unblocks all threads blocked in waiting operations on this atomic object.]
+    ]
+    [
+      [`static constexpr bool is_always_lock_free`]
+      [This static boolean constant indicates if any atomic flag is lock-free]
+    ]
+    [
+      [`static constexpr bool always_has_native_wait_notify`]
+      [Indicates if the target platform always natively supports waiting and notifying operations.]
     ]
 ]
 
@@ -588,6 +611,10 @@ All atomic objects support the following operations and properties:
       [Checks if the atomic object is lock-free; the returned value is consistent with the `is_always_lock_free` static constant, see below.]
     ]
     [
+      [`bool has_native_wait_notify()`]
+      [Indicates if the target platform natively supports waiting and notifying operations for this object. Returns `true` if `always_has_native_wait_notify` is `true`.]
+    ]
+    [
       [`T& value()`]
       [Returns a reference to the value stored in the atomic object.]
     ]
@@ -644,6 +671,10 @@ All atomic objects support the following operations and properties:
     [
       [`static constexpr bool is_always_lock_free`]
       [This static boolean constant indicates if any atomic object of this type is lock-free]
+    ]
+    [
+      [`static constexpr bool always_has_native_wait_notify`]
+      [Indicates if the target platform always natively supports waiting and notifying operations.]
     ]
 ]
 
@@ -982,7 +1013,7 @@ constraint which always defaults to `memory_order_seq_cst`.
 
 [section:interface_atomic_convenience_typedefs [^boost::atomic<['T]>] convenience typedefs]
 
-For convenience, several shorthand typedefs of [^boost::atomic<['T]>] are provided:
+For convenience, the following shorthand typedefs of [^boost::atomic<['T]>] are provided:
 
 [c++]
 
@@ -1001,6 +1032,7 @@ For convenience, several shorthand typedefs of [^boost::atomic<['T]>] are provid
     typedef atomic< void* > atomic_address;
     typedef atomic< bool > atomic_bool;
     typedef atomic< wchar_t > atomic_wchar_t;
+    typedef atomic< char8_t > atomic_char8_t;
     typedef atomic< char16_t > atomic_char16_t;
     typedef atomic< char32_t > atomic_char32_t;
 
@@ -1038,7 +1070,7 @@ For convenience, several shorthand typedefs of [^boost::atomic<['T]>] are provid
     typedef atomic< intptr_t > atomic_intptr_t;
     typedef atomic< uintptr_t > atomic_uintptr_t;
 
-The typedefs are provided only if the corresponding type is available.
+The typedefs are provided only if the corresponding value type is available.
 
 [endsect]
 
@@ -1204,15 +1236,41 @@ Notifying operations have the following forms:
 
 The `notify_one` operation unblocks at least one thread blocked in the waiting operation on the same atomic object, and `notify_all` unblocks all such threads. Notifying operations do not enforce memory ordering and should normally be preceeded with a store operation or a fence with the appropriate memory ordering constraint.
 
-Waiting and notifying operations require special support from the operating system, which may not be universally available. Even for atomic objects that support lock-free operations (as indicated by the `is_always_lock_free` property or the corresponding [link atomic.interface.feature_macros macro]), the waiting and notifying operations may involve locking and require linking with [*Boost.Atomic] compiled library.
+Waiting and notifying operations require special support from the operating system, which may not be universally available. Whether the operating system natively supports these operations is indicated by the `always_has_native_wait_notify` static constant and `has_native_wait_notify()` member function of a given atomic type.
+
+Even for atomic objects that support lock-free operations (as indicated by the `is_always_lock_free` property or the corresponding [link atomic.interface.feature_macros macro]), the waiting and notifying operations may involve locking and require linking with [*Boost.Atomic] compiled library.
 
 Waiting and notifying operations are not address-free, meaning that the implementation may use process-local state and process-local addresses of the atomic objects to implement the operations. In particular, this means these operations cannot be used for communication between processes (when the atomic object is located in shared memory) or when the atomic object is mapped at different memory addresses in the same process.
+
+[endsect]
+
+[section:interface_ipc Atomic types for inter-process communication]
+
+    #include <boost/atomic/ipc_atomic.hpp>
+    #include <boost/atomic/ipc_atomic_ref.hpp>
+    #include <boost/atomic/ipc_atomic_flag.hpp>
+
+[*Boost.Atomic] provides a dedicated set of types for inter-process communication: `boost::ipc_atomic_flag`, [^boost::ipc_atomic<['T]>] and [^boost::ipc_atomic_ref<['T]>]. Collectively, these types are called inter-process communication atomic types or IPC atomic types, and their counterparts without the `ipc_` prefix - non-IPC atomic types.
+
+Each of the IPC atomic types have the same requirements on their value types and provide the same set of operations and properties as its non-IPC counterpart. All operations have the same signature, requirements and effects, with the following amendments:
+
+* All operations, except constructors, destructors, `is_lock_free()` and `has_native_wait_notify()` have an additional precondition that `is_lock_free()` returns `true` for this atomic object. (Implementation note: The current implementation detects availability of atomic instructions at compile time, and the code that does not fulfull this requirement will fail to compile.)
+* The `has_native_wait_notify()` method and `always_has_native_wait_notify` static constant indicate whether the operating system has native support for inter-process waiting and notifying operations. This may be different from non-IPC atomic types as the OS may have different capabilities for inter-thread and inter-process communication.
+* All operations on objects of IPC atomic types are address-free, which allows to place such objects (in case of [^boost::ipc_atomic_ref<['T]>] - objects referenced by `ipc_atomic_ref`) in memory regions shared between processes or mapped at different addresses in the same process.
+
+[note Operations on lock-free non-IPC atomic objects, except [link atomic.interface.interface_wait_notify_ops waiting and notifying operations], are also address-free, so `boost::atomic_flag`, [^boost::atomic<['T]>] and [^boost::atomic_ref<['T]>] could also be used for inter-process communication. However, the user must ensure that the given atomic object indeed supports lock-free operations. Failing to do this could result in a misbehaving program. IPC atomic types enforce this requirement and add support for address-free waiting and notifying operations.]
+
+It should be noted that some operations on IPC atomic types may be more expensive than the non-IPC ones. This primarily concerns waiting and notifying operations, as the operating system may have to perform conversion of the process-mapped addresses of atomic objects to physical addresses. Also, when native support for inter-process waiting and notifying operations is not present (as indicated by `has_native_wait_notify()`), waiting operations are emulated with a busy loop, which can affect performance and power consumption of the system. Native support for waiting and notifying operations can also be detected using [link atomic.interface.feature_macros capability macros].
+
+Users must not create and use IPC and non-IPC atomic references on the same referenced object at the same time. IPC and non-IPC atomic references are not required to communicate with each other. For example, a waiting operation on a non-IPC atomic reference may not be interrupted by a notifying operation on an IPC atomic reference referencing the same object.
 
 [endsect]
 
 [section:interface_fences Fences]
 
     #include <boost/atomic/fences.hpp>
+
+[link atomic.thread_coordination.fences Fences] are implemented with the following operations:
 
 [table
     [[Syntax] [Description]]
@@ -1222,9 +1280,14 @@ Waiting and notifying operations are not address-free, meaning that the implemen
     ]
     [
       [`void atomic_signal_fence(memory_order order)`]
-      [Issue fence for coordination with signal handler (only in same thread).]
+      [Issue fence for coordination with a signal handler (only in the same thread).]
     ]
 ]
+
+Note that `atomic_signal_fence` does not implement thread synchronization
+and only acts as a barrier to prevent code reordering by the compiler (but not by CPU).
+The `order` argument here specifies the direction, in which the fence prevents the
+compiler to reorder code.
 
 [endsect]
 
@@ -1356,6 +1419,8 @@ For floating-point types the following macros are similarly defined:
 ]
 
 These macros are not defined when support for floating point types is disabled by user.
+
+For any of the [^BOOST_ATOMIC_['X]_LOCK_FREE] macro described above, two additional macros named [^BOOST_ATOMIC_HAS_NATIVE_['X]_WAIT_NOTIFY] and [^BOOST_ATOMIC_HAS_NATIVE_['X]_IPC_WAIT_NOTIFY] are defined. The former indicates whether [link atomic.interface.interface_wait_notify_ops waiting and notifying operations] are supported natively for non-IPC atomic types of a given type, and the latter does the same for [link atomic.interface.interface_ipc IPC atomic types]. The macros take values of `0`, `1` or `2`, where `0` indicates that native operations are not available, `1` means the operations may be available (which is determined at run time) and `2` means always available. Note that the lock-free and native waiting/notifying operations macros for a given type may have different values.
 
 [endsect]
 
@@ -1499,6 +1564,9 @@ implementation behaves as expected:
   and then wake up one or all of them for a number of times. This test
   is intended as a smoke test in case if the implementation has long-term
   instabilities or races (primarily, in the lock pool implementation).
+* [*ipc_atomic_api.cpp], [*ipc_atomic_ref_api.cpp], [*ipc_wait_api.cpp]
+  and [*ipc_wait_ref_api.cpp] are similar to the tests without the [*ipc_]
+  prefix, but test IPC atomic types.
 
 [endsect]
 

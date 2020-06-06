@@ -26,7 +26,7 @@ namespace boost {
 namespace atomics {
 namespace detail {
 
-typedef atomics::detail::operations< 1u, false > once_flag_operations;
+typedef atomics::detail::operations< 1u, false, false > once_flag_operations;
 
 struct once_flag
 {
