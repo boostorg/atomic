@@ -657,6 +657,9 @@ example of such is `futex` and similar operations available on some systems. The
 or modifying the value of the atomic object in non-atomic manner, or to construct [link atomic.interface.interface_atomic_ref
 atomic references]. Doing so does not guarantee atomicity or memory ordering.
 
+[note Even if `boost::atomic` for a given type is lock-free, an atomic reference for that type may not be. Therefore, `boost::atomic`
+and `boost::atomic_ref` operating on the same object may use different thread synchronization primitives incompatible with each other.]
+
 The `compare_exchange_weak`/`compare_exchange_strong` variants
 taking four parameters differ from the three parameter variants
 in that they allow a different memory ordering constraint to
