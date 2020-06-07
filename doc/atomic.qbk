@@ -354,9 +354,9 @@ The following macros affect library behavior:
 [table
     [[Macro] [Description]]
     [[`BOOST_ATOMIC_LOCK_POOL_SIZE_LOG2`] [Binary logarithm of the number of locks in the internal
-      lock pool used by Boost.Atomic to implement lock-based atomic operations and waiting and notifying
+      lock pool used by [*Boost.Atomic] to implement lock-based atomic operations and waiting and notifying
       operations on some platforms. Must be an integer in range from 0 to 16, the default value is 8.
-      Only has effect when building Boost.Atomic.]]
+      Only has effect when building [*Boost.Atomic].]]
     [[`BOOST_ATOMIC_NO_CMPXCHG8B`] [Affects 32-bit x86 Oracle Studio builds. When defined,
       the library assumes the target CPU does not support `cmpxchg8b` instruction used
       to support 64-bit atomic operations. This is the case with very old CPUs (pre-Pentium).
@@ -560,9 +560,14 @@ examples of the types compatible with this requirement:
 
 Note that classes with virtual functions or virtual base classes
 do not satisfy the requirements. Also be warned
-that structures with "padding" between data members may compare
+that structures with padding bits may compare
 non-equal via [^memcmp] even though all members are equal. This may also be
 the case with some floating point types, which include padding bits themselves.
+
+[note Although types with padding bits are generally not supported by the library,
+[*Boost.Atomic] attempts to support operations on floating point types on some
+platforms, where the location of the padding bits is known. In particular,
+80-bit `long double` type on x86 targets is supported.]
 
 [section:interface_atomic_generic [^boost::atomic<['T]>] template class]
 
@@ -581,6 +586,10 @@ All atomic objects support the following operations and properties:
     [
       [`bool is_lock_free()`]
       [Checks if the atomic object is lock-free; the returned value is consistent with the `is_always_lock_free` static constant, see below.]
+    ]
+    [
+      [`T& value()`]
+      [Returns a reference to the value stored in the atomic object.]
     ]
     [
       [`T load(memory_order order)`]
@@ -641,6 +650,12 @@ All atomic objects support the following operations and properties:
 `order` always has `memory_order_seq_cst` as default parameter.
 
 Waiting and notifying operations are described in detail in [link atomic.interface.interface_wait_notify_ops this] section.
+
+The `value` operation is a [*Boost.Atomic] extension. The returned reference can be used to invoke external operations
+on the atomic value, which are not part of [*Boost.Atomic] but are compatible with it on the target architecture. The primary
+example of such is `futex` and similar operations available on some systems. The returned reference must not be used for reading
+or modifying the value of the atomic object in non-atomic manner, or to construct [link atomic.interface.interface_atomic_ref
+atomic references]. Doing so does not guarantee atomicity or memory ordering.
 
 The `compare_exchange_weak`/`compare_exchange_strong` variants
 taking four parameters differ from the three parameter variants
@@ -797,9 +812,9 @@ Additionally, as a [*Boost.Atomic] extension, the following operations are also 
     ]
 ]
 
-[note In Boost.Atomic 1.66 the [^['op]_and_test] operations returned the opposite value (i.e. `true` if the result is zero). This was changed
-to the current behavior in 1.67 for consistency with other operations in Boost.Atomic, as well as with conventions taken in the C++ standard library.
-Boost.Atomic 1.66 was the only release shipped with the old behavior.]
+[note In [*Boost.Atomic] 1.66 the [^['op]_and_test] operations returned the opposite value (i.e. `true` if the result is zero). This was changed
+to the current behavior in 1.67 for consistency with other operations in [*Boost.Atomic], as well as with conventions taken in the C++ standard library.
+[*Boost.Atomic] 1.66 was the only release shipped with the old behavior.]
 
 `order` always has `memory_order_seq_cst` as default parameter.
 
@@ -1126,20 +1141,22 @@ is common that 64-bit integers and floating point numbers have alignment of 4, w
 Users must always explicitly ensure the referenced objects are aligned to `atomic_ref<T>::required_alignment`.]
 
 Next, some types may have padding bits, which are the bits of object representation that do not contribute to
-the object value. Typically, padding bits are used for alignment purposes. One notable example is `long double`
-on x86, where the value is represented by an [@https://en.wikipedia.org/wiki/Extended_precision#x86_extended_precision_format 80-bit extended precision]
+the object value. Typically, padding bits are used for alignment purposes. [*Boost.Atomic] does not support
+types with padding bits, with an exception of floating point types on platforms where the location of the
+padding bits is known at compile time. One notable example is `long double` on x86, where the value is represented
+by an [@https://en.wikipedia.org/wiki/Extended_precision#x86_extended_precision_format 80-bit extended precision]
 floating point number complemented by 2 to 6 bytes of padding, depending on the target ABI.
 
 Padding bits pose a problem for [*Boost.Atomic] because they can break binary comparison of object (as if
 by `memcmp`), which is used in `compare_exchange_weak`/`compare_exchange_strong` operations. `boost::atomic`
-manages the internal object representation and in some cases it is able to initialize the padding bits so that
-binary comparison yields the expected result. This is not possible with `boost::atomic_ref` because the referenced
-object is initialized by external means and any particular content in the padding bits cannot be guaranteed.
-This requires `boost::atomic_ref` to initialize padding bits on construction. Since there may be other atomic
-references referring to the same object, this initialization must be atomic. As a result, `boost::atomic_ref`
-construction can be relatively expensive and may potentially disrupt atomic operations that are being performed
-on the same object through other atomic references. It is recommended to avoid constructing `boost::atomic_ref`
-in tight loops.
+manages the internal object representation and in some cases, like the mentioned `long double` example,
+it is able to initialize the padding bits so that binary comparison yields the expected result. This is not
+possible with `boost::atomic_ref` because the referenced object is initialized by external means and any
+particular content in the padding bits cannot be guaranteed. This requires `boost::atomic_ref` to initialize
+padding bits on construction. Since there may be other atomic references referring to the same object, this
+initialization must be atomic. As a result, `boost::atomic_ref` construction can be relatively expensive
+and may potentially disrupt atomic operations that are being performed on the same object through other
+atomic references. It is recommended to avoid constructing `boost::atomic_ref` in tight loops or hot paths.
 
 Finally, target platform may not have the necessary means to implement atomic operations on objects of some
 sizes. For example, on many hardware architectures atomic operations on the following structure are not possible:
@@ -1425,6 +1442,13 @@ limitations that cannot be lifted without compiler support:
   to avoid undefined behavior that results from signed integer overflows. Platforms
   with other signed integer representations are not supported. Note that C++20 makes
   two's complement representation of signed integers mandatory.
+* [*Types with padding bits are not supported]: As discussed in [link atomic.interface.interface_atomic_ref.caveats
+  this section], [*Boost.Atomic] cannot support types with padding bits because their content
+  is undefined, and there is no portable way to initialize them to a predefined value. This makes
+  operations like `compare_exchange_strong`/`compare_exchange_weak` fail, and given that in some
+  cases other operations are built upon these, potentially all operations become unreliable. [*Boost.Atomic]
+  does support padding bits for floating point types on platforms where the location of the
+  padding bits is known at compile time.
 
 [endsect]
 
@@ -1435,32 +1459,43 @@ limitations that cannot be lifted without compiler support:
 [*Boost.Atomic] provides a unit test suite to verify that the
 implementation behaves as expected:
 
-* [*fallback_api.cpp] verifies that the fallback-to-locking aspect
-  of [*Boost.Atomic] compiles and has correct value semantics.
-* [*native_api.cpp] verifies that all atomic operations have correct
-  value semantics (e.g. "fetch_add" really adds the desired value,
-  returning the previous). It is a rough "smoke-test" to help weed
-  out the most obvious mistakes (for example width overflow,
-  signed/unsigned extension, ...).
+* [*atomic_api.cpp] and [*atomic_ref_api.cpp] verifies that all atomic
+  operations have correct value semantics (e.g. "fetch_add" really adds
+  the desired value, returning the previous). The latter tests `atomic_ref`
+  rather than `atomic` and `atomic_flag`. It is a rough "smoke-test"
+  to help weed out the most obvious mistakes (for example width overflow,
+  signed/unsigned extension, ...). These tests are also run with
+  `BOOST_ATOMIC_FORCE_FALLBACK` macro defined to test the lock pool
+  based implementation.
 * [*lockfree.cpp] verifies that the [*BOOST_ATOMIC_*_LOCKFREE] macros
   are set properly according to the expectations for a given
   platform, and that they match up with the [*is_always_lock_free] and
   [*is_lock_free] members of the [*atomic] object instances.
-* [*atomicity.cpp] lets two threads race against each other modifying
-  a shared variable, verifying that the operations behave atomic
-  as appropriate. By nature, this test is necessarily stochastic, and
-  the test self-calibrates to yield 99% confidence that a
+* [*atomicity.cpp] and [*atomicity_ref.cpp] lets two threads race against
+  each other modifying a shared variable, verifying that the operations
+  behave atomic as appropriate. By nature, this test is necessarily
+  stochastic, and the test self-calibrates to yield 99% confidence that a
   positive result indicates absence of an error. This test is
   very useful on uni-processor systems with preemption already.
-* [*ordering.cpp] lets two threads race against each other accessing
-  multiple shared variables, verifying that the operations
-  exhibit the expected ordering behavior. By nature, this test is
-  necessarily stochastic, and the test attempts to self-calibrate to
+* [*ordering.cpp] and [*ordering_ref.cpp] lets two threads race against
+  each other accessing multiple shared variables, verifying that the
+  operations exhibit the expected ordering behavior. By nature, this test
+  is necessarily stochastic, and the test attempts to self-calibrate to
   yield 99% confidence that a positive result indicates absence
   of an error. This only works on true multi-processor (or multi-core)
   systems. It does not yield any result on uni-processor systems
   or emulators (due to there being no observable reordering even
   the order=relaxed case) and will report that fact.
+* [*wait_api.cpp] and [*wait_ref_api.cpp] are used to verify waiting
+  and notifying operations behavior. Due to the possibility of spurious
+  wakeups, these tests may fail if a waiting operation returns early
+  a number of times. The test retries for a few times in this case,
+  but a failure is still possible.
+* [*wait_fuzz.cpp] is a fuzzing test for waiting and notifying operations,
+  that creates a number of threads that block on the same atomic object
+  and then wake up one or all of them for a number of times. This test
+  is intended as a smoke test in case if the implementation has long-term
+  instabilities or races (primarily, in the lock pool implementation).
 
 [endsect]
 
@@ -1469,8 +1504,9 @@ implementation behaves as expected:
 [*Boost.Atomic] has been tested on and is known to work on
 the following compilers/platforms:
 
-* gcc 4.x: i386, x86_64, ppc32, ppc64, sparcv9, armv6, alpha
-* Visual Studio Express 2008/Windows XP, x86, x64, ARM
+* gcc 4.4 and newer: i386, x86_64, ppc32, ppc64, sparcv9, armv6, alpha
+* clang 3.5 and newer: i386, x86_64
+* Visual Studio Express 2008 and newer on Windows XP and later: x86, x64, ARM
 
 [endsect]
 
