@@ -44,6 +44,8 @@ namespace detail {
 // this facility is slightly slower than inline assembler would be, but much
 // faster than a system call.
 //
+// https://lwn.net/Articles/314561/
+//
 // While this emulated CAS is "strong" in the sense that it does not fail
 // "spuriously" (i.e.: it never fails to perform the exchange when the value
 // found equals the value expected), it does not return the found value on
