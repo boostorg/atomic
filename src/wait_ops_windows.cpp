@@ -60,7 +60,7 @@ BOOST_ATOMIC_DECL void initialize_wait_functions() BOOST_NOEXCEPT
             if (BOOST_UNLIKELY(!once_flag_operations::compare_exchange_strong(wait_functions_once_flag.m_flag, old_val, 1u, boost::memory_order_relaxed, boost::memory_order_relaxed)))
                 continue;
 
-            boost::winapi::HMODULE_ kernel_base = boost::winapi::get_module_handle(L"KernelBase.dll");
+            boost::winapi::HMODULE_ kernel_base = boost::winapi::get_module_handle(L"api-ms-win-core-synch-l1-2-0.dll");
             if (BOOST_LIKELY(kernel_base != NULL))
             {
                 wait_on_address_t* woa = (wait_on_address_t*)boost::winapi::get_proc_address(kernel_base, "WaitOnAddress");
