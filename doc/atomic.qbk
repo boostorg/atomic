@@ -1070,7 +1070,15 @@ For convenience, the following shorthand typedefs of [^boost::atomic<['T]>] are 
     typedef atomic< intptr_t > atomic_intptr_t;
     typedef atomic< uintptr_t > atomic_uintptr_t;
 
+    typedef atomic< unsigned integral > atomic_unsigned_lock_free;
+    typedef atomic< signed integral > atomic_signed_lock_free;
+
 The typedefs are provided only if the corresponding value type is available.
+
+The `atomic_unsigned_lock_free` and `atomic_signed_lock_free` types, if defined, indicate
+the atomic object type for an unsigned or signed integer, respectively, that is
+lock-free and that preferably has native support for
+[link atomic.interface.interface_wait_notify_ops waiting and notifying operations].
 
 [endsect]
 
@@ -1172,7 +1180,7 @@ macro from [*Boost.Config] may be useful.
 [note Do not rely on compilers to enforce the natural alignment for fundamental types, and that the default
 alignment will satisfy the `atomic_ref<T>::required_alignment` constraint. There are real world cases when the
 default alignment is below the required alignment for atomic references. For example, on 32-bit x86 targets it
-is common that 64-bit integers and floating point numbers have alignment of 4, which is not enough for `atomic_ref`.
+is common that 64-bit integers and floating point numbers have alignment of 4, which is not high enough for `atomic_ref`.
 Users must always explicitly ensure the referenced objects are aligned to `atomic_ref<T>::required_alignment`.]
 
 Next, some types may have padding bits, which are the bits of object representation that do not contribute to

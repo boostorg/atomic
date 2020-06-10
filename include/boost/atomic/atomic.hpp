@@ -162,6 +162,36 @@ typedef atomic< boost::intptr_t > atomic_intptr_t;
 typedef atomic< boost::uintptr_t > atomic_uintptr_t;
 #endif
 
+// Select the lock-free atomic types that has natively supported waiting/notifying operations.
+// Prefer 32-bit types the most as those have the best performance on current 32 and 64-bit architectures.
+#if BOOST_ATOMIC_INT32_LOCK_FREE == 2 && BOOST_ATOMIC_HAS_NATIVE_INT32_WAIT_NOTIFY == 2
+typedef atomic< uint32_t > atomic_unsigned_lock_free;
+typedef atomic< int32_t > atomic_signed_lock_free;
+#elif BOOST_ATOMIC_INT64_LOCK_FREE == 2 && BOOST_ATOMIC_HAS_NATIVE_INT64_WAIT_NOTIFY == 2
+typedef atomic< uint64_t > atomic_unsigned_lock_free;
+typedef atomic< int64_t > atomic_signed_lock_free;
+#elif BOOST_ATOMIC_INT16_LOCK_FREE == 2 && BOOST_ATOMIC_HAS_NATIVE_INT16_WAIT_NOTIFY == 2
+typedef atomic< uint16_t > atomic_unsigned_lock_free;
+typedef atomic< int16_t > atomic_signed_lock_free;
+#elif BOOST_ATOMIC_INT8_LOCK_FREE == 2 && BOOST_ATOMIC_HAS_NATIVE_INT8_WAIT_NOTIFY == 2
+typedef atomic< uint8_t > atomic_unsigned_lock_free;
+typedef atomic< int8_t > atomic_signed_lock_free;
+#elif BOOST_ATOMIC_INT32_LOCK_FREE == 2
+typedef atomic< uint32_t > atomic_unsigned_lock_free;
+typedef atomic< int32_t > atomic_signed_lock_free;
+#elif BOOST_ATOMIC_INT64_LOCK_FREE == 2
+typedef atomic< uint64_t > atomic_unsigned_lock_free;
+typedef atomic< int64_t > atomic_signed_lock_free;
+#elif BOOST_ATOMIC_INT16_LOCK_FREE == 2
+typedef atomic< uint16_t > atomic_unsigned_lock_free;
+typedef atomic< int16_t > atomic_signed_lock_free;
+#elif BOOST_ATOMIC_INT8_LOCK_FREE == 2
+typedef atomic< uint8_t > atomic_unsigned_lock_free;
+typedef atomic< int8_t > atomic_signed_lock_free;
+#else
+#define BOOST_ATOMIC_DETAIL_NO_LOCK_FREE_TYPEDEFS
+#endif
+
 } // namespace atomics
 
 using atomics::atomic;
@@ -232,6 +262,12 @@ using atomics::atomic_ptrdiff_t;
 using atomics::atomic_intptr_t;
 using atomics::atomic_uintptr_t;
 #endif
+
+#if !defined(BOOST_ATOMIC_DETAIL_NO_LOCK_FREE_TYPEDEFS)
+using atomics::atomic_unsigned_lock_free;
+using atomics::atomic_signed_lock_free;
+#endif
+#undef BOOST_ATOMIC_DETAIL_NO_LOCK_FREE_TYPEDEFS
 
 } // namespace boost
 
