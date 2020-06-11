@@ -79,5 +79,9 @@ int main(int, char *[])
     // Other non-trivial constructors are allowed.
     test_struct_with_ctor_api< atomic_wrapper >();
 
+    // Test that fences at least compile
+    boost::atomic_thread_fence(boost::memory_order_seq_cst);
+    boost::atomic_signal_fence(boost::memory_order_seq_cst);
+
     return boost::report_errors();
 }
