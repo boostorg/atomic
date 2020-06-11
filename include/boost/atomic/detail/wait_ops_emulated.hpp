@@ -46,7 +46,14 @@ struct emulated_wait_operations :
         return false;
     }
 
-    static BOOST_FORCEINLINE storage_type wait(storage_type const volatile& storage, storage_type old_val, memory_order) BOOST_NOEXCEPT
+    static
+#if defined(BOOST_MSVC) && BOOST_MSVC < 1500
+    // In some cases, when this function is inlined, MSVC-8 (VS2005) x64 generates broken code that returns a bogus value from this function.
+    BOOST_NOINLINE
+#else
+    BOOST_FORCEINLINE
+#endif
+    storage_type wait(storage_type const volatile& storage, storage_type old_val, memory_order) BOOST_NOEXCEPT
     {
         BOOST_STATIC_ASSERT_MSG(!base_type::is_interprocess, "Boost.Atomic: operation invoked on a non-lock-free inter-process atomic object");
         storage_type const& s = const_cast< storage_type const& >(storage);
