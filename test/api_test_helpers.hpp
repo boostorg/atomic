@@ -884,6 +884,23 @@ inline void test_integral_api(void)
         test_negation< Wrapper, T >();
 }
 
+template< template< typename > class Wrapper, typename T >
+inline void test_lock_free_integral_api(boost::true_type)
+{
+    test_integral_api< Wrapper, T >();
+}
+
+template< template< typename > class Wrapper, typename T >
+inline void test_lock_free_integral_api(boost::false_type)
+{
+}
+
+template< template< typename > class Wrapper, typename T >
+inline void test_lock_free_integral_api(void)
+{
+    test_lock_free_integral_api< Wrapper, T >(boost::integral_constant< bool, Wrapper< T >::atomic_type::is_always_lock_free >());
+}
+
 #if !defined(BOOST_ATOMIC_NO_FLOATING_POINT)
 
 template< template< typename > class Wrapper, typename T, typename D >
@@ -1009,6 +1026,23 @@ void test_floating_point_api(void)
 #endif
 }
 
+template< template< typename > class Wrapper, typename T >
+inline void test_lock_free_floating_point_api(boost::true_type)
+{
+    test_floating_point_api< Wrapper, T >();
+}
+
+template< template< typename > class Wrapper, typename T >
+inline void test_lock_free_floating_point_api(boost::false_type)
+{
+}
+
+template< template< typename > class Wrapper, typename T >
+inline void test_lock_free_floating_point_api(void)
+{
+    test_lock_free_floating_point_api< Wrapper, T >(boost::integral_constant< bool, Wrapper< T >::atomic_type::is_always_lock_free >());
+}
+
 
 template< template< typename > class Wrapper, typename T >
 void test_pointer_api(void)
@@ -1034,11 +1068,47 @@ enum test_enum
     foo, bar, baz
 };
 
+template< template< typename > class Wrapper, typename T >
+inline void test_lock_free_pointer_api(boost::true_type)
+{
+    test_pointer_api< Wrapper, T >();
+}
+
+template< template< typename > class Wrapper, typename T >
+inline void test_lock_free_pointer_api(boost::false_type)
+{
+}
+
+template< template< typename > class Wrapper, typename T >
+inline void test_lock_free_pointer_api(void)
+{
+    test_lock_free_pointer_api< Wrapper, T >(boost::integral_constant< bool, Wrapper< T >::atomic_type::is_always_lock_free >());
+}
+
+
 template< template< typename > class Wrapper >
 void test_enum_api(void)
 {
     test_base_operators< Wrapper >(foo, bar, baz);
 }
+
+template< template< typename > class Wrapper >
+inline void test_lock_free_enum_api(boost::true_type)
+{
+    test_enum_api< Wrapper >();
+}
+
+template< template< typename > class Wrapper >
+inline void test_lock_free_enum_api(boost::false_type)
+{
+}
+
+template< template< typename > class Wrapper >
+inline void test_lock_free_enum_api(void)
+{
+    test_lock_free_enum_api< Wrapper >(boost::integral_constant< bool, Wrapper< test_enum >::atomic_type::is_always_lock_free >());
+}
+
 
 template< typename T >
 struct test_struct

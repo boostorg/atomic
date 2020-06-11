@@ -19,49 +19,35 @@ int main(int, char *[])
     test_flag_api< boost::ipc_atomic_flag >();
 #endif
 
-#if BOOST_ATOMIC_INT8_LOCK_FREE == 2
-    test_integral_api< ipc_atomic_wrapper, boost::uint8_t >();
-    test_integral_api< ipc_atomic_wrapper, boost::int8_t >();
-#endif
-#if BOOST_ATOMIC_INT16_LOCK_FREE == 2
-    test_integral_api< ipc_atomic_wrapper, boost::uint16_t >();
-    test_integral_api< ipc_atomic_wrapper, boost::int16_t >();
-#endif
-#if BOOST_ATOMIC_INT32_LOCK_FREE == 2
-    test_integral_api< ipc_atomic_wrapper, boost::uint32_t >();
-    test_integral_api< ipc_atomic_wrapper, boost::int32_t >();
-#endif
-#if BOOST_ATOMIC_INT64_LOCK_FREE == 2
-    test_integral_api< ipc_atomic_wrapper, boost::uint64_t >();
-    test_integral_api< ipc_atomic_wrapper, boost::int64_t >();
-#endif
-#if defined(BOOST_HAS_INT128) && !defined(BOOST_ATOMIC_TESTS_NO_INT128) && BOOST_ATOMIC_INT128_LOCK_FREE == 2
-    test_integral_api< ipc_atomic_wrapper, boost::int128_type >();
-    test_integral_api< ipc_atomic_wrapper, boost::uint128_type >();
+    test_lock_free_integral_api< ipc_atomic_wrapper, boost::uint8_t >();
+    test_lock_free_integral_api< ipc_atomic_wrapper, boost::int8_t >();
+
+    test_lock_free_integral_api< ipc_atomic_wrapper, boost::uint16_t >();
+    test_lock_free_integral_api< ipc_atomic_wrapper, boost::int16_t >();
+
+    test_lock_free_integral_api< ipc_atomic_wrapper, boost::uint32_t >();
+    test_lock_free_integral_api< ipc_atomic_wrapper, boost::int32_t >();
+
+    test_lock_free_integral_api< ipc_atomic_wrapper, boost::uint64_t >();
+    test_lock_free_integral_api< ipc_atomic_wrapper, boost::int64_t >();
+
+#if defined(BOOST_HAS_INT128) && !defined(BOOST_ATOMIC_TESTS_NO_INT128)
+    test_lock_free_integral_api< ipc_atomic_wrapper, boost::int128_type >();
+    test_lock_free_integral_api< ipc_atomic_wrapper, boost::uint128_type >();
 #endif
 
 #if !defined(BOOST_ATOMIC_NO_FLOATING_POINT)
-#if BOOST_ATOMIC_FLOAT_LOCK_FREE == 2
-    test_floating_point_api< ipc_atomic_wrapper, float >();
-#endif
-#if BOOST_ATOMIC_DOUBLE_LOCK_FREE == 2
-    test_floating_point_api< ipc_atomic_wrapper, double >();
-#endif
-#if BOOST_ATOMIC_LONG_DOUBLE_LOCK_FREE == 2
-    test_floating_point_api< ipc_atomic_wrapper, long double >();
-#endif
-#if defined(BOOST_HAS_FLOAT128) && !defined(BOOST_ATOMIC_TESTS_NO_FLOAT128) && BOOST_ATOMIC_FLOAT128_LOCK_FREE == 2
-    test_floating_point_api< ipc_atomic_wrapper, boost::float128_type >();
+    test_lock_free_floating_point_api< ipc_atomic_wrapper, float >();
+    test_lock_free_floating_point_api< ipc_atomic_wrapper, double >();
+    test_lock_free_floating_point_api< ipc_atomic_wrapper, long double >();
+#if defined(BOOST_HAS_FLOAT128) && !defined(BOOST_ATOMIC_TESTS_NO_FLOAT128)
+    test_lock_free_floating_point_api< ipc_atomic_wrapper, boost::float128_type >();
 #endif
 #endif
 
-#if BOOST_ATOMIC_POINTER_LOCK_FREE == 2
-    test_pointer_api< ipc_atomic_wrapper, int >();
-#endif
+    test_lock_free_pointer_api< ipc_atomic_wrapper, int >();
 
-#if BOOST_ATOMIC_INT_LOCK_FREE == 2
-    test_enum_api< ipc_atomic_wrapper >();
-#endif
+    test_lock_free_enum_api< ipc_atomic_wrapper >();
 
     return boost::report_errors();
 }

@@ -19,6 +19,9 @@
 #include <boost/bind/bind.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/thread/barrier.hpp>
+#include <boost/atomic/capabilities.hpp>
+#include <boost/atomic/ipc_atomic_flag.hpp>
+#include <boost/type_traits/integral_constant.hpp>
 #include "atomic_wrapper.hpp"
 #include "lightweight_test_stream.hpp"
 
@@ -284,16 +287,29 @@ inline void test_notify_all(T value1, T value2)
 
 //! Invokes all wait/notify tests
 template< template< typename > class Wrapper, typename T >
-void test_wait_notify_api(T value1, T value2, T value3)
+void test_wait_notify_api(T value1, T value2, T value3, boost::true_type)
 {
     test_wait_value_mismatch< Wrapper >(value1, value2);
     test_notify_one< Wrapper >(value1, value2, value3);
     test_notify_all< Wrapper >(value1, value2);
 }
 
+template< template< typename > class Wrapper, typename T >
+inline void test_wait_notify_api(T value1, T value2, T value3, boost::false_type)
+{
+}
+
+//! Invokes all wait/notify tests, if the atomic type is lock-free
+template< template< typename > class Wrapper, typename T >
+inline void test_wait_notify_api(T value1, T value2, T value3)
+{
+    test_wait_notify_api< Wrapper >(value1, value2, value3, boost::integral_constant< bool, Wrapper< T >::atomic_type::is_always_lock_free >());
+}
+
 
 inline void test_flag_wait_notify_api()
 {
+#if BOOST_ATOMIC_FLAG_LOCK_FREE == 2
 #ifndef BOOST_ATOMIC_NO_ATOMIC_FLAG_INIT
     boost::ipc_atomic_flag f = BOOST_ATOMIC_FLAG_INIT;
 #else
@@ -304,6 +320,7 @@ inline void test_flag_wait_notify_api()
     BOOST_TEST(!received_value);
     f.notify_one();
     f.notify_all();
+#endif // BOOST_ATOMIC_FLAG_LOCK_FREE == 2
 }
 
 #endif // BOOST_ATOMIC_TEST_IPC_WAIT_TEST_HELPERS_HPP_INCLUDED_

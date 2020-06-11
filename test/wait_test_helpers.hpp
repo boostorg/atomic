@@ -309,9 +309,10 @@ struct struct_3_bytes
 };
 
 template< typename Char, typename Traits >
-inline std::basic_ostream< Char, Traits >& operator<< (std::basic_ostream< Char, Traits >& strm, struct_3_bytes const&)
+inline std::basic_ostream< Char, Traits >& operator<< (std::basic_ostream< Char, Traits >& strm, struct_3_bytes const& val)
 {
-    strm << "[struct_3_bytes]";
+    strm << "[struct_3_bytes{ " << static_cast< unsigned int >(val.data[0])
+        << ", " << static_cast< unsigned int >(val.data[1]) << ", " << static_cast< unsigned int >(val.data[2]) << " }]";
     return strm;
 }
 
