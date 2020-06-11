@@ -17,6 +17,7 @@
 #define BOOST_ATOMIC_DETAIL_OPS_GCC_X86_HPP_INCLUDED_
 
 #include <cstddef>
+#include <boost/cstdint.hpp>
 #include <boost/memory_order.hpp>
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/storage_traits.hpp>
@@ -523,11 +524,11 @@ BOOST_FORCEINLINE void thread_fence(memory_order order) BOOST_NOEXCEPT
         // and is faster than mfence on most modern x86 CPUs (as of 2020).
         // Note that we want to apply the atomic operation on any location so that:
         // - It is not shared with other threads. A variable on the stack suits this well.
-        // - It is likely in cache. Being close to the stack top fits this well.
+        // - It is likely in cache. Being close to the top of the stack fits this well.
         // - It does not alias existing data on the stack, so that we don't introduce a false data dependency.
-        // See here: https://shipilev.net/blog/2014/on-the-fence-with-dependencies/
-        unsigned int dummy;
-        __asm__ __volatile__ ("lock; orl $0, %0" : "=m" (dummy) : : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory");
+        // See some performance data here: https://shipilev.net/blog/2014/on-the-fence-with-dependencies/
+        boost::uint32_t dummy;
+        __asm__ __volatile__ ("lock; notl %0" : "=m" (dummy) : : "memory");
     }
     else if ((static_cast< unsigned int >(order) & (static_cast< unsigned int >(memory_order_acquire) | static_cast< unsigned int >(memory_order_release))) != 0u)
     {

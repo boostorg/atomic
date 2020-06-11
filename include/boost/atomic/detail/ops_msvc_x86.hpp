@@ -17,6 +17,7 @@
 #define BOOST_ATOMIC_DETAIL_OPS_MSVC_X86_HPP_INCLUDED_
 
 #include <cstddef>
+#include <boost/cstdint.hpp>
 #include <boost/memory_order.hpp>
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/intptr.hpp>
@@ -877,13 +878,8 @@ BOOST_FORCEINLINE void thread_fence(memory_order order) BOOST_NOEXCEPT
         // See the comment in ops_gcc_x86.hpp as to why we're not using mfence here.
         // We're not using __faststorefence() here because it generates an atomic operation
         // on [rsp]/[esp] location, which may alias valid data and cause false data dependency.
-        long dummy;
-#if defined(BOOST_ATOMIC_INTERLOCKED_OR)
-        // May be more efficient as it doesn't require an additional register
-        BOOST_ATOMIC_INTERLOCKED_OR(&dummy, 0);
-#else
-        BOOST_ATOMIC_INTERLOCKED_EXCHANGE(&dummy, 0);
-#endif
+        boost::uint32_t dummy;
+        BOOST_ATOMIC_INTERLOCKED_INCREMENT(&dummy);
     }
     else if (order != memory_order_relaxed)
     {
