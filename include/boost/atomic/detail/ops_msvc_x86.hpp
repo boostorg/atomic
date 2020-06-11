@@ -44,13 +44,6 @@
 #pragma warning(disable: 4731)
 #endif
 
-#if defined(BOOST_ATOMIC_DETAIL_X86_HAS_MFENCE)
-extern "C" void _mm_mfence(void);
-#if defined(BOOST_MSVC)
-#pragma intrinsic(_mm_mfence)
-#endif
-#endif
-
 namespace boost {
 namespace atomics {
 namespace detail {
@@ -76,16 +69,6 @@ struct msvc_x86_operations_base
 {
     static BOOST_CONSTEXPR_OR_CONST bool full_cas_based = false;
     static BOOST_CONSTEXPR_OR_CONST bool is_always_lock_free = true;
-
-    static BOOST_FORCEINLINE void hardware_full_fence() BOOST_NOEXCEPT
-    {
-#if defined(BOOST_ATOMIC_DETAIL_X86_HAS_MFENCE)
-        _mm_mfence();
-#else
-        long tmp;
-        BOOST_ATOMIC_INTERLOCKED_EXCHANGE(&tmp, 0);
-#endif
-    }
 
     static BOOST_FORCEINLINE void fence_before(memory_order) BOOST_NOEXCEPT
     {
@@ -889,10 +872,23 @@ struct operations< 16u, Signed, Interprocess > :
 
 BOOST_FORCEINLINE void thread_fence(memory_order order) BOOST_NOEXCEPT
 {
-    BOOST_ATOMIC_DETAIL_COMPILER_BARRIER();
     if (order == memory_order_seq_cst)
-        msvc_x86_operations_base::hardware_full_fence();
-    BOOST_ATOMIC_DETAIL_COMPILER_BARRIER();
+    {
+        // See the comment in ops_gcc_x86.hpp as to why we're not using mfence here.
+        // We're not using __faststorefence() here because it generates an atomic operation
+        // on [rsp]/[esp] location, which may alias valid data and cause false data dependency.
+        long dummy;
+#if defined(BOOST_ATOMIC_INTERLOCKED_OR)
+        // May be more efficient as it doesn't require an additional register
+        BOOST_ATOMIC_INTERLOCKED_OR(&dummy, 0);
+#else
+        BOOST_ATOMIC_INTERLOCKED_EXCHANGE(&dummy, 0);
+#endif
+    }
+    else if (order != memory_order_relaxed)
+    {
+        BOOST_ATOMIC_DETAIL_COMPILER_BARRIER();
+    }
 }
 
 BOOST_FORCEINLINE void signal_fence(memory_order order) BOOST_NOEXCEPT

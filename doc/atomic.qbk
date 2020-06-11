@@ -379,13 +379,6 @@ The following macros affect library behavior:
       atomics on such CPUs will result in crashes, unless this macro is defined. Note that
       the macro does not affect GCC and compatible compilers because the library infers
       this information from the compiler-defined macros.]]
-    [[`BOOST_ATOMIC_NO_MFENCE`] [Affects 32-bit x86 Oracle Studio builds. When defined,
-      the library assumes the target CPU does not support `mfence` instruction used
-      to implement thread fences. This instruction was added with SSE2 instruction set extension,
-      which was available in CPUs since Intel Pentium 4. The library does not perform runtime detection
-      of this instruction, so running the library code on older CPUs will result in crashes, unless
-      this macro is defined. Note that the macro does not affect MSVC, GCC and compatible compilers
-      because the library infers this information from the compiler-defined macros.]]
     [[`BOOST_ATOMIC_NO_FLOATING_POINT`] [When defined, support for floating point operations is disabled.
       Floating point types shall be treated similar to trivially copyable structs and no capability macros
       will be defined.]]

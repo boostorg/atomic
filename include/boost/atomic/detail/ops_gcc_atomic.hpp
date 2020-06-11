@@ -99,7 +99,15 @@ struct gcc_atomic_operations
 
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+#if defined(BOOST_GCC) && BOOST_GCC < 100100 && (defined(__x86_64__) || defined(__i386__))
+        // gcc up to 10.1 generates mov + mfence for seq_cst stores, which is slower than xchg
+        if (order != memory_order_seq_cst)
+            __atomic_store_n(&storage, v, atomics::detail::convert_memory_order_to_gcc(order));
+        else
+            __atomic_exchange_n(&storage, v, __ATOMIC_SEQ_CST);
+#else
         __atomic_store_n(&storage, v, atomics::detail::convert_memory_order_to_gcc(order));
+#endif
     }
 
     static BOOST_FORCEINLINE storage_type load(storage_type const volatile& storage, memory_order order) BOOST_NOEXCEPT
@@ -376,7 +384,21 @@ struct operations< 1u, Signed, Interprocess > :
 
 BOOST_FORCEINLINE void thread_fence(memory_order order) BOOST_NOEXCEPT
 {
+#if defined(__x86_64__) || defined(__i386__)
+    if (order != memory_order_seq_cst)
+    {
+        __atomic_thread_fence(atomics::detail::convert_memory_order_to_gcc(order));
+    }
+    else
+    {
+        // gcc, clang, icc and probably other compilers generate mfence for a seq_cst fence,
+        // while a dummy lock-prefixed instruction would be enough and faster. See the comment in ops_gcc_x86.hpp.
+        unsigned int dummy;
+        __asm__ __volatile__ ("lock; orl $0, %0" : "=m" (dummy) : : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory");
+    }
+#else
     __atomic_thread_fence(atomics::detail::convert_memory_order_to_gcc(order));
+#endif
 }
 
 BOOST_FORCEINLINE void signal_fence(memory_order order) BOOST_NOEXCEPT
