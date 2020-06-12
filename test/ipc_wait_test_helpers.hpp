@@ -24,15 +24,7 @@
 #include <boost/type_traits/integral_constant.hpp>
 #include "atomic_wrapper.hpp"
 #include "lightweight_test_stream.hpp"
-
-namespace chrono = boost::chrono;
-
-// On Windows high precision clocks tend to cause spurious test failures because threads wake up earlier than expected
-#if defined(BOOST_CHRONO_HAS_CLOCK_STEADY) && !defined(BOOST_WINDOWS)
-typedef chrono::steady_clock test_clock;
-#else
-typedef chrono::system_clock test_clock;
-#endif
+#include "test_clock.hpp"
 
 //! Since some of the tests below are allowed to fail, we retry up to this many times to pass the test
 BOOST_CONSTEXPR_OR_CONST unsigned int test_retry_count = 5u;
