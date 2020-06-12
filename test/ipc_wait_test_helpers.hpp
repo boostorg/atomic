@@ -27,7 +27,8 @@
 
 namespace chrono = boost::chrono;
 
-#if defined(BOOST_CHRONO_HAS_CLOCK_STEADY)
+// On Windows high precision clocks tend to cause spurious test failures because threads wake up earlier than expected
+#if defined(BOOST_CHRONO_HAS_CLOCK_STEADY) && !defined(BOOST_WINDOWS)
 typedef chrono::steady_clock test_clock;
 #else
 typedef chrono::system_clock test_clock;
