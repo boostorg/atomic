@@ -62,8 +62,8 @@ namespace detail {
 // For this reason we promote memory_order_consume to memory_order_acquire.
 
 #if defined(__thumb__) && !defined(__thumb2__)
-#define BOOST_ATOMIC_DETAIL_ARM_ASM_START(TMPREG) "adr " #TMPREG ", 8f\n" "bx " #TMPREG "\n" ".arm\n" ".align 4\n" "8:\n"
-#define BOOST_ATOMIC_DETAIL_ARM_ASM_END(TMPREG)   "adr " #TMPREG ", 9f + 1\n" "bx " #TMPREG "\n" ".thumb\n" ".align 2\n" "9:\n"
+#define BOOST_ATOMIC_DETAIL_ARM_ASM_START(TMPREG) "adr " #TMPREG ", 8f\n\t" "bx " #TMPREG "\n\t" ".arm\n\t" ".align 4\n\t" "8:\n\t"
+#define BOOST_ATOMIC_DETAIL_ARM_ASM_END(TMPREG)   "adr " #TMPREG ", 9f + 1\n\t" "bx " #TMPREG "\n\t" ".thumb\n\t" ".align 2\n\t" "9:\n\t"
 #define BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_CONSTRAINT(var) "=&l" (var)
 #else
 // The tmpreg may be wasted in this case, which is non-optimal.
@@ -104,9 +104,9 @@ struct gcc_arm_operations_base
         __asm__ __volatile__
         (
 #if defined(__thumb2__)
-            ".short 0xF3BF, 0x8F5B\n" // dmb ish
+            ".short 0xF3BF, 0x8F5B\n\t" // dmb ish
 #else
-            ".word 0xF57FF05B\n" // dmb ish
+            ".word 0xF57FF05B\n\t" // dmb ish
 #endif
             :
             :
@@ -117,7 +117,7 @@ struct gcc_arm_operations_base
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%0)
-            "mcr\tp15, 0, r0, c7, c10, 5\n"
+            "mcr p15, 0, r0, c7, c10, 5\n\t"
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%0)
             : "=&l" (tmp)
             :

@@ -53,8 +53,6 @@ namespace detail {
 // LDREXH, LDREXB, STREXH and STREXB.
 // There are also double-word versions, LDREXD and STREXD.
 // (Actually it looks like these are available from version 6k onwards.)
-// FIXME these are not yet used; should be mostly a matter of copy-and-paste.
-// I think you can supply an immediate offset to the address.
 
 template< bool Signed, bool Interprocess >
 struct operations< 4u, Signed, Interprocess > :
@@ -89,11 +87,11 @@ struct operations< 4u, Signed, Interprocess > :
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%[tmp])
-            "1:\n"
-            "ldrex %[original], %[storage]\n"          // load the original value
-            "strex %[tmp], %[value], %[storage]\n"     // store the replacement, tmp = store failed
-            "teq   %[tmp], #0\n"                       // check if store succeeded
-            "bne   1b\n"
+            "1:\n\t"
+            "ldrex %[original], %[storage]\n\t"          // load the original value
+            "strex %[tmp], %[value], %[storage]\n\t"     // store the replacement, tmp = store failed
+            "teq   %[tmp], #0\n\t"                       // check if store succeeded
+            "bne   1b\n\t"
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
             : [tmp] "=&l" (tmp), [original] "=&r" (original), [storage] "+Q" (storage)
             : [value] "r" (v)
@@ -113,12 +111,12 @@ struct operations< 4u, Signed, Interprocess > :
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%[tmp])
-            "mov     %[success], #0\n"                      // success = 0
-            "ldrex   %[original], %[storage]\n"             // original = *(&storage)
-            "cmp     %[original], %[expected]\n"            // flags = original==expected
-            "itt     eq\n"                                  // [hint that the following 2 instructions are conditional on flags.equal]
-            "strexeq %[success], %[desired], %[storage]\n"  // if (flags.equal) *(&storage) = desired, success = store failed
-            "eoreq   %[success], %[success], #1\n"          // if (flags.equal) success ^= 1 (i.e. make it 1 if store succeeded)
+            "mov     %[success], #0\n\t"                      // success = 0
+            "ldrex   %[original], %[storage]\n\t"             // original = *(&storage)
+            "cmp     %[original], %[expected]\n\t"            // flags = original==expected
+            "itt     eq\n\t"                                  // [hint that the following 2 instructions are conditional on flags.equal]
+            "strexeq %[success], %[desired], %[storage]\n\t"  // if (flags.equal) *(&storage) = desired, success = store failed
+            "eoreq   %[success], %[success], #1\n\t"          // if (flags.equal) success ^= 1 (i.e. make it 1 if store succeeded)
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
             : [original] "=&r" (original),  // %0
               [success] "=&r" (success),    // %1
@@ -146,15 +144,15 @@ struct operations< 4u, Signed, Interprocess > :
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%[tmp])
-            "mov     %[success], #0\n"                      // success = 0
-            "1:\n"
-            "ldrex   %[original], %[storage]\n"             // original = *(&storage)
-            "cmp     %[original], %[expected]\n"            // flags = original==expected
-            "bne     2f\n"                                  // if (!flags.equal) goto end
-            "strex   %[success], %[desired], %[storage]\n"  // *(&storage) = desired, success = store failed
-            "eors    %[success], %[success], #1\n"          // success ^= 1 (i.e. make it 1 if store succeeded); flags.equal = success == 0
-            "beq     1b\n"                                  // if (flags.equal) goto retry
-            "2:\n"
+            "mov     %[success], #0\n\t"                      // success = 0
+            "1:\n\t"
+            "ldrex   %[original], %[storage]\n\t"             // original = *(&storage)
+            "cmp     %[original], %[expected]\n\t"            // flags = original==expected
+            "bne     2f\n\t"                                  // if (!flags.equal) goto end
+            "strex   %[success], %[desired], %[storage]\n\t"  // *(&storage) = desired, success = store failed
+            "eors    %[success], %[success], #1\n\t"          // success ^= 1 (i.e. make it 1 if store succeeded); flags.equal = success == 0
+            "beq     1b\n\t"                                  // if (flags.equal) goto retry
+            "2:\n\t"
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
             : [original] "=&r" (original),  // %0
               [success] "=&r" (success),    // %1
@@ -180,12 +178,12 @@ struct operations< 4u, Signed, Interprocess > :
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%[tmp])
-            "1:\n"
-            "ldrex   %[original], %[storage]\n"           // original = *(&storage)
-            "add     %[result], %[original], %[value]\n"  // result = original + value
-            "strex   %[tmp], %[result], %[storage]\n"     // *(&storage) = result, tmp = store failed
-            "teq     %[tmp], #0\n"                        // flags = tmp==0
-            "bne     1b\n"                                // if (!flags.equal) goto retry
+            "1:\n\t"
+            "ldrex   %[original], %[storage]\n\t"           // original = *(&storage)
+            "add     %[result], %[original], %[value]\n\t"  // result = original + value
+            "strex   %[tmp], %[result], %[storage]\n\t"     // *(&storage) = result, tmp = store failed
+            "teq     %[tmp], #0\n\t"                        // flags = tmp==0
+            "bne     1b\n\t"                                // if (!flags.equal) goto retry
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
             : [original] "=&r" (original),  // %0
               [result] "=&r" (result),      // %1
@@ -206,12 +204,12 @@ struct operations< 4u, Signed, Interprocess > :
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%[tmp])
-            "1:\n"
-            "ldrex   %[original], %[storage]\n"           // original = *(&storage)
-            "sub     %[result], %[original], %[value]\n"  // result = original - value
-            "strex   %[tmp], %[result], %[storage]\n"     // *(&storage) = result, tmp = store failed
-            "teq     %[tmp], #0\n"                        // flags = tmp==0
-            "bne     1b\n"                                // if (!flags.equal) goto retry
+            "1:\n\t"
+            "ldrex   %[original], %[storage]\n\t"           // original = *(&storage)
+            "sub     %[result], %[original], %[value]\n\t"  // result = original - value
+            "strex   %[tmp], %[result], %[storage]\n\t"     // *(&storage) = result, tmp = store failed
+            "teq     %[tmp], #0\n\t"                        // flags = tmp==0
+            "bne     1b\n\t"                                // if (!flags.equal) goto retry
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
             : [original] "=&r" (original),  // %0
               [result] "=&r" (result),      // %1
@@ -232,12 +230,12 @@ struct operations< 4u, Signed, Interprocess > :
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%[tmp])
-            "1:\n"
-            "ldrex   %[original], %[storage]\n"           // original = *(&storage)
-            "and     %[result], %[original], %[value]\n"  // result = original & value
-            "strex   %[tmp], %[result], %[storage]\n"     // *(&storage) = result, tmp = store failed
-            "teq     %[tmp], #0\n"                        // flags = tmp==0
-            "bne     1b\n"                                // if (!flags.equal) goto retry
+            "1:\n\t"
+            "ldrex   %[original], %[storage]\n\t"           // original = *(&storage)
+            "and     %[result], %[original], %[value]\n\t"  // result = original & value
+            "strex   %[tmp], %[result], %[storage]\n\t"     // *(&storage) = result, tmp = store failed
+            "teq     %[tmp], #0\n\t"                        // flags = tmp==0
+            "bne     1b\n\t"                                // if (!flags.equal) goto retry
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
             : [original] "=&r" (original),  // %0
               [result] "=&r" (result),      // %1
@@ -258,12 +256,12 @@ struct operations< 4u, Signed, Interprocess > :
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%[tmp])
-            "1:\n"
-            "ldrex   %[original], %[storage]\n"           // original = *(&storage)
-            "orr     %[result], %[original], %[value]\n"  // result = original | value
-            "strex   %[tmp], %[result], %[storage]\n"     // *(&storage) = result, tmp = store failed
-            "teq     %[tmp], #0\n"                        // flags = tmp==0
-            "bne     1b\n"                                // if (!flags.equal) goto retry
+            "1:\n\t"
+            "ldrex   %[original], %[storage]\n\t"           // original = *(&storage)
+            "orr     %[result], %[original], %[value]\n\t"  // result = original | value
+            "strex   %[tmp], %[result], %[storage]\n\t"     // *(&storage) = result, tmp = store failed
+            "teq     %[tmp], #0\n\t"                        // flags = tmp==0
+            "bne     1b\n\t"                                // if (!flags.equal) goto retry
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
             : [original] "=&r" (original),  // %0
               [result] "=&r" (result),      // %1
@@ -284,12 +282,12 @@ struct operations< 4u, Signed, Interprocess > :
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%[tmp])
-            "1:\n"
-            "ldrex   %[original], %[storage]\n"           // original = *(&storage)
-            "eor     %[result], %[original], %[value]\n"  // result = original ^ value
-            "strex   %[tmp], %[result], %[storage]\n"     // *(&storage) = result, tmp = store failed
-            "teq     %[tmp], #0\n"                        // flags = tmp==0
-            "bne     1b\n"                                // if (!flags.equal) goto retry
+            "1:\n\t"
+            "ldrex   %[original], %[storage]\n\t"           // original = *(&storage)
+            "eor     %[result], %[original], %[value]\n\t"  // result = original ^ value
+            "strex   %[tmp], %[result], %[storage]\n\t"     // *(&storage) = result, tmp = store failed
+            "teq     %[tmp], #0\n\t"                        // flags = tmp==0
+            "bne     1b\n\t"                                // if (!flags.equal) goto retry
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
             : [original] "=&r" (original),  // %0
               [result] "=&r" (result),      // %1
@@ -349,11 +347,11 @@ struct operations< 1u, Signed, Interprocess > :
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%[tmp])
-            "1:\n"
-            "ldrexb %[original], %[storage]\n"          // load the original value and zero-extend to 32 bits
-            "strexb %[tmp], %[value], %[storage]\n"     // store the replacement, tmp = store failed
-            "teq    %[tmp], #0\n"                       // check if store succeeded
-            "bne    1b\n"
+            "1:\n\t"
+            "ldrexb %[original], %[storage]\n\t"          // load the original value and zero-extend to 32 bits
+            "strexb %[tmp], %[value], %[storage]\n\t"     // store the replacement, tmp = store failed
+            "teq    %[tmp], #0\n\t"                       // check if store succeeded
+            "bne    1b\n\t"
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
             : [tmp] "=&l" (tmp), [original] "=&r" (original), [storage] "+Q" (storage)
             : [value] "r" (v)
@@ -373,12 +371,12 @@ struct operations< 1u, Signed, Interprocess > :
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%[tmp])
-            "mov      %[success], #0\n"                      // success = 0
-            "ldrexb   %[original], %[storage]\n"             // original = zero_extend(*(&storage))
-            "cmp      %[original], %[expected]\n"            // flags = original==expected
-            "itt      eq\n"                                  // [hint that the following 2 instructions are conditional on flags.equal]
-            "strexbeq %[success], %[desired], %[storage]\n"  // if (flags.equal) *(&storage) = desired, success = store failed
-            "eoreq    %[success], %[success], #1\n"          // if (flags.equal) success ^= 1 (i.e. make it 1 if store succeeded)
+            "mov      %[success], #0\n\t"                      // success = 0
+            "ldrexb   %[original], %[storage]\n\t"             // original = zero_extend(*(&storage))
+            "cmp      %[original], %[expected]\n\t"            // flags = original==expected
+            "itt      eq\n\t"                                  // [hint that the following 2 instructions are conditional on flags.equal]
+            "strexbeq %[success], %[desired], %[storage]\n\t"  // if (flags.equal) *(&storage) = desired, success = store failed
+            "eoreq    %[success], %[success], #1\n\t"          // if (flags.equal) success ^= 1 (i.e. make it 1 if store succeeded)
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
             : [original] "=&r" (original),  // %0
               [success] "=&r" (success),    // %1
@@ -406,15 +404,15 @@ struct operations< 1u, Signed, Interprocess > :
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%[tmp])
-            "mov      %[success], #0\n"                      // success = 0
-            "1:\n"
-            "ldrexb   %[original], %[storage]\n"             // original = zero_extend(*(&storage))
-            "cmp      %[original], %[expected]\n"            // flags = original==expected
-            "bne      2f\n"                                  // if (!flags.equal) goto end
-            "strexb   %[success], %[desired], %[storage]\n"  // *(&storage) = desired, success = store failed
-            "eors     %[success], %[success], #1\n"          // success ^= 1 (i.e. make it 1 if store succeeded); flags.equal = success == 0
-            "beq      1b\n"                                  // if (flags.equal) goto retry
-            "2:\n"
+            "mov      %[success], #0\n\t"                      // success = 0
+            "1:\n\t"
+            "ldrexb   %[original], %[storage]\n\t"             // original = zero_extend(*(&storage))
+            "cmp      %[original], %[expected]\n\t"            // flags = original==expected
+            "bne      2f\n\t"                                  // if (!flags.equal) goto end
+            "strexb   %[success], %[desired], %[storage]\n\t"  // *(&storage) = desired, success = store failed
+            "eors     %[success], %[success], #1\n\t"          // success ^= 1 (i.e. make it 1 if store succeeded); flags.equal = success == 0
+            "beq      1b\n\t"                                  // if (flags.equal) goto retry
+            "2:\n\t"
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
             : [original] "=&r" (original),  // %0
               [success] "=&r" (success),    // %1
@@ -440,12 +438,12 @@ struct operations< 1u, Signed, Interprocess > :
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%[tmp])
-            "1:\n"
-            "ldrexb   %[original], %[storage]\n"           // original = zero_extend(*(&storage))
-            "add      %[result], %[original], %[value]\n"  // result = original + value
-            "strexb   %[tmp], %[result], %[storage]\n"     // *(&storage) = result, tmp = store failed
-            "teq      %[tmp], #0\n"                        // flags = tmp==0
-            "bne      1b\n"                                // if (!flags.equal) goto retry
+            "1:\n\t"
+            "ldrexb   %[original], %[storage]\n\t"           // original = zero_extend(*(&storage))
+            "add      %[result], %[original], %[value]\n\t"  // result = original + value
+            "strexb   %[tmp], %[result], %[storage]\n\t"     // *(&storage) = result, tmp = store failed
+            "teq      %[tmp], #0\n\t"                        // flags = tmp==0
+            "bne      1b\n\t"                                // if (!flags.equal) goto retry
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
             : [original] "=&r" (original),  // %0
               [result] "=&r" (result),      // %1
@@ -466,12 +464,12 @@ struct operations< 1u, Signed, Interprocess > :
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%[tmp])
-            "1:\n"
-            "ldrexb   %[original], %[storage]\n"           // original = zero_extend(*(&storage))
-            "sub      %[result], %[original], %[value]\n"  // result = original - value
-            "strexb   %[tmp], %[result], %[storage]\n"     // *(&storage) = result, tmp = store failed
-            "teq      %[tmp], #0\n"                        // flags = tmp==0
-            "bne      1b\n"                                // if (!flags.equal) goto retry
+            "1:\n\t"
+            "ldrexb   %[original], %[storage]\n\t"           // original = zero_extend(*(&storage))
+            "sub      %[result], %[original], %[value]\n\t"  // result = original - value
+            "strexb   %[tmp], %[result], %[storage]\n\t"     // *(&storage) = result, tmp = store failed
+            "teq      %[tmp], #0\n\t"                        // flags = tmp==0
+            "bne      1b\n\t"                                // if (!flags.equal) goto retry
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
             : [original] "=&r" (original),  // %0
               [result] "=&r" (result),      // %1
@@ -492,12 +490,12 @@ struct operations< 1u, Signed, Interprocess > :
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%[tmp])
-            "1:\n"
-            "ldrexb   %[original], %[storage]\n"           // original = zero_extend(*(&storage))
-            "and      %[result], %[original], %[value]\n"  // result = original & value
-            "strexb   %[tmp], %[result], %[storage]\n"     // *(&storage) = result, tmp = store failed
-            "teq      %[tmp], #0\n"                        // flags = tmp==0
-            "bne      1b\n"                                // if (!flags.equal) goto retry
+            "1:\n\t"
+            "ldrexb   %[original], %[storage]\n\t"           // original = zero_extend(*(&storage))
+            "and      %[result], %[original], %[value]\n\t"  // result = original & value
+            "strexb   %[tmp], %[result], %[storage]\n\t"     // *(&storage) = result, tmp = store failed
+            "teq      %[tmp], #0\n\t"                        // flags = tmp==0
+            "bne      1b\n\t"                                // if (!flags.equal) goto retry
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
             : [original] "=&r" (original),  // %0
               [result] "=&r" (result),      // %1
@@ -518,12 +516,12 @@ struct operations< 1u, Signed, Interprocess > :
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%[tmp])
-            "1:\n"
-            "ldrexb   %[original], %[storage]\n"           // original = zero_extend(*(&storage))
-            "orr      %[result], %[original], %[value]\n"  // result = original | value
-            "strexb   %[tmp], %[result], %[storage]\n"     // *(&storage) = result, tmp = store failed
-            "teq      %[tmp], #0\n"                        // flags = tmp==0
-            "bne      1b\n"                                // if (!flags.equal) goto retry
+            "1:\n\t"
+            "ldrexb   %[original], %[storage]\n\t"           // original = zero_extend(*(&storage))
+            "orr      %[result], %[original], %[value]\n\t"  // result = original | value
+            "strexb   %[tmp], %[result], %[storage]\n\t"     // *(&storage) = result, tmp = store failed
+            "teq      %[tmp], #0\n\t"                        // flags = tmp==0
+            "bne      1b\n\t"                                // if (!flags.equal) goto retry
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
             : [original] "=&r" (original),  // %0
               [result] "=&r" (result),      // %1
@@ -544,12 +542,12 @@ struct operations< 1u, Signed, Interprocess > :
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%[tmp])
-            "1:\n"
-            "ldrexb   %[original], %[storage]\n"           // original = zero_extend(*(&storage))
-            "eor      %[result], %[original], %[value]\n"  // result = original ^ value
-            "strexb   %[tmp], %[result], %[storage]\n"     // *(&storage) = result, tmp = store failed
-            "teq      %[tmp], #0\n"                        // flags = tmp==0
-            "bne      1b\n"                                // if (!flags.equal) goto retry
+            "1:\n\t"
+            "ldrexb   %[original], %[storage]\n\t"           // original = zero_extend(*(&storage))
+            "eor      %[result], %[original], %[value]\n\t"  // result = original ^ value
+            "strexb   %[tmp], %[result], %[storage]\n\t"     // *(&storage) = result, tmp = store failed
+            "teq      %[tmp], #0\n\t"                        // flags = tmp==0
+            "bne      1b\n\t"                                // if (!flags.equal) goto retry
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
             : [original] "=&r" (original),  // %0
               [result] "=&r" (result),      // %1
@@ -590,13 +588,13 @@ struct operations< 1u, false, Interprocess > :
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%[tmp])
-            "1:\n"
-            "ldrex   %[original], %[storage]\n"           // original = *(&storage)
-            "add     %[result], %[original], %[value]\n"  // result = original + value
-            "uxtb    %[result], %[result]\n"              // zero extend result from 8 to 32 bits
-            "strex   %[tmp], %[result], %[storage]\n"     // *(&storage) = result, tmp = store failed
-            "teq     %[tmp], #0\n"                        // flags = tmp==0
-            "bne     1b\n"                                // if (!flags.equal) goto retry
+            "1:\n\t"
+            "ldrex   %[original], %[storage]\n\t"           // original = *(&storage)
+            "add     %[result], %[original], %[value]\n\t"  // result = original + value
+            "uxtb    %[result], %[result]\n\t"              // zero extend result from 8 to 32 bits
+            "strex   %[tmp], %[result], %[storage]\n\t"     // *(&storage) = result, tmp = store failed
+            "teq     %[tmp], #0\n\t"                        // flags = tmp==0
+            "bne     1b\n\t"                                // if (!flags.equal) goto retry
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
             : [original] "=&r" (original),  // %0
               [result] "=&r" (result),      // %1
@@ -617,13 +615,13 @@ struct operations< 1u, false, Interprocess > :
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%[tmp])
-            "1:\n"
-            "ldrex   %[original], %[storage]\n"           // original = *(&storage)
-            "sub     %[result], %[original], %[value]\n"  // result = original - value
-            "uxtb    %[result], %[result]\n"              // zero extend result from 8 to 32 bits
-            "strex   %[tmp], %[result], %[storage]\n"     // *(&storage) = result, tmp = store failed
-            "teq     %[tmp], #0\n"                        // flags = tmp==0
-            "bne     1b\n"                                // if (!flags.equal) goto retry
+            "1:\n\t"
+            "ldrex   %[original], %[storage]\n\t"           // original = *(&storage)
+            "sub     %[result], %[original], %[value]\n\t"  // result = original - value
+            "uxtb    %[result], %[result]\n\t"              // zero extend result from 8 to 32 bits
+            "strex   %[tmp], %[result], %[storage]\n\t"     // *(&storage) = result, tmp = store failed
+            "teq     %[tmp], #0\n\t"                        // flags = tmp==0
+            "bne     1b\n\t"                                // if (!flags.equal) goto retry
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
             : [original] "=&r" (original),  // %0
               [result] "=&r" (result),      // %1
@@ -652,13 +650,13 @@ struct operations< 1u, true, Interprocess > :
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%[tmp])
-            "1:\n"
-            "ldrex   %[original], %[storage]\n"           // original = *(&storage)
-            "add     %[result], %[original], %[value]\n"  // result = original + value
-            "sxtb    %[result], %[result]\n"              // sign extend result from 8 to 32 bits
-            "strex   %[tmp], %[result], %[storage]\n"     // *(&storage) = result, tmp = store failed
-            "teq     %[tmp], #0\n"                        // flags = tmp==0
-            "bne     1b\n"                                // if (!flags.equal) goto retry
+            "1:\n\t"
+            "ldrex   %[original], %[storage]\n\t"           // original = *(&storage)
+            "add     %[result], %[original], %[value]\n\t"  // result = original + value
+            "sxtb    %[result], %[result]\n\t"              // sign extend result from 8 to 32 bits
+            "strex   %[tmp], %[result], %[storage]\n\t"     // *(&storage) = result, tmp = store failed
+            "teq     %[tmp], #0\n\t"                        // flags = tmp==0
+            "bne     1b\n\t"                                // if (!flags.equal) goto retry
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
             : [original] "=&r" (original),  // %0
               [result] "=&r" (result),      // %1
@@ -679,13 +677,13 @@ struct operations< 1u, true, Interprocess > :
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%[tmp])
-            "1:\n"
-            "ldrex   %[original], %[storage]\n"           // original = *(&storage)
-            "sub     %[result], %[original], %[value]\n"  // result = original - value
-            "sxtb    %[result], %[result]\n"              // sign extend result from 8 to 32 bits
-            "strex   %[tmp], %[result], %[storage]\n"     // *(&storage) = result, tmp = store failed
-            "teq     %[tmp], #0\n"                        // flags = tmp==0
-            "bne     1b\n"                                // if (!flags.equal) goto retry
+            "1:\n\t"
+            "ldrex   %[original], %[storage]\n\t"           // original = *(&storage)
+            "sub     %[result], %[original], %[value]\n\t"  // result = original - value
+            "sxtb    %[result], %[result]\n\t"              // sign extend result from 8 to 32 bits
+            "strex   %[tmp], %[result], %[storage]\n\t"     // *(&storage) = result, tmp = store failed
+            "teq     %[tmp], #0\n\t"                        // flags = tmp==0
+            "bne     1b\n\t"                                // if (!flags.equal) goto retry
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
             : [original] "=&r" (original),  // %0
               [result] "=&r" (result),      // %1
@@ -737,11 +735,11 @@ struct operations< 2u, Signed, Interprocess > :
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%[tmp])
-            "1:\n"
-            "ldrexh %[original], %[storage]\n"          // load the original value and zero-extend to 32 bits
-            "strexh %[tmp], %[value], %[storage]\n"     // store the replacement, tmp = store failed
-            "teq    %[tmp], #0\n"                       // check if store succeeded
-            "bne    1b\n"
+            "1:\n\t"
+            "ldrexh %[original], %[storage]\n\t"          // load the original value and zero-extend to 32 bits
+            "strexh %[tmp], %[value], %[storage]\n\t"     // store the replacement, tmp = store failed
+            "teq    %[tmp], #0\n\t"                       // check if store succeeded
+            "bne    1b\n\t"
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
             : [tmp] "=&l" (tmp), [original] "=&r" (original), [storage] "+Q" (storage)
             : [value] "r" (v)
@@ -761,12 +759,12 @@ struct operations< 2u, Signed, Interprocess > :
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%[tmp])
-            "mov      %[success], #0\n"                      // success = 0
-            "ldrexh   %[original], %[storage]\n"             // original = zero_extend(*(&storage))
-            "cmp      %[original], %[expected]\n"            // flags = original==expected
-            "itt      eq\n"                                  // [hint that the following 2 instructions are conditional on flags.equal]
-            "strexheq %[success], %[desired], %[storage]\n"  // if (flags.equal) *(&storage) = desired, success = store failed
-            "eoreq    %[success], %[success], #1\n"          // if (flags.equal) success ^= 1 (i.e. make it 1 if store succeeded)
+            "mov      %[success], #0\n\t"                      // success = 0
+            "ldrexh   %[original], %[storage]\n\t"             // original = zero_extend(*(&storage))
+            "cmp      %[original], %[expected]\n\t"            // flags = original==expected
+            "itt      eq\n\t"                                  // [hint that the following 2 instructions are conditional on flags.equal]
+            "strexheq %[success], %[desired], %[storage]\n\t"  // if (flags.equal) *(&storage) = desired, success = store failed
+            "eoreq    %[success], %[success], #1\n\t"          // if (flags.equal) success ^= 1 (i.e. make it 1 if store succeeded)
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
             : [original] "=&r" (original),  // %0
               [success] "=&r" (success),    // %1
@@ -794,15 +792,15 @@ struct operations< 2u, Signed, Interprocess > :
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%[tmp])
-            "mov      %[success], #0\n"                      // success = 0
-            "1:\n"
-            "ldrexh   %[original], %[storage]\n"             // original = zero_extend(*(&storage))
-            "cmp      %[original], %[expected]\n"            // flags = original==expected
-            "bne      2f\n"                                  // if (!flags.equal) goto end
-            "strexh   %[success], %[desired], %[storage]\n"  // *(&storage) = desired, success = store failed
-            "eors     %[success], %[success], #1\n"          // success ^= 1 (i.e. make it 1 if store succeeded); flags.equal = success == 0
-            "beq      1b\n"                                  // if (flags.equal) goto retry
-            "2:\n"
+            "mov      %[success], #0\n\t"                      // success = 0
+            "1:\n\t"
+            "ldrexh   %[original], %[storage]\n\t"             // original = zero_extend(*(&storage))
+            "cmp      %[original], %[expected]\n\t"            // flags = original==expected
+            "bne      2f\n\t"                                  // if (!flags.equal) goto end
+            "strexh   %[success], %[desired], %[storage]\n\t"  // *(&storage) = desired, success = store failed
+            "eors     %[success], %[success], #1\n\t"          // success ^= 1 (i.e. make it 1 if store succeeded); flags.equal = success == 0
+            "beq      1b\n\t"                                  // if (flags.equal) goto retry
+            "2:\n\t"
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
             : [original] "=&r" (original),  // %0
               [success] "=&r" (success),    // %1
@@ -828,12 +826,12 @@ struct operations< 2u, Signed, Interprocess > :
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%[tmp])
-            "1:\n"
-            "ldrexh   %[original], %[storage]\n"           // original = zero_extend(*(&storage))
-            "add      %[result], %[original], %[value]\n"  // result = original + value
-            "strexh   %[tmp], %[result], %[storage]\n"     // *(&storage) = result, tmp = store failed
-            "teq      %[tmp], #0\n"                        // flags = tmp==0
-            "bne      1b\n"                                // if (!flags.equal) goto retry
+            "1:\n\t"
+            "ldrexh   %[original], %[storage]\n\t"           // original = zero_extend(*(&storage))
+            "add      %[result], %[original], %[value]\n\t"  // result = original + value
+            "strexh   %[tmp], %[result], %[storage]\n\t"     // *(&storage) = result, tmp = store failed
+            "teq      %[tmp], #0\n\t"                        // flags = tmp==0
+            "bne      1b\n\t"                                // if (!flags.equal) goto retry
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
             : [original] "=&r" (original),  // %0
               [result] "=&r" (result),      // %1
@@ -854,12 +852,12 @@ struct operations< 2u, Signed, Interprocess > :
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%[tmp])
-            "1:\n"
-            "ldrexh   %[original], %[storage]\n"           // original = zero_extend(*(&storage))
-            "sub      %[result], %[original], %[value]\n"  // result = original - value
-            "strexh   %[tmp], %[result], %[storage]\n"     // *(&storage) = result, tmp = store failed
-            "teq      %[tmp], #0\n"                        // flags = tmp==0
-            "bne      1b\n"                                // if (!flags.equal) goto retry
+            "1:\n\t"
+            "ldrexh   %[original], %[storage]\n\t"           // original = zero_extend(*(&storage))
+            "sub      %[result], %[original], %[value]\n\t"  // result = original - value
+            "strexh   %[tmp], %[result], %[storage]\n\t"     // *(&storage) = result, tmp = store failed
+            "teq      %[tmp], #0\n\t"                        // flags = tmp==0
+            "bne      1b\n\t"                                // if (!flags.equal) goto retry
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
             : [original] "=&r" (original),  // %0
               [result] "=&r" (result),      // %1
@@ -880,12 +878,12 @@ struct operations< 2u, Signed, Interprocess > :
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%[tmp])
-            "1:\n"
-            "ldrexh   %[original], %[storage]\n"           // original = zero_extend(*(&storage))
-            "and      %[result], %[original], %[value]\n"  // result = original & value
-            "strexh   %[tmp], %[result], %[storage]\n"     // *(&storage) = result, tmp = store failed
-            "teq      %[tmp], #0\n"                        // flags = tmp==0
-            "bne      1b\n"                                // if (!flags.equal) goto retry
+            "1:\n\t"
+            "ldrexh   %[original], %[storage]\n\t"           // original = zero_extend(*(&storage))
+            "and      %[result], %[original], %[value]\n\t"  // result = original & value
+            "strexh   %[tmp], %[result], %[storage]\n\t"     // *(&storage) = result, tmp = store failed
+            "teq      %[tmp], #0\n\t"                        // flags = tmp==0
+            "bne      1b\n\t"                                // if (!flags.equal) goto retry
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
             : [original] "=&r" (original),  // %0
               [result] "=&r" (result),      // %1
@@ -906,12 +904,12 @@ struct operations< 2u, Signed, Interprocess > :
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%[tmp])
-            "1:\n"
-            "ldrexh   %[original], %[storage]\n"           // original = zero_extend(*(&storage))
-            "orr      %[result], %[original], %[value]\n"  // result = original | value
-            "strexh   %[tmp], %[result], %[storage]\n"     // *(&storage) = result, tmp = store failed
-            "teq      %[tmp], #0\n"                        // flags = tmp==0
-            "bne      1b\n"                                // if (!flags.equal) goto retry
+            "1:\n\t"
+            "ldrexh   %[original], %[storage]\n\t"           // original = zero_extend(*(&storage))
+            "orr      %[result], %[original], %[value]\n\t"  // result = original | value
+            "strexh   %[tmp], %[result], %[storage]\n\t"     // *(&storage) = result, tmp = store failed
+            "teq      %[tmp], #0\n\t"                        // flags = tmp==0
+            "bne      1b\n\t"                                // if (!flags.equal) goto retry
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
             : [original] "=&r" (original),  // %0
               [result] "=&r" (result),      // %1
@@ -932,12 +930,12 @@ struct operations< 2u, Signed, Interprocess > :
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%[tmp])
-            "1:\n"
-            "ldrexh   %[original], %[storage]\n"           // original = zero_extend(*(&storage))
-            "eor      %[result], %[original], %[value]\n"  // result = original ^ value
-            "strexh   %[tmp], %[result], %[storage]\n"     // *(&storage) = result, tmp = store failed
-            "teq      %[tmp], #0\n"                        // flags = tmp==0
-            "bne      1b\n"                                // if (!flags.equal) goto retry
+            "1:\n\t"
+            "ldrexh   %[original], %[storage]\n\t"           // original = zero_extend(*(&storage))
+            "eor      %[result], %[original], %[value]\n\t"  // result = original ^ value
+            "strexh   %[tmp], %[result], %[storage]\n\t"     // *(&storage) = result, tmp = store failed
+            "teq      %[tmp], #0\n\t"                        // flags = tmp==0
+            "bne      1b\n\t"                                // if (!flags.equal) goto retry
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
             : [original] "=&r" (original),  // %0
               [result] "=&r" (result),      // %1
@@ -978,13 +976,13 @@ struct operations< 2u, false, Interprocess > :
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%[tmp])
-            "1:\n"
-            "ldrex   %[original], %[storage]\n"           // original = *(&storage)
-            "add     %[result], %[original], %[value]\n"  // result = original + value
-            "uxth    %[result], %[result]\n"              // zero extend result from 16 to 32 bits
-            "strex   %[tmp], %[result], %[storage]\n"     // *(&storage) = result, tmp = store failed
-            "teq     %[tmp], #0\n"                        // flags = tmp==0
-            "bne     1b\n"                                // if (!flags.equal) goto retry
+            "1:\n\t"
+            "ldrex   %[original], %[storage]\n\t"           // original = *(&storage)
+            "add     %[result], %[original], %[value]\n\t"  // result = original + value
+            "uxth    %[result], %[result]\n\t"              // zero extend result from 16 to 32 bits
+            "strex   %[tmp], %[result], %[storage]\n\t"     // *(&storage) = result, tmp = store failed
+            "teq     %[tmp], #0\n\t"                        // flags = tmp==0
+            "bne     1b\n\t"                                // if (!flags.equal) goto retry
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
             : [original] "=&r" (original),  // %0
               [result] "=&r" (result),      // %1
@@ -1005,13 +1003,13 @@ struct operations< 2u, false, Interprocess > :
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%[tmp])
-            "1:\n"
-            "ldrex   %[original], %[storage]\n"           // original = *(&storage)
-            "sub     %[result], %[original], %[value]\n"  // result = original - value
-            "uxth    %[result], %[result]\n"              // zero extend result from 16 to 32 bits
-            "strex   %[tmp], %[result], %[storage]\n"     // *(&storage) = result, tmp = store failed
-            "teq     %[tmp], #0\n"                        // flags = tmp==0
-            "bne     1b\n"                                // if (!flags.equal) goto retry
+            "1:\n\t"
+            "ldrex   %[original], %[storage]\n\t"           // original = *(&storage)
+            "sub     %[result], %[original], %[value]\n\t"  // result = original - value
+            "uxth    %[result], %[result]\n\t"              // zero extend result from 16 to 32 bits
+            "strex   %[tmp], %[result], %[storage]\n\t"     // *(&storage) = result, tmp = store failed
+            "teq     %[tmp], #0\n\t"                        // flags = tmp==0
+            "bne     1b\n\t"                                // if (!flags.equal) goto retry
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
             : [original] "=&r" (original),  // %0
               [result] "=&r" (result),      // %1
@@ -1040,13 +1038,13 @@ struct operations< 2u, true, Interprocess > :
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%[tmp])
-            "1:\n"
-            "ldrex   %[original], %[storage]\n"           // original = *(&storage)
-            "add     %[result], %[original], %[value]\n"  // result = original + value
-            "sxth    %[result], %[result]\n"              // sign extend result from 16 to 32 bits
-            "strex   %[tmp], %[result], %[storage]\n"     // *(&storage) = result, tmp = store failed
-            "teq     %[tmp], #0\n"                        // flags = tmp==0
-            "bne     1b\n"                                // if (!flags.equal) goto retry
+            "1:\n\t"
+            "ldrex   %[original], %[storage]\n\t"           // original = *(&storage)
+            "add     %[result], %[original], %[value]\n\t"  // result = original + value
+            "sxth    %[result], %[result]\n\t"              // sign extend result from 16 to 32 bits
+            "strex   %[tmp], %[result], %[storage]\n\t"     // *(&storage) = result, tmp = store failed
+            "teq     %[tmp], #0\n\t"                        // flags = tmp==0
+            "bne     1b\n\t"                                // if (!flags.equal) goto retry
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
             : [original] "=&r" (original),  // %0
               [result] "=&r" (result),      // %1
@@ -1067,13 +1065,13 @@ struct operations< 2u, true, Interprocess > :
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%[tmp])
-            "1:\n"
-            "ldrex   %[original], %[storage]\n"           // original = *(&storage)
-            "sub     %[result], %[original], %[value]\n"  // result = original - value
-            "sxth    %[result], %[result]\n"              // sign extend result from 16 to 32 bits
-            "strex   %[tmp], %[result], %[storage]\n"     // *(&storage) = result, tmp = store failed
-            "teq     %[tmp], #0\n"                        // flags = tmp==0
-            "bne     1b\n"                                // if (!flags.equal) goto retry
+            "1:\n\t"
+            "ldrex   %[original], %[storage]\n\t"           // original = *(&storage)
+            "sub     %[result], %[original], %[value]\n\t"  // result = original - value
+            "sxth    %[result], %[result]\n\t"              // sign extend result from 16 to 32 bits
+            "strex   %[tmp], %[result], %[storage]\n\t"     // *(&storage) = result, tmp = store failed
+            "teq     %[tmp], #0\n\t"                        // flags = tmp==0
+            "bne     1b\n\t"                                // if (!flags.equal) goto retry
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
             : [original] "=&r" (original),  // %0
               [result] "=&r" (result),      // %1
@@ -1125,7 +1123,7 @@ struct operations< 8u, Signed, Interprocess > :
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%0)
-            "ldrexd %1, %H1, [%2]\n"
+            "ldrexd %1, %H1, [%2]\n\t"
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%0)
             : BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_CONSTRAINT(tmp), // %0
               "=&r" (original)   // %1
@@ -1143,11 +1141,11 @@ struct operations< 8u, Signed, Interprocess > :
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%0)
-            "1:\n"
-            "ldrexd %1, %H1, [%3]\n"        // load the original value
-            "strexd %0, %2, %H2, [%3]\n"    // store the replacement, tmp = store failed
-            "teq    %0, #0\n"               // check if store succeeded
-            "bne    1b\n"
+            "1:\n\t"
+            "ldrexd %1, %H1, [%3]\n\t"        // load the original value
+            "strexd %0, %2, %H2, [%3]\n\t"    // store the replacement, tmp = store failed
+            "teq    %0, #0\n\t"               // check if store succeeded
+            "bne    1b\n\t"
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%0)
             : BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_CONSTRAINT(tmp), // %0
               "=&r" (original)   // %1
@@ -1168,15 +1166,15 @@ struct operations< 8u, Signed, Interprocess > :
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%0)
-            "ldrexd   %1, %H1, [%3]\n"               // original = *(&storage)
-            "cmp      %1, %2\n"                      // flags = original.lo==old_val.lo
-            "ittt     eq\n"                          // [hint that the following 3 instructions are conditional on flags.equal]
-            "cmpeq    %H1, %H2\n"                    // if (flags.equal) flags = original.hi==old_val.hi
-            "strexdeq %0, %4, %H4, [%3]\n"           // if (flags.equal) *(&storage) = desired, tmp = store failed
-            "teqeq    %0, #0\n"                      // if (flags.equal) flags = tmp==0
-            "ite      eq\n"                          // [hint that the following 2 instructions are conditional on flags.equal]
-            "moveq    %2, #1\n"                      // if (flags.equal) old_val.lo = 1
-            "movne    %2, #0\n"                      // if (!flags.equal) old_val.lo = 0
+            "ldrexd   %1, %H1, [%3]\n\t"               // original = *(&storage)
+            "cmp      %1, %2\n\t"                      // flags = original.lo==old_val.lo
+            "ittt     eq\n\t"                          // [hint that the following 3 instructions are conditional on flags.equal]
+            "cmpeq    %H1, %H2\n\t"                    // if (flags.equal) flags = original.hi==old_val.hi
+            "strexdeq %0, %4, %H4, [%3]\n\t"           // if (flags.equal) *(&storage) = desired, tmp = store failed
+            "teqeq    %0, #0\n\t"                      // if (flags.equal) flags = tmp==0
+            "ite      eq\n\t"                          // [hint that the following 2 instructions are conditional on flags.equal]
+            "moveq    %2, #1\n\t"                      // if (flags.equal) old_val.lo = 1
+            "movne    %2, #0\n\t"                      // if (!flags.equal) old_val.lo = 0
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%0)
             : BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_CONSTRAINT(tmp), // %0
               "=&r" (original),  // %1
@@ -1203,19 +1201,19 @@ struct operations< 8u, Signed, Interprocess > :
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%0)
-            "1:\n"
-            "ldrexd  %1, %H1, [%3]\n"               // original = *(&storage)
-            "cmp     %1, %2\n"                      // flags = original.lo==old_val.lo
-            "it      eq\n"                          // [hint that the following instruction is conditional on flags.equal]
-            "cmpeq   %H1, %H2\n"                    // if (flags.equal) flags = original.hi==old_val.hi
-            "bne     2f\n"                          // if (!flags.equal) goto end
-            "strexd  %0, %4, %H4, [%3]\n"           // *(&storage) = desired, tmp = store failed
-            "teq     %0, #0\n"                      // flags.equal = tmp == 0
-            "bne     1b\n"                          // if (flags.equal) goto retry
-            "2:\n"
-            "ite      eq\n"                         // [hint that the following 2 instructions are conditional on flags.equal]
-            "moveq    %2, #1\n"                     // if (flags.equal) old_val.lo = 1
-            "movne    %2, #0\n"                     // if (!flags.equal) old_val.lo = 0
+            "1:\n\t"
+            "ldrexd  %1, %H1, [%3]\n\t"               // original = *(&storage)
+            "cmp     %1, %2\n\t"                      // flags = original.lo==old_val.lo
+            "it      eq\n\t"                          // [hint that the following instruction is conditional on flags.equal]
+            "cmpeq   %H1, %H2\n\t"                    // if (flags.equal) flags = original.hi==old_val.hi
+            "bne     2f\n\t"                          // if (!flags.equal) goto end
+            "strexd  %0, %4, %H4, [%3]\n\t"           // *(&storage) = desired, tmp = store failed
+            "teq     %0, #0\n\t"                      // flags.equal = tmp == 0
+            "bne     1b\n\t"                          // if (flags.equal) goto retry
+            "2:\n\t"
+            "ite      eq\n\t"                         // [hint that the following 2 instructions are conditional on flags.equal]
+            "moveq    %2, #1\n\t"                     // if (flags.equal) old_val.lo = 1
+            "movne    %2, #0\n\t"                     // if (!flags.equal) old_val.lo = 0
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%0)
             : BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_CONSTRAINT(tmp), // %0
               "=&r" (original),  // %1
@@ -1241,13 +1239,13 @@ struct operations< 8u, Signed, Interprocess > :
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%0)
-            "1:\n"
-            "ldrexd  %1, %H1, [%3]\n"               // original = *(&storage)
-            "adds    %2, %1, %4\n"                  // result = original + value
-            "adc     %H2, %H1, %H4\n"
-            "strexd  %0, %2, %H2, [%3]\n"           // *(&storage) = result, tmp = store failed
-            "teq     %0, #0\n"                      // flags = tmp==0
-            "bne     1b\n"                          // if (!flags.equal) goto retry
+            "1:\n\t"
+            "ldrexd  %1, %H1, [%3]\n\t"               // original = *(&storage)
+            "adds    %2, %1, %4\n\t"                  // result = original + value
+            "adc     %H2, %H1, %H4\n\t"
+            "strexd  %0, %2, %H2, [%3]\n\t"           // *(&storage) = result, tmp = store failed
+            "teq     %0, #0\n\t"                      // flags = tmp==0
+            "bne     1b\n\t"                          // if (!flags.equal) goto retry
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%0)
             : BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_CONSTRAINT(tmp), // %0
               "=&r" (original),  // %1
@@ -1268,13 +1266,13 @@ struct operations< 8u, Signed, Interprocess > :
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%0)
-            "1:\n"
-            "ldrexd  %1, %H1, [%3]\n"               // original = *(&storage)
-            "subs    %2, %1, %4\n"                  // result = original - value
-            "sbc     %H2, %H1, %H4\n"
-            "strexd  %0, %2, %H2, [%3]\n"           // *(&storage) = result, tmp = store failed
-            "teq     %0, #0\n"                      // flags = tmp==0
-            "bne     1b\n"                          // if (!flags.equal) goto retry
+            "1:\n\t"
+            "ldrexd  %1, %H1, [%3]\n\t"               // original = *(&storage)
+            "subs    %2, %1, %4\n\t"                  // result = original - value
+            "sbc     %H2, %H1, %H4\n\t"
+            "strexd  %0, %2, %H2, [%3]\n\t"           // *(&storage) = result, tmp = store failed
+            "teq     %0, #0\n\t"                      // flags = tmp==0
+            "bne     1b\n\t"                          // if (!flags.equal) goto retry
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%0)
             : BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_CONSTRAINT(tmp), // %0
               "=&r" (original),  // %1
@@ -1295,13 +1293,13 @@ struct operations< 8u, Signed, Interprocess > :
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%0)
-            "1:\n"
-            "ldrexd  %1, %H1, [%3]\n"               // original = *(&storage)
-            "and     %2, %1, %4\n"                  // result = original & value
-            "and     %H2, %H1, %H4\n"
-            "strexd  %0, %2, %H2, [%3]\n"           // *(&storage) = result, tmp = store failed
-            "teq     %0, #0\n"                      // flags = tmp==0
-            "bne     1b\n"                          // if (!flags.equal) goto retry
+            "1:\n\t"
+            "ldrexd  %1, %H1, [%3]\n\t"               // original = *(&storage)
+            "and     %2, %1, %4\n\t"                  // result = original & value
+            "and     %H2, %H1, %H4\n\t"
+            "strexd  %0, %2, %H2, [%3]\n\t"           // *(&storage) = result, tmp = store failed
+            "teq     %0, #0\n\t"                      // flags = tmp==0
+            "bne     1b\n\t"                          // if (!flags.equal) goto retry
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%0)
             : BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_CONSTRAINT(tmp), // %0
               "=&r" (original),  // %1
@@ -1322,13 +1320,13 @@ struct operations< 8u, Signed, Interprocess > :
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%0)
-            "1:\n"
-            "ldrexd  %1, %H1, [%3]\n"               // original = *(&storage)
-            "orr     %2, %1, %4\n"                  // result = original | value
-            "orr     %H2, %H1, %H4\n"
-            "strexd  %0, %2, %H2, [%3]\n"           // *(&storage) = result, tmp = store failed
-            "teq     %0, #0\n"                      // flags = tmp==0
-            "bne     1b\n"                          // if (!flags.equal) goto retry
+            "1:\n\t"
+            "ldrexd  %1, %H1, [%3]\n\t"               // original = *(&storage)
+            "orr     %2, %1, %4\n\t"                  // result = original | value
+            "orr     %H2, %H1, %H4\n\t"
+            "strexd  %0, %2, %H2, [%3]\n\t"           // *(&storage) = result, tmp = store failed
+            "teq     %0, #0\n\t"                      // flags = tmp==0
+            "bne     1b\n\t"                          // if (!flags.equal) goto retry
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%0)
             : BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_CONSTRAINT(tmp), // %0
               "=&r" (original),  // %1
@@ -1349,13 +1347,13 @@ struct operations< 8u, Signed, Interprocess > :
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%0)
-            "1:\n"
-            "ldrexd  %1, %H1, [%3]\n"               // original = *(&storage)
-            "eor     %2, %1, %4\n"                  // result = original ^ value
-            "eor     %H2, %H1, %H4\n"
-            "strexd  %0, %2, %H2, [%3]\n"           // *(&storage) = result, tmp = store failed
-            "teq     %0, #0\n"                      // flags = tmp==0
-            "bne     1b\n"                          // if (!flags.equal) goto retry
+            "1:\n\t"
+            "ldrexd  %1, %H1, [%3]\n\t"               // original = *(&storage)
+            "eor     %2, %1, %4\n\t"                  // result = original ^ value
+            "eor     %H2, %H1, %H4\n\t"
+            "strexd  %0, %2, %H2, [%3]\n\t"           // *(&storage) = result, tmp = store failed
+            "teq     %0, #0\n\t"                      // flags = tmp==0
+            "bne     1b\n\t"                          // if (!flags.equal) goto retry
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%0)
             : BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_CONSTRAINT(tmp), // %0
               "=&r" (original),  // %1
