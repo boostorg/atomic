@@ -23,7 +23,6 @@
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/storage_traits.hpp>
 #include <boost/atomic/detail/operations_fwd.hpp>
-#include <boost/atomic/capabilities.hpp>
 #include <boost/atomic/detail/ops_cas_based.hpp>
 #include <boost/atomic/detail/ops_extending_cas_based.hpp>
 

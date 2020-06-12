@@ -21,7 +21,7 @@
 #include <boost/atomic/detail/extra_operations_fwd.hpp>
 #include <boost/atomic/detail/extra_ops_generic.hpp>
 #include <boost/atomic/detail/ops_gcc_ppc_common.hpp>
-#include <boost/atomic/capabilities.hpp>
+#include <boost/atomic/detail/capabilities.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once

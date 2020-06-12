@@ -21,7 +21,6 @@
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/storage_traits.hpp>
 #include <boost/atomic/detail/operations_fwd.hpp>
-#include <boost/atomic/capabilities.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once

@@ -25,7 +25,7 @@
 #include <boost/atomic/detail/storage_traits.hpp>
 #include <boost/atomic/detail/operations_fwd.hpp>
 #include <boost/atomic/detail/type_traits/make_signed.hpp>
-#include <boost/atomic/capabilities.hpp>
+#include <boost/atomic/detail/capabilities.hpp>
 #if defined(BOOST_ATOMIC_DETAIL_X86_HAS_CMPXCHG8B) || defined(BOOST_ATOMIC_DETAIL_X86_HAS_CMPXCHG16B)
 #include <boost/cstdint.hpp>
 #include <boost/atomic/detail/ops_cas_based.hpp>

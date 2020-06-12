@@ -30,7 +30,6 @@
 #include <boost/atomic/detail/storage_traits.hpp>
 #include <boost/atomic/detail/operations_fwd.hpp>
 #include <boost/atomic/detail/type_traits/make_signed.hpp>
-#include <boost/atomic/capabilities.hpp>
 #include <boost/atomic/detail/ops_msvc_common.hpp>
 #include <boost/atomic/detail/ops_extending_cas_based.hpp>
 
