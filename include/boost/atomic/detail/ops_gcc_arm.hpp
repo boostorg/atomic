@@ -1142,34 +1142,32 @@ struct operations< 8u, Signed, Interprocess > :
 
     static BOOST_FORCEINLINE storage_type load(storage_type const volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
+        // To implement the load we still have to use ldrexd+strexd pair so that the store resets
+        // the exclusive access mark on the storage address that is set by the load. The technique
+        // is described in ARM Architecture Reference Manual ARMv8, Section B2.2.1.
         storage_type original;
-#if defined(BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_UNUSED)
-        __asm__ __volatile__
-        (
-            "ldrexd %0, %H0, [%1]\n\t"
-            : "=&r" (original)   // %0
-            : "r" (&storage)     // %1
-        );
-#else
         uint32_t tmp;
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%0)
-            "ldrexd %1, %H1, [%2]\n\t"
+            "1:\n\t"
+            "ldrexd %1, %H1, [%2]\n\t"        // load the value
+            "strexd %0, %1, %H1, [%2]\n\t"    // store the loaded value back, tmp = store failed
+            "teq    %0, #0\n\t"               // check if store succeeded
+            "bne    1b\n\t"
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%0)
             : BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_CONSTRAINT(tmp), // %0
               "=&r" (original)   // %1
             : "r" (&storage)     // %2
         );
-#endif
         fence_after(order);
         return original;
     }
 
     static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
-        storage_type original;
         fence_before(order);
+        storage_type original;
         uint32_t tmp;
         __asm__ __volatile__
         (
@@ -1194,8 +1192,8 @@ struct operations< 8u, Signed, Interprocess > :
         storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order success_order, memory_order failure_order) BOOST_NOEXCEPT
     {
         fence_before(success_order);
-        uint32_t tmp;
         storage_type original, old_val = expected;
+        uint32_t tmp;
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%0)
@@ -1229,8 +1227,8 @@ struct operations< 8u, Signed, Interprocess > :
         storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order success_order, memory_order failure_order) BOOST_NOEXCEPT
     {
         fence_before(success_order);
-        uint32_t tmp;
         storage_type original, old_val = expected;
+        uint32_t tmp;
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%0)
