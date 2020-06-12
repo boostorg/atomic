@@ -24,7 +24,7 @@
 #include <boost/atomic/detail/integral_conversions.hpp>
 #include <boost/atomic/detail/operations_fwd.hpp>
 #include <boost/atomic/detail/ops_gcc_arm_common.hpp>
-#include <boost/atomic/capabilities.hpp>
+#include <boost/atomic/detail/capabilities.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once
@@ -106,7 +106,9 @@ struct operations< 4u, Signed, Interprocess > :
     {
         fence_before(success_order);
         uint32_t success;
+#if !defined(BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_UNUSED)
         uint32_t tmp;
+#endif
         storage_type original;
         __asm__ __volatile__
         (
@@ -118,12 +120,14 @@ struct operations< 4u, Signed, Interprocess > :
             "strexeq %[success], %[desired], %[storage]\n\t"  // if (flags.equal) *(&storage) = desired, success = store failed
             "eoreq   %[success], %[success], #1\n\t"          // if (flags.equal) success ^= 1 (i.e. make it 1 if store succeeded)
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
-            : [original] "=&r" (original),  // %0
-              [success] "=&r" (success),    // %1
-              [tmp] "=&l" (tmp),            // %2
-              [storage] "+Q" (storage)      // %3
-            : [expected] "Ir" (expected),   // %4
-              [desired] "r" (desired)       // %5
+            : [original] "=&r" (original),
+              [success] "=&r" (success),
+#if !defined(BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_UNUSED)
+              [tmp] "=&l" (tmp),
+#endif
+              [storage] "+Q" (storage)
+            : [expected] "Ir" (expected),
+              [desired] "r" (desired)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
         );
         if (success)
@@ -139,7 +143,9 @@ struct operations< 4u, Signed, Interprocess > :
     {
         fence_before(success_order);
         uint32_t success;
+#if !defined(BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_UNUSED)
         uint32_t tmp;
+#endif
         storage_type original;
         __asm__ __volatile__
         (
@@ -154,12 +160,14 @@ struct operations< 4u, Signed, Interprocess > :
             "beq     1b\n\t"                                  // if (flags.equal) goto retry
             "2:\n\t"
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
-            : [original] "=&r" (original),  // %0
-              [success] "=&r" (success),    // %1
-              [tmp] "=&l" (tmp),            // %2
-              [storage] "+Q" (storage)      // %3
-            : [expected] "Ir" (expected),   // %4
-              [desired] "r" (desired)       // %5
+            : [original] "=&r" (original),
+              [success] "=&r" (success),
+#if !defined(BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_UNUSED)
+              [tmp] "=&l" (tmp),
+#endif
+              [storage] "+Q" (storage)
+            : [expected] "Ir" (expected),
+              [desired] "r" (desired)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
         );
         if (success)
@@ -366,7 +374,9 @@ struct operations< 1u, Signed, Interprocess > :
     {
         fence_before(success_order);
         uint32_t success;
+#if !defined(BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_UNUSED)
         uint32_t tmp;
+#endif
         extended_storage_type original;
         __asm__ __volatile__
         (
@@ -378,12 +388,14 @@ struct operations< 1u, Signed, Interprocess > :
             "strexbeq %[success], %[desired], %[storage]\n\t"  // if (flags.equal) *(&storage) = desired, success = store failed
             "eoreq    %[success], %[success], #1\n\t"          // if (flags.equal) success ^= 1 (i.e. make it 1 if store succeeded)
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
-            : [original] "=&r" (original),  // %0
-              [success] "=&r" (success),    // %1
-              [tmp] "=&l" (tmp),            // %2
-              [storage] "+Q" (storage)      // %3
-            : [expected] "Ir" (atomics::detail::zero_extend< extended_storage_type >(expected)),   // %4
-              [desired] "r" (desired)       // %5
+            : [original] "=&r" (original),
+              [success] "=&r" (success),
+#if !defined(BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_UNUSED)
+              [tmp] "=&l" (tmp),
+#endif
+              [storage] "+Q" (storage)
+            : [expected] "Ir" (atomics::detail::zero_extend< extended_storage_type >(expected)),
+              [desired] "r" (desired)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
         );
         if (success)
@@ -399,7 +411,9 @@ struct operations< 1u, Signed, Interprocess > :
     {
         fence_before(success_order);
         uint32_t success;
+#if !defined(BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_UNUSED)
         uint32_t tmp;
+#endif
         extended_storage_type original;
         __asm__ __volatile__
         (
@@ -414,12 +428,14 @@ struct operations< 1u, Signed, Interprocess > :
             "beq      1b\n\t"                                  // if (flags.equal) goto retry
             "2:\n\t"
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
-            : [original] "=&r" (original),  // %0
-              [success] "=&r" (success),    // %1
-              [tmp] "=&l" (tmp),            // %2
-              [storage] "+Q" (storage)      // %3
-            : [expected] "Ir" (atomics::detail::zero_extend< extended_storage_type >(expected)),   // %4
-              [desired] "r" (desired)       // %5
+            : [original] "=&r" (original),
+              [success] "=&r" (success),
+#if !defined(BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_UNUSED)
+              [tmp] "=&l" (tmp),
+#endif
+              [storage] "+Q" (storage)
+            : [expected] "Ir" (atomics::detail::zero_extend< extended_storage_type >(expected)),
+              [desired] "r" (desired)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
         );
         if (success)
@@ -582,7 +598,7 @@ struct operations< 1u, false, Interprocess > :
 
     static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
-        fence_before(order);
+        base_type::fence_before(order);
         uint32_t tmp;
         storage_type original, result;
         __asm__ __volatile__
@@ -603,13 +619,13 @@ struct operations< 1u, false, Interprocess > :
             : [value] "Ir" (v)              // %4
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
         );
-        fence_after(order);
+        base_type::fence_after(order);
         return original;
     }
 
     static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
-        fence_before(order);
+        base_type::fence_before(order);
         uint32_t tmp;
         storage_type original, result;
         __asm__ __volatile__
@@ -630,7 +646,7 @@ struct operations< 1u, false, Interprocess > :
             : [value] "Ir" (v)              // %4
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
         );
-        fence_after(order);
+        base_type::fence_after(order);
         return original;
     }
 };
@@ -644,7 +660,7 @@ struct operations< 1u, true, Interprocess > :
 
     static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
-        fence_before(order);
+        base_type::fence_before(order);
         uint32_t tmp;
         storage_type original, result;
         __asm__ __volatile__
@@ -665,13 +681,13 @@ struct operations< 1u, true, Interprocess > :
             : [value] "Ir" (v)              // %4
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
         );
-        fence_after(order);
+        base_type::fence_after(order);
         return original;
     }
 
     static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
-        fence_before(order);
+        base_type::fence_before(order);
         uint32_t tmp;
         storage_type original, result;
         __asm__ __volatile__
@@ -692,7 +708,7 @@ struct operations< 1u, true, Interprocess > :
             : [value] "Ir" (v)              // %4
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
         );
-        fence_after(order);
+        base_type::fence_after(order);
         return original;
     }
 };
@@ -754,7 +770,9 @@ struct operations< 2u, Signed, Interprocess > :
     {
         fence_before(success_order);
         uint32_t success;
+#if !defined(BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_UNUSED)
         uint32_t tmp;
+#endif
         extended_storage_type original;
         __asm__ __volatile__
         (
@@ -766,12 +784,14 @@ struct operations< 2u, Signed, Interprocess > :
             "strexheq %[success], %[desired], %[storage]\n\t"  // if (flags.equal) *(&storage) = desired, success = store failed
             "eoreq    %[success], %[success], #1\n\t"          // if (flags.equal) success ^= 1 (i.e. make it 1 if store succeeded)
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
-            : [original] "=&r" (original),  // %0
-              [success] "=&r" (success),    // %1
-              [tmp] "=&l" (tmp),            // %2
-              [storage] "+Q" (storage)      // %3
-            : [expected] "Ir" (atomics::detail::zero_extend< extended_storage_type >(expected)),   // %4
-              [desired] "r" (desired)       // %5
+            : [original] "=&r" (original),
+              [success] "=&r" (success),
+#if !defined(BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_UNUSED)
+              [tmp] "=&l" (tmp),
+#endif
+              [storage] "+Q" (storage)
+            : [expected] "Ir" (atomics::detail::zero_extend< extended_storage_type >(expected)),
+              [desired] "r" (desired)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
         );
         if (success)
@@ -787,7 +807,9 @@ struct operations< 2u, Signed, Interprocess > :
     {
         fence_before(success_order);
         uint32_t success;
+#if !defined(BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_UNUSED)
         uint32_t tmp;
+#endif
         extended_storage_type original;
         __asm__ __volatile__
         (
@@ -802,12 +824,14 @@ struct operations< 2u, Signed, Interprocess > :
             "beq      1b\n\t"                                  // if (flags.equal) goto retry
             "2:\n\t"
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
-            : [original] "=&r" (original),  // %0
-              [success] "=&r" (success),    // %1
-              [tmp] "=&l" (tmp),            // %2
-              [storage] "+Q" (storage)      // %3
-            : [expected] "Ir" (atomics::detail::zero_extend< extended_storage_type >(expected)),   // %4
-              [desired] "r" (desired)       // %5
+            : [original] "=&r" (original),
+              [success] "=&r" (success),
+#if !defined(BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_UNUSED)
+              [tmp] "=&l" (tmp),
+#endif
+              [storage] "+Q" (storage)
+            : [expected] "Ir" (atomics::detail::zero_extend< extended_storage_type >(expected)),
+              [desired] "r" (desired)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
         );
         if (success)
@@ -970,7 +994,7 @@ struct operations< 2u, false, Interprocess > :
 
     static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
-        fence_before(order);
+        base_type::fence_before(order);
         uint32_t tmp;
         storage_type original, result;
         __asm__ __volatile__
@@ -991,13 +1015,13 @@ struct operations< 2u, false, Interprocess > :
             : [value] "Ir" (v)              // %4
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
         );
-        fence_after(order);
+        base_type::fence_after(order);
         return original;
     }
 
     static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
-        fence_before(order);
+        base_type::fence_before(order);
         uint32_t tmp;
         storage_type original, result;
         __asm__ __volatile__
@@ -1018,7 +1042,7 @@ struct operations< 2u, false, Interprocess > :
             : [value] "Ir" (v)              // %4
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
         );
-        fence_after(order);
+        base_type::fence_after(order);
         return original;
     }
 };
@@ -1032,7 +1056,7 @@ struct operations< 2u, true, Interprocess > :
 
     static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
-        fence_before(order);
+        base_type::fence_before(order);
         uint32_t tmp;
         storage_type original, result;
         __asm__ __volatile__
@@ -1053,13 +1077,13 @@ struct operations< 2u, true, Interprocess > :
             : [value] "Ir" (v)              // %4
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
         );
-        fence_after(order);
+        base_type::fence_after(order);
         return original;
     }
 
     static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
-        fence_before(order);
+        base_type::fence_before(order);
         uint32_t tmp;
         storage_type original, result;
         __asm__ __volatile__
@@ -1080,7 +1104,7 @@ struct operations< 2u, true, Interprocess > :
             : [value] "Ir" (v)              // %4
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
         );
-        fence_after(order);
+        base_type::fence_after(order);
         return original;
     }
 };
@@ -1119,6 +1143,14 @@ struct operations< 8u, Signed, Interprocess > :
     static BOOST_FORCEINLINE storage_type load(storage_type const volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
         storage_type original;
+#if defined(BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_UNUSED)
+        __asm__ __volatile__
+        (
+            "ldrexd %0, %H0, [%1]\n\t"
+            : "=&r" (original)   // %0
+            : "r" (&storage)     // %1
+        );
+#else
         uint32_t tmp;
         __asm__ __volatile__
         (
@@ -1129,6 +1161,7 @@ struct operations< 8u, Signed, Interprocess > :
               "=&r" (original)   // %1
             : "r" (&storage)     // %2
         );
+#endif
         fence_after(order);
         return original;
     }

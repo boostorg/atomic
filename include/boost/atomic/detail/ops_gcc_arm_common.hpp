@@ -66,10 +66,11 @@ namespace detail {
 #define BOOST_ATOMIC_DETAIL_ARM_ASM_END(TMPREG)   "adr " #TMPREG ", 9f + 1\n\t" "bx " #TMPREG "\n\t" ".thumb\n\t" ".align 2\n\t" "9:\n\t"
 #define BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_CONSTRAINT(var) "=&l" (var)
 #else
-// The tmpreg may be wasted in this case, which is non-optimal.
+// Indicate that start/end macros are empty and the tmpreg is not needed
+#define BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_UNUSED
 #define BOOST_ATOMIC_DETAIL_ARM_ASM_START(TMPREG)
 #define BOOST_ATOMIC_DETAIL_ARM_ASM_END(TMPREG)
-#define BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_CONSTRAINT(var) "=&r" (var)
+#define BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_CONSTRAINT(var) "=&l" (var)
 #endif
 
 struct gcc_arm_operations_base
