@@ -81,8 +81,8 @@ struct operations< 4u, Signed, Interprocess > :
 
     static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
-        storage_type original;
         fence_before(order);
+        storage_type original;
         uint32_t tmp;
         __asm__ __volatile__
         (
@@ -349,8 +349,8 @@ struct operations< 1u, Signed, Interprocess > :
 
     static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
-        extended_storage_type original;
         fence_before(order);
+        extended_storage_type original;
         uint32_t tmp;
         __asm__ __volatile__
         (
@@ -745,8 +745,8 @@ struct operations< 2u, Signed, Interprocess > :
 
     static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
-        extended_storage_type original;
         fence_before(order);
+        extended_storage_type original;
         uint32_t tmp;
         __asm__ __volatile__
         (
