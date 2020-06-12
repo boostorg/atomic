@@ -66,21 +66,21 @@ struct emulated_operations :
 
     typedef lock_pool::scoped_lock< storage_alignment > scoped_lock;
 
-    static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
+    static void store(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
         BOOST_STATIC_ASSERT_MSG(!is_interprocess, "Boost.Atomic: operation invoked on a non-lock-free inter-process atomic object");
         scoped_lock lock(&storage);
         const_cast< storage_type& >(storage) = v;
     }
 
-    static BOOST_FORCEINLINE storage_type load(storage_type const volatile& storage, memory_order) BOOST_NOEXCEPT
+    static storage_type load(storage_type const volatile& storage, memory_order) BOOST_NOEXCEPT
     {
         BOOST_STATIC_ASSERT_MSG(!is_interprocess, "Boost.Atomic: operation invoked on a non-lock-free inter-process atomic object");
         scoped_lock lock(&storage);
         return const_cast< storage_type const& >(storage);
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
+    static storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
         BOOST_STATIC_ASSERT_MSG(!is_interprocess, "Boost.Atomic: operation invoked on a non-lock-free inter-process atomic object");
         storage_type& s = const_cast< storage_type& >(storage);
@@ -90,7 +90,7 @@ struct emulated_operations :
         return old_val;
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
+    static storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
         BOOST_STATIC_ASSERT_MSG(!is_interprocess, "Boost.Atomic: operation invoked on a non-lock-free inter-process atomic object");
         storage_type& s = const_cast< storage_type& >(storage);
@@ -100,7 +100,7 @@ struct emulated_operations :
         return old_val;
     }
 
-    static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
+    static storage_type exchange(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
         BOOST_STATIC_ASSERT_MSG(!is_interprocess, "Boost.Atomic: operation invoked on a non-lock-free inter-process atomic object");
         storage_type& s = const_cast< storage_type& >(storage);
@@ -110,7 +110,7 @@ struct emulated_operations :
         return old_val;
     }
 
-    static BOOST_FORCEINLINE bool compare_exchange_strong(
+    static bool compare_exchange_strong(
         storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order, memory_order) BOOST_NOEXCEPT
     {
         BOOST_STATIC_ASSERT_MSG(!is_interprocess, "Boost.Atomic: operation invoked on a non-lock-free inter-process atomic object");
@@ -125,7 +125,7 @@ struct emulated_operations :
         return res;
     }
 
-    static BOOST_FORCEINLINE bool compare_exchange_weak(
+    static bool compare_exchange_weak(
         storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order, memory_order) BOOST_NOEXCEPT
     {
         // Note: This function is the exact copy of compare_exchange_strong. The reason we're not just forwarding the call
@@ -142,7 +142,7 @@ struct emulated_operations :
         return res;
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_and(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
+    static storage_type fetch_and(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
         BOOST_STATIC_ASSERT_MSG(!is_interprocess, "Boost.Atomic: operation invoked on a non-lock-free inter-process atomic object");
         storage_type& s = const_cast< storage_type& >(storage);
@@ -152,7 +152,7 @@ struct emulated_operations :
         return old_val;
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_or(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
+    static storage_type fetch_or(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
         BOOST_STATIC_ASSERT_MSG(!is_interprocess, "Boost.Atomic: operation invoked on a non-lock-free inter-process atomic object");
         storage_type& s = const_cast< storage_type& >(storage);
@@ -162,7 +162,7 @@ struct emulated_operations :
         return old_val;
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_xor(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
+    static storage_type fetch_xor(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
         BOOST_STATIC_ASSERT_MSG(!is_interprocess, "Boost.Atomic: operation invoked on a non-lock-free inter-process atomic object");
         storage_type& s = const_cast< storage_type& >(storage);

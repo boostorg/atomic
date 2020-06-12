@@ -39,7 +39,7 @@ struct emulated_extra_fp_operations :
     typedef Value value_type;
     typedef typename base_type::scoped_lock scoped_lock;
 
-    static BOOST_FORCEINLINE value_type fetch_negate(storage_type volatile& storage, memory_order) BOOST_NOEXCEPT
+    static value_type fetch_negate(storage_type volatile& storage, memory_order) BOOST_NOEXCEPT
     {
         BOOST_STATIC_ASSERT_MSG(!base_type::is_interprocess, "Boost.Atomic: operation invoked on a non-lock-free inter-process atomic object");
         storage_type& s = const_cast< storage_type& >(storage);
@@ -50,7 +50,7 @@ struct emulated_extra_fp_operations :
         return old_val;
     }
 
-    static BOOST_FORCEINLINE value_type negate(storage_type volatile& storage, memory_order) BOOST_NOEXCEPT
+    static value_type negate(storage_type volatile& storage, memory_order) BOOST_NOEXCEPT
     {
         BOOST_STATIC_ASSERT_MSG(!base_type::is_interprocess, "Boost.Atomic: operation invoked on a non-lock-free inter-process atomic object");
         storage_type& s = const_cast< storage_type& >(storage);
@@ -61,7 +61,7 @@ struct emulated_extra_fp_operations :
         return new_val;
     }
 
-    static BOOST_FORCEINLINE value_type add(storage_type volatile& storage, value_type v, memory_order) BOOST_NOEXCEPT
+    static value_type add(storage_type volatile& storage, value_type v, memory_order) BOOST_NOEXCEPT
     {
         BOOST_STATIC_ASSERT_MSG(!base_type::is_interprocess, "Boost.Atomic: operation invoked on a non-lock-free inter-process atomic object");
         storage_type& s = const_cast< storage_type& >(storage);
@@ -72,7 +72,7 @@ struct emulated_extra_fp_operations :
         return new_val;
     }
 
-    static BOOST_FORCEINLINE value_type sub(storage_type volatile& storage, value_type v, memory_order) BOOST_NOEXCEPT
+    static value_type sub(storage_type volatile& storage, value_type v, memory_order) BOOST_NOEXCEPT
     {
         BOOST_STATIC_ASSERT_MSG(!base_type::is_interprocess, "Boost.Atomic: operation invoked on a non-lock-free inter-process atomic object");
         storage_type& s = const_cast< storage_type& >(storage);

@@ -44,7 +44,7 @@ struct emulated_extra_operations :
     typedef typename base_type::storage_type storage_type;
     typedef typename base_type::scoped_lock scoped_lock;
 
-    static BOOST_FORCEINLINE storage_type fetch_negate(storage_type volatile& storage, memory_order) BOOST_NOEXCEPT
+    static storage_type fetch_negate(storage_type volatile& storage, memory_order) BOOST_NOEXCEPT
     {
         BOOST_STATIC_ASSERT_MSG(!base_type::is_interprocess, "Boost.Atomic: operation invoked on a non-lock-free inter-process atomic object");
         storage_type& s = const_cast< storage_type& >(storage);
@@ -54,7 +54,7 @@ struct emulated_extra_operations :
         return old_val;
     }
 
-    static BOOST_FORCEINLINE storage_type negate(storage_type volatile& storage, memory_order) BOOST_NOEXCEPT
+    static storage_type negate(storage_type volatile& storage, memory_order) BOOST_NOEXCEPT
     {
         BOOST_STATIC_ASSERT_MSG(!base_type::is_interprocess, "Boost.Atomic: operation invoked on a non-lock-free inter-process atomic object");
         storage_type& s = const_cast< storage_type& >(storage);
@@ -64,7 +64,7 @@ struct emulated_extra_operations :
         return new_val;
     }
 
-    static BOOST_FORCEINLINE storage_type add(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
+    static storage_type add(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
         BOOST_STATIC_ASSERT_MSG(!base_type::is_interprocess, "Boost.Atomic: operation invoked on a non-lock-free inter-process atomic object");
         storage_type& s = const_cast< storage_type& >(storage);
@@ -75,7 +75,7 @@ struct emulated_extra_operations :
         return new_val;
     }
 
-    static BOOST_FORCEINLINE storage_type sub(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
+    static storage_type sub(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
         BOOST_STATIC_ASSERT_MSG(!base_type::is_interprocess, "Boost.Atomic: operation invoked on a non-lock-free inter-process atomic object");
         storage_type& s = const_cast< storage_type& >(storage);
@@ -86,7 +86,7 @@ struct emulated_extra_operations :
         return new_val;
     }
 
-    static BOOST_FORCEINLINE storage_type bitwise_and(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
+    static storage_type bitwise_and(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
         BOOST_STATIC_ASSERT_MSG(!base_type::is_interprocess, "Boost.Atomic: operation invoked on a non-lock-free inter-process atomic object");
         storage_type& s = const_cast< storage_type& >(storage);
@@ -97,7 +97,7 @@ struct emulated_extra_operations :
         return new_val;
     }
 
-    static BOOST_FORCEINLINE storage_type bitwise_or(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
+    static storage_type bitwise_or(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
         BOOST_STATIC_ASSERT_MSG(!base_type::is_interprocess, "Boost.Atomic: operation invoked on a non-lock-free inter-process atomic object");
         storage_type& s = const_cast< storage_type& >(storage);
@@ -108,7 +108,7 @@ struct emulated_extra_operations :
         return new_val;
     }
 
-    static BOOST_FORCEINLINE storage_type bitwise_xor(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
+    static storage_type bitwise_xor(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
         BOOST_STATIC_ASSERT_MSG(!base_type::is_interprocess, "Boost.Atomic: operation invoked on a non-lock-free inter-process atomic object");
         storage_type& s = const_cast< storage_type& >(storage);
@@ -119,7 +119,7 @@ struct emulated_extra_operations :
         return new_val;
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_complement(storage_type volatile& storage, memory_order) BOOST_NOEXCEPT
+    static storage_type fetch_complement(storage_type volatile& storage, memory_order) BOOST_NOEXCEPT
     {
         BOOST_STATIC_ASSERT_MSG(!base_type::is_interprocess, "Boost.Atomic: operation invoked on a non-lock-free inter-process atomic object");
         storage_type& s = const_cast< storage_type& >(storage);
@@ -129,7 +129,7 @@ struct emulated_extra_operations :
         return old_val;
     }
 
-    static BOOST_FORCEINLINE storage_type bitwise_complement(storage_type volatile& storage, memory_order) BOOST_NOEXCEPT
+    static storage_type bitwise_complement(storage_type volatile& storage, memory_order) BOOST_NOEXCEPT
     {
         BOOST_STATIC_ASSERT_MSG(!base_type::is_interprocess, "Boost.Atomic: operation invoked on a non-lock-free inter-process atomic object");
         storage_type& s = const_cast< storage_type& >(storage);

@@ -50,8 +50,6 @@ struct emulated_wait_operations :
 #if defined(BOOST_MSVC) && BOOST_MSVC < 1500
     // In some cases, when this function is inlined, MSVC-8 (VS2005) x64 generates broken code that returns a bogus value from this function.
     BOOST_NOINLINE
-#else
-    BOOST_FORCEINLINE
 #endif
     storage_type wait(storage_type const volatile& storage, storage_type old_val, memory_order) BOOST_NOEXCEPT
     {
@@ -68,14 +66,14 @@ struct emulated_wait_operations :
         return new_val;
     }
 
-    static BOOST_FORCEINLINE void notify_one(storage_type volatile& storage) BOOST_NOEXCEPT
+    static void notify_one(storage_type volatile& storage) BOOST_NOEXCEPT
     {
         BOOST_STATIC_ASSERT_MSG(!base_type::is_interprocess, "Boost.Atomic: operation invoked on a non-lock-free inter-process atomic object");
         scoped_lock lock(&storage);
         lock_pool::notify_one(lock.get_lock_state(), &storage);
     }
 
-    static BOOST_FORCEINLINE void notify_all(storage_type volatile& storage) BOOST_NOEXCEPT
+    static void notify_all(storage_type volatile& storage) BOOST_NOEXCEPT
     {
         BOOST_STATIC_ASSERT_MSG(!base_type::is_interprocess, "Boost.Atomic: operation invoked on a non-lock-free inter-process atomic object");
         scoped_lock lock(&storage);
