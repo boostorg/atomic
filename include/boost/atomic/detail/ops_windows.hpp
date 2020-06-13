@@ -32,6 +32,7 @@
 #include <boost/atomic/detail/type_traits/make_signed.hpp>
 #include <boost/atomic/detail/ops_msvc_common.hpp>
 #include <boost/atomic/detail/ops_extending_cas_based.hpp>
+#include <boost/atomic/detail/header.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once
@@ -214,5 +215,7 @@ BOOST_FORCEINLINE void signal_fence(memory_order order) BOOST_NOEXCEPT
 } // namespace detail
 } // namespace atomics
 } // namespace boost
+
+#include <boost/atomic/detail/footer.hpp>
 
 #endif // BOOST_ATOMIC_DETAIL_OPS_WINDOWS_HPP_INCLUDED_

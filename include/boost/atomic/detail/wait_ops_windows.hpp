@@ -24,6 +24,7 @@
 #include <boost/atomic/detail/once_flag.hpp>
 #include <boost/atomic/detail/wait_operations_fwd.hpp>
 #include <boost/atomic/detail/wait_ops_generic.hpp>
+#include <boost/atomic/detail/header.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once
@@ -143,5 +144,7 @@ struct wait_operations< Base, 8u, true, false > :
 } // namespace detail
 } // namespace atomics
 } // namespace boost
+
+#include <boost/atomic/detail/footer.hpp>
 
 #endif // BOOST_ATOMIC_DETAIL_WAIT_OPS_WINDOWS_HPP_INCLUDED_

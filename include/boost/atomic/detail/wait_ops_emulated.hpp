@@ -20,6 +20,7 @@
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/lock_pool.hpp>
 #include <boost/atomic/detail/wait_operations_fwd.hpp>
+#include <boost/atomic/detail/header.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once
@@ -90,5 +91,7 @@ struct wait_operations< Base, Size, false, Interprocess > :
 } // namespace detail
 } // namespace atomics
 } // namespace boost
+
+#include <boost/atomic/detail/footer.hpp>
 
 #endif // BOOST_ATOMIC_DETAIL_WAIT_OPS_EMULATED_HPP_INCLUDED_

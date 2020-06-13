@@ -19,6 +19,7 @@
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/storage_traits.hpp>
 #include <boost/atomic/detail/integral_conversions.hpp>
+#include <boost/atomic/detail/header.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once
@@ -65,5 +66,7 @@ struct extending_cas_based_operations :
 } // namespace detail
 } // namespace atomics
 } // namespace boost
+
+#include <boost/atomic/detail/footer.hpp>
 
 #endif // BOOST_ATOMIC_DETAIL_OPS_EXTENDING_CAS_BASED_HPP_INCLUDED_

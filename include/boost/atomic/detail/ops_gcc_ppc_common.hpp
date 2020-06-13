@@ -18,6 +18,7 @@
 
 #include <boost/memory_order.hpp>
 #include <boost/atomic/detail/config.hpp>
+#include <boost/atomic/detail/header.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once
@@ -66,5 +67,7 @@ struct gcc_ppc_operations_base
 } // namespace detail
 } // namespace atomics
 } // namespace boost
+
+#include <boost/atomic/detail/footer.hpp>
 
 #endif // BOOST_ATOMIC_DETAIL_OPS_GCC_PPC_COMMON_HPP_INCLUDED_

@@ -20,15 +20,10 @@
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/storage_traits.hpp>
 #include <boost/atomic/detail/extra_operations_fwd.hpp>
+#include <boost/atomic/detail/header.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once
-#endif
-
-#if defined(BOOST_MSVC)
-#pragma warning(push)
-// unary minus operator applied to unsigned type, result still unsigned
-#pragma warning(disable: 4146)
 #endif
 
 namespace boost {
@@ -258,8 +253,6 @@ struct extra_operations< Base, Size, Signed, false > :
 } // namespace atomics
 } // namespace boost
 
-#if defined(BOOST_MSVC)
-#pragma warning(pop)
-#endif
+#include <boost/atomic/detail/footer.hpp>
 
 #endif // BOOST_ATOMIC_DETAIL_EXTRA_OPS_EMULATED_HPP_INCLUDED_

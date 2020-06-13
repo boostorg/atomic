@@ -22,6 +22,7 @@
 #include <boost/atomic/detail/operations.hpp>
 #include <boost/atomic/detail/wait_operations.hpp>
 #include <boost/atomic/detail/aligned_variable.hpp>
+#include <boost/atomic/detail/header.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once
@@ -122,5 +123,7 @@ BOOST_CONSTEXPR_OR_CONST bool atomic_flag_impl< IsInterprocess >::always_has_nat
 } // namespace detail
 } // namespace atomics
 } // namespace boost
+
+#include <boost/atomic/detail/footer.hpp>
 
 #endif // BOOST_ATOMIC_DETAIL_ATOMIC_FLAG_IMPL_HPP_INCLUDED_

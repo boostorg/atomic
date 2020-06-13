@@ -22,6 +22,7 @@
 #include <boost/atomic/detail/storage_traits.hpp>
 #include <boost/atomic/detail/string_ops.hpp>
 #include <boost/atomic/detail/capabilities.hpp>
+#include <boost/atomic/detail/header.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once
@@ -558,5 +559,7 @@ struct gcc_dcas_x86_64
 } // namespace detail
 } // namespace atomics
 } // namespace boost
+
+#include <boost/atomic/detail/footer.hpp>
 
 #endif // BOOST_ATOMIC_DETAIL_OPS_GCC_X86_DCAS_HPP_INCLUDED_

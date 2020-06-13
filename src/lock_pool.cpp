@@ -67,6 +67,8 @@
 #include <cerrno>
 #endif // BOOST_OS_WINDOWS
 
+#include <boost/atomic/detail/header.hpp>
+
 // Cache line size, in bytes
 // NOTE: This constant is made as a macro because some compilers (gcc 4.4 for one) don't allow enums or namespace scope constants in alignment attributes
 #if defined(__s390__) || defined(__s390x__)
@@ -75,12 +77,6 @@
 #define BOOST_ATOMIC_CACHE_LINE_SIZE 128
 #else
 #define BOOST_ATOMIC_CACHE_LINE_SIZE 64
-#endif
-
-#if defined(BOOST_MSVC)
-#pragma warning(push)
-// 'struct_name' : structure was padded due to __declspec(align())
-#pragma warning(disable: 4324)
 #endif
 
 namespace boost {
@@ -1300,6 +1296,4 @@ BOOST_ATOMIC_DECL void signal_fence() BOOST_NOEXCEPT
 } // namespace atomics
 } // namespace boost
 
-#if defined(BOOST_MSVC)
-#pragma warning(pop)
-#endif
+#include <boost/atomic/detail/footer.hpp>

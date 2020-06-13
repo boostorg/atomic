@@ -25,6 +25,7 @@
 #include <boost/atomic/detail/operations_fwd.hpp>
 #include <boost/atomic/detail/ops_cas_based.hpp>
 #include <boost/atomic/detail/ops_extending_cas_based.hpp>
+#include <boost/atomic/detail/header.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once
@@ -178,5 +179,7 @@ BOOST_FORCEINLINE void signal_fence(memory_order order) BOOST_NOEXCEPT
 } // namespace detail
 } // namespace atomics
 } // namespace boost
+
+#include <boost/atomic/detail/footer.hpp>
 
 #endif // BOOST_ATOMIC_DETAIL_OPS_LINUX_ARM_HPP_INCLUDED_

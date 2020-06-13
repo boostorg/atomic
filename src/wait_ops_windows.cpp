@@ -36,6 +36,8 @@
 #include <boost/atomic/detail/operations.hpp>
 #endif // BOOST_USE_WINAPI_VERSION < BOOST_WINAPI_VERSION_WIN8
 
+#include <boost/atomic/detail/header.hpp>
+
 namespace boost {
 namespace atomics {
 namespace detail {
@@ -110,3 +112,5 @@ BOOST_ATOMIC_DECL void initialize_wait_functions() BOOST_NOEXCEPT
 } // namespace detail
 } // namespace atomics
 } // namespace boost
+
+#include <boost/atomic/detail/footer.hpp>

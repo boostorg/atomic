@@ -50,6 +50,7 @@
 #include <sys/futex.h>
 #endif
 #include <boost/atomic/detail/intptr.hpp>
+#include <boost/atomic/detail/header.hpp>
 
 #define BOOST_ATOMIC_DETAIL_HAS_FUTEX
 
@@ -136,6 +137,8 @@ BOOST_FORCEINLINE int futex_requeue_private(void* pval1, void* pval2, unsigned i
 } // namespace detail
 } // namespace atomics
 } // namespace boost
+
+#include <boost/atomic/detail/footer.hpp>
 
 #endif // defined(BOOST_ATOMIC_DETAIL_SYS_FUTEX)
 

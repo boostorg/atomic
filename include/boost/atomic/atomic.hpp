@@ -25,15 +25,10 @@
 #include <boost/atomic/detail/classify.hpp>
 #include <boost/atomic/detail/atomic_impl.hpp>
 #include <boost/atomic/detail/type_traits/is_trivially_copyable.hpp>
+#include <boost/atomic/detail/header.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once
-#endif
-
-#if defined(BOOST_MSVC)
-#pragma warning(push)
-// 'boost::atomics::atomic<T>' : multiple assignment operators specified
-#pragma warning(disable: 4522)
 #endif
 
 namespace boost {
@@ -271,8 +266,6 @@ using atomics::atomic_signed_lock_free;
 
 } // namespace boost
 
-#if defined(BOOST_MSVC)
-#pragma warning(pop)
-#endif
+#include <boost/atomic/detail/footer.hpp>
 
 #endif // BOOST_ATOMIC_ATOMIC_HPP_INCLUDED_

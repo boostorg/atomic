@@ -16,6 +16,7 @@
 
 #include <cstddef>
 #include <boost/atomic/detail/config.hpp>
+#include <boost/atomic/detail/header.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once
@@ -34,5 +35,7 @@ struct operations;
 } // namespace detail
 } // namespace atomics
 } // namespace boost
+
+#include <boost/atomic/detail/footer.hpp>
 
 #endif // BOOST_ATOMIC_DETAIL_OPERATIONS_FWD_HPP_INCLUDED_

@@ -19,6 +19,7 @@
 #include <boost/memory_order.hpp>
 #include <boost/atomic/capabilities.hpp>
 #include <boost/atomic/detail/operations.hpp>
+#include <boost/atomic/detail/header.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once
@@ -63,5 +64,7 @@ using atomics::atomic_thread_fence;
 using atomics::atomic_signal_fence;
 
 } // namespace boost
+
+#include <boost/atomic/detail/footer.hpp>
 
 #endif // BOOST_ATOMIC_FENCES_HPP_INCLUDED_

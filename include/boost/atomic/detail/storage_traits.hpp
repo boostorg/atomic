@@ -22,6 +22,7 @@
 #include <boost/atomic/detail/string_ops.hpp>
 #include <boost/atomic/detail/aligned_variable.hpp>
 #include <boost/atomic/detail/type_traits/alignment_of.hpp>
+#include <boost/atomic/detail/header.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once
@@ -180,5 +181,7 @@ struct storage_size_of
 } // namespace detail
 } // namespace atomics
 } // namespace boost
+
+#include <boost/atomic/detail/footer.hpp>
 
 #endif // BOOST_ATOMIC_DETAIL_STORAGE_TRAITS_HPP_INCLUDED_

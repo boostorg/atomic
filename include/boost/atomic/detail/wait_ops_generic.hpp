@@ -20,6 +20,7 @@
 #include <boost/atomic/detail/pause.hpp>
 #include <boost/atomic/detail/lock_pool.hpp>
 #include <boost/atomic/detail/wait_operations_fwd.hpp>
+#include <boost/atomic/detail/header.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once
@@ -118,11 +119,11 @@ struct generic_wait_operations< Base, true > :
         return new_val;
     }
 
-    static BOOST_FORCEINLINE void notify_one(storage_type volatile& storage) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE void notify_one(storage_type volatile&) BOOST_NOEXCEPT
     {
     }
 
-    static BOOST_FORCEINLINE void notify_all(storage_type volatile& storage) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE void notify_all(storage_type volatile&) BOOST_NOEXCEPT
     {
     }
 };
@@ -136,5 +137,7 @@ struct wait_operations< Base, Size, true, Interprocess > :
 } // namespace detail
 } // namespace atomics
 } // namespace boost
+
+#include <boost/atomic/detail/footer.hpp>
 
 #endif // BOOST_ATOMIC_DETAIL_WAIT_OPS_GENERIC_HPP_INCLUDED_

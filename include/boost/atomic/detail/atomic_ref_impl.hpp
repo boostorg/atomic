@@ -34,15 +34,10 @@
 #include <boost/atomic/detail/fp_operations.hpp>
 #include <boost/atomic/detail/extra_fp_operations.hpp>
 #endif
+#include <boost/atomic/detail/header.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once
-#endif
-
-#if defined(BOOST_MSVC)
-#pragma warning(push)
-// 'boost::atomics::atomic_ref<T>' : multiple assignment operators specified
-#pragma warning(disable: 4522)
 #endif
 
 /*
@@ -1125,8 +1120,6 @@ private:
 } // namespace atomics
 } // namespace boost
 
-#if defined(BOOST_MSVC)
-#pragma warning(pop)
-#endif
+#include <boost/atomic/detail/footer.hpp>
 
 #endif // BOOST_ATOMIC_DETAIL_ATOMIC_REF_IMPL_HPP_INCLUDED_

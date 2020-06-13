@@ -34,15 +34,10 @@
 #if !defined(_M_IX86) && !(defined(BOOST_ATOMIC_INTERLOCKED_COMPARE_EXCHANGE8) && defined(BOOST_ATOMIC_INTERLOCKED_COMPARE_EXCHANGE16))
 #include <boost/atomic/detail/ops_extending_cas_based.hpp>
 #endif
+#include <boost/atomic/detail/header.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once
-#endif
-
-#if defined(BOOST_MSVC)
-#pragma warning(push)
-// frame pointer register 'ebx' modified by inline assembly code. See the note below.
-#pragma warning(disable: 4731)
 #endif
 
 namespace boost {
@@ -62,7 +57,7 @@ namespace detail {
  * Either move the eight-byte aligned types out of the function, or avoid using EBX.
  *
  * Since we have no way of knowing that the compiler uses FPO, we have to always save and restore ebx
- * whenever we have to clobber it. Additionally, we disable warning C4731 above so that the compiler
+ * whenever we have to clobber it. Additionally, we disable warning C4731 in header.hpp so that the compiler
  * doesn't spam about ebx use.
  */
 
@@ -897,8 +892,6 @@ BOOST_FORCEINLINE void signal_fence(memory_order order) BOOST_NOEXCEPT
 } // namespace atomics
 } // namespace boost
 
-#if defined(BOOST_MSVC)
-#pragma warning(pop)
-#endif
+#include <boost/atomic/detail/footer.hpp>
 
 #endif // BOOST_ATOMIC_DETAIL_OPS_MSVC_X86_HPP_INCLUDED_

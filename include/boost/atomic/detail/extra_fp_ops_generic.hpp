@@ -22,12 +22,13 @@
 #include <boost/atomic/detail/extra_fp_operations_fwd.hpp>
 #include <boost/atomic/detail/type_traits/is_iec559.hpp>
 #include <boost/atomic/detail/type_traits/is_integral.hpp>
+#include <boost/atomic/detail/header.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once
 #endif
 
-#if defined(BOOST_GCC) && (BOOST_GCC+0) >= 60000
+#if defined(BOOST_GCC) && BOOST_GCC >= 60000
 #pragma GCC diagnostic push
 // ignoring attributes on template argument X - this warning is because we need to pass storage_type as a template argument; no problem in this case
 #pragma GCC diagnostic ignored "-Wignored-attributes"
@@ -182,8 +183,10 @@ struct extra_fp_operations< Base, Value, Size, true > :
 } // namespace atomics
 } // namespace boost
 
-#if defined(BOOST_GCC) && (BOOST_GCC+0) >= 60000
+#if defined(BOOST_GCC) && BOOST_GCC >= 60000
 #pragma GCC diagnostic pop
 #endif
+
+#include <boost/atomic/detail/footer.hpp>
 
 #endif // BOOST_ATOMIC_DETAIL_FP_OPS_GENERIC_HPP_INCLUDED_

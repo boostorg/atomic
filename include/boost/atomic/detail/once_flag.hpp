@@ -17,6 +17,7 @@
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/aligned_variable.hpp>
 #include <boost/atomic/detail/operations.hpp>
+#include <boost/atomic/detail/header.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once
@@ -36,5 +37,7 @@ struct once_flag
 } // namespace detail
 } // namespace atomics
 } // namespace boost
+
+#include <boost/atomic/detail/footer.hpp>
 
 #endif // BOOST_ATOMIC_DETAIL_ONCE_FLAG_HPP_INCLUDED_

@@ -20,6 +20,7 @@
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/bitwise_fp_cast.hpp>
 #include <boost/atomic/detail/fp_operations_fwd.hpp>
+#include <boost/atomic/detail/header.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once
@@ -71,5 +72,7 @@ struct fp_operations< Base, Value, Size, false > :
 } // namespace detail
 } // namespace atomics
 } // namespace boost
+
+#include <boost/atomic/detail/footer.hpp>
 
 #endif // BOOST_ATOMIC_DETAIL_FP_OPS_EMULATED_HPP_INCLUDED_

@@ -26,21 +26,10 @@
 #else
 #include <unistd.h>
 #endif
+#include <boost/atomic/detail/header.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once
-#endif
-
-#if defined(BOOST_MSVC)
-#pragma warning(push)
-// conditional expression is constant
-#pragma warning(disable: 4127)
-#endif
-
-#if defined(BOOST_GCC) && BOOST_GCC >= 40600
-#pragma GCC diagnostic push
-// missing initializer for member var
-#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 #endif
 
 namespace boost {
@@ -157,12 +146,6 @@ public:
 } // namespace atomics
 } // namespace boost
 
-#if defined(BOOST_GCC) && BOOST_GCC >= 40600
-#pragma GCC diagnostic pop
-#endif
-
-#if defined(BOOST_MSVC)
-#pragma warning(pop)
-#endif
+#include <boost/atomic/detail/footer.hpp>
 
 #endif // BOOST_ATOMIC_DETAIL_LOCK_POOL_HPP_INCLUDED_

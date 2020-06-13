@@ -22,6 +22,7 @@
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/int_sizes.hpp>
 #include <boost/atomic/detail/wait_operations_fwd.hpp>
+#include <boost/atomic/detail/header.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once
@@ -112,5 +113,7 @@ struct wait_operations< Base, sizeof(unsigned long), true, Interprocess > :
 } // namespace detail
 } // namespace atomics
 } // namespace boost
+
+#include <boost/atomic/detail/footer.hpp>
 
 #endif // BOOST_ATOMIC_DETAIL_WAIT_OPS_FREEBSD_UMTX_HPP_INCLUDED_

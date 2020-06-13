@@ -34,6 +34,7 @@
 #include <boost/atomic/detail/int_sizes.hpp>
 #include <boost/atomic/detail/ops_extending_cas_based.hpp>
 #endif
+#include <boost/atomic/detail/header.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once
@@ -410,5 +411,7 @@ BOOST_FORCEINLINE void signal_fence(memory_order order) BOOST_NOEXCEPT
 } // namespace detail
 } // namespace atomics
 } // namespace boost
+
+#include <boost/atomic/detail/footer.hpp>
 
 #endif // BOOST_ATOMIC_DETAIL_OPS_GCC_ATOMIC_HPP_INCLUDED_

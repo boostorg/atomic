@@ -22,6 +22,7 @@
 #include <boost/atomic/detail/extra_ops_generic.hpp>
 #include <boost/atomic/detail/ops_gcc_ppc_common.hpp>
 #include <boost/atomic/detail/capabilities.hpp>
+#include <boost/atomic/detail/header.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once
@@ -836,5 +837,7 @@ struct extra_operations< Base, 8u, Signed, true > :
 } // namespace detail
 } // namespace atomics
 } // namespace boost
+
+#include <boost/atomic/detail/footer.hpp>
 
 #endif // BOOST_ATOMIC_DETAIL_EXTRA_OPS_GCC_ARM_PPC_INCLUDED_

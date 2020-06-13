@@ -19,6 +19,7 @@
 #include <boost/config/helper_macros.hpp>
 #include <boost/type_traits/type_with_alignment.hpp>
 #endif
+#include <boost/atomic/detail/header.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once
@@ -50,5 +51,7 @@
     }
 
 #endif // !defined(BOOST_ATOMIC_DETAIL_NO_CXX11_ALIGNAS)
+
+#include <boost/atomic/detail/footer.hpp>
 
 #endif // BOOST_ATOMIC_DETAIL_ALIGNED_VARIABLE_HPP_INCLUDED_

@@ -11,6 +11,7 @@
 #define BOOST_ATOMIC_DETAIL_PAUSE_HPP_INCLUDED_
 
 #include <boost/atomic/detail/config.hpp>
+#include <boost/atomic/detail/header.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once
@@ -54,5 +55,7 @@ BOOST_FORCEINLINE void pause() BOOST_NOEXCEPT
 } // namespace detail
 } // namespace atomics
 } // namespace boost
+
+#include <boost/atomic/detail/footer.hpp>
 
 #endif // BOOST_ATOMIC_DETAIL_PAUSE_HPP_INCLUDED_
