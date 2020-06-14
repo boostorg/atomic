@@ -96,7 +96,7 @@ public:
         m_wrapper.a.store(m_value2, boost::memory_order_release);
         m_wrapper.a.notify_one();
 
-        boost::this_thread::sleep_for(chrono::milliseconds(300));
+        boost::this_thread::sleep_for(chrono::milliseconds(200));
 
         m_wrapper.a.store(m_value3, boost::memory_order_release);
         m_wrapper.a.notify_one();
@@ -125,7 +125,7 @@ public:
                 return false;
             }
 
-            if ((second_state->m_wakeup_time - start_time) < chrono::milliseconds(500))
+            if ((second_state->m_wakeup_time - start_time) < chrono::milliseconds(400))
             {
                 std::cout << "notify_one_test: second thread woke up too soon: " << chrono::duration_cast< chrono::milliseconds >(second_state->m_wakeup_time - start_time).count() << " ms" << std::endl;
                 return false;
@@ -137,7 +137,7 @@ public:
         else
         {
             // With the emulated wait/notify the threads are most likely to return prior to notify
-            BOOST_TEST_EQ(first_state->m_received_value, m_value2);
+            BOOST_TEST(first_state->m_received_value == m_value2 || first_state->m_received_value == m_value3);
             BOOST_TEST(second_state->m_received_value == m_value2 || second_state->m_received_value == m_value3);
         }
 
