@@ -96,7 +96,7 @@ public:
         m_wrapper.a.store(m_value2, boost::memory_order_release);
         m_wrapper.a.notify_one();
 
-        boost::this_thread::sleep_for(chrono::milliseconds(200));
+        boost::this_thread::sleep_for(chrono::milliseconds(300));
 
         m_wrapper.a.store(m_value3, boost::memory_order_release);
         m_wrapper.a.notify_one();
@@ -125,7 +125,7 @@ public:
                 return false;
             }
 
-            if ((second_state->m_wakeup_time - start_time) < chrono::milliseconds(400))
+            if ((second_state->m_wakeup_time - start_time) < chrono::milliseconds(500))
             {
                 std::cout << "notify_one_test: second thread woke up too soon: " << chrono::duration_cast< chrono::milliseconds >(second_state->m_wakeup_time - start_time).count() << " ms" << std::endl;
                 return false;
