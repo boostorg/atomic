@@ -114,6 +114,32 @@ void verify_lock_free(const char* type_name, int lock_free_macro_val, int lock_f
 #define EXPECT_POINTER_LOCK_FREE 2
 #define EXPECT_BOOL_LOCK_FREE 2
 
+#elif defined(__GNUC__) && defined(__aarch64__)
+
+#define EXPECT_CHAR_LOCK_FREE 2
+#define EXPECT_SHORT_LOCK_FREE 2
+#define EXPECT_INT_LOCK_FREE 2
+#define EXPECT_LONG_LOCK_FREE 2
+#define EXPECT_LLONG_LOCK_FREE 2
+// The gcc_atomic backend doesn't support 128-bit atomics yet, but the asm-based one does
+#if !(defined(__ibmxl__) || defined(__IBMCPP__)) &&\
+    ((defined(__GNUC__) && ((__GNUC__ * 100 + __GNUC_MINOR__) >= 407)) ||\
+        (defined(BOOST_CLANG) && ((__clang_major__ * 100 + __clang_minor__) >= 302))) &&\
+    (\
+        (__GCC_ATOMIC_BOOL_LOCK_FREE + 0) == 2 ||\
+        (__GCC_ATOMIC_CHAR_LOCK_FREE + 0) == 2 ||\
+        (__GCC_ATOMIC_SHORT_LOCK_FREE + 0) == 2 ||\
+        (__GCC_ATOMIC_INT_LOCK_FREE + 0) == 2 ||\
+        (__GCC_ATOMIC_LONG_LOCK_FREE + 0) == 2 ||\
+        (__GCC_ATOMIC_LLONG_LOCK_FREE + 0) == 2\
+    )
+#define EXPECT_INT128_LOCK_FREE 0
+#else
+#define EXPECT_INT128_LOCK_FREE 2
+#endif
+#define EXPECT_POINTER_LOCK_FREE 2
+#define EXPECT_BOOL_LOCK_FREE 2
+
 #elif defined(__GNUC__) &&\
     (\
         defined(__ARM_ARCH_6__)  || defined(__ARM_ARCH_6J__) ||\

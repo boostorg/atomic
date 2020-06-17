@@ -54,15 +54,20 @@
 #define BOOST_ATOMIC_DETAIL_COMPILER_CONFIG gcc_x86
 #define BOOST_ATOMIC_DETAIL_EXTRA_BACKEND gcc_x86
 
-#elif defined(__GNUC__) && (defined(__POWERPC__) || defined(__PPC__))
+#elif defined(__GNUC__) && defined(__aarch64__)
 
-#define BOOST_ATOMIC_DETAIL_COMPILER_CONFIG gcc_ppc
-#define BOOST_ATOMIC_DETAIL_EXTRA_BACKEND gcc_ppc
+#define BOOST_ATOMIC_DETAIL_COMPILER_CONFIG gcc_aarch64
+#define BOOST_ATOMIC_DETAIL_EXTRA_BACKEND gcc_aarch64
 
 #elif defined(__GNUC__) && defined(__arm__) && (BOOST_ATOMIC_DETAIL_ARM_ARCH+0) >= 6
 
 #define BOOST_ATOMIC_DETAIL_COMPILER_CONFIG gcc_arm
 #define BOOST_ATOMIC_DETAIL_EXTRA_BACKEND gcc_arm
+
+#elif defined(__GNUC__) && (defined(__POWERPC__) || defined(__PPC__))
+
+#define BOOST_ATOMIC_DETAIL_COMPILER_CONFIG gcc_ppc
+#define BOOST_ATOMIC_DETAIL_EXTRA_BACKEND gcc_ppc
 
 #elif (defined(__GNUC__) || defined(__SUNPRO_CC)) && (defined(__sparcv8plus) || defined(__sparc_v9__))
 
