@@ -15,7 +15,6 @@
 #define BOOST_ATOMIC_DETAIL_OPS_GCC_ATOMIC_HPP_INCLUDED_
 
 #include <cstddef>
-#include <boost/cstdint.hpp>
 #include <boost/memory_order.hpp>
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/storage_traits.hpp>
@@ -395,8 +394,8 @@ BOOST_FORCEINLINE void thread_fence(memory_order order) BOOST_NOEXCEPT
     {
         // gcc, clang, icc and probably other compilers generate mfence for a seq_cst fence,
         // while a dummy lock-prefixed instruction would be enough and faster. See the comment in ops_gcc_x86.hpp.
-        boost::uint32_t dummy;
-        __asm__ __volatile__ ("lock; notl %0" : "=m" (dummy) : : "memory");
+        unsigned char dummy = 0u;
+        __asm__ __volatile__ ("lock; notb %0" : "+m" (dummy) : : "memory");
     }
 #else
     __atomic_thread_fence(atomics::detail::convert_memory_order_to_gcc(order));
