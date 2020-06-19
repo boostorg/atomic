@@ -552,7 +552,7 @@ struct operations< 1u, false, Interprocess > :
     static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
         storage_type original, result;
-        fence_before(order);
+        base_type::fence_before(order);
         __asm__ __volatile__
         (
             "1:\n\t"
@@ -565,14 +565,14 @@ struct operations< 1u, false, Interprocess > :
             : "b" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
         );
-        fence_after(order);
+        base_type::fence_after(order);
         return original;
     }
 
     static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
         storage_type original, result;
-        fence_before(order);
+        base_type::fence_before(order);
         __asm__ __volatile__
         (
             "1:\n\t"
@@ -585,7 +585,7 @@ struct operations< 1u, false, Interprocess > :
             : "b" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
         );
-        fence_after(order);
+        base_type::fence_after(order);
         return original;
     }
 };
@@ -600,7 +600,7 @@ struct operations< 1u, true, Interprocess > :
     static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
         storage_type original, result;
-        fence_before(order);
+        base_type::fence_before(order);
         __asm__ __volatile__
         (
             "1:\n\t"
@@ -613,14 +613,14 @@ struct operations< 1u, true, Interprocess > :
             : "b" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
         );
-        fence_after(order);
+        base_type::fence_after(order);
         return original;
     }
 
     static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
         storage_type original, result;
-        fence_before(order);
+        base_type::fence_before(order);
         __asm__ __volatile__
         (
             "1:\n\t"
@@ -633,7 +633,7 @@ struct operations< 1u, true, Interprocess > :
             : "b" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
         );
-        fence_after(order);
+        base_type::fence_after(order);
         return original;
     }
 };
@@ -883,7 +883,7 @@ struct operations< 2u, false, Interprocess > :
     static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
         storage_type original, result;
-        fence_before(order);
+        base_type::fence_before(order);
         __asm__ __volatile__
         (
             "1:\n\t"
@@ -896,14 +896,14 @@ struct operations< 2u, false, Interprocess > :
             : "b" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
         );
-        fence_after(order);
+        base_type::fence_after(order);
         return original;
     }
 
     static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
         storage_type original, result;
-        fence_before(order);
+        base_type::fence_before(order);
         __asm__ __volatile__
         (
             "1:\n\t"
@@ -916,7 +916,7 @@ struct operations< 2u, false, Interprocess > :
             : "b" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
         );
-        fence_after(order);
+        base_type::fence_after(order);
         return original;
     }
 };
@@ -931,7 +931,7 @@ struct operations< 2u, true, Interprocess > :
     static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
         storage_type original, result;
-        fence_before(order);
+        base_type::fence_before(order);
         __asm__ __volatile__
         (
             "1:\n\t"
@@ -944,14 +944,14 @@ struct operations< 2u, true, Interprocess > :
             : "b" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
         );
-        fence_after(order);
+        base_type::fence_after(order);
         return original;
     }
 
     static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
         storage_type original, result;
-        fence_before(order);
+        base_type::fence_before(order);
         __asm__ __volatile__
         (
             "1:\n\t"
@@ -964,7 +964,7 @@ struct operations< 2u, true, Interprocess > :
             : "b" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
         );
-        fence_after(order);
+        base_type::fence_after(order);
         return original;
     }
 };
