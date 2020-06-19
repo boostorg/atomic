@@ -28,7 +28,7 @@ template< typename T >
 void verify_lock_free(const char* type_name, int lock_free_macro_val, int lock_free_expect)
 {
     BOOST_TEST(lock_free_macro_val >= 0 && lock_free_macro_val <= 2);
-    BOOST_TEST(lock_free_macro_val == lock_free_expect);
+    BOOST_TEST_EQ(lock_free_macro_val, lock_free_expect);
 
     boost::atomic<T> value;
 
@@ -58,7 +58,8 @@ void verify_lock_free(const char* type_name, int lock_free_macro_val, int lock_f
 #define EXPECT_SHORT_LOCK_FREE 2
 #define EXPECT_INT_LOCK_FREE 2
 #define EXPECT_LONG_LOCK_FREE 2
-#if defined(BOOST_ATOMIC_DETAIL_X86_HAS_CMPXCHG8B)
+#if defined(BOOST_ATOMIC_DETAIL_X86_HAS_CMPXCHG8B) || defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_8) ||\
+    defined(__i586__) || defined(__i686__) || defined(__SSE__)
 #define EXPECT_LLONG_LOCK_FREE 2
 #else
 #define EXPECT_LLONG_LOCK_FREE 0
@@ -74,7 +75,7 @@ void verify_lock_free(const char* type_name, int lock_free_macro_val, int lock_f
 #define EXPECT_INT_LOCK_FREE 2
 #define EXPECT_LONG_LOCK_FREE 2
 #define EXPECT_LLONG_LOCK_FREE 2
-#if defined(BOOST_ATOMIC_DETAIL_X86_HAS_CMPXCHG16B)
+#if defined(BOOST_ATOMIC_DETAIL_X86_HAS_CMPXCHG8B) || defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_16)
 #define EXPECT_INT128_LOCK_FREE 2
 #else
 #define EXPECT_INT128_LOCK_FREE 0
@@ -121,22 +122,7 @@ void verify_lock_free(const char* type_name, int lock_free_macro_val, int lock_f
 #define EXPECT_INT_LOCK_FREE 2
 #define EXPECT_LONG_LOCK_FREE 2
 #define EXPECT_LLONG_LOCK_FREE 2
-// The gcc_atomic backend doesn't support 128-bit atomics yet, but the asm-based one does
-#if !(defined(__ibmxl__) || defined(__IBMCPP__)) &&\
-    ((defined(__GNUC__) && ((__GNUC__ * 100 + __GNUC_MINOR__) >= 407)) ||\
-        (defined(BOOST_CLANG) && ((__clang_major__ * 100 + __clang_minor__) >= 302))) &&\
-    (\
-        (__GCC_ATOMIC_BOOL_LOCK_FREE + 0) == 2 ||\
-        (__GCC_ATOMIC_CHAR_LOCK_FREE + 0) == 2 ||\
-        (__GCC_ATOMIC_SHORT_LOCK_FREE + 0) == 2 ||\
-        (__GCC_ATOMIC_INT_LOCK_FREE + 0) == 2 ||\
-        (__GCC_ATOMIC_LONG_LOCK_FREE + 0) == 2 ||\
-        (__GCC_ATOMIC_LLONG_LOCK_FREE + 0) == 2\
-    )
-#define EXPECT_INT128_LOCK_FREE 0
-#else
 #define EXPECT_INT128_LOCK_FREE 2
-#endif
 #define EXPECT_POINTER_LOCK_FREE 2
 #define EXPECT_BOOL_LOCK_FREE 2
 

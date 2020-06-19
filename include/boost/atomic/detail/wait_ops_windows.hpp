@@ -8,7 +8,7 @@
 /*!
  * \file   atomic/detail/wait_ops_windows.hpp
  *
- * This header contains implementation of the wait/notify atomic operations on Windows.
+ * This header contains implementation of the waiting/notifying atomic operations on Windows.
  */
 
 #ifndef BOOST_ATOMIC_DETAIL_WAIT_OPS_WINDOWS_HPP_INCLUDED_
@@ -61,10 +61,10 @@ BOOST_FORCEINLINE void ensure_wait_functions_initialized() BOOST_NOEXCEPT
 }
 
 template< typename Base, std::size_t Size >
-struct windows_wait_operations :
-    public atomics::detail::generic_wait_operations< Base, false >
+struct wait_operations_windows :
+    public atomics::detail::wait_operations_generic< Base, false >
 {
-    typedef atomics::detail::generic_wait_operations< Base, false > base_type;
+    typedef atomics::detail::wait_operations_generic< Base, false > base_type;
     typedef typename base_type::storage_type storage_type;
 
     static BOOST_CONSTEXPR_OR_CONST bool always_has_native_wait_notify = false;
@@ -119,25 +119,25 @@ struct windows_wait_operations :
 
 template< typename Base >
 struct wait_operations< Base, 1u, true, false > :
-    public windows_wait_operations< Base, 1u >
+    public wait_operations_windows< Base, 1u >
 {
 };
 
 template< typename Base >
 struct wait_operations< Base, 2u, true, false > :
-    public windows_wait_operations< Base, 2u >
+    public wait_operations_windows< Base, 2u >
 {
 };
 
 template< typename Base >
 struct wait_operations< Base, 4u, true, false > :
-    public windows_wait_operations< Base, 4u >
+    public wait_operations_windows< Base, 4u >
 {
 };
 
 template< typename Base >
 struct wait_operations< Base, 8u, true, false > :
-    public windows_wait_operations< Base, 8u >
+    public wait_operations_windows< Base, 8u >
 {
 };
 

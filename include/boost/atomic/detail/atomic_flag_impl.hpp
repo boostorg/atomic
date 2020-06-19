@@ -19,7 +19,7 @@
 #include <boost/assert.hpp>
 #include <boost/memory_order.hpp>
 #include <boost/atomic/detail/config.hpp>
-#include <boost/atomic/detail/operations.hpp>
+#include <boost/atomic/detail/core_operations.hpp>
 #include <boost/atomic/detail/wait_operations.hpp>
 #include <boost/atomic/detail/aligned_variable.hpp>
 #include <boost/atomic/detail/header.hpp>
@@ -30,7 +30,7 @@
 
 /*
  * IMPLEMENTATION NOTE: All interface functions MUST be declared with BOOST_FORCEINLINE,
- *                      see comment for convert_memory_order_to_gcc in ops_gcc_atomic.hpp.
+ *                      see comment for convert_memory_order_to_gcc in gcc_atomic_memory_order_utils.hpp.
  */
 
 namespace boost {
@@ -48,14 +48,14 @@ template< bool IsInterprocess >
 struct atomic_flag_impl
 {
     // Prefer 4-byte storage as most platforms support waiting/notifying operations without a lock pool for 32-bit integers
-    typedef atomics::detail::operations< 4u, false, IsInterprocess > operations;
-    typedef atomics::detail::wait_operations< operations > wait_operations;
-    typedef typename operations::storage_type storage_type;
+    typedef atomics::detail::core_operations< 4u, false, IsInterprocess > core_operations;
+    typedef atomics::detail::wait_operations< core_operations > wait_operations;
+    typedef typename core_operations::storage_type storage_type;
 
-    static BOOST_CONSTEXPR_OR_CONST bool is_always_lock_free = operations::is_always_lock_free;
+    static BOOST_CONSTEXPR_OR_CONST bool is_always_lock_free = core_operations::is_always_lock_free;
     static BOOST_CONSTEXPR_OR_CONST bool always_has_native_wait_notify = wait_operations::always_has_native_wait_notify;
 
-    BOOST_ATOMIC_DETAIL_ALIGNED_VAR_TPL(operations::storage_alignment, storage_type, m_storage);
+    BOOST_ATOMIC_DETAIL_ALIGNED_VAR_TPL(core_operations::storage_alignment, storage_type, m_storage);
 
     BOOST_FORCEINLINE BOOST_ATOMIC_DETAIL_CONSTEXPR_UNION_INIT atomic_flag_impl() BOOST_NOEXCEPT : m_storage(0u)
     {
@@ -75,12 +75,12 @@ struct atomic_flag_impl
     {
         BOOST_ASSERT(order != memory_order_release);
         BOOST_ASSERT(order != memory_order_acq_rel);
-        return !!operations::load(m_storage, order);
+        return !!core_operations::load(m_storage, order);
     }
 
     BOOST_FORCEINLINE bool test_and_set(memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
     {
-        return operations::test_and_set(m_storage, order);
+        return core_operations::test_and_set(m_storage, order);
     }
 
     BOOST_FORCEINLINE void clear(memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
@@ -88,7 +88,7 @@ struct atomic_flag_impl
         BOOST_ASSERT(order != memory_order_consume);
         BOOST_ASSERT(order != memory_order_acquire);
         BOOST_ASSERT(order != memory_order_acq_rel);
-        operations::clear(m_storage, order);
+        core_operations::clear(m_storage, order);
     }
 
     BOOST_FORCEINLINE bool wait(bool old_val, memory_order order = memory_order_seq_cst) const volatile BOOST_NOEXCEPT

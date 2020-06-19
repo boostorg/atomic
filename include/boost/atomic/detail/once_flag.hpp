@@ -16,7 +16,7 @@
 
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/aligned_variable.hpp>
-#include <boost/atomic/detail/operations.hpp>
+#include <boost/atomic/detail/core_operations.hpp>
 #include <boost/atomic/detail/header.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
@@ -27,7 +27,7 @@ namespace boost {
 namespace atomics {
 namespace detail {
 
-typedef atomics::detail::operations< 1u, false, false > once_flag_operations;
+typedef atomics::detail::core_operations< 1u, false, false > once_flag_operations;
 
 struct once_flag
 {

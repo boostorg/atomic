@@ -32,8 +32,9 @@
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/intptr.hpp>
 #include <boost/atomic/detail/aligned_variable.hpp>
-#include <boost/atomic/detail/operations_lockfree.hpp>
+#include <boost/atomic/detail/core_operations.hpp>
 #include <boost/atomic/detail/extra_operations.hpp>
+#include <boost/atomic/detail/fence_operations.hpp>
 #include <boost/atomic/detail/lock_pool.hpp>
 #include <boost/atomic/detail/pause.hpp>
 #include <boost/atomic/detail/once_flag.hpp>
@@ -284,7 +285,7 @@ inline void wait_state::wait(lock_state& state) BOOST_NOEXCEPT
 
 #elif defined(BOOST_ATOMIC_USE_FUTEX)
 
-typedef atomics::detail::operations< 4u, false, false > futex_operations;
+typedef atomics::detail::core_operations< 4u, false, false > futex_operations;
 // The storage type must be a 32-bit object, as required by futex API
 BOOST_STATIC_ASSERT_MSG(futex_operations::is_always_lock_free && sizeof(futex_operations::storage_type) == 4u, "Boost.Atomic unsupported target platform: native atomic operations not implemented for 32-bit integers");
 typedef atomics::detail::extra_operations< futex_operations, futex_operations::storage_size, futex_operations::is_signed > futex_extra_operations;
@@ -529,7 +530,7 @@ inline void wait_state::wait(lock_state& state) BOOST_NOEXCEPT
 
 #else // BOOST_USE_WINAPI_VERSION >= BOOST_WINAPI_VERSION_WIN6
 
-typedef atomics::detail::operations< 4u, false, false > mutex_operations;
+typedef atomics::detail::core_operations< 4u, false, false > mutex_operations;
 BOOST_STATIC_ASSERT_MSG(mutex_operations::is_always_lock_free, "Boost.Atomic unsupported target platform: native atomic operations not implemented for 32-bit integers");
 
 namespace fallback_mutex_bits {
@@ -1275,8 +1276,8 @@ BOOST_ATOMIC_DECL void notify_all(void* vls, const volatile void* addr) BOOST_NO
 
 BOOST_ATOMIC_DECL void thread_fence() BOOST_NOEXCEPT
 {
-#if BOOST_ATOMIC_THREAD_FENCE > 0
-    atomics::detail::thread_fence(memory_order_seq_cst);
+#if BOOST_ATOMIC_THREAD_FENCE == 2
+    atomics::detail::fence_operations::thread_fence(memory_order_seq_cst);
 #else
     // Emulate full fence by locking/unlocking a mutex
     lock_pool::unlock(lock_pool::short_lock(0u));
@@ -1286,8 +1287,8 @@ BOOST_ATOMIC_DECL void thread_fence() BOOST_NOEXCEPT
 BOOST_ATOMIC_DECL void signal_fence() BOOST_NOEXCEPT
 {
     // This function is intentionally non-inline, even if empty. This forces the compiler to treat its call as a compiler barrier.
-#if BOOST_ATOMIC_SIGNAL_FENCE > 0
-    atomics::detail::signal_fence(memory_order_seq_cst);
+#if BOOST_ATOMIC_SIGNAL_FENCE == 2
+    atomics::detail::fence_operations::signal_fence(memory_order_seq_cst);
 #endif
 }
 

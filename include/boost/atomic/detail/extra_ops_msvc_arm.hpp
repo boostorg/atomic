@@ -35,9 +35,9 @@ namespace detail {
 
 template< typename Base, std::size_t Size, bool Signed >
 struct extra_operations< Base, 4u, Signed, true > :
-    public generic_extra_operations< Base, 4u, Signed >
+    public extra_operations_generic< Base, 4u, Signed >
 {
-    typedef generic_extra_operations< Base, 4u, Signed > base_type;
+    typedef extra_operations_generic< Base, 4u, Signed > base_type;
     typedef typename base_type::storage_type storage_type;
 
     static BOOST_FORCEINLINE bool bit_test_and_set(storage_type volatile& storage, unsigned int bit_number, memory_order order) BOOST_NOEXCEPT

@@ -8,7 +8,7 @@
 /*!
  * \file   atomic/detail/wait_ops_freebsd_umtx.hpp
  *
- * This header contains implementation of the wait/notify atomic operations based on FreeBSD _umtx_op syscall.
+ * This header contains implementation of the waiting/notifying atomic operations based on FreeBSD _umtx_op syscall.
  * https://www.freebsd.org/cgi/man.cgi?query=_umtx_op&apropos=0&sektion=2&manpath=FreeBSD+11-current&format=html
  */
 
@@ -35,7 +35,7 @@ namespace detail {
 #if defined(UMTX_OP_WAIT_UINT) || defined(UMTX_OP_WAIT)
 
 template< typename Base >
-struct freebsd_umtx_wait_operations_common :
+struct wait_operations_freebsd_umtx_common :
     public Base
 {
     typedef Base base_type;
@@ -66,9 +66,9 @@ struct freebsd_umtx_wait_operations_common :
 
 template< typename Base, bool Interprocess >
 struct wait_operations< Base, sizeof(unsigned int), true, Interprocess > :
-    public freebsd_umtx_wait_operations_common< Base >
+    public wait_operations_freebsd_umtx_common< Base >
 {
-    typedef freebsd_umtx_wait_operations_common< Base > base_type;
+    typedef wait_operations_freebsd_umtx_common< Base > base_type;
     typedef typename base_type::storage_type storage_type;
 
     static BOOST_FORCEINLINE storage_type wait(storage_type const volatile& storage, storage_type old_val, memory_order order) BOOST_NOEXCEPT
@@ -90,9 +90,9 @@ struct wait_operations< Base, sizeof(unsigned int), true, Interprocess > :
 
 template< typename Base, bool Interprocess >
 struct wait_operations< Base, sizeof(unsigned long), true, Interprocess > :
-    public freebsd_umtx_wait_operations_common< Base >
+    public wait_operations_freebsd_umtx_common< Base >
 {
-    typedef freebsd_umtx_wait_operations_common< Base > base_type;
+    typedef wait_operations_freebsd_umtx_common< Base > base_type;
     typedef typename base_type::storage_type storage_type;
 
     static BOOST_FORCEINLINE storage_type wait(storage_type const volatile& storage, storage_type old_val, memory_order order) BOOST_NOEXCEPT

@@ -33,7 +33,7 @@
 #include <boost/winapi/get_proc_address.hpp>
 #include <boost/winapi/dll.hpp>
 
-#include <boost/atomic/detail/operations.hpp>
+#include <boost/atomic/detail/core_operations.hpp>
 #endif // BOOST_USE_WINAPI_VERSION < BOOST_WINAPI_VERSION_WIN8
 
 #include <boost/atomic/detail/header.hpp>

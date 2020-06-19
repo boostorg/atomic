@@ -92,9 +92,9 @@ struct gcc_aarch64_extra_operations;
 
 template< typename Base, bool Signed >
 struct gcc_aarch64_extra_operations< Base, 1u, Signed > :
-    public generic_extra_operations< Base, 1u, Signed >
+    public extra_operations_generic< Base, 1u, Signed >
 {
-    typedef generic_extra_operations< Base, 1u, Signed > base_type;
+    typedef extra_operations_generic< Base, 1u, Signed > base_type;
     typedef typename base_type::storage_type storage_type;
 
     static BOOST_FORCEINLINE storage_type fetch_negate(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
@@ -327,9 +327,9 @@ struct extra_operations< Base, 1u, Signed, true > :
 
 template< typename Base, bool Signed >
 struct gcc_aarch64_extra_operations< Base, 2u, Signed > :
-    public generic_extra_operations< Base, 2u, Signed >
+    public extra_operations_generic< Base, 2u, Signed >
 {
-    typedef generic_extra_operations< Base, 2u, Signed > base_type;
+    typedef extra_operations_generic< Base, 2u, Signed > base_type;
     typedef typename base_type::storage_type storage_type;
 
     static BOOST_FORCEINLINE storage_type fetch_negate(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
@@ -562,9 +562,9 @@ struct extra_operations< Base, 2u, Signed, true > :
 
 template< typename Base, bool Signed >
 struct gcc_aarch64_extra_operations< Base, 4u, Signed > :
-    public generic_extra_operations< Base, 4u, Signed >
+    public extra_operations_generic< Base, 4u, Signed >
 {
-    typedef generic_extra_operations< Base, 4u, Signed > base_type;
+    typedef extra_operations_generic< Base, 4u, Signed > base_type;
     typedef typename base_type::storage_type storage_type;
 
     static BOOST_FORCEINLINE storage_type fetch_negate(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
@@ -797,9 +797,9 @@ struct extra_operations< Base, 4u, Signed, true > :
 
 template< typename Base, bool Signed >
 struct gcc_aarch64_extra_operations< Base, 8u, Signed > :
-    public generic_extra_operations< Base, 8u, Signed >
+    public extra_operations_generic< Base, 8u, Signed >
 {
-    typedef generic_extra_operations< Base, 8u, Signed > base_type;
+    typedef extra_operations_generic< Base, 8u, Signed > base_type;
     typedef typename base_type::storage_type storage_type;
 
     static BOOST_FORCEINLINE storage_type fetch_negate(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
@@ -1032,9 +1032,9 @@ struct extra_operations< Base, 8u, Signed, true > :
 
 template< typename Base, bool Signed >
 struct gcc_aarch64_extra_operations< Base, 16u, Signed > :
-    public generic_extra_operations< Base, 16u, Signed >
+    public extra_operations_generic< Base, 16u, Signed >
 {
-    typedef generic_extra_operations< Base, 16u, Signed > base_type;
+    typedef extra_operations_generic< Base, 16u, Signed > base_type;
     typedef typename base_type::storage_type storage_type;
     typedef typename base_type::storage_union storage_union;
 

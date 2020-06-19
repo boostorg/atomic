@@ -8,7 +8,7 @@
 /*!
  * \file   atomic/detail/wait_ops_futex.hpp
  *
- * This header contains implementation of the wait/notify atomic operations based on futexes.
+ * This header contains implementation of the waiting/notifying atomic operations based on futexes.
  */
 
 #ifndef BOOST_ATOMIC_DETAIL_WAIT_OPS_FUTEX_HPP_INCLUDED_

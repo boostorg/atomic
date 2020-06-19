@@ -10,7 +10,7 @@
 /*!
  * \file   atomic/detail/ops_msvc_common.hpp
  *
- * This header contains common tools for MSVC implementation of the \c operations template.
+ * This header contains common tools for MSVC implementation of the atomic operations.
  */
 
 #ifndef BOOST_ATOMIC_DETAIL_OPS_MSVC_COMMON_HPP_INCLUDED_

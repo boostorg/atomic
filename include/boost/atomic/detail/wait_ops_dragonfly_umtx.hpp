@@ -8,7 +8,7 @@
 /*!
  * \file   atomic/detail/wait_ops_dragonfly_umtx.hpp
  *
- * This header contains implementation of the wait/notify atomic operations based on DragonFly BSD umtx.
+ * This header contains implementation of the waiting/notifying atomic operations based on DragonFly BSD umtx.
  * https://man.dragonflybsd.org/?command=umtx&section=2
  */
 

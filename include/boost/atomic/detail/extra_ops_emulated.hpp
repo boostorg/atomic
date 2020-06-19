@@ -32,7 +32,7 @@ namespace detail {
 
 //! Emulated implementation of extra operations
 template< typename Base, std::size_t Size, bool Signed >
-struct emulated_extra_operations :
+struct extra_operations_emulated :
     public Base
 {
     typedef Base base_type;
@@ -245,7 +245,7 @@ struct emulated_extra_operations :
 
 template< typename Base, std::size_t Size, bool Signed >
 struct extra_operations< Base, Size, Signed, false > :
-    public emulated_extra_operations< Base, Size, Signed >
+    public extra_operations_emulated< Base, Size, Signed >
 {
 };
 

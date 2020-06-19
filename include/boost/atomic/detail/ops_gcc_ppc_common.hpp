@@ -39,7 +39,7 @@ namespace detail {
 // control of. See this thread: http://lists.boost.org/Archives/boost/2014/06/213890.php.
 // For this reason we promote memory_order_consume to memory_order_acquire.
 
-struct gcc_ppc_operations_base
+struct core_arch_operations_gcc_ppc_base
 {
     static BOOST_CONSTEXPR_OR_CONST bool full_cas_based = false;
     static BOOST_CONSTEXPR_OR_CONST bool is_always_lock_free = true;

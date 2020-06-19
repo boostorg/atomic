@@ -32,7 +32,7 @@ namespace detail {
 
 //! Emulated implementation of waiting and notifying operations
 template< typename Base >
-struct emulated_wait_operations :
+struct wait_operations_emulated :
     public Base
 {
     typedef Base base_type;
@@ -84,7 +84,7 @@ struct emulated_wait_operations :
 
 template< typename Base, std::size_t Size, bool Interprocess >
 struct wait_operations< Base, Size, false, Interprocess > :
-    public emulated_wait_operations< Base >
+    public wait_operations_emulated< Base >
 {
 };
 

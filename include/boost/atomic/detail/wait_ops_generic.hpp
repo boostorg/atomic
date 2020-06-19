@@ -8,7 +8,7 @@
 /*!
  * \file   atomic/detail/wait_ops_generic.hpp
  *
- * This header contains generic (lock-based) implementation of the wait/notify atomic operations.
+ * This header contains generic (lock-based) implementation of the waiting/notifying atomic operations.
  */
 
 #ifndef BOOST_ATOMIC_DETAIL_WAIT_OPS_GENERIC_HPP_INCLUDED_
@@ -30,12 +30,12 @@ namespace boost {
 namespace atomics {
 namespace detail {
 
-//! Generic implementation of wait/notify operations
+//! Generic implementation of waiting/notifying operations
 template< typename Base, bool Interprocess >
-struct generic_wait_operations;
+struct wait_operations_generic;
 
 template< typename Base >
-struct generic_wait_operations< Base, false > :
+struct wait_operations_generic< Base, false > :
     public Base
 {
     typedef Base base_type;
@@ -81,7 +81,7 @@ struct generic_wait_operations< Base, false > :
 };
 
 template< typename Base >
-struct generic_wait_operations< Base, true > :
+struct wait_operations_generic< Base, true > :
     public Base
 {
     typedef Base base_type;
@@ -130,7 +130,7 @@ struct generic_wait_operations< Base, true > :
 
 template< typename Base, std::size_t Size, bool Interprocess >
 struct wait_operations< Base, Size, true, Interprocess > :
-    public generic_wait_operations< Base, Interprocess >
+    public wait_operations_generic< Base, Interprocess >
 {
 };
 

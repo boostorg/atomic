@@ -21,8 +21,10 @@
 #include <boost/atomic/detail/float_sizes.hpp>
 #endif
 
-#if !defined(BOOST_ATOMIC_EMULATED)
+#if defined(BOOST_ATOMIC_DETAIL_CORE_BACKEND_HEADER)
 #include BOOST_ATOMIC_DETAIL_CORE_BACKEND_HEADER(boost/atomic/detail/caps_)
+#elif defined(BOOST_ATOMIC_DETAIL_CORE_ARCH_BACKEND_HEADER)
+#include BOOST_ATOMIC_DETAIL_CORE_ARCH_BACKEND_HEADER(boost/atomic/detail/caps_arch_)
 #endif
 
 #ifdef BOOST_HAS_PRAGMA_ONCE

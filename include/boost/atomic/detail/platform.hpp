@@ -51,39 +51,39 @@
 
 #if defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__))
 
-#define BOOST_ATOMIC_DETAIL_COMPILER_CONFIG gcc_x86
+#define BOOST_ATOMIC_DETAIL_CORE_ARCH_BACKEND gcc_x86
 #define BOOST_ATOMIC_DETAIL_EXTRA_BACKEND gcc_x86
 
 #elif defined(__GNUC__) && defined(__aarch64__)
 
-#define BOOST_ATOMIC_DETAIL_COMPILER_CONFIG gcc_aarch64
+#define BOOST_ATOMIC_DETAIL_CORE_ARCH_BACKEND gcc_aarch64
 #define BOOST_ATOMIC_DETAIL_EXTRA_BACKEND gcc_aarch64
 
 #elif defined(__GNUC__) && defined(__arm__) && (BOOST_ATOMIC_DETAIL_ARM_ARCH+0) >= 6
 
-#define BOOST_ATOMIC_DETAIL_COMPILER_CONFIG gcc_arm
+#define BOOST_ATOMIC_DETAIL_CORE_ARCH_BACKEND gcc_arm
 #define BOOST_ATOMIC_DETAIL_EXTRA_BACKEND gcc_arm
 
 #elif defined(__GNUC__) && (defined(__POWERPC__) || defined(__PPC__))
 
-#define BOOST_ATOMIC_DETAIL_COMPILER_CONFIG gcc_ppc
+#define BOOST_ATOMIC_DETAIL_CORE_ARCH_BACKEND gcc_ppc
 #define BOOST_ATOMIC_DETAIL_EXTRA_BACKEND gcc_ppc
 
 #elif (defined(__GNUC__) || defined(__SUNPRO_CC)) && (defined(__sparcv8plus) || defined(__sparc_v9__))
 
-#define BOOST_ATOMIC_DETAIL_COMPILER_CONFIG gcc_sparc
+#define BOOST_ATOMIC_DETAIL_CORE_ARCH_BACKEND gcc_sparc
 
 #elif defined(__GNUC__) && defined(__alpha__)
 
-#define BOOST_ATOMIC_DETAIL_COMPILER_CONFIG gcc_alpha
+#define BOOST_ATOMIC_DETAIL_CORE_ARCH_BACKEND gcc_alpha
 
 #elif defined(_MSC_VER) && (defined(_M_IX86) || defined(_M_X64))
 
-#define BOOST_ATOMIC_DETAIL_COMPILER_CONFIG msvc_x86
+#define BOOST_ATOMIC_DETAIL_CORE_ARCH_BACKEND msvc_x86
 
 #elif defined(_MSC_VER) && _MSC_VER >= 1700 && (defined(_M_ARM) || defined(_M_ARM64))
 
-#define BOOST_ATOMIC_DETAIL_COMPILER_CONFIG msvc_arm
+#define BOOST_ATOMIC_DETAIL_CORE_ARCH_BACKEND msvc_arm
 
 #endif
 
@@ -105,11 +105,9 @@
 
 #define BOOST_ATOMIC_DETAIL_CORE_BACKEND gcc_atomic
 
-#elif defined(BOOST_ATOMIC_DETAIL_COMPILER_CONFIG)
-
-#define BOOST_ATOMIC_DETAIL_CORE_BACKEND BOOST_ATOMIC_DETAIL_COMPILER_CONFIG
-
-#elif defined(__GNUC__) && ((__GNUC__ * 100 + __GNUC_MINOR__) >= 401) &&\
+// GCC __sync* instrinsics backend is less efficient than asm-based backends, so use it only when nothing better is available.
+#elif !defined(BOOST_ATOMIC_DETAIL_CORE_ARCH_BACKEND) &&\
+    defined(__GNUC__) && ((__GNUC__ * 100 + __GNUC_MINOR__) >= 401) &&\
     (\
         defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_1) ||\
         defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_2) ||\
@@ -124,7 +122,7 @@
 
 // OS-based backends
 
-#if !defined(BOOST_ATOMIC_DETAIL_CORE_BACKEND)
+#if !defined(BOOST_ATOMIC_DETAIL_CORE_BACKEND) && !defined(BOOST_ATOMIC_DETAIL_CORE_ARCH_BACKEND)
 
 #if defined(__linux__) && defined(__arm__)
 
@@ -163,11 +161,6 @@
 
 #endif // !defined(BOOST_ATOMIC_FORCE_FALLBACK)
 
-#if !defined(BOOST_ATOMIC_DETAIL_CORE_BACKEND)
-#define BOOST_ATOMIC_DETAIL_CORE_BACKEND emulated
-#define BOOST_ATOMIC_EMULATED
-#endif
-
 #if !defined(BOOST_ATOMIC_DETAIL_FP_BACKEND)
 #define BOOST_ATOMIC_DETAIL_FP_BACKEND generic
 #define BOOST_ATOMIC_DETAIL_FP_BACKEND_GENERIC
@@ -188,7 +181,12 @@
 #define BOOST_ATOMIC_DETAIL_WAIT_BACKEND_GENERIC
 #endif
 
+#if defined(BOOST_ATOMIC_DETAIL_CORE_ARCH_BACKEND)
+#define BOOST_ATOMIC_DETAIL_CORE_ARCH_BACKEND_HEADER(prefix) <BOOST_JOIN(prefix, BOOST_ATOMIC_DETAIL_CORE_ARCH_BACKEND).hpp>
+#endif
+#if defined(BOOST_ATOMIC_DETAIL_CORE_BACKEND)
 #define BOOST_ATOMIC_DETAIL_CORE_BACKEND_HEADER(prefix) <BOOST_JOIN(prefix, BOOST_ATOMIC_DETAIL_CORE_BACKEND).hpp>
+#endif
 #define BOOST_ATOMIC_DETAIL_FP_BACKEND_HEADER(prefix) <BOOST_JOIN(prefix, BOOST_ATOMIC_DETAIL_FP_BACKEND).hpp>
 #define BOOST_ATOMIC_DETAIL_EXTRA_BACKEND_HEADER(prefix) <BOOST_JOIN(prefix, BOOST_ATOMIC_DETAIL_EXTRA_BACKEND).hpp>
 #define BOOST_ATOMIC_DETAIL_EXTRA_FP_BACKEND_HEADER(prefix) <BOOST_JOIN(prefix, BOOST_ATOMIC_DETAIL_EXTRA_FP_BACKEND).hpp>

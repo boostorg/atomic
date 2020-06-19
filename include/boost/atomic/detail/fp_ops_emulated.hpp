@@ -32,7 +32,7 @@ namespace detail {
 
 //! Emulated implementation of floating point operations
 template< typename Base, typename Value, std::size_t Size >
-struct emulated_fp_operations :
+struct fp_operations_emulated :
     public Base
 {
     typedef Base base_type;
@@ -65,7 +65,7 @@ struct emulated_fp_operations :
 
 template< typename Base, typename Value, std::size_t Size >
 struct fp_operations< Base, Value, Size, false > :
-    public emulated_fp_operations< Base, Value, Size >
+    public fp_operations_emulated< Base, Value, Size >
 {
 };
 

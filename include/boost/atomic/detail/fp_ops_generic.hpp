@@ -32,7 +32,7 @@ namespace detail {
 
 //! Generic implementation of floating point operations
 template< typename Base, typename Value, std::size_t Size >
-struct generic_fp_operations :
+struct fp_operations_generic :
     public Base
 {
     typedef Base base_type;
@@ -73,7 +73,7 @@ struct generic_fp_operations :
 // Default fp_operations template definition will be used unless specialized for a specific platform
 template< typename Base, typename Value, std::size_t Size >
 struct fp_operations< Base, Value, Size, true > :
-    public generic_fp_operations< Base, Value, Size >
+    public fp_operations_generic< Base, Value, Size >
 {
 };
 
