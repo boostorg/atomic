@@ -22,6 +22,7 @@
 #include <boost/atomic/detail/storage_traits.hpp>
 #include <boost/atomic/detail/core_operations_fwd.hpp>
 #include <boost/atomic/detail/extending_cas_based_arithmetic.hpp>
+#include <boost/atomic/detail/type_traits/integral_constant.hpp>
 #include <boost/atomic/detail/capabilities.hpp>
 #include <boost/atomic/detail/header.hpp>
 
@@ -64,22 +65,52 @@ struct core_operations_gcc_sync :
     typedef typename storage_traits< Size >::type storage_type;
 
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = Size;
-    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_alignment = storage_traits< Size >::alignment;
+    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_alignment = storage_traits< storage_size >::alignment;
     static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
     static BOOST_CONSTEXPR_OR_CONST bool is_interprocess = Interprocess;
 
+    // In general, we cannot guarantee atomicity of plain loads and stores of anything larger than a single byte on
+    // an arbitrary CPU architecture. However, all modern architectures seem to guarantee atomic loads and stores of
+    // suitably aligned objects of up to a pointer size. For larger objects we should probably use intrinsics to guarantee
+    // atomicity. If there appears an architecture where this doesn't hold, this threshold needs to be updated (patches are welcome).
+    typedef atomics::detail::integral_constant< bool, storage_size <= sizeof(void*) > plain_stores_loads_are_atomic;
+
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    {
+        store(storage, v, order, plain_stores_loads_are_atomic());
+    }
+
+    static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order, atomics::detail::true_type) BOOST_NOEXCEPT
     {
         fence_before_store(order);
         storage = v;
         fence_after_store(order);
     }
 
+    static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order, atomics::detail::false_type) BOOST_NOEXCEPT
+    {
+        exchange(storage, v, order);
+    }
+
     static BOOST_FORCEINLINE storage_type load(storage_type const volatile& storage, memory_order order) BOOST_NOEXCEPT
+    {
+        return load(storage, order, plain_stores_loads_are_atomic());
+    }
+
+    static BOOST_FORCEINLINE storage_type load(storage_type const volatile& storage, memory_order order, atomics::detail::true_type) BOOST_NOEXCEPT
     {
         storage_type v = storage;
         fence_after_load(order);
         return v;
+    }
+
+    static BOOST_FORCEINLINE storage_type load(storage_type const volatile& storage, memory_order, atomics::detail::false_type) BOOST_NOEXCEPT
+    {
+        // Note: don't use fetch_add or other arithmetics here since storage_type may not be an arithmetic type.
+        storage_type expected = storage_type();
+        storage_type desired = expected;
+        // We don't care if CAS succeeds or not. If it does, it will just write the same value there was before.
+        return __sync_val_compare_and_swap(const_cast< storage_type volatile* >(&storage), expected, desired);
     }
 
     static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
