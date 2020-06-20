@@ -878,7 +878,11 @@ struct lock_state
     }
 };
 
+#if !defined(BOOST_ATOMIC_DETAIL_NO_CXX11_ALIGNAS)
 #define BOOST_ATOMIC_LOCK_STATE_INIT { {}, 0u, BOOST_ATOMIC_WAIT_STATE_LIST_INIT }
+#else
+#define BOOST_ATOMIC_LOCK_STATE_INIT { {}, { 0u }, BOOST_ATOMIC_WAIT_STATE_LIST_INIT }
+#endif
 
 //! Blocks in the wait operation until notified
 inline void wait_state::wait(lock_state& state) BOOST_NOEXCEPT
