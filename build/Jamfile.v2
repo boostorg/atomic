@@ -9,6 +9,10 @@
 
 import common ;
 import project ;
+import configure ;
+
+lib synchronization ;
+explicit synchronization ;
 
 project boost/atomic
     : requirements
@@ -31,6 +35,11 @@ rule select-platform-specific-sources ( properties * )
     if <target-os>windows in $(properties)
     {
         result += <source>wait_ops_windows.cpp ;
+
+        if [ configure.builds ../config//has_synchronization : $(properties) : "has synchronization.lib" ]
+        {
+            result += <library>synchronization ;
+        }
     }
 
 #    ECHO Platform sources: $(result) ;
