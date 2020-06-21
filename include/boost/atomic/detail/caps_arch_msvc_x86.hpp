@@ -26,10 +26,12 @@
 #define BOOST_ATOMIC_DETAIL_X86_HAS_CMPXCHG8B 1
 #endif
 
-#if !defined(BOOST_ATOMIC_NO_CMPXCHG16B)
-#if defined(__clang__) && (defined(_M_AMD64) || defined(__x86_64__)) && defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_16)
+#if defined(_M_AMD64) && !defined(BOOST_ATOMIC_NO_CMPXCHG16B)
+#if defined(__clang__)
+#if defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_16)
 #define BOOST_ATOMIC_DETAIL_X86_HAS_CMPXCHG16B 1
-#elif _MSC_VER >= 1500 && defined(_M_AMD64)
+#endif
+#elif _MSC_VER >= 1500
 #define BOOST_ATOMIC_DETAIL_X86_HAS_CMPXCHG16B 1
 #endif
 #endif
