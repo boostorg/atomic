@@ -35,7 +35,7 @@ matrix:
     - os: linux
       dist: trusty
       compiler: gcc-4.7
-      env: TOOLSET=gcc COMPILER=g++-4.7 CXXSTD64=03,11 CXXSTD32=03,11
+      env: TOOLSET=gcc COMPILER=g++-4.7 CXXSTD64=03,11 CXXSTD32=03,11 INSTRUCTION_SET=core2
       addons:
         apt:
           packages:
@@ -48,7 +48,7 @@ matrix:
     - os: linux
       dist: xenial
       compiler: gcc-4.8
-      env: TOOLSET=gcc COMPILER=g++-4.8 CXXSTD64=03,11 CXXSTD32=03,11
+      env: TOOLSET=gcc COMPILER=g++-4.8 CXXSTD64=03,11 CXXSTD32=03,11 INSTRUCTION_SET=core2
       addons:
         apt:
           packages:
@@ -61,7 +61,7 @@ matrix:
     - os: linux
       dist: xenial
       compiler: gcc-4.9
-      env: TOOLSET=gcc COMPILER=g++-4.9 CXXSTD64=03,11 CXXSTD32=03,11
+      env: TOOLSET=gcc COMPILER=g++-4.9 CXXSTD64=03,11 CXXSTD32=03,11 INSTRUCTION_SET=core2
       addons:
         apt:
           packages:
@@ -74,7 +74,7 @@ matrix:
     - os: linux
       dist: xenial
       compiler: gcc-5
-      env: TOOLSET=gcc COMPILER=g++-5 CXXSTD64=03,11,14 CXXSTD32=03,11
+      env: TOOLSET=gcc COMPILER=g++-5 CXXSTD64=03,11,14 CXXSTD32=03,11 INSTRUCTION_SET=core2
       addons:
         apt:
           packages:
@@ -87,7 +87,7 @@ matrix:
     - os: linux
       dist: xenial
       compiler: gcc-6
-      env: TOOLSET=gcc COMPILER=g++-6 CXXSTD64=03,11,14,1z CXXSTD32=03,11
+      env: TOOLSET=gcc COMPILER=g++-6 CXXSTD64=03,11,14,1z CXXSTD32=03,11 INSTRUCTION_SET=core2
       addons:
         apt:
           packages:
@@ -100,7 +100,7 @@ matrix:
     - os: linux
       dist: xenial
       compiler: gcc-7
-      env: TOOLSET=gcc COMPILER=g++-7 CXXSTD64=03,11,14,17 CXXSTD32=03,11
+      env: TOOLSET=gcc COMPILER=g++-7 CXXSTD64=03,11,14,17 CXXSTD32=03,11 INSTRUCTION_SET=core2
       addons:
         apt:
           packages:
@@ -113,7 +113,7 @@ matrix:
     - os: linux
       dist: xenial
       compiler: gcc-8
-      env: TOOLSET=gcc COMPILER=g++-8 CXXSTD64=03,11,14,17,03-gnu,11-gnu,14-gnu,17-gnu CXXSTD32=03,11
+      env: TOOLSET=gcc COMPILER=g++-8 CXXSTD64=03,11,14,17,03-gnu,11-gnu,14-gnu,17-gnu CXXSTD32=03,11 INSTRUCTION_SET=core2
       addons:
         apt:
           packages:
@@ -126,7 +126,7 @@ matrix:
     - os: linux
       dist: bionic
       compiler: gcc-9
-      env: TOOLSET=gcc COMPILER=g++-9 CXXSTD64=03,11,14,17,03-gnu,11-gnu,14-gnu,17-gnu CXXSTD32=03,11
+      env: TOOLSET=gcc COMPILER=g++-9 CXXSTD64=03,11,14,17,03-gnu,11-gnu,14-gnu,17-gnu CXXSTD32=03,11 INSTRUCTION_SET=core2
       addons:
         apt:
           packages:
@@ -139,7 +139,7 @@ matrix:
     - os: linux
       dist: bionic
       compiler: gcc-10
-      env: TOOLSET=gcc COMPILER=g++-10 CXXSTD64=03,11,14,17,20,03-gnu,11-gnu,14-gnu,17-gnu,20-gnu CXXSTD32=03,11
+      env: TOOLSET=gcc COMPILER=g++-10 CXXSTD64=03,11,14,17,20,03-gnu,11-gnu,14-gnu,17-gnu,20-gnu CXXSTD32=03,11 INSTRUCTION_SET=core2
       addons:
         apt:
           packages:
@@ -152,7 +152,7 @@ matrix:
     - os: linux
       dist: bionic
       compiler: gcc-UBSAN
-      env: UBSAN=1 TOOLSET=gcc COMPILER=g++-10 CXXSTD64=03,11,14,17,20 UBSAN_OPTIONS=print_stacktrace=1 BUILD_VARIANT=debug LINKFLAGS=-fuse-ld=gold
+      env: UBSAN=1 TOOLSET=gcc COMPILER=g++-10 CXXSTD64=03,11,14,17,20 INSTRUCTION_SET=core2 UBSAN_OPTIONS=print_stacktrace=1 BUILD_VARIANT=debug LINKFLAGS=-fuse-ld=gold
       addons:
         apt:
           packages:
@@ -164,7 +164,7 @@ matrix:
     - os: linux
       dist: trusty
       compiler: clang-3.5
-      env: TOOLSET=clang COMPILER=clang++-3.5 CXXSTD64=03,11 CXXSTD32=03,11
+      env: TOOLSET=clang COMPILER=clang++-3.5 CXXSTD64=03,11 CXXSTD32=03,11 INSTRUCTION_SET=core2
       addons:
         apt:
           packages:
@@ -179,7 +179,7 @@ matrix:
     - os: linux
       dist: trusty
       compiler: clang-3.6
-      env: TOOLSET=clang COMPILER=clang++-3.6 CXXSTD64=03,11 CXXSTD32=03,11
+      env: TOOLSET=clang COMPILER=clang++-3.6 CXXSTD64=03,11 CXXSTD32=03,11 INSTRUCTION_SET=core2
       addons:
         apt:
           packages:
@@ -194,7 +194,7 @@ matrix:
     - os: linux
       dist: trusty
       compiler: clang-3.7
-      env: TOOLSET=clang COMPILER=clang++-3.7 CXXSTD64=03,11 CXXSTD32=03,11
+      env: TOOLSET=clang COMPILER=clang++-3.7 CXXSTD64=03,11 CXXSTD32=03,11 INSTRUCTION_SET=core2
       addons:
         apt:
           packages:
@@ -209,7 +209,7 @@ matrix:
     - os: linux
       dist: xenial
       compiler: clang-3.8
-      env: TOOLSET=clang COMPILER=clang++-3.8 CXXSTD64=03,11,14,1z CXXSTD32=03,11
+      env: TOOLSET=clang COMPILER=clang++-3.8 CXXSTD64=03,11,14,1z CXXSTD32=03,11 INSTRUCTION_SET=core2
       addons:
         apt:
           packages:
@@ -224,7 +224,7 @@ matrix:
     - os: linux
       dist: xenial
       compiler: clang-3.9
-      env: TOOLSET=clang COMPILER=clang++-3.9 CXXSTD64=03,11,14,1z CXXSTD32=03,11
+      env: TOOLSET=clang COMPILER=clang++-3.9 CXXSTD64=03,11,14,1z CXXSTD32=03,11 INSTRUCTION_SET=core2
       addons:
         apt:
           packages:
@@ -239,7 +239,7 @@ matrix:
     - os: linux
       dist: xenial
       compiler: clang-4
-      env: TOOLSET=clang COMPILER=clang++-4.0 CXXSTD64=03,11,14,1z CXXSTD32=03,11
+      env: TOOLSET=clang COMPILER=clang++-4.0 CXXSTD64=03,11,14,1z CXXSTD32=03,11 INSTRUCTION_SET=core2
       addons:
         apt:
           packages:
@@ -255,7 +255,7 @@ matrix:
     - os: linux
       dist: xenial
       compiler: clang-5
-      env: TOOLSET=clang COMPILER=clang++-5.0 CXXSTD64=03,11,14,1z CXXSTD32=03,11 CXXFLAGS="-DBOOST_ATOMIC_TESTS_NO_INT128 -DBOOST_ATOMIC_TESTS_NO_FLOAT128"
+      env: TOOLSET=clang COMPILER=clang++-5.0 CXXSTD64=03,11,14,1z CXXSTD32=03,11 INSTRUCTION_SET=core2 CXXFLAGS="-DBOOST_ATOMIC_TESTS_NO_INT128 -DBOOST_ATOMIC_TESTS_NO_FLOAT128"
       addons:
         apt:
           packages:
@@ -270,7 +270,7 @@ matrix:
     - os: linux
       dist: xenial
       compiler: clang-6
-      env: TOOLSET=clang COMPILER=clang++-6.0 CXXSTD64=03,11,14,17 CXXSTD32=03,11
+      env: TOOLSET=clang COMPILER=clang++-6.0 CXXSTD64=03,11,14,17 CXXSTD32=03,11 INSTRUCTION_SET=core2
       addons:
         apt:
           packages:
@@ -285,7 +285,7 @@ matrix:
     - os: linux
       dist: xenial
       compiler: clang-7
-      env: TOOLSET=clang COMPILER=clang++-7 CXXSTD64=03,11,14,17 CXXSTD32=03,11
+      env: TOOLSET=clang COMPILER=clang++-7 CXXSTD64=03,11,14,17 CXXSTD32=03,11 INSTRUCTION_SET=core2
       addons:
         apt:
           packages:
@@ -300,7 +300,7 @@ matrix:
     - os: linux
       dist: xenial
       compiler: clang-8
-      env: TOOLSET=clang COMPILER=clang++-8 CXXSTD64=03,11,14,17 CXXSTD32=03,11
+      env: TOOLSET=clang COMPILER=clang++-8 CXXSTD64=03,11,14,17 CXXSTD32=03,11 INSTRUCTION_SET=core2
       addons:
         apt:
           packages:
@@ -315,7 +315,7 @@ matrix:
     - os: linux
       dist: xenial
       compiler: clang-9
-      env: TOOLSET=clang COMPILER=clang++-9 CXXSTD64=03,11,14,17 CXXSTD32=03,11
+      env: TOOLSET=clang COMPILER=clang++-9 CXXSTD64=03,11,14,17 CXXSTD32=03,11 INSTRUCTION_SET=core2
       addons:
         apt:
           packages:
@@ -330,7 +330,7 @@ matrix:
     - os: linux
       dist: xenial
       compiler: clang-10
-      env: TOOLSET=clang COMPILER=clang++-10 CXXSTD64=03,11,14,17,20 CXXSTD32=03,11
+      env: TOOLSET=clang COMPILER=clang++-10 CXXSTD64=03,11,14,17,20 CXXSTD32=03,11 INSTRUCTION_SET=core2
       addons:
         apt:
           packages:
@@ -346,7 +346,7 @@ matrix:
     - os: linux
       dist: xenial
       compiler: clang-UBSAN
-      env: UBSAN=1 TOOLSET=clang COMPILER=clang++-10 CXXSTD64=03,11,14,17,20 UBSAN_OPTIONS=print_stacktrace=1 BUILD_VARIANT=debug
+      env: UBSAN=1 TOOLSET=clang COMPILER=clang++-10 CXXSTD64=03,11,14,17,20 INSTRUCTION_SET=core2 UBSAN_OPTIONS=print_stacktrace=1 BUILD_VARIANT=debug
       addons:
         apt:
           packages:
@@ -369,12 +369,12 @@ matrix:
 #      osx_image: xcode10.3
 
     - os: osx
-      env: TOOLSET=clang COMPILER=clang++ CXXSTD64=03,11,14,17 BUILD_VARIANT=release
+      env: TOOLSET=clang COMPILER=clang++ CXXSTD64=03,11,14,17 INSTRUCTION_SET=core2 BUILD_VARIANT=release
       osx_image: xcode11.2
 
 # clang, FreeBSD, 64-bit
     - os: freebsd
-      env: TOOLSET=clang COMPILER=clang++ CXXSTD64=03,11,14,17 BUILD_VARIANT=release
+      env: TOOLSET=clang COMPILER=clang++ CXXSTD64=03,11,14,17 INSTRUCTION_SET=core2 BUILD_VARIANT=release
 
 # cmake self-test
     - os: linux
@@ -415,8 +415,8 @@ script:
     echo "using $TOOLSET : : $COMPILER ;" > ~/user-config.jam
   - BUILD_JOBS=`(nproc || sysctl -n hw.ncpu) 2> /dev/null`
   - if [ -z "$BUILD_VARIANT" ]; then BUILD_VARIANT="debug,release"; fi
-  - if [ -n "$CXXSTD64" ]; then echo ""; echo "Testing 64-bit targets"; echo ""; ./b2 -j $BUILD_JOBS libs/atomic/test toolset=$TOOLSET variant=$BUILD_VARIANT address-model=64 cxxstd=$CXXSTD64 ${UBSAN:+cxxflags=-fsanitize=undefined cxxflags=-fno-sanitize-recover=undefined linkflags=-fsanitize=undefined define=UBSAN=1 debug-symbols=on} ${CXXFLAGS:+cxxflags="$CXXFLAGS"} ${LINKFLAGS:+linkflags="$LINKFLAGS"}; fi
-  - if [ -n "$CXXSTD32" ]; then echo ""; echo "Testing 32-bit targets"; echo ""; ./b2 -j $BUILD_JOBS libs/atomic/test toolset=$TOOLSET variant=$BUILD_VARIANT address-model=32 cxxstd=$CXXSTD32 ${UBSAN:+cxxflags=-fsanitize=undefined cxxflags=-fno-sanitize-recover=undefined linkflags=-fsanitize=undefined define=UBSAN=1 debug-symbols=on} ${CXXFLAGS:+cxxflags="$CXXFLAGS"} ${LINKFLAGS:+linkflags="$LINKFLAGS"}; fi
+  - if [ -n "$CXXSTD64" ]; then echo ""; echo "Testing 64-bit targets"; echo ""; ./b2 -j $BUILD_JOBS libs/atomic/test toolset=$TOOLSET variant=$BUILD_VARIANT address-model=64 cxxstd=$CXXSTD64 ${UBSAN:+cxxflags=-fsanitize=undefined cxxflags=-fno-sanitize-recover=undefined linkflags=-fsanitize=undefined define=UBSAN=1 debug-symbols=on} ${INSTRUCTION_SET:+instruction-set="$INSTRUCTION_SET"} ${CXXFLAGS:+cxxflags="$CXXFLAGS"} ${LINKFLAGS:+linkflags="$LINKFLAGS"}; fi
+  - if [ -n "$CXXSTD32" ]; then echo ""; echo "Testing 32-bit targets"; echo ""; ./b2 -j $BUILD_JOBS libs/atomic/test toolset=$TOOLSET variant=$BUILD_VARIANT address-model=32 cxxstd=$CXXSTD32 ${UBSAN:+cxxflags=-fsanitize=undefined cxxflags=-fno-sanitize-recover=undefined linkflags=-fsanitize=undefined define=UBSAN=1 debug-symbols=on} ${INSTRUCTION_SET:+instruction-set="$INSTRUCTION_SET"} ${CXXFLAGS:+cxxflags="$CXXFLAGS"} ${LINKFLAGS:+linkflags="$LINKFLAGS"}; fi
 
 notifications:
   email:
