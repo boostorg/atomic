@@ -173,7 +173,7 @@ struct core_arch_operations< 1u, Signed, Interprocess > :
             "cmp %w[original], %w[expected]\n\t"\
             "b.ne 1f\n\t"\
             "st" st_mo "xrb %w[success], %w[desired], %[storage]\n\t"\
-            "eor %w[success], %w[success], 1\n\t"\
+            "eor %w[success], %w[success], #1\n\t"\
             "1:\n\t"\
             : [success] "+&r" (success), [storage] "+Q" (storage), [original] "=&r" (original)\
             : [desired] "r" (desired), [expected] "r" (expected)\
@@ -219,7 +219,7 @@ struct core_arch_operations< 1u, Signed, Interprocess > :
             "b.ne 2f\n\t"\
             "st" st_mo "xrb %w[success], %w[desired], %[storage]\n\t"\
             "cbnz %w[success], 1b\n\t"\
-            "mov %w[success], 1\n\t"\
+            "mov %w[success], #1\n\t"\
             "2:\n\t"\
             : [success] "+&r" (success), [storage] "+Q" (storage), [original] "=&r" (original)\
             : [desired] "r" (desired), [expected] "r" (expected)\
@@ -558,7 +558,7 @@ struct core_arch_operations< 2u, Signed, Interprocess > :
             "cmp %w[original], %w[expected]\n\t"\
             "b.ne 1f\n\t"\
             "st" st_mo "xrh %w[success], %w[desired], %[storage]\n\t"\
-            "eor %w[success], %w[success], 1\n\t"\
+            "eor %w[success], %w[success], #1\n\t"\
             "1:\n\t"\
             : [success] "+&r" (success), [storage] "+Q" (storage), [original] "=&r" (original)\
             : [desired] "r" (desired), [expected] "r" (expected)\
@@ -604,7 +604,7 @@ struct core_arch_operations< 2u, Signed, Interprocess > :
             "b.ne 2f\n\t"\
             "st" st_mo "xrh %w[success], %w[desired], %[storage]\n\t"\
             "cbnz %w[success], 1b\n\t"\
-            "mov %w[success], 1\n\t"\
+            "mov %w[success], #1\n\t"\
             "2:\n\t"\
             : [success] "+&r" (success), [storage] "+Q" (storage), [original] "=&r" (original)\
             : [desired] "r" (desired), [expected] "r" (expected)\
@@ -942,7 +942,7 @@ struct core_arch_operations< 4u, Signed, Interprocess > :
             "cmp %w[original], %w[expected]\n\t"\
             "b.ne 1f\n\t"\
             "st" st_mo "xr %w[success], %w[desired], %[storage]\n\t"\
-            "eor %w[success], %w[success], 1\n\t"\
+            "eor %w[success], %w[success], #1\n\t"\
             "1:\n\t"\
             : [success] "+&r" (success), [storage] "+Q" (storage), [original] "=&r" (original)\
             : [desired] "r" (desired), [expected] "Ir" (expected)\
@@ -987,7 +987,7 @@ struct core_arch_operations< 4u, Signed, Interprocess > :
             "b.ne 2f\n\t"\
             "st" st_mo "xr %w[success], %w[desired], %[storage]\n\t"\
             "cbnz %w[success], 1b\n\t"\
-            "mov %w[success], 1\n\t"\
+            "mov %w[success], #1\n\t"\
             "2:\n\t"\
             : [success] "+&r" (success), [storage] "+Q" (storage), [original] "=&r" (original)\
             : [desired] "r" (desired), [expected] "Ir" (expected)\
@@ -1325,7 +1325,7 @@ struct core_arch_operations< 8u, Signed, Interprocess > :
             "cmp %x[original], %x[expected]\n\t"\
             "b.ne 1f\n\t"\
             "st" st_mo "xr %w[success], %x[desired], %[storage]\n\t"\
-            "eor %w[success], %w[success], 1\n\t"\
+            "eor %w[success], %w[success], #1\n\t"\
             "1:\n\t"\
             : [success] "+&r" (success), [storage] "+Q" (storage), [original] "=&r" (original)\
             : [desired] "r" (desired), [expected] "Ir" (expected)\
@@ -1370,7 +1370,7 @@ struct core_arch_operations< 8u, Signed, Interprocess > :
             "b.ne 2f\n\t"\
             "st" st_mo "xr %w[success], %x[desired], %[storage]\n\t"\
             "cbnz %w[success], 1b\n\t"\
-            "mov %w[success], 1\n\t"\
+            "mov %w[success], #1\n\t"\
             "2:\n\t"\
             : [success] "+&r" (success), [storage] "+Q" (storage), [original] "=&r" (original)\
             : [desired] "r" (desired), [expected] "Ir" (expected)\
@@ -1690,10 +1690,10 @@ struct core_arch_operations< 16u, Signed, Interprocess > :
         (\
             "ld" ld_mo "xp %x[original_0], %x[original_1], %[storage]\n\t"\
             "cmp %x[original_0], %x[expected_0]\n\t"\
-            "ccmp %x[original_1], %x[expected_1], 0, eq\n\t"\
+            "ccmp %x[original_1], %x[expected_1], #0, eq\n\t"\
             "b.ne 1f\n\t"\
             "st" st_mo "xp %w[success], %x[desired_0], %x[desired_1], %[storage]\n\t"\
-            "eor %w[success], %w[success], 1\n\t"\
+            "eor %w[success], %w[success], #1\n\t"\
             "1:\n\t"\
             : [success] "+&r" (success), [storage] "+Q" (storage), [original_0] "=&r" (original.as_uint64[0u]), [original_1] "=&r" (original.as_uint64[1u])\
             : [desired_0] "r" (d.as_uint64[0u]), [desired_1] "r" (d.as_uint64[1u]), [expected_0] "r" (e.as_uint64[0u]), [expected_1] "r" (e.as_uint64[1u])\
@@ -1721,11 +1721,11 @@ struct core_arch_operations< 16u, Signed, Interprocess > :
             "1:\n\t"\
             "ld" ld_mo "xp %x[original_0], %x[original_1], %[storage]\n\t"\
             "cmp %x[original_0], %x[expected_0]\n\t"\
-            "ccmp %x[original_1], %x[expected_1], 0, eq\n\t"\
+            "ccmp %x[original_1], %x[expected_1], #0, eq\n\t"\
             "b.ne 2f\n\t"\
             "st" st_mo "xp %w[success], %x[desired_0], %x[desired_1], %[storage]\n\t"\
             "cbnz %w[success], 1b\n\t"\
-            "mov %w[success], 1\n\t"\
+            "mov %w[success], #1\n\t"\
             "2:\n\t"\
             : [success] "+&r" (success), [storage] "+Q" (storage), [original_0] "=&r" (original.as_uint64[0u]), [original_1] "=&r" (original.as_uint64[1u])\
             : [desired_0] "r" (d.as_uint64[0u]), [desired_1] "r" (d.as_uint64[1u]), [expected_0] "r" (e.as_uint64[0u]), [expected_1] "r" (e.as_uint64[1u])\

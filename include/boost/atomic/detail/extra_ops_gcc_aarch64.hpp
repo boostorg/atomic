@@ -1051,7 +1051,7 @@ struct gcc_aarch64_extra_operations< Base, 16u, Signed > :
             "ld" ld_mo "xp %x[original_0], %x[original_1], %[storage]\n\t"\
             "mvn %x[result_0], %x[original_0]\n\t"\
             "mvn %x[result_1], %x[original_1]\n\t"\
-            "adds %x[result_" BOOST_ATOMIC_DETAIL_AARCH64_ASM_ARG_LO "], %x[result_" BOOST_ATOMIC_DETAIL_AARCH64_ASM_ARG_LO "], 1\n\t"\
+            "adds %x[result_" BOOST_ATOMIC_DETAIL_AARCH64_ASM_ARG_LO "], %x[result_" BOOST_ATOMIC_DETAIL_AARCH64_ASM_ARG_LO "], #1\n\t"\
             "adc %x[result_" BOOST_ATOMIC_DETAIL_AARCH64_ASM_ARG_HI "], %x[result_" BOOST_ATOMIC_DETAIL_AARCH64_ASM_ARG_HI "], xzr\n\t"\
             "st" st_mo "xp %w[tmp], %x[result_0], %x[result_1], %[storage]\n\t"\
             "cbnz %w[tmp], 1b\n\t"\
@@ -1080,7 +1080,7 @@ struct gcc_aarch64_extra_operations< Base, 16u, Signed > :
             "ld" ld_mo "xp %x[result_0], %x[result_1], %[storage]\n\t"\
             "mvn %x[result_0], %x[result_0]\n\t"\
             "mvn %x[result_1], %x[result_1]\n\t"\
-            "adds %x[result_" BOOST_ATOMIC_DETAIL_AARCH64_ASM_ARG_LO "], %x[result_" BOOST_ATOMIC_DETAIL_AARCH64_ASM_ARG_LO "], 1\n\t"\
+            "adds %x[result_" BOOST_ATOMIC_DETAIL_AARCH64_ASM_ARG_LO "], %x[result_" BOOST_ATOMIC_DETAIL_AARCH64_ASM_ARG_LO "], #1\n\t"\
             "adc %x[result_" BOOST_ATOMIC_DETAIL_AARCH64_ASM_ARG_HI "], %x[result_" BOOST_ATOMIC_DETAIL_AARCH64_ASM_ARG_HI "], xzr\n\t"\
             "st" st_mo "xp %w[tmp], %x[result_0], %x[result_1], %[storage]\n\t"\
             "cbnz %w[tmp], 1b\n\t"\
