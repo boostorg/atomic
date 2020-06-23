@@ -863,20 +863,21 @@ struct gcc_arm_extra_operations< Base, 8u, Signed > :
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%0)
             "1:\n\t"
-            "ldrexd  %1, %H1, [%3]\n\t"               // original = *(&storage)
+            "ldrexd  %1, %H1, %3\n\t"                 // original = *(&storage)
             "mvn     %2, %1\n\t"                      // result = NOT original
             "mvn     %H2, %H1\n\t"
             "adds   " BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_LO(2) ", " BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_LO(2) ", #1\n\t" // result = result + 1
             "adc    " BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_HI(2) ", " BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_HI(2) ", #0\n\t"
-            "strexd  %0, %2, %H2, [%3]\n\t"           // *(&storage) = result, tmp = store failed
+            "strexd  %0, %2, %H2, %3\n\t"             // *(&storage) = result, tmp = store failed
             "teq     %0, #0\n\t"                      // flags = tmp==0
             "bne     1b\n\t"                          // if (!flags.equal) goto retry
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%0)
             : BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_CONSTRAINT(tmp), // %0
               "=&r" (original),  // %1
-              "=&r" (result)     // %2
-            : "r" (&storage)     // %3
-            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
+              "=&r" (result),    // %2
+              "+Q" (storage)     // %3
+            :
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
         );
         core_arch_operations_gcc_arm_base::fence_after(order);
         return original;
@@ -891,20 +892,21 @@ struct gcc_arm_extra_operations< Base, 8u, Signed > :
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%0)
             "1:\n\t"
-            "ldrexd  %1, %H1, [%3]\n\t"               // original = *(&storage)
+            "ldrexd  %1, %H1, %3\n\t"                 // original = *(&storage)
             "mvn     %2, %1\n\t"                      // result = NOT original
             "mvn     %H2, %H1\n\t"
             "adds   " BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_LO(2) ", " BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_LO(2) ", #1\n\t" // result = result + 1
             "adc    " BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_HI(2) ", " BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_HI(2) ", #0\n\t"
-            "strexd  %0, %2, %H2, [%3]\n\t"           // *(&storage) = result, tmp = store failed
+            "strexd  %0, %2, %H2, %3\n\t"             // *(&storage) = result, tmp = store failed
             "teq     %0, #0\n\t"                      // flags = tmp==0
             "bne     1b\n\t"                          // if (!flags.equal) goto retry
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%0)
             : BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_CONSTRAINT(tmp), // %0
               "=&r" (original),  // %1
-              "=&r" (result)     // %2
-            : "r" (&storage)     // %3
-            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
+              "=&r" (result),    // %2
+              "+Q" (storage)     // %3
+            :
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
         );
         core_arch_operations_gcc_arm_base::fence_after(order);
         return result;
@@ -919,19 +921,19 @@ struct gcc_arm_extra_operations< Base, 8u, Signed > :
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%0)
             "1:\n\t"
-            "ldrexd  %1, %H1, [%3]\n\t"               // original = *(&storage)
+            "ldrexd  %1, %H1, %3\n\t"                 // original = *(&storage)
             "adds   " BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_LO(2) ", " BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_LO(1) ", " BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_LO(4) "\n\t" // result = original + value
             "adc    " BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_HI(2) ", " BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_HI(1) ", " BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_HI(4) "\n\t"
-            "strexd  %0, %2, %H2, [%3]\n\t"           // *(&storage) = result, tmp = store failed
+            "strexd  %0, %2, %H2, %3\n\t"             // *(&storage) = result, tmp = store failed
             "teq     %0, #0\n\t"                      // flags = tmp==0
             "bne     1b\n\t"                          // if (!flags.equal) goto retry
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%0)
             : BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_CONSTRAINT(tmp), // %0
               "=&r" (original),  // %1
-              "=&r" (result)     // %2
-            : "r" (&storage),    // %3
-              "r" (v)            // %4
-            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
+              "=&r" (result),    // %2
+              "+Q" (storage)     // %3
+            : "r" (v)            // %4
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
         );
         core_arch_operations_gcc_arm_base::fence_after(order);
         return result;
@@ -946,19 +948,19 @@ struct gcc_arm_extra_operations< Base, 8u, Signed > :
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%0)
             "1:\n\t"
-            "ldrexd  %1, %H1, [%3]\n\t"               // original = *(&storage)
+            "ldrexd  %1, %H1, %3\n\t"                 // original = *(&storage)
             "subs   " BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_LO(2) ", " BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_LO(1) ", " BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_LO(4) "\n\t" // result = original - value
             "sbc    " BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_HI(2) ", " BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_HI(1) ", " BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_HI(4) "\n\t"
-            "strexd  %0, %2, %H2, [%3]\n\t"           // *(&storage) = result, tmp = store failed
+            "strexd  %0, %2, %H2, %3\n\t"             // *(&storage) = result, tmp = store failed
             "teq     %0, #0\n\t"                      // flags = tmp==0
             "bne     1b\n\t"                          // if (!flags.equal) goto retry
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%0)
             : BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_CONSTRAINT(tmp), // %0
               "=&r" (original),  // %1
-              "=&r" (result)     // %2
-            : "r" (&storage),    // %3
-              "r" (v)            // %4
-            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
+              "=&r" (result),    // %2
+              "+Q" (storage)     // %3
+            : "r" (v)            // %4
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
         );
         core_arch_operations_gcc_arm_base::fence_after(order);
         return result;
@@ -973,19 +975,19 @@ struct gcc_arm_extra_operations< Base, 8u, Signed > :
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%0)
             "1:\n\t"
-            "ldrexd  %1, %H1, [%3]\n\t"               // original = *(&storage)
+            "ldrexd  %1, %H1, %3\n\t"                 // original = *(&storage)
             "and     %2, %1, %4\n\t"                  // result = original & value
             "and     %H2, %H1, %H4\n\t"
-            "strexd  %0, %2, %H2, [%3]\n\t"           // *(&storage) = result, tmp = store failed
+            "strexd  %0, %2, %H2, %3\n\t"             // *(&storage) = result, tmp = store failed
             "teq     %0, #0\n\t"                      // flags = tmp==0
             "bne     1b\n\t"                          // if (!flags.equal) goto retry
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%0)
             : BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_CONSTRAINT(tmp), // %0
               "=&r" (original),  // %1
-              "=&r" (result)     // %2
-            : "r" (&storage),    // %3
-              "r" (v)            // %4
-            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
+              "=&r" (result),    // %2
+              "+Q" (storage)     // %3
+            : "r" (v)            // %4
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
         );
         core_arch_operations_gcc_arm_base::fence_after(order);
         return result;
@@ -1000,19 +1002,19 @@ struct gcc_arm_extra_operations< Base, 8u, Signed > :
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%0)
             "1:\n\t"
-            "ldrexd  %1, %H1, [%3]\n\t"               // original = *(&storage)
+            "ldrexd  %1, %H1, %3\n\t"                 // original = *(&storage)
             "orr     %2, %1, %4\n\t"                  // result = original | value
             "orr     %H2, %H1, %H4\n\t"
-            "strexd  %0, %2, %H2, [%3]\n\t"           // *(&storage) = result, tmp = store failed
+            "strexd  %0, %2, %H2, %3\n\t"             // *(&storage) = result, tmp = store failed
             "teq     %0, #0\n\t"                      // flags = tmp==0
             "bne     1b\n\t"                          // if (!flags.equal) goto retry
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%0)
             : BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_CONSTRAINT(tmp), // %0
               "=&r" (original),  // %1
-              "=&r" (result)     // %2
-            : "r" (&storage),    // %3
-              "r" (v)            // %4
-            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
+              "=&r" (result),    // %2
+              "+Q" (storage)     // %3
+            : "r" (v)            // %4
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
         );
         core_arch_operations_gcc_arm_base::fence_after(order);
         return result;
@@ -1027,19 +1029,19 @@ struct gcc_arm_extra_operations< Base, 8u, Signed > :
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%0)
             "1:\n\t"
-            "ldrexd  %1, %H1, [%3]\n\t"               // original = *(&storage)
+            "ldrexd  %1, %H1, %3\n\t"                 // original = *(&storage)
             "eor     %2, %1, %4\n\t"                  // result = original ^ value
             "eor     %H2, %H1, %H4\n\t"
-            "strexd  %0, %2, %H2, [%3]\n\t"           // *(&storage) = result, tmp = store failed
+            "strexd  %0, %2, %H2, %3\n\t"             // *(&storage) = result, tmp = store failed
             "teq     %0, #0\n\t"                      // flags = tmp==0
             "bne     1b\n\t"                          // if (!flags.equal) goto retry
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%0)
             : BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_CONSTRAINT(tmp), // %0
               "=&r" (original),  // %1
-              "=&r" (result)     // %2
-            : "r" (&storage),    // %3
-              "r" (v)            // %4
-            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
+              "=&r" (result),    // %2
+              "+Q" (storage)     // %3
+            : "r" (v)            // %4
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
         );
         core_arch_operations_gcc_arm_base::fence_after(order);
         return result;
@@ -1054,18 +1056,19 @@ struct gcc_arm_extra_operations< Base, 8u, Signed > :
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%0)
             "1:\n\t"
-            "ldrexd  %1, %H1, [%3]\n\t"               // original = *(&storage)
+            "ldrexd  %1, %H1, %3\n\t"                 // original = *(&storage)
             "mvn     %2, %1\n\t"                      // result = NOT original
             "mvn     %H2, %H1\n\t"
-            "strexd  %0, %2, %H2, [%3]\n\t"           // *(&storage) = result, tmp = store failed
+            "strexd  %0, %2, %H2, %3\n\t"             // *(&storage) = result, tmp = store failed
             "teq     %0, #0\n\t"                      // flags = tmp==0
             "bne     1b\n\t"                          // if (!flags.equal) goto retry
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%0)
             : BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_CONSTRAINT(tmp), // %0
               "=&r" (original),  // %1
-              "=&r" (result)     // %2
-            : "r" (&storage)     // %3
-            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
+              "=&r" (result),    // %2
+              "+Q" (storage)     // %3
+            :
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
         );
         core_arch_operations_gcc_arm_base::fence_after(order);
         return original;
@@ -1080,18 +1083,19 @@ struct gcc_arm_extra_operations< Base, 8u, Signed > :
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%0)
             "1:\n\t"
-            "ldrexd  %1, %H1, [%3]\n\t"               // original = *(&storage)
+            "ldrexd  %1, %H1, %3\n\t"                 // original = *(&storage)
             "mvn     %2, %1\n\t"                      // result = NOT original
             "mvn     %H2, %H1\n\t"
-            "strexd  %0, %2, %H2, [%3]\n\t"           // *(&storage) = result, tmp = store failed
+            "strexd  %0, %2, %H2, %3\n\t"             // *(&storage) = result, tmp = store failed
             "teq     %0, #0\n\t"                      // flags = tmp==0
             "bne     1b\n\t"                          // if (!flags.equal) goto retry
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%0)
             : BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_CONSTRAINT(tmp), // %0
               "=&r" (original),  // %1
-              "=&r" (result)     // %2
-            : "r" (&storage)     // %3
-            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
+              "=&r" (result),    // %2
+              "+Q" (storage)     // %3
+            :
+            : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
         );
         core_arch_operations_gcc_arm_base::fence_after(order);
         return result;
