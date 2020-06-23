@@ -126,14 +126,16 @@ void verify_lock_free(const char* type_name, int lock_free_macro_val, int lock_f
 #define EXPECT_POINTER_LOCK_FREE 2
 #define EXPECT_BOOL_LOCK_FREE 2
 
-#elif defined(__GNUC__) &&\
+#elif defined(__GNUC__) && defined(__arm__) &&\
     (\
+        (defined(__ARM_ARCH) && __ARM_ARCH >= 6) ||\
         defined(__ARM_ARCH_6__)  || defined(__ARM_ARCH_6J__) ||\
         defined(__ARM_ARCH_6K__) || defined(__ARM_ARCH_6Z__) ||\
         defined(__ARM_ARCH_6ZK__) ||\
         defined(__ARM_ARCH_7__) || defined(__ARM_ARCH_7A__) ||\
         defined(__ARM_ARCH_7R__) || defined(__ARM_ARCH_7M__) ||\
-        defined(__ARM_ARCH_7EM__) || defined(__ARM_ARCH_7S__)\
+        defined(__ARM_ARCH_7EM__) || defined(__ARM_ARCH_7S__) ||\
+        defined(__ARM_ARCH_8A__)\
     )
 
 #define EXPECT_CHAR_LOCK_FREE 2
