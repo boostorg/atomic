@@ -1061,19 +1061,20 @@ inline wait_state* wait_state_list::find_or_create(const volatile void* addr) BO
         }
     }
 
-    BOOST_ASSERT(m_header->size < m_header->capacity);
+    const std::size_t index = m_header->size;
+    BOOST_ASSERT(index < m_header->capacity);
 
-    wait_state** pw = get_wait_states() + m_header->size;
+    wait_state** pw = get_wait_states() + index;
     wait_state* w = *pw;
     if (BOOST_UNLIKELY(w == NULL))
     {
-        w = new (std::nothrow) wait_state(m_header->size);
+        w = new (std::nothrow) wait_state(index);
         if (BOOST_UNLIKELY(w == NULL))
             return NULL;
         *pw = w;
     }
 
-    get_atomic_pointers()[m_header->size] = addr;
+    get_atomic_pointers()[index] = addr;
 
     ++m_header->size;
 
@@ -1089,7 +1090,9 @@ inline void wait_state_list::erase(wait_state* w) BOOST_NOEXCEPT
     wait_state** pw = get_wait_states();
 
     std::size_t index = w->m_index;
+
     BOOST_ASSERT(index < m_header->size);
+    BOOST_ASSERT(pw[index] == w);
 
     std::size_t last_index = m_header->size - 1u;
 
@@ -1098,12 +1101,12 @@ inline void wait_state_list::erase(wait_state* w) BOOST_NOEXCEPT
         pa[index] = pa[last_index];
         pa[last_index] = NULL;
 
-        wait_state* w = pw[index];
-        pw[index] = pw[last_index];
+        wait_state* last_w = pw[last_index];
+        pw[index] = last_w;
         pw[last_index] = w;
 
-        pw[index]->m_index = index;
-        pw[last_index]->m_index = last_index;
+        last_w->m_index = index;
+        w->m_index = last_index;
     }
     else
     {
