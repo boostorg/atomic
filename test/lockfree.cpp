@@ -75,7 +75,7 @@ void verify_lock_free(const char* type_name, int lock_free_macro_val, int lock_f
 #define EXPECT_INT_LOCK_FREE 2
 #define EXPECT_LONG_LOCK_FREE 2
 #define EXPECT_LLONG_LOCK_FREE 2
-#if defined(BOOST_ATOMIC_DETAIL_X86_HAS_CMPXCHG8B) || defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_16)
+#if defined(BOOST_ATOMIC_DETAIL_X86_HAS_CMPXCHG16B) || defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_16)
 #define EXPECT_INT128_LOCK_FREE 2
 #else
 #define EXPECT_INT128_LOCK_FREE 0
