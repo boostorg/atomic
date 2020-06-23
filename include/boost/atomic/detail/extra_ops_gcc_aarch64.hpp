@@ -35,7 +35,7 @@ namespace atomics {
 namespace detail {
 
 template< typename Base >
-struct gcc_aarch64_extra_operations_common :
+struct extra_operations_gcc_aarch64_common :
     public Base
 {
     typedef Base base_type;
@@ -88,10 +88,10 @@ struct gcc_aarch64_extra_operations_common :
 };
 
 template< typename Base, std::size_t Size, bool Signed >
-struct gcc_aarch64_extra_operations;
+struct extra_operations_gcc_aarch64;
 
 template< typename Base, bool Signed >
-struct gcc_aarch64_extra_operations< Base, 1u, Signed > :
+struct extra_operations_gcc_aarch64< Base, 1u, Signed > :
     public extra_operations_generic< Base, 1u, Signed >
 {
     typedef extra_operations_generic< Base, 1u, Signed > base_type;
@@ -320,13 +320,13 @@ struct gcc_aarch64_extra_operations< Base, 1u, Signed > :
 
 template< typename Base, bool Signed >
 struct extra_operations< Base, 1u, Signed, true > :
-    public gcc_aarch64_extra_operations_common< gcc_aarch64_extra_operations< Base, 1u, Signed > >
+    public extra_operations_gcc_aarch64_common< extra_operations_gcc_aarch64< Base, 1u, Signed > >
 {
 };
 
 
 template< typename Base, bool Signed >
-struct gcc_aarch64_extra_operations< Base, 2u, Signed > :
+struct extra_operations_gcc_aarch64< Base, 2u, Signed > :
     public extra_operations_generic< Base, 2u, Signed >
 {
     typedef extra_operations_generic< Base, 2u, Signed > base_type;
@@ -555,13 +555,13 @@ struct gcc_aarch64_extra_operations< Base, 2u, Signed > :
 
 template< typename Base, bool Signed >
 struct extra_operations< Base, 2u, Signed, true > :
-    public gcc_aarch64_extra_operations_common< gcc_aarch64_extra_operations< Base, 2u, Signed > >
+    public extra_operations_gcc_aarch64_common< extra_operations_gcc_aarch64< Base, 2u, Signed > >
 {
 };
 
 
 template< typename Base, bool Signed >
-struct gcc_aarch64_extra_operations< Base, 4u, Signed > :
+struct extra_operations_gcc_aarch64< Base, 4u, Signed > :
     public extra_operations_generic< Base, 4u, Signed >
 {
     typedef extra_operations_generic< Base, 4u, Signed > base_type;
@@ -790,13 +790,13 @@ struct gcc_aarch64_extra_operations< Base, 4u, Signed > :
 
 template< typename Base, bool Signed >
 struct extra_operations< Base, 4u, Signed, true > :
-    public gcc_aarch64_extra_operations_common< gcc_aarch64_extra_operations< Base, 4u, Signed > >
+    public extra_operations_gcc_aarch64_common< extra_operations_gcc_aarch64< Base, 4u, Signed > >
 {
 };
 
 
 template< typename Base, bool Signed >
-struct gcc_aarch64_extra_operations< Base, 8u, Signed > :
+struct extra_operations_gcc_aarch64< Base, 8u, Signed > :
     public extra_operations_generic< Base, 8u, Signed >
 {
     typedef extra_operations_generic< Base, 8u, Signed > base_type;
@@ -1025,13 +1025,13 @@ struct gcc_aarch64_extra_operations< Base, 8u, Signed > :
 
 template< typename Base, bool Signed >
 struct extra_operations< Base, 8u, Signed, true > :
-    public gcc_aarch64_extra_operations_common< gcc_aarch64_extra_operations< Base, 8u, Signed > >
+    public extra_operations_gcc_aarch64_common< extra_operations_gcc_aarch64< Base, 8u, Signed > >
 {
 };
 
 
 template< typename Base, bool Signed >
-struct gcc_aarch64_extra_operations< Base, 16u, Signed > :
+struct extra_operations_gcc_aarch64< Base, 16u, Signed > :
     public extra_operations_generic< Base, 16u, Signed >
 {
     typedef extra_operations_generic< Base, 16u, Signed > base_type;
@@ -1288,7 +1288,7 @@ struct gcc_aarch64_extra_operations< Base, 16u, Signed > :
 
 template< typename Base, bool Signed >
 struct extra_operations< Base, 16u, Signed, true > :
-    public gcc_aarch64_extra_operations_common< gcc_aarch64_extra_operations< Base, 16u, Signed > >
+    public extra_operations_gcc_aarch64_common< extra_operations_gcc_aarch64< Base, 16u, Signed > >
 {
 };
 
