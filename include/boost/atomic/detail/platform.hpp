@@ -59,10 +59,15 @@
 #define BOOST_ATOMIC_DETAIL_CORE_ARCH_BACKEND gcc_aarch64
 #define BOOST_ATOMIC_DETAIL_EXTRA_BACKEND gcc_aarch64
 
-#elif defined(__GNUC__) && defined(__arm__) && (BOOST_ATOMIC_DETAIL_ARM_ARCH+0) >= 6
+#elif defined(__GNUC__) && defined(__arm__) && (BOOST_ATOMIC_DETAIL_ARM_ARCH >= 6)
 
+#if (BOOST_ATOMIC_DETAIL_ARM_ARCH >= 8)
+#define BOOST_ATOMIC_DETAIL_CORE_ARCH_BACKEND gcc_aarch32
+#define BOOST_ATOMIC_DETAIL_EXTRA_BACKEND gcc_aarch32
+#else
 #define BOOST_ATOMIC_DETAIL_CORE_ARCH_BACKEND gcc_arm
 #define BOOST_ATOMIC_DETAIL_EXTRA_BACKEND gcc_arm
+#endif
 
 #elif defined(__GNUC__) && (defined(__POWERPC__) || defined(__PPC__))
 

@@ -28,7 +28,7 @@ namespace boost {
 namespace atomics {
 namespace detail {
 
-//! Fence operations for ARM (AArch32)
+//! Fence operations for legacy ARM
 struct fence_arch_operations_gcc_arm
 {
     static BOOST_FORCEINLINE void thread_fence(memory_order order) BOOST_NOEXCEPT
