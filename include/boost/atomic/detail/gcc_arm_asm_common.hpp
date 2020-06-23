@@ -5,7 +5,7 @@
  *
  * Copyright (c) 2009 Helge Bahmann
  * Copyright (c) 2013 Tim Blechmann
- * Copyright (c) 2014 Andrey Semashev
+ * Copyright (c) 2014, 2020 Andrey Semashev
  */
 /*!
  * \file   atomic/detail/gcc_arm_asm_common.hpp
@@ -17,6 +17,7 @@
 #define BOOST_ATOMIC_DETAIL_GCC_ARM_ASM_COMMON_HPP_INCLUDED_
 
 #include <boost/atomic/detail/config.hpp>
+#include <boost/atomic/detail/capabilities.hpp>
 
 // A memory barrier is effected using a "co-processor 15" instruction,
 // though a separate assembler mnemonic is available for it in v7.
@@ -61,6 +62,14 @@
 #define BOOST_ATOMIC_DETAIL_ARM_ASM_START(TMPREG)
 #define BOOST_ATOMIC_DETAIL_ARM_ASM_END(TMPREG)
 #define BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_CONSTRAINT(var) "=&l" (var)
+#endif
+
+#if defined(BOOST_ATOMIC_DETAIL_ARM_LITTLE_ENDIAN)
+#define BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_LO(arg) "%" BOOST_STRINGIZE(arg)
+#define BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_HI(arg) "%H" BOOST_STRINGIZE(arg)
+#else
+#define BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_LO(arg) "%H" BOOST_STRINGIZE(arg)
+#define BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_HI(arg) "%" BOOST_STRINGIZE(arg)
 #endif
 
 #endif // BOOST_ATOMIC_DETAIL_GCC_ARM_ASM_COMMON_HPP_INCLUDED_

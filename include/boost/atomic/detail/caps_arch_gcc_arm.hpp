@@ -7,7 +7,7 @@
  * Copyright (c) 2009 Phil Endecott
  * Copyright (c) 2013 Tim Blechmann
  * ARM Code by Phil Endecott, based on other architectures.
- * Copyright (c) 2014 Andrey Semashev
+ * Copyright (c) 2014, 2020 Andrey Semashev
  */
 /*!
  * \file   atomic/detail/caps_arch_gcc_arm.hpp
@@ -23,6 +23,20 @@
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once
+#endif
+
+#if defined(__ARMEL__) || \
+    (defined(__BYTE_ORDER__) && defined(__ORDER_LITTLE_ENDIAN__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__) || \
+    (defined(__LITTLE_ENDIAN__) && !defined(__BIG_ENDIAN__)) || \
+    defined(BOOST_WINDOWS)
+#define BOOST_ATOMIC_DETAIL_ARM_LITTLE_ENDIAN
+#elif defined(__ARMEB__) || \
+    defined(__ARM_BIG_ENDIAN) || \
+    (defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__) || \
+    (defined(__BIG_ENDIAN__) && !defined(__LITTLE_ENDIAN__))
+#define BOOST_ATOMIC_DETAIL_ARM_BIG_ENDIAN
+#else
+#error "Boost.Atomic: Failed to determine ARM endianness, the target platform is not supported. Please, report to the developers (patches are welcome)."
 #endif
 
 #if defined(__GNUC__) && defined(__arm__) && (BOOST_ATOMIC_DETAIL_ARM_ARCH >= 6)

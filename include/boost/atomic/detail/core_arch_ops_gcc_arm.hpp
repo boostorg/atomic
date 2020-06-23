@@ -5,7 +5,7 @@
  *
  * Copyright (c) 2009 Helge Bahmann
  * Copyright (c) 2013 Tim Blechmann
- * Copyright (c) 2014 Andrey Semashev
+ * Copyright (c) 2014, 2020 Andrey Semashev
  */
 /*!
  * \file   atomic/detail/core_arch_ops_gcc_arm.hpp
@@ -1278,8 +1278,8 @@ struct core_arch_operations< 8u, Signed, Interprocess > :
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%0)
             "1:\n\t"
             "ldrexd  %1, %H1, [%3]\n\t"               // original = *(&storage)
-            "adds    %2, %1, %4\n\t"                  // result = original + value
-            "adc     %H2, %H1, %H4\n\t"
+            "adds   " BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_LO(2) ", " BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_LO(1) ", " BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_LO(4) "\n\t" // result = original + value
+            "adc    " BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_HI(2) ", " BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_HI(1) ", " BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_HI(4) "\n\t"
             "strexd  %0, %2, %H2, [%3]\n\t"           // *(&storage) = result, tmp = store failed
             "teq     %0, #0\n\t"                      // flags = tmp==0
             "bne     1b\n\t"                          // if (!flags.equal) goto retry
@@ -1305,8 +1305,8 @@ struct core_arch_operations< 8u, Signed, Interprocess > :
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%0)
             "1:\n\t"
             "ldrexd  %1, %H1, [%3]\n\t"               // original = *(&storage)
-            "subs    %2, %1, %4\n\t"                  // result = original - value
-            "sbc     %H2, %H1, %H4\n\t"
+            "subs   " BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_LO(2) ", " BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_LO(1) ", " BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_LO(4) "\n\t" // result = original - value
+            "sbc    " BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_HI(2) ", " BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_HI(1) ", " BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_HI(4) "\n\t"
             "strexd  %0, %2, %H2, [%3]\n\t"           // *(&storage) = result, tmp = store failed
             "teq     %0, #0\n\t"                      // flags = tmp==0
             "bne     1b\n\t"                          // if (!flags.equal) goto retry

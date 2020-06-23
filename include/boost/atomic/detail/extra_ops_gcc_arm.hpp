@@ -866,8 +866,8 @@ struct gcc_arm_extra_operations< Base, 8u, Signed > :
             "ldrexd  %1, %H1, [%3]\n\t"               // original = *(&storage)
             "mvn     %2, %1\n\t"                      // result = NOT original
             "mvn     %H2, %H1\n\t"
-            "adds    %2, %2, #1\n\t"                  // result = result + 1
-            "adc     %H2, %H2, #0\n\t"
+            "adds   " BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_LO(2) ", " BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_LO(2) ", #1\n\t" // result = result + 1
+            "adc    " BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_HI(2) ", " BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_HI(2) ", #0\n\t"
             "strexd  %0, %2, %H2, [%3]\n\t"           // *(&storage) = result, tmp = store failed
             "teq     %0, #0\n\t"                      // flags = tmp==0
             "bne     1b\n\t"                          // if (!flags.equal) goto retry
@@ -894,8 +894,8 @@ struct gcc_arm_extra_operations< Base, 8u, Signed > :
             "ldrexd  %1, %H1, [%3]\n\t"               // original = *(&storage)
             "mvn     %2, %1\n\t"                      // result = NOT original
             "mvn     %H2, %H1\n\t"
-            "adds    %2, %2, #1\n\t"                  // result = result + 1
-            "adc     %H2, %H2, #0\n\t"
+            "adds   " BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_LO(2) ", " BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_LO(2) ", #1\n\t" // result = result + 1
+            "adc    " BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_HI(2) ", " BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_HI(2) ", #0\n\t"
             "strexd  %0, %2, %H2, [%3]\n\t"           // *(&storage) = result, tmp = store failed
             "teq     %0, #0\n\t"                      // flags = tmp==0
             "bne     1b\n\t"                          // if (!flags.equal) goto retry
@@ -920,8 +920,8 @@ struct gcc_arm_extra_operations< Base, 8u, Signed > :
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%0)
             "1:\n\t"
             "ldrexd  %1, %H1, [%3]\n\t"               // original = *(&storage)
-            "adds    %2, %1, %4\n\t"                  // result = original + value
-            "adc     %H2, %H1, %H4\n\t"
+            "adds   " BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_LO(2) ", " BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_LO(1) ", " BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_LO(4) "\n\t" // result = original + value
+            "adc    " BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_HI(2) ", " BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_HI(1) ", " BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_HI(4) "\n\t"
             "strexd  %0, %2, %H2, [%3]\n\t"           // *(&storage) = result, tmp = store failed
             "teq     %0, #0\n\t"                      // flags = tmp==0
             "bne     1b\n\t"                          // if (!flags.equal) goto retry
@@ -947,8 +947,8 @@ struct gcc_arm_extra_operations< Base, 8u, Signed > :
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%0)
             "1:\n\t"
             "ldrexd  %1, %H1, [%3]\n\t"               // original = *(&storage)
-            "subs    %2, %1, %4\n\t"                  // result = original - value
-            "sbc     %H2, %H1, %H4\n\t"
+            "subs   " BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_LO(2) ", " BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_LO(1) ", " BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_LO(4) "\n\t" // result = original - value
+            "sbc    " BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_HI(2) ", " BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_HI(1) ", " BOOST_ATOMIC_DETAIL_ARM_ASM_ARG_HI(4) "\n\t"
             "strexd  %0, %2, %H2, [%3]\n\t"           // *(&storage) = result, tmp = store failed
             "teq     %0, #0\n\t"                      // flags = tmp==0
             "bne     1b\n\t"                          // if (!flags.equal) goto retry
