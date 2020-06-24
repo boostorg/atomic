@@ -154,8 +154,8 @@ struct core_arch_operations< 4u, Signed, Interprocess > :
             "stl_c %1, %4\n\t"                // storage = desired; desired = store succeeded
             "mov %1, %3\n\t"                  // success = desired
             "2:\n\t"
-            : "+&r" (expected),  // %0
-              "+&r" (desired),   // %1
+            : "+r" (expected),   // %0
+              "+r" (desired),    // %1
               "=&r" (current),   // %2
               "=&r" (success)    // %3
             : "m" (storage)      // %4
@@ -191,7 +191,7 @@ struct core_arch_operations< 4u, Signed, Interprocess > :
             "3: br 1b\n\t"
             ".previous\n\t"
 
-            : "+&r" (expected),  // %0
+            : "+r" (expected),   // %0
               "=&r" (tmp),       // %1
               "=&r" (current),   // %2
               "=&r" (success)    // %3
@@ -665,8 +665,8 @@ struct core_arch_operations< 8u, Signed, Interprocess > :
             "stq_c %1, %4\n\t"                // storage = desired; desired = store succeeded
             "mov %1, %3\n\t"                  // success = desired
             "2:\n\t"
-            : "+&r" (expected),  // %0
-              "+&r" (desired),   // %1
+            : "+r" (expected),   // %0
+              "+r" (desired),    // %1
               "=&r" (current),   // %2
               "=&r" (success)    // %3
             : "m" (storage)      // %4
@@ -702,7 +702,7 @@ struct core_arch_operations< 8u, Signed, Interprocess > :
             "3: br 1b\n\t"
             ".previous\n\t"
 
-            : "+&r" (expected),  // %0
+            : "+r" (expected),   // %0
               "=&r" (tmp),       // %1
               "=&r" (current),   // %2
               "=&r" (success)    // %3
