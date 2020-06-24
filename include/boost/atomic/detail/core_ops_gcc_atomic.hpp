@@ -19,7 +19,6 @@
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/storage_traits.hpp>
 #include <boost/atomic/detail/core_operations_fwd.hpp>
-#include <boost/atomic/detail/core_arch_operations.hpp>
 #include <boost/atomic/detail/capabilities.hpp>
 #include <boost/atomic/detail/gcc_atomic_memory_order_utils.hpp>
 
@@ -79,14 +78,7 @@ struct core_operations_gcc_atomic
 
     static BOOST_FORCEINLINE storage_type load(storage_type const volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
-#if defined(BOOST_ATOMIC_DETAIL_AARCH64_HAS_RCPC)
-        // At least gcc 9.3 and clang 10 do not generate relaxed ldapr instructions that are available in ARMv8.3-RCPC extension.
-        // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=95751
-        typedef atomics::detail::core_arch_operations< storage_size, is_signed, is_interprocess > core_arch_operations;
-        return core_arch_operations::load(storage, order);
-#else
         return __atomic_load_n(&storage, atomics::detail::convert_memory_order_to_gcc(order));
-#endif
     }
 
     static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
