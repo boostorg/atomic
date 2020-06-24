@@ -120,6 +120,12 @@ public:
             return false;
         }
 
+        if ((first_state->m_wakeup_time - start_time) >= chrono::milliseconds(400))
+        {
+            std::cout << "notify_one_test: first thread woke up too late: " << chrono::duration_cast< chrono::milliseconds >(first_state->m_wakeup_time - start_time).count() << " ms" << std::endl;
+            return false;
+        }
+
         if ((second_state->m_wakeup_time - start_time) < chrono::milliseconds(400))
         {
             std::cout << "notify_one_test: second thread woke up too soon: " << chrono::duration_cast< chrono::milliseconds >(second_state->m_wakeup_time - start_time).count() << " ms" << std::endl;
