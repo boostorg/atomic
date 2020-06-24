@@ -122,7 +122,7 @@ struct core_arch_operations< 4u, Signed, Interprocess > :
             "eoreq   %[success], %[success], #1\n\t"          // if (flags.equal) success ^= 1 (i.e. make it 1 if store succeeded)
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
             : [original] "=&r" (original),
-              [success] "+&r" (success),
+              [success] "+r" (success),
 #if !defined(BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_UNUSED)
               [tmp] "=&l" (tmp),
 #endif
@@ -161,7 +161,7 @@ struct core_arch_operations< 4u, Signed, Interprocess > :
             "2:\n\t"
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
             : [original] "=&r" (original),
-              [success] "+&r" (success),
+              [success] "+r" (success),
 #if !defined(BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_UNUSED)
               [tmp] "=&l" (tmp),
 #endif
@@ -388,7 +388,7 @@ struct core_arch_operations< 1u, Signed, Interprocess > :
             "eoreq    %[success], %[success], #1\n\t"          // if (flags.equal) success ^= 1 (i.e. make it 1 if store succeeded)
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
             : [original] "=&r" (original),
-              [success] "+&r" (success),
+              [success] "+r" (success),
 #if !defined(BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_UNUSED)
               [tmp] "=&l" (tmp),
 #endif
@@ -427,7 +427,7 @@ struct core_arch_operations< 1u, Signed, Interprocess > :
             "2:\n\t"
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
             : [original] "=&r" (original),
-              [success] "+&r" (success),
+              [success] "+r" (success),
 #if !defined(BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_UNUSED)
               [tmp] "=&l" (tmp),
 #endif
@@ -782,7 +782,7 @@ struct core_arch_operations< 2u, Signed, Interprocess > :
             "eoreq    %[success], %[success], #1\n\t"          // if (flags.equal) success ^= 1 (i.e. make it 1 if store succeeded)
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
             : [original] "=&r" (original),
-              [success] "+&r" (success),
+              [success] "+r" (success),
 #if !defined(BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_UNUSED)
               [tmp] "=&l" (tmp),
 #endif
@@ -821,7 +821,7 @@ struct core_arch_operations< 2u, Signed, Interprocess > :
             "2:\n\t"
             BOOST_ATOMIC_DETAIL_ARM_ASM_END(%[tmp])
             : [original] "=&r" (original),
-              [success] "+&r" (success),
+              [success] "+r" (success),
 #if !defined(BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_UNUSED)
               [tmp] "=&l" (tmp),
 #endif
