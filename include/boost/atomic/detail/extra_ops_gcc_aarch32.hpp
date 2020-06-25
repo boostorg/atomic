@@ -41,14 +41,41 @@ struct extra_operations_gcc_aarch32_common :
     typedef Base base_type;
     typedef typename base_type::storage_type storage_type;
 
+    // Note: For opaque operations prefer operations returning the resulting values instead of the original values
+    //       as these operations require less registers.
     static BOOST_FORCEINLINE void opaque_negate(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
-        base_type::fetch_negate(storage, order);
+        base_type::negate(storage, order);
     }
 
     static BOOST_FORCEINLINE void opaque_complement(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
-        base_type::fetch_complement(storage, order);
+        base_type::complement(storage, order);
+    }
+
+    static BOOST_FORCEINLINE void opaque_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    {
+        base_type::add(storage, v, order);
+    }
+
+    static BOOST_FORCEINLINE void opaque_sub(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    {
+        base_type::sub(storage, v, order);
+    }
+
+    static BOOST_FORCEINLINE void opaque_and(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    {
+        base_type::bitwise_and(storage, v, order);
+    }
+
+    static BOOST_FORCEINLINE void opaque_or(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    {
+        base_type::bitwise_or(storage, v, order);
+    }
+
+    static BOOST_FORCEINLINE void opaque_xor(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    {
+        base_type::bitwise_xor(storage, v, order);
     }
 
     static BOOST_FORCEINLINE bool negate_and_test(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
