@@ -43,7 +43,8 @@ struct extra_operations_gcc_aarch64_common :
 
     // Note: For opaque operations prefer operations returning the resulting values instead of the original values
     //       as these operations require less registers. That is unless LSE is available, in which case
-    //       it is better to use the dedicated atomic instructions.
+    //       it is better to use the dedicated atomic instructions. The LSE check is done in the base_type,
+    //       where needed (e.g. for 128-bit operations there are no LSE instructions).
     static BOOST_FORCEINLINE void opaque_negate(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
         base_type::negate(storage, order);
@@ -54,7 +55,6 @@ struct extra_operations_gcc_aarch64_common :
         base_type::complement(storage, order);
     }
 
-#if !defined(BOOST_ATOMIC_DETAIL_AARCH64_HAS_LSE)
     static BOOST_FORCEINLINE void opaque_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
         base_type::add(storage, v, order);
@@ -79,7 +79,6 @@ struct extra_operations_gcc_aarch64_common :
     {
         base_type::bitwise_xor(storage, v, order);
     }
-#endif // !defined(BOOST_ATOMIC_DETAIL_AARCH64_HAS_LSE)
 
     static BOOST_FORCEINLINE bool negate_and_test(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
