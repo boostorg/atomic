@@ -52,7 +52,7 @@ struct extra_operations_gcc_aarch64_common :
 
     static BOOST_FORCEINLINE void opaque_complement(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
-        base_type::complement(storage, order);
+        base_type::bitwise_complement(storage, order);
     }
 
     static BOOST_FORCEINLINE void opaque_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
