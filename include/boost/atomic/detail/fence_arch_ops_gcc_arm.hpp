@@ -18,6 +18,7 @@
 #include <boost/memory_order.hpp>
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/capabilities.hpp>
+#include <boost/atomic/detail/gcc_arm_asm_common.hpp>
 #include <boost/atomic/detail/header.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
