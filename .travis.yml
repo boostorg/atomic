@@ -1,5 +1,5 @@
 # Copyright 2016, 2017 Peter Dimov
-# Copyright 2019 Andrey Semashev
+# Copyright 2019 - 2020 Andrey Semashev
 # Distributed under the Boost Software License, Version 1.0.
 # (See accompanying file LICENSE_1_0.txt or copy at http://boost.org/LICENSE_1_0.txt)
 
@@ -8,12 +8,6 @@ language: cpp
 sudo: false
 
 python: "2.7"
-
-os:
-  - linux
-  - osx
-
-dist: bionic
 
 branches:
   only:
@@ -32,6 +26,32 @@ matrix:
 
   include:
 # gcc, Linux
+    - os: linux
+      dist: trusty
+      compiler: gcc-4.4
+      env: TOOLSET=gcc COMPILER=g++-4.4 CXXSTD64=98,0x CXXSTD32=98,0x INSTRUCTION_SET=core2
+      addons:
+        apt:
+          packages:
+            - g++-4.4
+            - g++-4.4-multilib
+            - linux-libc-dev:i386
+          sources:
+            - ubuntu-toolchain-r-test
+
+    - os: linux
+      dist: trusty
+      compiler: gcc-4.6
+      env: TOOLSET=gcc COMPILER=g++-4.6 CXXSTD64=03,0x CXXSTD32=03,0x INSTRUCTION_SET=core2
+      addons:
+        apt:
+          packages:
+            - g++-4.6
+            - g++-4.6-multilib
+            - linux-libc-dev:i386
+          sources:
+            - ubuntu-toolchain-r-test
+
     - os: linux
       dist: trusty
       compiler: gcc-4.7
@@ -137,7 +157,7 @@ matrix:
             - sourceline: "ppa:ubuntu-toolchain-r/test"
 
     - os: linux
-      dist: bionic
+      dist: focal
       compiler: gcc-10
       env: TOOLSET=gcc COMPILER=g++-10 CXXSTD64=03,11,14,17,20,03-gnu,11-gnu,14-gnu,17-gnu,20-gnu CXXSTD32=03,11 INSTRUCTION_SET=core2
       addons:
@@ -150,7 +170,7 @@ matrix:
             - sourceline: "ppa:ubuntu-toolchain-r/test"
 
     - os: linux
-      dist: bionic
+      dist: focal
       compiler: gcc-UBSAN
       env: UBSAN=1 TOOLSET=gcc COMPILER=g++-10 CXXSTD64=03,11,14,17,20 INSTRUCTION_SET=core2 UBSAN_OPTIONS=print_stacktrace=1 BUILD_VARIANT=debug LINKFLAGS=-fuse-ld=gold
       addons:
@@ -313,7 +333,7 @@ matrix:
               key_url: "https://apt.llvm.org/llvm-snapshot.gpg.key"
 
     - os: linux
-      dist: xenial
+      dist: bionic
       compiler: clang-9
       env: TOOLSET=clang COMPILER=clang++-9 CXXSTD64=03,11,14,17 CXXSTD32=03,11 INSTRUCTION_SET=core2
       addons:
@@ -324,11 +344,11 @@ matrix:
             - linux-libc-dev:i386
           sources:
             - sourceline: "ppa:ubuntu-toolchain-r/test"
-            - sourceline: "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-9 main"
+            - sourceline: "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-9 main"
               key_url: "https://apt.llvm.org/llvm-snapshot.gpg.key"
 
     - os: linux
-      dist: xenial
+      dist: focal
       compiler: clang-10
       env: TOOLSET=clang COMPILER=clang++-10 CXXSTD64=03,11,14,17,20 CXXSTD32=03,11 INSTRUCTION_SET=core2
       addons:
@@ -339,12 +359,12 @@ matrix:
             - linux-libc-dev:i386
           sources:
             - sourceline: "ppa:ubuntu-toolchain-r/test"
-            - sourceline: "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-10 main"
+            - sourceline: "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-10 main"
               key_url: "https://apt.llvm.org/llvm-snapshot.gpg.key"
 
 # Note: clang for 32-bit targets with UBSAN emits undefined references to __mulodi4
     - os: linux
-      dist: xenial
+      dist: focal
       compiler: clang-UBSAN
       env: UBSAN=1 TOOLSET=clang COMPILER=clang++-10 CXXSTD64=03,11,14,17,20 INSTRUCTION_SET=core2 UBSAN_OPTIONS=print_stacktrace=1 BUILD_VARIANT=debug
       addons:
@@ -355,7 +375,7 @@ matrix:
             - linux-libc-dev:i386
           sources:
             - sourceline: "ppa:ubuntu-toolchain-r/test"
-            - sourceline: "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-10 main"
+            - sourceline: "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-10 main"
               key_url: "https://apt.llvm.org/llvm-snapshot.gpg.key"
 
 # clang, OS X, 64-bit
@@ -374,7 +394,7 @@ matrix:
 
 # clang, FreeBSD, 64-bit
     - os: freebsd
-      env: TOOLSET=clang COMPILER=clang++ CXXSTD64=03,11,14,17 INSTRUCTION_SET=core2 BUILD_VARIANT=release
+      env: TOOLSET=clang COMPILER=clang++ CXXSTD64=03,11,14,17,2a INSTRUCTION_SET=core2 BUILD_VARIANT=release
 
 # cmake self-test
     - os: linux
