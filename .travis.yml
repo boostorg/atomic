@@ -157,7 +157,7 @@ matrix:
             - sourceline: "ppa:ubuntu-toolchain-r/test"
 
     - os: linux
-      dist: focal
+      dist: bionic
       compiler: gcc-10
       env: TOOLSET=gcc COMPILER=g++-10 CXXSTD64=03,11,14,17,20,03-gnu,11-gnu,14-gnu,17-gnu,20-gnu CXXSTD32=03,11 INSTRUCTION_SET=core2
       addons:
@@ -170,7 +170,7 @@ matrix:
             - sourceline: "ppa:ubuntu-toolchain-r/test"
 
     - os: linux
-      dist: focal
+      dist: bionic
       compiler: gcc-UBSAN
       env: UBSAN=1 TOOLSET=gcc COMPILER=g++-10 CXXSTD64=03,11,14,17,20 INSTRUCTION_SET=core2 UBSAN_OPTIONS=print_stacktrace=1 BUILD_VARIANT=debug LINKFLAGS=-fuse-ld=gold
       addons:
