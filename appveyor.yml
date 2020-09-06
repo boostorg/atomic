@@ -158,9 +158,9 @@ for:
       - mkdir __build_static__
       - cd __build_static__
       - cmake ../libs/atomic/test/test_cmake
-      - cmake --build .
+      - cmake --build . --target boost_atomic_cmake_self_test -j %NUMBER_OF_PROCESSORS%
       - cd ..
       - mkdir __build_shared__
       - cd __build_shared__
       - cmake -DBUILD_SHARED_LIBS=On ../libs/atomic/test/test_cmake
-      - cmake --build .
+      - cmake --build . --target boost_atomic_cmake_self_test -j %NUMBER_OF_PROCESSORS%

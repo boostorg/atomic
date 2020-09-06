@@ -10,11 +10,60 @@ project(boost_atomic VERSION "${BOOST_SUPERPROJECT_VERSION}" LANGUAGES CXX)
 include(CheckCXXSourceCompiles)
 
 set(boost_atomic_sources src/lock_pool.cpp)
-if(WIN32)
+
+set(CMAKE_REQUIRED_INCLUDES "${CMAKE_CURRENT_SOURCE_DIR}/../..")
+check_cxx_source_compiles("#include <${CMAKE_CURRENT_SOURCE_DIR}/../config/checks/architecture/x86.cpp>\nint main() {}" BOOST_ATOMIC_TARGET_X86)
+unset(CMAKE_REQUIRED_INCLUDES)
+
+if (BOOST_ATOMIC_TARGET_X86)
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+        if (CMAKE_SIZEOF_VOID_P EQUAL 4)
+            set(boost_atomic_sse2_cflags "/arch:SSE2")
+            set(boost_atomic_sse41_cflags "/arch:SSE2")
+        endif()
+    elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
+        if (WIN32)
+            set(boost_atomic_sse2_cflags PROPERTIES COMPILE_FLAGS "/QxSSE2")
+            set(boost_atomic_sse41_cflags PROPERTIES COMPILE_FLAGS "/QxSSE4.1")
+        else()
+            set(boost_atomic_sse2_cflags PROPERTIES COMPILE_FLAGS "-xSSE2")
+            set(boost_atomic_sse41_cflags PROPERTIES COMPILE_FLAGS "-xSSE4.1")
+        endif()
+    else()
+        set(boost_atomic_sse2_cflags "-msse -msse2")
+        set(boost_atomic_sse41_cflags "-msse -msse2 -msse3 -mssse3 -msse4.1")
+    endif()
+
+    set(CMAKE_REQUIRED_INCLUDES "${CMAKE_CURRENT_SOURCE_DIR}/../..")
+    set(CMAKE_REQUIRED_FLAGS "${boost_atomic_sse2_cflags}")
+    check_cxx_source_compiles("#include <${CMAKE_CURRENT_SOURCE_DIR}/config/has_sse2.cpp>" BOOST_ATOMIC_COMPILER_HAS_SSE2)
+    unset(CMAKE_REQUIRED_FLAGS)
+    unset(CMAKE_REQUIRED_INCLUDES)
+
+    set(CMAKE_REQUIRED_INCLUDES "${CMAKE_CURRENT_SOURCE_DIR}/../..")
+    set(CMAKE_REQUIRED_FLAGS "${boost_atomic_sse41_cflags}")
+    check_cxx_source_compiles("#include <${CMAKE_CURRENT_SOURCE_DIR}/config/has_sse41.cpp>" BOOST_ATOMIC_COMPILER_HAS_SSE41)
+    unset(CMAKE_REQUIRED_FLAGS)
+    unset(CMAKE_REQUIRED_INCLUDES)
+
+    if (BOOST_ATOMIC_COMPILER_HAS_SSE2)
+        set(boost_atomic_sources_sse2 src/find_address_sse2.cpp)
+        set_source_files_properties(${boost_atomic_sources_sse2} PROPERTIES COMPILE_FLAGS "${boost_atomic_sse2_cflags}")
+        set(boost_atomic_sources ${boost_atomic_sources} ${boost_atomic_sources_sse2})
+    endif()
+
+    if (BOOST_ATOMIC_COMPILER_HAS_SSE41)
+        set(boost_atomic_sources_sse41 src/find_address_sse41.cpp)
+        set_source_files_properties(${boost_atomic_sources_sse41} PROPERTIES COMPILE_FLAGS "${boost_atomic_sse41_cflags}")
+        set(boost_atomic_sources ${boost_atomic_sources} ${boost_atomic_sources_sse41})
+    endif()
+endif()
+
+if (WIN32)
     set(boost_atomic_sources ${boost_atomic_sources} src/wait_ops_windows.cpp)
 endif()
 
-if(WIN32)
+if (WIN32)
     # Note: We can't use the Boost::library targets here as they may not yet be included by the superproject when this CMakeLists.txt is included.
     set(CMAKE_REQUIRED_INCLUDES "${CMAKE_CURRENT_SOURCE_DIR}/../..")
     set(CMAKE_REQUIRED_LIBRARIES synchronization)
@@ -36,17 +85,18 @@ target_link_libraries(boost_atomic
         Boost::static_assert
         Boost::type_traits
     PRIVATE
+        Boost::align
         Boost::predef
         Boost::preprocessor
 )
 
-if(WIN32)
+if (WIN32)
     target_link_libraries(boost_atomic
         PUBLIC
             Boost::winapi
     )
 
-    if(BOOST_ATOMIC_HAS_SYNCHRONIZATION)
+    if (BOOST_ATOMIC_HAS_SYNCHRONIZATION)
         target_link_libraries(boost_atomic PRIVATE synchronization)
     endif()
 endif()
@@ -58,8 +108,15 @@ target_compile_definitions(boost_atomic
         BOOST_ATOMIC_SOURCE
 )
 
-if(BUILD_SHARED_LIBS)
+if (BUILD_SHARED_LIBS)
     target_compile_definitions(boost_atomic PUBLIC BOOST_ATOMIC_DYN_LINK)
 else()
     target_compile_definitions(boost_atomic PUBLIC BOOST_ATOMIC_STATIC_LINK)
+endif()
+
+if (BOOST_ATOMIC_COMPILER_HAS_SSE2)
+    target_compile_definitions(boost_atomic PRIVATE BOOST_ATOMIC_USE_SSE2)
+endif()
+if (BOOST_ATOMIC_COMPILER_HAS_SSE41)
+    target_compile_definitions(boost_atomic PRIVATE BOOST_ATOMIC_USE_SSE41)
 endif()
