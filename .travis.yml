@@ -180,6 +180,24 @@ matrix:
           sources:
             - sourceline: "ppa:ubuntu-toolchain-r/test"
 
+    - os: linux
+      dist: focal
+      arch: arm64
+      compiler: g++
+      env: TOOLSET=gcc COMPILER=g++ CXXSTD64=03,11,14,17,03-gnu,11-gnu,14-gnu,17-gnu
+
+    - os: linux
+      dist: focal
+      arch: ppc64le
+      compiler: g++
+      env: TOOLSET=gcc COMPILER=g++ CXXSTD64=03,11,14,17,03-gnu,11-gnu,14-gnu,17-gnu
+
+    - os: linux
+      dist: focal
+      arch: s390x
+      compiler: g++
+      env: TOOLSET=gcc COMPILER=g++ CXXSTD64=03,11,14,17,03-gnu,11-gnu,14-gnu,17-gnu
+
 # clang, Linux
     - os: linux
       dist: trusty
