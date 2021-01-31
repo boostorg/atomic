@@ -18,6 +18,9 @@ project boost/atomic/test
       <library>/boost/atomic//boost_atomic
       <target-os>windows:<define>BOOST_USE_WINDOWS_H
       <toolset>gcc,<target-os>windows:<linkflags>"-lkernel32"
+      # Variadic macros and empty macro arguments are used by Boost.Preprocessor even in C++03 mode, which makes gcc and clang complain
+      <toolset>gcc:<cxxflags>"-Wno-variadic-macros"
+      <toolset>clang:<cxxflags>"-Wno-c99-extensions"
     ;
 
 test-suite atomic
