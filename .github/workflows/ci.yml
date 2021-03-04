@@ -1,0 +1,630 @@
+name: GitHub Actions CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+      - develop
+      - githubactions*
+      - feature/**
+      - fix/**
+      - pr/**
+
+jobs:
+  posix:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: "TOOLSET=gcc COMPILER=g++-4.4 CXXSTD64=98,0x C Job 0"
+            buildtype: "boost"
+            packages: "g++-4.4 g++-4.4-multilib linux-libc-dev:i386"
+            packages_to_remove: ""
+            os: "ubuntu-16.04"
+            container: "ubuntu:14.04"
+            cxx: "g++"
+            sources: ""
+            llvm_os: ""
+            llvm_ver: ""
+            toolset: "gcc"
+            compiler: "g++-4.4"
+            cxxstd64: "98,0x"
+            cxxstd32: "98,0x"
+            instruction_set: "core2"
+          - name: "TOOLSET=gcc COMPILER=g++-4.6 CXXSTD64=03,0x C Job 1"
+            buildtype: "boost"
+            packages: "g++-4.6 g++-4.6-multilib linux-libc-dev:i386"
+            packages_to_remove: ""
+            os: "ubuntu-16.04"
+            cxx: "g++"
+            sources: ""
+            llvm_os: ""
+            llvm_ver: ""
+            toolset: "gcc"
+            compiler: "g++-4.6"
+            cxxstd64: "03,0x"
+            cxxstd32: "03,0x"
+            instruction_set: "core2"
+          - name: "TOOLSET=gcc COMPILER=g++-4.7 CXXSTD64=03,11 C Job 2"
+            buildtype: "boost"
+            packages: "g++-4.7 g++-4.7-multilib linux-libc-dev:i386"
+            packages_to_remove: ""
+            os: "ubuntu-16.04"
+            container: "ubuntu:14.04"
+            cxx: "g++-4.7"
+            sources: ""
+            llvm_os: ""
+            llvm_ver: ""
+            toolset: "gcc"
+            compiler: "g++-4.7"
+            cxxstd64: "03,11"
+            cxxstd32: "03,11"
+            instruction_set: "core2"
+          - name: "TOOLSET=gcc COMPILER=g++-4.8 CXXSTD64=03,11 C Job 3"
+            buildtype: "boost"
+            packages: "g++-4.8 g++-4.8-multilib linux-libc-dev:i386"
+            packages_to_remove: ""
+            os: "ubuntu-16.04"
+            cxx: "g++-4.8"
+            sources: ""
+            llvm_os: ""
+            llvm_ver: ""
+            toolset: "gcc"
+            compiler: "g++-4.8"
+            cxxstd64: "03,11"
+            cxxstd32: "03,11"
+            instruction_set: "core2"
+          - name: "TOOLSET=gcc COMPILER=g++-4.9 CXXSTD64=03,11 C Job 4"
+            buildtype: "boost"
+            packages: "g++-4.9 g++-4.9-multilib linux-libc-dev:i386"
+            packages_to_remove: ""
+            os: "ubuntu-16.04"
+            cxx: "g++-4.9"
+            sources: ""
+            llvm_os: ""
+            llvm_ver: ""
+            toolset: "gcc"
+            compiler: "g++-4.9"
+            cxxstd64: "03,11"
+            cxxstd32: "03,11"
+            instruction_set: "core2"
+          - name: "TOOLSET=gcc COMPILER=g++-5 CXXSTD64=03,11,14  Job 5"
+            buildtype: "boost"
+            packages: "g++-5 g++-5-multilib linux-libc-dev:i386"
+            packages_to_remove: ""
+            os: "ubuntu-16.04"
+            cxx: "g++-5"
+            sources: ""
+            llvm_os: ""
+            llvm_ver: ""
+            toolset: "gcc"
+            compiler: "g++-5"
+            cxxstd64: "03,11,14"
+            cxxstd32: "03,11"
+            instruction_set: "core2"
+          - name: "TOOLSET=gcc COMPILER=g++-6 CXXSTD64=03,11,14, Job 6"
+            buildtype: "boost"
+            packages: "g++-6 g++-6-multilib linux-libc-dev:i386"
+            packages_to_remove: ""
+            os: "ubuntu-16.04"
+            cxx: "g++-6"
+            sources: ""
+            llvm_os: ""
+            llvm_ver: ""
+            toolset: "gcc"
+            compiler: "g++-6"
+            cxxstd64: "03,11,14,1z"
+            cxxstd32: "03,11"
+            instruction_set: "core2"
+          - name: "TOOLSET=gcc COMPILER=g++-7 CXXSTD64=03,11,14, Job 7"
+            buildtype: "boost"
+            packages: "g++-7 g++-7-multilib linux-libc-dev:i386"
+            packages_to_remove: ""
+            os: "ubuntu-16.04"
+            cxx: "g++-7"
+            sources: ""
+            llvm_os: ""
+            llvm_ver: ""
+            toolset: "gcc"
+            compiler: "g++-7"
+            cxxstd64: "03,11,14,17"
+            cxxstd32: "03,11"
+            instruction_set: "core2"
+          - name: "TOOLSET=gcc COMPILER=g++-8 CXXSTD64=03,11,14, Job 8"
+            buildtype: "boost"
+            packages: "g++-8 g++-8-multilib linux-libc-dev:i386"
+            packages_to_remove: ""
+            os: "ubuntu-16.04"
+            cxx: "g++-8"
+            sources: ""
+            llvm_os: ""
+            llvm_ver: ""
+            toolset: "gcc"
+            compiler: "g++-8"
+            cxxstd64: "03,11,14,17,03-gnu,11-gnu,14-gnu,17-gnu"
+            cxxstd32: "03,11"
+            instruction_set: "core2"
+          - name: "TOOLSET=gcc COMPILER=g++-9 CXXSTD64=03,11,14, Job 9"
+            buildtype: "boost"
+            packages: "g++-9 g++-9-multilib linux-libc-dev:i386"
+            packages_to_remove: ""
+            os: "ubuntu-18.04"
+            cxx: "g++-9"
+            sources: ""
+            llvm_os: ""
+            llvm_ver: ""
+            toolset: "gcc"
+            compiler: "g++-9"
+            cxxstd64: "03,11,14,17,03-gnu,11-gnu,14-gnu,17-gnu"
+            cxxstd32: "03,11"
+            instruction_set: "core2"
+          - name: "TOOLSET=gcc COMPILER=g++-10 CXXSTD64=03,11,14 Job 10"
+            buildtype: "boost"
+            packages: "g++-10 g++-10-multilib linux-libc-dev:i386"
+            packages_to_remove: ""
+            os: "ubuntu-18.04"
+            cxx: "g++-10"
+            sources: ""
+            llvm_os: ""
+            llvm_ver: ""
+            toolset: "gcc"
+            compiler: "g++-10"
+            cxxstd64: "03,11,14,17,20,03-gnu,11-gnu,14-gnu,17-gnu,20-gnu"
+            cxxstd32: "03,11"
+            instruction_set: "core2"
+          - name: "UBSAN=1 TOOLSET=gcc COMPILER=g++-10 CXXSTD64= Job 11"
+            buildtype: "boost"
+            packages: "g++-10"
+            packages_to_remove: ""
+            os: "ubuntu-18.04"
+            cxx: "g++-10"
+            sources: ""
+            llvm_os: ""
+            llvm_ver: ""
+            ubsan: "1"
+            toolset: "gcc"
+            compiler: "g++-10"
+            cxxstd64: "03,11,14,17,20"
+            instruction_set: "core2"
+            ubsan_options: "print_stacktrace=1"
+            build_variant: "debug"
+            linkflags: "-fuse-ld=gold"
+          - name: "TOOLSET=clang COMPILER=clang++-3.5 CXXSTD64=0 Job 12"
+            buildtype: "boost"
+            packages: "clang-3.5 g++-4.9-multilib linux-libc-dev:i386"
+            packages_to_remove: ""
+            os: "ubuntu-16.04"
+            container: "ubuntu:14.04"
+            cxx: "clang++-3.5"
+            sources: ""
+            llvm_os: "trusty"
+            llvm_ver: "3.5"
+            toolset: "clang"
+            compiler: "clang++-3.5"
+            cxxstd64: "03,11"
+            cxxstd32: "03,11"
+            instruction_set: "core2"
+          - name: "TOOLSET=clang COMPILER=clang++-3.6 CXXSTD64=0 Job 13"
+            buildtype: "boost"
+            packages: "clang-3.6 g++-5-multilib linux-libc-dev:i386"
+            packages_to_remove: ""
+            os: "ubuntu-16.04"
+            container: "ubuntu:14.04"
+            cxx: "clang++-3.6"
+            sources: ""
+            llvm_os: "trusty"
+            llvm_ver: "3.6"
+            toolset: "clang"
+            compiler: "clang++-3.6"
+            cxxstd64: "03,11"
+            cxxstd32: "03,11"
+            instruction_set: "core2"
+          - name: "TOOLSET=clang COMPILER=clang++-3.7 CXXSTD64=0 Job 14"
+            buildtype: "boost"
+            packages: "clang-3.7 g++-5-multilib linux-libc-dev:i386"
+            packages_to_remove: ""
+            os: "ubuntu-16.04"
+            container: "ubuntu:14.04"
+            cxx: "clang++-3.7"
+            sources: ""
+            llvm_os: "trusty"
+            llvm_ver: "3.7"
+            toolset: "clang"
+            compiler: "clang++-3.7"
+            cxxstd64: "03,11"
+            cxxstd32: "03,11"
+            instruction_set: "core2"
+          - name: "TOOLSET=clang COMPILER=clang++-3.8 CXXSTD64=0 Job 15"
+            buildtype: "boost"
+            packages: "clang-3.8 g++-6-multilib linux-libc-dev:i386"
+            packages_to_remove: ""
+            os: "ubuntu-16.04"
+            cxx: "clang++-3.8"
+            sources: ""
+            llvm_os: "xenial"
+            llvm_ver: "3.8"
+            toolset: "clang"
+            compiler: "clang++-3.8"
+            cxxstd64: "03,11,14"
+            cxxstd32: "03,11"
+            instruction_set: "core2"
+          - name: "TOOLSET=clang COMPILER=clang++-3.9 CXXSTD64=0 Job 16"
+            buildtype: "boost"
+            packages: "clang-3.9 g++-6-multilib linux-libc-dev:i386"
+            packages_to_remove: ""
+            os: "ubuntu-16.04"
+            cxx: "clang++-3.9"
+            sources: ""
+            llvm_os: "xenial"
+            llvm_ver: "3.9"
+            toolset: "clang"
+            compiler: "clang++-3.9"
+            cxxstd64: "03,11,14"
+            cxxstd32: "03,11"
+            instruction_set: "core2"
+          - name: "TOOLSET=clang COMPILER=clang++-4.0 CXXSTD64=0 Job 17"
+            buildtype: "boost"
+            packages: "clang-4.0 g++-6-multilib linux-libc-dev:i386"
+            packages_to_remove: ""
+            os: "ubuntu-16.04"
+            cxx: "clang++-4.0"
+            sources: ""
+            llvm_os: "xenial"
+            llvm_ver: "4.0"
+            toolset: "clang"
+            compiler: "clang++-4.0"
+            cxxstd64: "03,11,14"
+            cxxstd32: "03,11"
+            instruction_set: "core2"
+          - name: "TOOLSET=clang COMPILER=clang++-5.0 CXXSTD64=0 Job 18"
+            buildtype: "boost"
+            packages: "clang-5.0 g++-7-multilib linux-libc-dev:i386"
+            packages_to_remove: ""
+            os: "ubuntu-16.04"
+            cxx: "clang++-5.0"
+            sources: ""
+            llvm_os: "xenial"
+            llvm_ver: "5.0"
+            cxxflags: "-DBOOST_ATOMIC_TESTS_NO_INT128 -DBOOST_ATOMIC_TESTS_NO_FLOAT128"
+            toolset: "clang"
+            compiler: "clang++-5.0"
+            cxxstd64: "03,11,14,1z"
+            cxxstd32: "03,11"
+            instruction_set: "core2"
+          - name: "TOOLSET=clang COMPILER=clang++-6.0 CXXSTD64=0 Job 19"
+            buildtype: "boost"
+            packages: "clang-6.0 g++-8-multilib linux-libc-dev:i386"
+            packages_to_remove: ""
+            os: "ubuntu-16.04"
+            cxx: "clang++-6.0"
+            sources: ""
+            llvm_os: "xenial"
+            llvm_ver: "6.0"
+            toolset: "clang"
+            compiler: "clang++-6.0"
+            cxxstd64: "03,11,14,17"
+            cxxstd32: "03,11"
+            instruction_set: "core2"
+          - name: "TOOLSET=clang COMPILER=clang++-7 CXXSTD64=03, Job 20"
+            buildtype: "boost"
+            packages: "clang-7 g++-8-multilib linux-libc-dev:i386"
+            packages_to_remove: ""
+            os: "ubuntu-16.04"
+            cxx: "clang++-7"
+            sources: ""
+            llvm_os: "xenial"
+            llvm_ver: "7"
+            toolset: "clang"
+            compiler: "clang++-7"
+            cxxstd64: "03,11,14,17"
+            cxxstd32: "03,11"
+            instruction_set: "core2"
+          - name: "TOOLSET=clang COMPILER=clang++-8 CXXSTD64=03, Job 21"
+            buildtype: "boost"
+            packages: "clang-8 g++-8-multilib linux-libc-dev:i386"
+            packages_to_remove: ""
+            os: "ubuntu-16.04"
+            cxx: "clang++-8"
+            sources: ""
+            llvm_os: "xenial"
+            llvm_ver: "8"
+            toolset: "clang"
+            compiler: "clang++-8"
+            cxxstd64: "03,11,14,17"
+            cxxstd32: "03,11"
+            instruction_set: "core2"
+          - name: "TOOLSET=clang COMPILER=clang++-9 CXXSTD64=03, Job 22"
+            buildtype: "boost"
+            packages: "clang-9 g++-9-multilib linux-libc-dev:i386"
+            packages_to_remove: ""
+            os: "ubuntu-18.04"
+            cxx: "clang++-9"
+            sources: ""
+            llvm_os: "bionic"
+            llvm_ver: "9"
+            toolset: "clang"
+            compiler: "clang++-9"
+            cxxstd64: "03,11,14,17"
+            cxxstd32: "03,11"
+            instruction_set: "core2"
+          - name: "TOOLSET=clang COMPILER=clang++-10 CXXSTD64=03 Job 23"
+            buildtype: "boost"
+            packages: "clang-10 g++-9-multilib linux-libc-dev:i386"
+            packages_to_remove: ""
+            os: "ubuntu-20.04"
+            cxx: "clang++-10"
+            sources: ""
+            llvm_os: "focal"
+            llvm_ver: "10"
+            toolset: "clang"
+            compiler: "clang++-10"
+            cxxstd64: "03,11,14,17,20"
+            cxxstd32: "03,11"
+            instruction_set: "core2"
+          - name: "UBSAN=1 TOOLSET=clang COMPILER=clang++-10 CXX Job 24"
+            buildtype: "boost"
+            packages: "clang-10 g++-9-multilib linux-libc-dev:i386"
+            packages_to_remove: ""
+            os: "ubuntu-20.04"
+            cxx: "clang++-10"
+            sources: ""
+            llvm_os: "focal"
+            llvm_ver: "10"
+            ubsan: "1"
+            toolset: "clang"
+            compiler: "clang++-10"
+            cxxstd64: "03,11,14,17,20"
+            instruction_set: "core2"
+            ubsan_options: "print_stacktrace=1"
+            build_variant: "debug"
+          - name: "TEST_CMAKE=1 Job 27"
+            buildtype: "d9bb5aab6f-ee47089688"
+            packages: "cmake"
+            packages_to_remove: ""
+            os: "ubuntu-16.04"
+            cxx: "g++"
+            sources: ""
+            llvm_os: ""
+            llvm_ver: ""
+            test_cmake: "1"
+
+    runs-on: ${{ matrix.os }}
+    container: ${{ matrix.container }}
+
+    steps:
+      - name: Check if running in container
+        if: matrix.container != ''
+        run: echo "GHA_CONTAINER=${{ matrix.container }}" >> $GITHUB_ENV
+      - name: If running in container, upgrade packages
+        if: matrix.container != ''
+        run: |
+            sudo apt-get -o Acquire::Retries=3 update && DEBIAN_FRONTEND=noninteractive apt-get -y install tzdata && apt-get -o Acquire::Retries=3 install -y sudo software-properties-common wget curl apt-transport-https make apt-file sudo unzip libssl-dev build-essential autotools-dev autoconf automake g++ libc++-helpers python python-pip ruby cpio gcc-multilib g++-multilib pkgconf python3 python3-pip ccache libpython-dev
+            sudo apt-add-repository ppa:git-core/ppa
+            sudo apt-get -o Acquire::Retries=3 update && apt-get -o Acquire::Retries=3 -y install git
+            sudo python -m pip install --upgrade pip==20.3.4
+            sudo /usr/local/bin/pip install cmake
+
+      - uses: actions/checkout@v2
+
+      - name: linux
+        shell: bash
+        env:
+          CXX: ${{ matrix.cxx }}
+          SOURCES: ${{ matrix.sources }}
+          LLVM_OS: ${{ matrix.llvm_os }}
+          LLVM_VER: ${{ matrix.llvm_ver }}
+          PACKAGES: ${{ matrix.packages }}
+          PACKAGES_TO_REMOVE: ${{ matrix.packages_to_remove }}
+          JOB_BUILDTYPE: ${{ matrix.buildtype }}
+          TOOLSET: ${{ matrix.toolset }}
+          COMPILER: ${{ matrix.compiler }}
+          CXXSTD64: ${{ matrix.cxxstd64 }}
+          CXXSTD32: ${{ matrix.cxxstd32 }}
+          INSTRUCTION_SET: ${{ matrix.instruction_set }}
+          UBSAN: ${{ matrix.ubsan }}
+          UBSAN_OPTIONS: ${{ matrix.ubsan_options }}
+          BUILD_VARIANT: ${{ matrix.build_variant }}
+          LINKFLAGS: ${{ matrix.linkflags }}
+          CXXFLAGS: ${{ matrix.cxxflags }}
+          TEST_CMAKE: ${{ matrix.test_cmake }}
+          TRAVIS_BRANCH: ${{ github.base_ref }}
+          TRAVIS_OS_NAME: "linux"
+        run: |
+          echo '==================================> SETUP'
+          echo '==================================> PACKAGES'
+          sudo dpkg --add-architecture i386
+          set -e
+          if [ -n "$PACKAGES_TO_REMOVE" ]; then sudo apt-get purge -y $PACKAGES_TO_REMOVE; fi
+          echo ">>>>> APT: REPO.."
+          for i in {1..3}; do sudo -E apt-add-repository -y "ppa:ubuntu-toolchain-r/test" && break || sleep 2; done
+          
+          if test -n "${LLVM_OS}" ; then
+              wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+              if test -n "${LLVM_VER}" ; then
+                  sudo -E apt-add-repository "deb http://apt.llvm.org/${LLVM_OS}/ llvm-toolchain-${LLVM_OS}-${LLVM_VER} main"
+              else
+                  # Snapshot (i.e. trunk) build of clang
+                  sudo -E apt-add-repository "deb http://apt.llvm.org/${LLVM_OS}/ llvm-toolchain-${LLVM_OS} main"
+              fi
+          fi
+          echo ">>>>> APT: UPDATE.."
+          sudo -E apt-get -o Acquire::Retries=3 update
+          if test -n "${SOURCES}" ; then
+              echo ">>>>> APT: INSTALL SOURCES.."
+              for SOURCE in $SOURCES; do
+                  sudo -E apt-add-repository ppa:$SOURCE
+              done
+          fi
+          echo ">>>>> APT: INSTALL ${PACKAGES}.."
+          sudo -E DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=3 -y --no-install-suggests --no-install-recommends install ${PACKAGES}
+
+          echo '==================================> INSTALL AND COMPILE'
+          set -e
+          export TRAVIS_BUILD_DIR=$(pwd)
+          export TRAVIS_BRANCH=${TRAVIS_BRANCH:-$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')}
+          export VCS_COMMIT_ID=$GITHUB_SHA
+          export GIT_COMMIT=$GITHUB_SHA
+          export REPO_NAME=$(basename $GITHUB_REPOSITORY)
+          export USER=$(whoami)
+          export CC=${CC:-gcc}
+          export PATH=~/.local/bin:/usr/local/bin:$PATH
+
+          if [ "$JOB_BUILDTYPE" == "boost" ]; then
+
+          echo '==================================> INSTALL'
+
+          GIT_FETCH_JOBS=8
+          BOOST_BRANCH=develop
+          if [ "$TRAVIS_BRANCH" = "master" ]; then BOOST_BRANCH=master; fi
+          cd ..
+          git clone -b $BOOST_BRANCH --depth 1 https://github.com/boostorg/boost.git boost-root
+          cd boost-root
+          git submodule init tools/boostdep
+          git submodule init tools/build
+          git submodule init tools/boost_install
+          git submodule init libs/headers
+          git submodule init libs/config
+          git submodule update --jobs $GIT_FETCH_JOBS
+          cp -r $TRAVIS_BUILD_DIR/* libs/atomic
+          python tools/boostdep/depinst/depinst.py --git_args "--jobs $GIT_FETCH_JOBS" atomic
+          if [ -z "$TEST_CMAKE" ]; then ./bootstrap.sh; ./b2 headers; fi
+
+          echo '==================================> SCRIPT'
+
+          echo "using $TOOLSET : : $COMPILER ;" > ~/user-config.jam
+          BUILD_JOBS=`(nproc || sysctl -n hw.ncpu) 2> /dev/null`
+          if [ -z "$BUILD_VARIANT" ]; then BUILD_VARIANT="debug,release"; fi
+          if [ -n "$CXXSTD64" ]; then echo ""; echo "Testing 64-bit targets"; echo ""; ./b2 -j $BUILD_JOBS libs/atomic/test toolset=$TOOLSET variant=$BUILD_VARIANT address-model=64 cxxstd=$CXXSTD64 ${UBSAN:+cxxflags=-fsanitize=undefined cxxflags=-fno-sanitize-recover=undefined linkflags=-fsanitize=undefined define=UBSAN=1 debug-symbols=on} ${INSTRUCTION_SET:+instruction-set="$INSTRUCTION_SET"} ${CXXFLAGS:+cxxflags="$CXXFLAGS"} ${LINKFLAGS:+linkflags="$LINKFLAGS"}; fi
+          if [ -n "$CXXSTD32" ]; then echo ""; echo "Testing 32-bit targets"; echo ""; ./b2 -j $BUILD_JOBS libs/atomic/test toolset=$TOOLSET variant=$BUILD_VARIANT address-model=32 cxxstd=$CXXSTD32 ${UBSAN:+cxxflags=-fsanitize=undefined cxxflags=-fno-sanitize-recover=undefined linkflags=-fsanitize=undefined define=UBSAN=1 debug-symbols=on} ${INSTRUCTION_SET:+instruction-set="$INSTRUCTION_SET"} ${CXXFLAGS:+cxxflags="$CXXFLAGS"} ${LINKFLAGS:+linkflags="$LINKFLAGS"}; fi
+
+          elif [ "$JOB_BUILDTYPE" == "d9bb5aab6f-ee47089688" ]; then
+
+          echo '==================================> INSTALL'
+
+          GIT_FETCH_JOBS=8
+          BOOST_BRANCH=develop
+          if [ "$TRAVIS_BRANCH" = "master" ]; then BOOST_BRANCH=master; fi
+          cd ..
+          git clone -b $BOOST_BRANCH --depth 1 https://github.com/boostorg/boost.git boost-root
+          cd boost-root
+          git submodule init tools/boostdep
+          git submodule init tools/build
+          git submodule init tools/boost_install
+          git submodule init libs/headers
+          git submodule init libs/config
+          git submodule update --jobs $GIT_FETCH_JOBS
+          cp -r $TRAVIS_BUILD_DIR/* libs/atomic
+          python tools/boostdep/depinst/depinst.py --git_args "--jobs $GIT_FETCH_JOBS" atomic
+          if [ -z "$TEST_CMAKE" ]; then ./bootstrap.sh; ./b2 headers; fi
+
+          echo '==================================> SCRIPT'
+
+          BUILD_JOBS=`(nproc || sysctl -n hw.ncpu) 2> /dev/null`
+          mkdir __build_static__ && cd __build_static__
+          cmake ../libs/atomic/test/test_cmake
+          cmake --build . --target boost_atomic_cmake_self_test -j $BUILD_JOBS
+          cd ..
+          mkdir __build_shared__ && cd __build_shared__
+          cmake -DBUILD_SHARED_LIBS=On ../libs/atomic/test/test_cmake
+          cmake --build . --target boost_atomic_cmake_self_test -j $BUILD_JOBS
+
+          fi
+  osx:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: "TOOLSET=clang COMPILER=clang++ CXXSTD64=03,11 Job 25"
+            buildtype: "boost"
+            packages: ""
+            os: "macos-10.15"
+            cxx: "clang++"
+            sources: ""
+            llvm_os: ""
+            llvm_ver: ""
+            xcode_version: "11.2"
+            toolset: "clang"
+            compiler: "clang++"
+            cxxstd64: "03,11,14,17"
+            instruction_set: "core2"
+            build_variant: "release"
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set DEVELOPER_DIR
+        if: matrix.xcode_version != ''
+        run: echo "DEVELOPER_DIR=/Applications/Xcode_${{ matrix.xcode_version }}.app/Contents/Developer" >> $GITHUB_ENV
+      - name: Test DEVELOPER_DIR
+        run: echo $DEVELOPER_DIR
+
+      - name: "osx"
+        shell: bash
+        env:
+          CXX: ${{ matrix.cxx }}
+          SOURCES: ${{ matrix.sources }}
+          LLVM_OS: ${{ matrix.llvm_os }}
+          LLVM_VER: ${{ matrix.llvm_ver }}
+          PACKAGES: ${{ matrix.packages }}
+          JOB_BUILDTYPE: ${{ matrix.buildtype }}
+          TOOLSET: ${{ matrix.toolset }}
+          COMPILER: ${{ matrix.compiler }}
+          CXXSTD64: ${{ matrix.cxxstd64 }}
+          CXXSTD32: ${{ matrix.cxxstd32 }}
+          INSTRUCTION_SET: ${{ matrix.instruction_set }}
+          UBSAN: ${{ matrix.ubsan }}
+          UBSAN_OPTIONS: ${{ matrix.ubsan_options }}
+          BUILD_VARIANT: ${{ matrix.build_variant }}
+          LINKFLAGS: ${{ matrix.linkflags }}
+          CXXFLAGS: ${{ matrix.cxxflags }}
+          TEST_CMAKE: ${{ matrix.test_cmake }}
+          TRAVIS_BRANCH: ${{ github.base_ref }}
+          TRAVIS_OS_NAME: "osx"
+        run: |
+          echo '==================================> SETUP'
+          set -e
+          sudo mv /Library/Developer/CommandLineTools /Library/Developer/CommandLineTools.bck
+          echo '==================================> PACKAGES'
+          echo '==================================> INSTALL AND COMPILE'
+          set -e
+          export TRAVIS_BUILD_DIR=$(pwd)
+          export TRAVIS_BRANCH=${TRAVIS_BRANCH:-$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')}
+          export VCS_COMMIT_ID=$GITHUB_SHA
+          export GIT_COMMIT=$GITHUB_SHA
+          export REPO_NAME=$(basename $GITHUB_REPOSITORY)
+          export USER=$(whoami)
+          export CC=${CC:-gcc}
+          export PATH=~/.local/bin:/usr/local/bin:$PATH
+
+          if [ "$JOB_BUILDTYPE" == "boost" ]; then
+
+          echo '==================================> INSTALL'
+
+          GIT_FETCH_JOBS=8
+          BOOST_BRANCH=develop
+          if [ "$TRAVIS_BRANCH" = "master" ]; then BOOST_BRANCH=master; fi
+          cd ..
+          git clone -b $BOOST_BRANCH --depth 1 https://github.com/boostorg/boost.git boost-root
+          cd boost-root
+          git submodule init tools/boostdep
+          git submodule init tools/build
+          git submodule init tools/boost_install
+          git submodule init libs/headers
+          git submodule init libs/config
+          git submodule update --jobs $GIT_FETCH_JOBS
+          cp -r $TRAVIS_BUILD_DIR/* libs/atomic
+          python tools/boostdep/depinst/depinst.py --git_args "--jobs $GIT_FETCH_JOBS" atomic
+          if [ -z "$TEST_CMAKE" ]; then ./bootstrap.sh; ./b2 headers; fi
+
+          echo '==================================> SCRIPT'
+
+          echo "using $TOOLSET : : $COMPILER ;" > ~/user-config.jam
+          BUILD_JOBS=`(nproc || sysctl -n hw.ncpu) 2> /dev/null`
+          if [ -z "$BUILD_VARIANT" ]; then BUILD_VARIANT="debug,release"; fi
+          if [ -n "$CXXSTD64" ]; then echo ""; echo "Testing 64-bit targets"; echo ""; ./b2 -j $BUILD_JOBS libs/atomic/test toolset=$TOOLSET variant=$BUILD_VARIANT address-model=64 cxxstd=$CXXSTD64 ${UBSAN:+cxxflags=-fsanitize=undefined cxxflags=-fno-sanitize-recover=undefined linkflags=-fsanitize=undefined define=UBSAN=1 debug-symbols=on} ${INSTRUCTION_SET:+instruction-set="$INSTRUCTION_SET"} ${CXXFLAGS:+cxxflags="$CXXFLAGS"} ${LINKFLAGS:+linkflags="$LINKFLAGS"}; fi
+          if [ -n "$CXXSTD32" ]; then echo ""; echo "Testing 32-bit targets"; echo ""; ./b2 -j $BUILD_JOBS libs/atomic/test toolset=$TOOLSET variant=$BUILD_VARIANT address-model=32 cxxstd=$CXXSTD32 ${UBSAN:+cxxflags=-fsanitize=undefined cxxflags=-fno-sanitize-recover=undefined linkflags=-fsanitize=undefined define=UBSAN=1 debug-symbols=on} ${INSTRUCTION_SET:+instruction-set="$INSTRUCTION_SET"} ${CXXFLAGS:+cxxflags="$CXXFLAGS"} ${LINKFLAGS:+linkflags="$LINKFLAGS"}; fi
+
+          fi
