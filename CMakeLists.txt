@@ -9,6 +9,9 @@ project(boost_atomic VERSION "${BOOST_SUPERPROJECT_VERSION}" LANGUAGES CXX)
 
 include(CheckCXXSourceCompiles)
 
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+
 set(boost_atomic_sources src/lock_pool.cpp)
 
 set(CMAKE_REQUIRED_INCLUDES "${CMAKE_CURRENT_SOURCE_DIR}/../..")
@@ -88,6 +91,8 @@ target_link_libraries(boost_atomic
         Boost::align
         Boost::predef
         Boost::preprocessor
+
+        Threads::Threads
 )
 
 if (WIN32)
