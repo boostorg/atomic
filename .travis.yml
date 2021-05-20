@@ -1,5 +1,5 @@
 # Copyright 2016, 2017 Peter Dimov
-# Copyright 2019 - 2020 Andrey Semashev
+# Copyright 2019 - 2021 Andrey Semashev
 # Distributed under the Boost Software License, Version 1.0.
 # (See accompanying file LICENSE_1_0.txt or copy at http://boost.org/LICENSE_1_0.txt)
 
@@ -157,7 +157,7 @@ matrix:
             - sourceline: "ppa:ubuntu-toolchain-r/test"
 
     - os: linux
-      dist: focal
+      dist: bionic
       compiler: gcc-10
       env: TOOLSET=gcc COMPILER=g++-10 CXXSTD64=03,11,14,17,20,03-gnu,11-gnu,14-gnu,17-gnu,20-gnu CXXSTD32=03,11 INSTRUCTION_SET=core2
       addons:
@@ -170,7 +170,7 @@ matrix:
             - sourceline: "ppa:ubuntu-toolchain-r/test"
 
     - os: linux
-      dist: focal
+      dist: bionic
       compiler: gcc-11
       env: TOOLSET=gcc COMPILER=g++-11 CXXSTD64=03,11,14,17,20,03-gnu,11-gnu,14-gnu,17-gnu,20-gnu CXXSTD32=03,11 INSTRUCTION_SET=core2
       addons:
@@ -183,7 +183,7 @@ matrix:
             - sourceline: "ppa:ubuntu-toolchain-r/test"
 
     - os: linux
-      dist: focal
+      dist: bionic
       compiler: gcc-UBSAN
       env: UBSAN=1 TOOLSET=gcc COMPILER=g++-11 CXXSTD64=03,11,14,17,20 INSTRUCTION_SET=core2 UBSAN_OPTIONS=print_stacktrace=1 BUILD_VARIANT=debug LINKFLAGS=-fuse-ld=gold
       addons:
@@ -361,7 +361,7 @@ matrix:
               key_url: "https://apt.llvm.org/llvm-snapshot.gpg.key"
 
     - os: linux
-      dist: focal
+      dist: bionic
       compiler: clang-10
       env: TOOLSET=clang COMPILER=clang++-10 CXXSTD64=03,11,14,17,20 CXXSTD32=03,11 INSTRUCTION_SET=core2
       addons:
@@ -372,11 +372,11 @@ matrix:
             - linux-libc-dev:i386
           sources:
             - sourceline: "ppa:ubuntu-toolchain-r/test"
-            - sourceline: "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-10 main"
+            - sourceline: "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-10 main"
               key_url: "https://apt.llvm.org/llvm-snapshot.gpg.key"
 
     - os: linux
-      dist: focal
+      dist: bionic
       compiler: clang-11
       env: TOOLSET=clang COMPILER=clang++-11 CXXSTD64=03,11,14,17,20 CXXSTD32=03,11 INSTRUCTION_SET=core2
       addons:
@@ -387,11 +387,11 @@ matrix:
             - linux-libc-dev:i386
           sources:
             - sourceline: "ppa:ubuntu-toolchain-r/test"
-            - sourceline: "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-11 main"
+            - sourceline: "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-11 main"
               key_url: "https://apt.llvm.org/llvm-snapshot.gpg.key"
 
     - os: linux
-      dist: focal
+      dist: bionic
       compiler: clang-12
       env: TOOLSET=clang COMPILER=clang++-12 CXXSTD64=03,11,14,17,20 CXXSTD32=03,11 INSTRUCTION_SET=core2
       addons:
@@ -402,12 +402,12 @@ matrix:
             - linux-libc-dev:i386
           sources:
             - sourceline: "ppa:ubuntu-toolchain-r/test"
-            - sourceline: "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-12 main"
+            - sourceline: "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-12 main"
               key_url: "https://apt.llvm.org/llvm-snapshot.gpg.key"
 
 # Note: clang for 32-bit targets with UBSAN emits undefined references to __mulodi4
     - os: linux
-      dist: focal
+      dist: bionic
       compiler: clang-UBSAN
       env: UBSAN=1 TOOLSET=clang COMPILER=clang++-12 CXXSTD64=03,11,14,17,20 INSTRUCTION_SET=core2 UBSAN_OPTIONS=print_stacktrace=1 BUILD_VARIANT=debug
       addons:
@@ -418,7 +418,7 @@ matrix:
             - linux-libc-dev:i386
           sources:
             - sourceline: "ppa:ubuntu-toolchain-r/test"
-            - sourceline: "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-12 main"
+            - sourceline: "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-12 main"
               key_url: "https://apt.llvm.org/llvm-snapshot.gpg.key"
 
 # clang, OS X, 64-bit
