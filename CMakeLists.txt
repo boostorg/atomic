@@ -1,6 +1,6 @@
 # Copyright 2018 Mike Dev
 # Copyright 2019 Peter Dimov
-# Copyright 2020 Andrey Semashev
+# Copyright 2020-2021 Andrey Semashev
 # Distributed under the Boost Software License, Version 1.0.
 # See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt
 
@@ -12,9 +12,32 @@ include(CheckCXXSourceCompiles)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
+# Generates a list of include paths for all Boost libraries in \a result variable. Uses unified Boost include tree, if available.
+function(generate_boost_include_paths result)
+    if (IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../boost" AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../../boost/version.hpp")
+        set(${result} "${CMAKE_CURRENT_SOURCE_DIR}/../.." PARENT_SCOPE)
+        return()
+    endif()
+    file(GLOB path_list LIST_DIRECTORIES True "${CMAKE_CURRENT_SOURCE_DIR}/../*")
+    foreach(path IN LISTS path_list)
+        if (IS_DIRECTORY "${path}/include")
+            list(APPEND include_list "${path}/include")
+        endif()
+    endforeach()
+    set(${result} ${include_list} PARENT_SCOPE)
+endfunction()
+
+# Note: We can't use the Boost::library targets in the configure checks as they may not yet be included
+# by the superproject when this CMakeLists.txt is included. We also don't want to hardcode include paths
+# of the needed libraries and their dependencies, recursively, as this is too fragile and requires maintenance.
+# Instead, we collect include paths of all libraries and use them in the configure checks. This works faster
+# if there is a unified Boost include tree in the filesystem (i.e. if `b2 headers` was run or we're in the
+# official monolithic Boost distribution tree).
+generate_boost_include_paths(BOOST_LIBRARY_INCLUDES)
+
 set(boost_atomic_sources src/lock_pool.cpp)
 
-set(CMAKE_REQUIRED_INCLUDES "${CMAKE_CURRENT_SOURCE_DIR}/../..")
+set(CMAKE_REQUIRED_INCLUDES ${BOOST_LIBRARY_INCLUDES})
 check_cxx_source_compiles("#include <${CMAKE_CURRENT_SOURCE_DIR}/../config/checks/architecture/x86.cpp>\nint main() {}" BOOST_ATOMIC_TARGET_X86)
 unset(CMAKE_REQUIRED_INCLUDES)
 
@@ -37,13 +60,13 @@ if (BOOST_ATOMIC_TARGET_X86)
         set(boost_atomic_sse41_cflags "-msse -msse2 -msse3 -mssse3 -msse4.1")
     endif()
 
-    set(CMAKE_REQUIRED_INCLUDES "${CMAKE_CURRENT_SOURCE_DIR}/../..")
+    set(CMAKE_REQUIRED_INCLUDES ${BOOST_LIBRARY_INCLUDES})
     set(CMAKE_REQUIRED_FLAGS "${boost_atomic_sse2_cflags}")
     check_cxx_source_compiles("#include <${CMAKE_CURRENT_SOURCE_DIR}/config/has_sse2.cpp>" BOOST_ATOMIC_COMPILER_HAS_SSE2)
     unset(CMAKE_REQUIRED_FLAGS)
     unset(CMAKE_REQUIRED_INCLUDES)
 
-    set(CMAKE_REQUIRED_INCLUDES "${CMAKE_CURRENT_SOURCE_DIR}/../..")
+    set(CMAKE_REQUIRED_INCLUDES ${BOOST_LIBRARY_INCLUDES})
     set(CMAKE_REQUIRED_FLAGS "${boost_atomic_sse41_cflags}")
     check_cxx_source_compiles("#include <${CMAKE_CURRENT_SOURCE_DIR}/config/has_sse41.cpp>" BOOST_ATOMIC_COMPILER_HAS_SSE41)
     unset(CMAKE_REQUIRED_FLAGS)
@@ -68,7 +91,7 @@ endif()
 
 if (WIN32)
     # Note: We can't use the Boost::library targets here as they may not yet be included by the superproject when this CMakeLists.txt is included.
-    set(CMAKE_REQUIRED_INCLUDES "${CMAKE_CURRENT_SOURCE_DIR}/../..")
+    set(CMAKE_REQUIRED_INCLUDES ${BOOST_LIBRARY_INCLUDES})
     set(CMAKE_REQUIRED_LIBRARIES synchronization)
     check_cxx_source_compiles("#include <${CMAKE_CURRENT_SOURCE_DIR}/config/has_synchronization.cpp>" BOOST_ATOMIC_HAS_SYNCHRONIZATION)
     unset(CMAKE_REQUIRED_LIBRARIES)
