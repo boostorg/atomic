@@ -1,6 +1,6 @@
 [/
  / Copyright (c) 2009 Helge Bahmann
- / Copyright (c) 2014, 2017, 2018, 2020 Andrey Semashev
+ / Copyright (c) 2014, 2017, 2018, 2020, 2021 Andrey Semashev
  /
  / Distributed under the Boost Software License, Version 1.0. (See accompanying
  / file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -11,7 +11,7 @@
     [authors [Bahmann, Helge][Semashev, Andrey]]
     [copyright 2011 Helge Bahmann]
     [copyright 2012 Tim Blechmann]
-    [copyright 2013, 2017, 2018, 2020 Andrey Semashev]
+    [copyright 2013, 2017, 2018, 2020, 2021 Andrey Semashev]
     [id atomic]
     [dirname atomic]
     [purpose Atomic operations]
@@ -1155,6 +1155,15 @@ Note that `boost::atomic_ref` cannot be changed to refer to a different object a
 Assigning to `boost::atomic_ref` will invoke an atomic operation of storing the new value to the
 referenced object.
 
+For convenience, a factory function `make_atomic_ref(T& object)` is provided, which returns an `atomic_ref<T>`
+referencing `object`. Additionally, for C++17 and later compilers, template deduction guides are provided so that
+the template parameter ['T] can be deduced from the constructor argument:
+
+```
+int object = 0;
+atomic_ref ref(object); // C++17: ref is atomic_ref<int>
+```
+
 [section:caveats Caveats]
 
 There are a several disadvantages of using `boost::atomic_ref` compared to `boost::atomic`.
@@ -1255,7 +1264,7 @@ Waiting and notifying operations are not address-free, meaning that the implemen
 
 Each of the IPC atomic types have the same requirements on their value types and provide the same set of operations and properties as its non-IPC counterpart. All operations have the same signature, requirements and effects, with the following amendments:
 
-* All operations, except constructors, destructors, `is_lock_free()` and `has_native_wait_notify()` have an additional precondition that `is_lock_free()` returns `true` for this atomic object. (Implementation note: The current implementation detects availability of atomic instructions at compile time, and the code that does not fulfull this requirement will fail to compile.)
+* All operations, except constructors, destructors, `is_lock_free()` and `has_native_wait_notify()` have an additional precondition that `is_lock_free()` returns `true` for this atomic object. (Implementation note: The current implementation detects availability of atomic instructions at compile time, and the code that does not fulfill this requirement will fail to compile.)
 * The `has_native_wait_notify()` method and `always_has_native_wait_notify` static constant indicate whether the operating system has native support for inter-process waiting and notifying operations. This may be different from non-IPC atomic types as the OS may have different capabilities for inter-thread and inter-process communication.
 * All operations on objects of IPC atomic types are address-free, which allows to place such objects (in case of [^boost::ipc_atomic_ref<['T]>] - objects referenced by `ipc_atomic_ref`) in memory regions shared between processes or mapped at different addresses in the same process.
 
