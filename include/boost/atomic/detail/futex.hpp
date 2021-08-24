@@ -56,6 +56,9 @@
 
 #if defined(FUTEX_PRIVATE_FLAG)
 #define BOOST_ATOMIC_DETAIL_FUTEX_PRIVATE_FLAG FUTEX_PRIVATE_FLAG
+#elif defined(__ANDROID__)
+// On Android, futex.h is lacking many definitions, but the actual Linux kernel supports the API in full.
+#define BOOST_ATOMIC_DETAIL_FUTEX_PRIVATE_FLAG 128
 #else
 #define BOOST_ATOMIC_DETAIL_FUTEX_PRIVATE_FLAG 0
 #endif
