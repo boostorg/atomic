@@ -495,16 +495,19 @@ jobs:
             fi
             DEPINST_ARGS+=("$LIBRARY")
             python tools/boostdep/depinst/depinst.py "${DEPINST_ARGS[@]}"
-            ./bootstrap.sh
-            ./b2 headers
-            if [ -n "${{matrix.compiler}}" -o -n "$GCC_TOOLCHAIN_ROOT" ]
+            if [ -z "${{matrix.cmake_tests}}" ]
             then
-                echo -n "using ${{matrix.toolset}} : : ${{matrix.compiler}}" > ~/user-config.jam
-                if [ -n "$GCC_TOOLCHAIN_ROOT" ]
+                ./bootstrap.sh
+                ./b2 headers
+                if [ -n "${{matrix.compiler}}" -o -n "$GCC_TOOLCHAIN_ROOT" ]
                 then
-                    echo -n " : <compileflags>\"--gcc-toolchain=$GCC_TOOLCHAIN_ROOT\" <linkflags>\"--gcc-toolchain=$GCC_TOOLCHAIN_ROOT\"" >> ~/user-config.jam
+                    echo -n "using ${{matrix.toolset}} : : ${{matrix.compiler}}" > ~/user-config.jam
+                    if [ -n "$GCC_TOOLCHAIN_ROOT" ]
+                    then
+                        echo -n " : <compileflags>\"--gcc-toolchain=$GCC_TOOLCHAIN_ROOT\" <linkflags>\"--gcc-toolchain=$GCC_TOOLCHAIN_ROOT\"" >> ~/user-config.jam
+                    fi
+                    echo " ;" >> ~/user-config.jam
                 fi
-                echo " ;" >> ~/user-config.jam
             fi
 
       - name: Run tests
