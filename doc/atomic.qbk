@@ -1274,6 +1274,8 @@ It should be noted that some operations on IPC atomic types may be more expensiv
 
 Users must not create and use IPC and non-IPC atomic references on the same referenced object at the same time. IPC and non-IPC atomic references are not required to communicate with each other. For example, a waiting operation on a non-IPC atomic reference may not be interrupted by a notifying operation on an IPC atomic reference referencing the same object.
 
+Additionally, users must not create IPC atomics on the stack and, possibly, other non-shared memory. Waiting and notifying operations may not behave as intended on some systems if the atomic object is placed in an unsupported memory type. For example, on Mac OS notifying operations are known to fail spuriously if the IPC atomic is on the stack. Use regular atomic objects in process-local memory.
+
 [endsect]
 
 [section:interface_fences Fences]
@@ -1512,6 +1514,25 @@ limitations that cannot be lifted without compiler support:
   [*Advice]: Always test your code with optimizations enabled.
 * [*No interprocess fallback]: using `atomic<T>` in shared memory only works
   correctly, if `atomic<T>::is_lock_free() == true`. Same with `atomic_ref<T>`.
+  [*Advice]: Use [link atomic.interface.interface_ipc IPC atomic types] for inter-process
+  communication.
+* [*Memory type requirements]: Atomic objects cannot be placed in read-only memory, even if they
+  are only read from. Here, read-only means that the memory region is mapped with read-only permissions
+  by the OS, regardless of the `const`-qualification. [*Boost.Atomic] may implement load operations using
+  read-modify-write instructions on some targets, such as `CMPXCHG16B` on x86. The load operation does not
+  change the object value, but the instruction issues a write to the memory location nonetheless, so the
+  memory must be writable. Also, there may be hardware-specific restrictions on the memory types that can
+  be used with atomic instructions. Additionally, the operating system may have additional requirements on
+  the memory type to implement waiting and notifying operations correctly. Such requirements are system-specific.
+  For example, on Mac OS IPC atomics cannot be placed in stack memory, as notifying operations may fail spuriously.
+  [*Boost.Atomic] aims to support more atomic types and operations natively, even if it means not supporting
+  some rarely useful corner cases.
+  [*Advice]: Non-IPC atomics can be safely used in regular read-write process-local memory (e.g. stack or obtained
+  via `malloc` or `new`), and IPC atomics can be used in read-write process-shared memory (e.g. obtained via
+  [@https://pubs.opengroup.org/onlinepubs/9699919799/functions/shm_open.html `shm_open`]+
+  [@https://pubs.opengroup.org/onlinepubs/9699919799/functions/mmap.html `mmap`]). Any special memory types, such
+  as mapped device memory or memory mapped with special caching strategies, are not guaranteed to work and are
+  subject to system-specific restrictions.
 * [*Signed integers must use [@https://en.wikipedia.org/wiki/Two%27s_complement two's complement]
   representation]: [*Boost.Atomic] makes this requirement in order to implement
   conversions between signed and unsigned integers internally. C++11 requires all
@@ -1571,7 +1592,7 @@ implementation behaves as expected:
   but a failure is still possible.
 * [*wait_fuzz.cpp] is a fuzzing test for waiting and notifying operations,
   that creates a number of threads that block on the same atomic object
-  and then wake up one or all of them for a number of times. This test
+  and then wake up one or all of them a number of times. This test
   is intended as a smoke test in case if the implementation has long-term
   instabilities or races (primarily, in the lock pool implementation).
 * [*ipc_atomic_api.cpp], [*ipc_atomic_ref_api.cpp], [*ipc_wait_api.cpp]

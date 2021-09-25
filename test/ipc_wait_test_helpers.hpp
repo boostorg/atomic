@@ -22,6 +22,7 @@
 #include <boost/atomic/capabilities.hpp>
 #include <boost/atomic/ipc_atomic_flag.hpp>
 #include <boost/type_traits/integral_constant.hpp>
+#include <boost/smart_ptr/scoped_ptr.hpp>
 #include "atomic_wrapper.hpp"
 #include "lightweight_test_stream.hpp"
 #include "test_clock.hpp"
@@ -165,8 +166,9 @@ inline void test_notify_one(T value1, T value2, T value3)
 {
     for (unsigned int i = 0u; i < test_retry_count; ++i)
     {
-        notify_one_test< Wrapper, T > test(value1, value2, value3);
-        if (test.run())
+        // Avoid creating IPC atomics on the stack as this breaks on Darwin
+        boost::scoped_ptr< notify_one_test< Wrapper, T > > test(new notify_one_test< Wrapper, T >(value1, value2, value3));
+        if (test->run())
             return;
     }
 
@@ -276,8 +278,9 @@ inline void test_notify_all(T value1, T value2)
 {
     for (unsigned int i = 0u; i < test_retry_count; ++i)
     {
-        notify_all_test< Wrapper, T > test(value1, value2);
-        if (test.run())
+        // Avoid creating IPC atomics on the stack as this breaks on Darwin
+        boost::scoped_ptr< notify_all_test< Wrapper, T > > test(new notify_all_test< Wrapper, T >(value1, value2));
+        if (test->run())
             return;
     }
 
