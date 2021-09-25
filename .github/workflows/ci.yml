@@ -365,6 +365,11 @@ jobs:
             cxxstd64: "03,11,14,17,2a"
             os: macos-10.15
 
+          - toolset: clang
+            cxxstd64: "03,11,14,17,2a"
+            os: macos-11
+            macosx_version_min: 11
+
           - name: CMake tests
             cmake_tests: 1
             os: ubuntu-20.04
@@ -393,6 +398,11 @@ jobs:
                     apt-get -o Acquire::Retries=$NET_RETRY_COUNT update
                     apt-get -o Acquire::Retries=$NET_RETRY_COUNT install -y sudo software-properties-common tzdata wget curl apt-transport-https ca-certificates make build-essential g++ python python3 git cmake
                 fi
+            fi
+            if [ -n "${{matrix.macosx_version_min}}" -a -d "/Library/Developer/CommandLineTools/SDKs" ]
+            then
+                echo "Available MacOS SDKs:"
+                ls "/Library/Developer/CommandLineTools/SDKs"
             fi
             git config --global pack.threads 0
 
@@ -480,7 +490,30 @@ jobs:
             echo "CMAKE_BUILD_PARALLEL_LEVEL=$BUILD_JOBS" >> $GITHUB_ENV
             DEPINST_ARGS=()
             GIT_VERSION="$(git --version | sed -e 's/git version //')"
-            if $(dpkg --compare-versions "$GIT_VERSION" ge 2.8.0)
+            GIT_HAS_JOBS=1
+            if [ -f "/etc/debian_version" ]
+            then
+                if $(dpkg --compare-versions "$GIT_VERSION" lt 2.8.0)
+                then
+                    GIT_HAS_JOBS=0
+                fi
+            else
+                declare -a GIT_VER=(${GIT_VERSION//./ })
+                declare -a GIT_MIN_VER=(2 8 0)
+                for ((i=0; i<${#GIT_VER[@]}; i++))
+                do
+                    if [ -z "${GIT_MIN_VER[i]}" ]
+                    then
+                        GIT_MIN_VER[i]=0
+                    fi
+                    if [ "${GIT_VER[i]}" -lt "${GIT_MIN_VER[i]}" ]
+                    then
+                        GIT_HAS_JOBS=0
+                        break
+                    fi
+                done
+            fi
+            if [ "$GIT_HAS_JOBS" -ne 0 ]
             then
                 DEPINST_ARGS+=("--git_args" "--jobs $GIT_FETCH_JOBS")
             fi
@@ -537,6 +570,10 @@ jobs:
             else
                 B2_ARGS+=("instruction-set=$DEFAULT_INSTRUCTION_SET")
             fi
+            if [ -n "${{matrix.macosx_version_min}}" ]
+            then
+                export MACOSX_DEPLOYMENT_TARGET="${{matrix.macosx_version_min}}"
+            fi
             if [ -n "${{matrix.cxxstd64}}" ]
             then
                 echo ""
@@ -557,6 +594,10 @@ jobs:
       - name: Run CMake tests
         if: matrix.cmake_tests
         run: |
+            if [ -n "${{matrix.macosx_version_min}}" ]
+            then
+                export MACOSX_DEPLOYMENT_TARGET="${{matrix.macosx_version_min}}"
+            fi
             cd ../boost-root
             mkdir __build_static__ && cd __build_static__
             cmake ../libs/$LIBRARY/test/test_cmake
