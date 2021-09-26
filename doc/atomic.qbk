@@ -22,6 +22,10 @@
     ]
 ]
 
+[template ticket[key]'''<ulink url="https://svn.boost.org/trac/boost/ticket/'''[key]'''">#'''[key]'''</ulink>''']
+[template github_issue[key]'''<ulink url="https://github.com/boostorg/atomic/issues/'''[key]'''">GH#'''[key]'''</ulink>''']
+[template github_pr[key]'''<ulink url="https://github.com/boostorg/atomic/pull/'''[key]'''">PR#'''[key]'''</ulink>''']
+
 [section:introduction Introduction]
 
 [section:introduction_presenting Presenting Boost.Atomic]
@@ -1612,10 +1616,12 @@ the following compilers/platforms:
 
 [endsect]
 
+[endsect]
+
+[include:atomic changelog.qbk]
+
 [section:acknowledgements Acknowledgements]
 
 * Adam Wulkiewicz created the logo used on the [@https://github.com/boostorg/atomic GitHub project page]. The logo was taken from his [@https://github.com/awulkiew/boost-logos collection] of Boost logos.
-
-[endsect]
 
 [endsect]
