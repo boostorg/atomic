@@ -1278,7 +1278,7 @@ It should be noted that some operations on IPC atomic types may be more expensiv
 
 Users must not create and use IPC and non-IPC atomic references on the same referenced object at the same time. IPC and non-IPC atomic references are not required to communicate with each other. For example, a waiting operation on a non-IPC atomic reference may not be interrupted by a notifying operation on an IPC atomic reference referencing the same object.
 
-Additionally, users must not create IPC atomics on the stack and, possibly, other non-shared memory. Waiting and notifying operations may not behave as intended on some systems if the atomic object is placed in an unsupported memory type. For example, on Mac OS notifying operations are known to fail spuriously if the IPC atomic is on the stack. Use regular atomic objects in process-local memory.
+Additionally, users must not create IPC atomics on the stack and, possibly, other non-shared memory. Waiting and notifying operations may not behave as intended on some systems if the atomic object is placed in an unsupported memory type. For example, on Mac OS notifying operations are known to fail spuriously if the IPC atomic is on the stack. Use regular atomic objects in process-local memory. Users should also avoid modifying properties of the memory while IPC atomic operations are running. For example, resizing the shared memory segment while threads are blocked on a waiting operation may prevent subsequent notifying operations from waking up the blocked threads.
 
 [endsect]
 
