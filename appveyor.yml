@@ -69,6 +69,12 @@ environment:
       ADDPATH: C:\mingw-w64\x86_64-7.3.0-posix-seh-rt_v5-rev0\mingw64\bin
       B2_ARGS: instruction-set=core2
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+    - TOOLSET: gcc
+      ADDRESS_MODEL: 64
+      CXXSTD: 03,11,14,17,2a,03-gnu,11-gnu,14-gnu,17-gnu,2a-gnu
+      ADDPATH: C:\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\bin
+      B2_ARGS: instruction-set=core2
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
 
     - TOOLSET: msvc-9.0
       ADDRESS_MODEL: 32
