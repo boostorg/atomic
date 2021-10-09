@@ -278,6 +278,14 @@ void test_wait_notify_api(T value1, T value2, T value3)
     test_notify_all< Wrapper >(value1, value2);
 }
 
+//! Invokes all wait/notify tests
+template< template< typename > class Wrapper, typename T >
+void test_wait_notify_api(T value1, T value2, T value3, int has_native_wait_notify_macro)
+{
+    BOOST_TEST_EQ(Wrapper< T >::atomic_type::always_has_native_wait_notify, (has_native_wait_notify_macro == 2));
+    test_wait_notify_api< Wrapper >(value1, value2, value3);
+}
+
 
 inline void test_flag_wait_notify_api()
 {

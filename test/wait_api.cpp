@@ -17,12 +17,12 @@ int main(int, char *[])
 {
     test_flag_wait_notify_api();
 
-    test_wait_notify_api< atomic_wrapper, boost::uint8_t >(1, 2, 3);
-    test_wait_notify_api< atomic_wrapper, boost::uint16_t >(1, 2, 3);
-    test_wait_notify_api< atomic_wrapper, boost::uint32_t >(1, 2, 3);
-    test_wait_notify_api< atomic_wrapper, boost::uint64_t >(1, 2, 3);
+    test_wait_notify_api< atomic_wrapper, boost::uint8_t >(1, 2, 3, BOOST_ATOMIC_HAS_NATIVE_INT8_WAIT_NOTIFY);
+    test_wait_notify_api< atomic_wrapper, boost::uint16_t >(1, 2, 3, BOOST_ATOMIC_HAS_NATIVE_INT16_WAIT_NOTIFY);
+    test_wait_notify_api< atomic_wrapper, boost::uint32_t >(1, 2, 3, BOOST_ATOMIC_HAS_NATIVE_INT32_WAIT_NOTIFY);
+    test_wait_notify_api< atomic_wrapper, boost::uint64_t >(1, 2, 3, BOOST_ATOMIC_HAS_NATIVE_INT64_WAIT_NOTIFY);
 #if defined(BOOST_HAS_INT128) && !defined(BOOST_ATOMIC_TESTS_NO_INT128)
-    test_wait_notify_api< atomic_wrapper, boost::uint128_type >(1, 2, 3);
+    test_wait_notify_api< atomic_wrapper, boost::uint128_type >(1, 2, 3, BOOST_ATOMIC_HAS_NATIVE_INT128_WAIT_NOTIFY);
 #endif
 
     {
