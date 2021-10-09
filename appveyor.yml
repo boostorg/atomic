@@ -44,7 +44,7 @@ environment:
     - TOOLSET: msvc-14.2
       ADDRESS_MODEL: 64
       CXXSTD: 14,17
-      B2_ARGS: instruction-set=core2
+      B2_ARGS: instruction-set=core2 define=_WIN32_WINNT=0x0602
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
     - TOOLSET: clang-win
       ADDRESS_MODEL: 64
