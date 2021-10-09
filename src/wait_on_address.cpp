@@ -6,9 +6,9 @@
  * Copyright (c) 2020 Andrey Semashev
  */
 /*!
- * \file   wait_ops_windows.cpp
+ * \file   wait_on_address.cpp
  *
- * This file contains implementation of the waiting/notifying atomic operations on Windows.
+ * This file contains implementation of runtime detection of \c WaitOnAddress and related APIs on Windows.
  *
  * https://docs.microsoft.com/en-us/windows/win32/api/synchapi/nf-synchapi-waitonaddress
  * https://docs.microsoft.com/en-us/windows/win32/api/synchapi/nf-synchapi-wakebyaddresssingle
@@ -19,14 +19,12 @@
 #include <boost/winapi/config.hpp>
 
 #include <boost/winapi/basic_types.hpp>
-#include <boost/winapi/wait_on_address.hpp>
 
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/link.hpp>
 #include <boost/atomic/detail/once_flag.hpp>
-#include <boost/atomic/detail/wait_ops_windows.hpp>
+#include <boost/atomic/detail/wait_on_address.hpp>
 
-#if BOOST_USE_WINAPI_VERSION < BOOST_WINAPI_VERSION_WIN8
 #include <boost/static_assert.hpp>
 #include <boost/memory_order.hpp>
 #include <boost/winapi/thread.hpp>
@@ -34,15 +32,12 @@
 #include <boost/winapi/dll.hpp>
 
 #include <boost/atomic/detail/core_operations.hpp>
-#endif // BOOST_USE_WINAPI_VERSION < BOOST_WINAPI_VERSION_WIN8
 
 #include <boost/atomic/detail/header.hpp>
 
 namespace boost {
 namespace atomics {
 namespace detail {
-
-#if BOOST_USE_WINAPI_VERSION < BOOST_WINAPI_VERSION_WIN8
 
 BOOST_ATOMIC_DECL wait_on_address_t* wait_on_address = NULL;
 BOOST_ATOMIC_DECL wake_by_address_t* wake_by_address_single = NULL;
@@ -94,20 +89,6 @@ BOOST_ATOMIC_DECL void initialize_wait_functions() BOOST_NOEXCEPT
         }
     }
 }
-
-#else // BOOST_USE_WINAPI_VERSION < BOOST_WINAPI_VERSION_WIN8
-
-BOOST_ATOMIC_DECL wait_on_address_t* wait_on_address = &boost::winapi::WaitOnAddress;
-BOOST_ATOMIC_DECL wake_by_address_t* wake_by_address_single = &boost::winapi::WakeByAddressSingle;
-BOOST_ATOMIC_DECL wake_by_address_t* wake_by_address_all = &boost::winapi::WakeByAddressAll;
-
-BOOST_ATOMIC_DECL once_flag wait_functions_once_flag = { 0u };
-
-BOOST_ATOMIC_DECL void initialize_wait_functions() BOOST_NOEXCEPT
-{
-}
-
-#endif // BOOST_USE_WINAPI_VERSION < BOOST_WINAPI_VERSION_WIN8
 
 } // namespace detail
 } // namespace atomics

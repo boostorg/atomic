@@ -1,7 +1,7 @@
 #  Boost.Atomic Library Jamfile
 #
 #  Copyright Helge Bahmann 2011.
-#  Copyright Andrey Semashev 2018, 2020.
+#  Copyright Andrey Semashev 2018, 2020-2021.
 #
 #  Distributed under the Boost Software License, Version 1.0.
 #  (See accompanying file LICENSE_1_0.txt or copy at
@@ -22,6 +22,25 @@ project.pop-current ;
 
 lib synchronization ;
 explicit synchronization ;
+
+rule check-synchronization-lib ( properties * )
+{
+    local result ;
+
+    if <target-os>windows in $(properties)
+    {
+        if [ configure.builds ../config//has_synchronization_lib : $(properties) : "has synchronization.lib" ]
+        {
+            result += <library>synchronization ;
+        }
+        else
+        {
+            result += <define>BOOST_ATOMIC_NO_SYNCHRONIZATION_LIB ;
+        }
+    }
+
+    return $(result) ;
+}
 
 project boost/atomic
     : requirements
@@ -105,12 +124,7 @@ rule select-platform-specific-sources ( properties * )
 
     if <target-os>windows in $(properties)
     {
-        result += <source>wait_ops_windows.cpp ;
-
-        if [ configure.builds ../config//has_synchronization : $(properties) : "has synchronization.lib" ]
-        {
-            result += <library>synchronization ;
-        }
+        result += <source>wait_on_address.cpp ;
     }
 
 #    ECHO Platform sources: $(result) ;
@@ -119,12 +133,14 @@ rule select-platform-specific-sources ( properties * )
 }
 
 lib boost_atomic
-   : ## sources ##
-     lock_pool.cpp
-   : ## requirements ##
-     <include>../src
-     <conditional>@select-arch-specific-sources
-     <conditional>@select-platform-specific-sources
+    : ## sources ##
+      lock_pool.cpp
+    : ## requirements ##
+      <include>../src
+      <conditional>@select-arch-specific-sources
+      <conditional>@select-platform-specific-sources
+    : usage-requirements
+      <conditional>@check-synchronization-lib
    ;
 
 boost-install boost_atomic ;
