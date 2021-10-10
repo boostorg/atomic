@@ -45,7 +45,10 @@ int main(int, char *[])
     test_constexpr_ctor< short >();
     test_constexpr_ctor< int >();
     test_constexpr_ctor< long >();
-    // test_constexpr_ctor< int* >(); // for pointers we're not offering a constexpr constructor because of bitwise_cast
+    test_constexpr_ctor< test_enum >();
+    // For pointers and structs we're not offering a constexpr constructor because of bitwise_cast
+    // test_constexpr_ctor< int* >();
+    // test_constexpr_ctor< test_struct< int > >();
 
 #if !defined(BOOST_ATOMIC_NO_FLOATING_POINT)
     test_floating_point_api< atomic_wrapper, float >();
@@ -79,6 +82,10 @@ int main(int, char *[])
     // Test that boost::atomic<T> only requires T to be trivially copyable.
     // Other non-trivial constructors are allowed.
     test_struct_with_ctor_api< atomic_wrapper >();
+
+#if !defined(BOOST_ATOMIC_NO_CLEAR_PADDING)
+    test_struct_with_padding_api< atomic_wrapper >();
+#endif
 
     // Test that fences at least compile
     boost::atomic_thread_fence(boost::memory_order_seq_cst);

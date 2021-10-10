@@ -3,7 +3,7 @@
  * (See accompanying file LICENSE_1_0.txt or copy at
  * http://www.boost.org/LICENSE_1_0.txt)
  *
- * Copyright (c) 2018 Andrey Semashev
+ * Copyright (c) 2018, 2021 Andrey Semashev
  */
 /*!
  * \file   atomic/detail/bitwise_fp_cast.hpp
@@ -77,7 +77,12 @@ struct value_sizeof< const volatile T > : value_sizeof< T > {};
 template< typename To, typename From >
 BOOST_FORCEINLINE To bitwise_fp_cast(From const& from) BOOST_NOEXCEPT
 {
+#if !defined(BOOST_ATOMIC_NO_CLEAR_PADDING)
+    // BOOST_ATOMIC_DETAIL_CLEAR_PADDING, which is used in bitwise_cast, will clear the tail padding bits in the from object.
+    return atomics::detail::bitwise_cast< To >(from);
+#else
     return atomics::detail::bitwise_cast< To, atomics::detail::value_sizeof< From >::value >(from);
+#endif
 }
 
 } // namespace detail

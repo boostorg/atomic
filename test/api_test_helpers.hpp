@@ -1,5 +1,5 @@
 //  Copyright (c) 2011 Helge Bahmann
-//  Copyright (c) 2017 - 2020 Andrey Semashev
+//  Copyright (c) 2017 - 2021 Andrey Semashev
 //
 //  Distributed under the Boost Software License, Version 1.0.
 //  See accompanying file LICENSE_1_0.txt or copy at
@@ -215,9 +215,9 @@ template< typename T >
 void test_constexpr_ctor()
 {
 #ifndef BOOST_ATOMIC_DETAIL_NO_CXX11_CONSTEXPR_UNION_INIT
-    constexpr T value(0);
+    static constexpr T value = T();
     constexpr boost::atomic<T> tester(value);
-    BOOST_TEST( tester == value );
+    BOOST_TEST_EQ(tester.load(boost::memory_order_relaxed), value);
 #endif
 }
 
@@ -1522,4 +1522,52 @@ void test_struct_with_ctor_api(void)
     test_base_operators< Wrapper >(a, b, c);
 }
 
-#endif
+#if !defined(BOOST_ATOMIC_NO_CLEAR_PADDING)
+
+struct test_struct_with_padding
+{
+    unsigned char c;
+    unsigned short n;
+
+    inline bool operator==(test_struct_with_padding const& s) const { return c == s.c && n == s.n; }
+    inline bool operator!=(test_struct_with_padding const& s) const { return !operator==(s); }
+};
+
+template< typename Char, typename Traits >
+inline std::basic_ostream< Char, Traits >& operator<< (std::basic_ostream< Char, Traits >& strm, test_struct_with_padding const& s)
+{
+    strm << "{" << static_cast< unsigned int >(s.c) << ", " << static_cast< unsigned int >(s.n) << "}";
+    return strm;
+}
+
+
+template< template< typename > class Wrapper >
+void test_struct_with_padding_api(void)
+{
+    union test_struct_with_padding_init
+    {
+        unsigned char as_bytes[sizeof(test_struct_with_padding)];
+        test_struct_with_padding as_struct;
+    }
+    a, b, c;
+
+    for (unsigned int i = 0u; i < sizeof(a.as_bytes) / sizeof(*a.as_bytes); ++i)
+    {
+        a.as_bytes[i] = static_cast< unsigned char >(i + 0xA0);
+        b.as_bytes[i] = static_cast< unsigned char >(i + 0xB0);
+        c.as_bytes[i] = static_cast< unsigned char >(i + 0xC0);
+    }
+
+    a.as_struct.c = 10u;
+    a.as_struct.n = 1000u;
+    b.as_struct.c = 11u;
+    b.as_struct.n = 1001u;
+    c.as_struct.c = 12u;
+    c.as_struct.n = 1002u;
+
+    test_base_operators< Wrapper >(a.as_struct, b.as_struct, c.as_struct);
+}
+
+#endif // !defined(BOOST_ATOMIC_NO_CLEAR_PADDING)
+
+#endif // BOOST_ATOMIC_API_TEST_HELPERS_HPP

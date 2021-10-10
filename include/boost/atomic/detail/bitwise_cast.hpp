@@ -5,7 +5,7 @@
  *
  * Copyright (c) 2009 Helge Bahmann
  * Copyright (c) 2012 Tim Blechmann
- * Copyright (c) 2013 - 2018, 2020 Andrey Semashev
+ * Copyright (c) 2013-2018, 2020-2021 Andrey Semashev
  */
 /*!
  * \file   atomic/detail/bitwise_cast.hpp
@@ -37,34 +37,45 @@ namespace boost {
 namespace atomics {
 namespace detail {
 
-template< std::size_t FromSize, typename To >
+template< std::size_t ValueSize, typename To >
 BOOST_FORCEINLINE void clear_tail_padding_bits(To& to, atomics::detail::true_type) BOOST_NOEXCEPT
 {
-    BOOST_ATOMIC_DETAIL_MEMSET(reinterpret_cast< unsigned char* >(atomics::detail::addressof(to)) + FromSize, 0, sizeof(To) - FromSize);
+    BOOST_ATOMIC_DETAIL_MEMSET(reinterpret_cast< unsigned char* >(atomics::detail::addressof(to)) + ValueSize, 0, sizeof(To) - ValueSize);
 }
 
-template< std::size_t FromSize, typename To >
+template< std::size_t ValueSize, typename To >
 BOOST_FORCEINLINE void clear_tail_padding_bits(To&, atomics::detail::false_type) BOOST_NOEXCEPT
 {
 }
 
-template< std::size_t FromSize, typename To >
+template< std::size_t ValueSize, typename To >
 BOOST_FORCEINLINE void clear_tail_padding_bits(To& to) BOOST_NOEXCEPT
 {
-    atomics::detail::clear_tail_padding_bits< FromSize >(to, atomics::detail::integral_constant< bool, FromSize < sizeof(To) >());
+    atomics::detail::clear_tail_padding_bits< ValueSize >(to, atomics::detail::integral_constant< bool, ValueSize < sizeof(To) >());
 }
 
-template< typename To, std::size_t FromSize, typename From >
+template< typename To, std::size_t FromValueSize, typename From >
 BOOST_FORCEINLINE To bitwise_cast(From const& from) BOOST_NOEXCEPT
 {
     To to;
+#if !defined(BOOST_ATOMIC_NO_CLEAR_PADDING)
+    From from2(from);
+    BOOST_ATOMIC_DETAIL_CLEAR_PADDING(atomics::detail::addressof(from2));
+    BOOST_ATOMIC_DETAIL_MEMCPY
+    (
+        atomics::detail::addressof(to),
+        atomics::detail::addressof(from2),
+        (FromValueSize < sizeof(To) ? FromValueSize : sizeof(To))
+    );
+#else
     BOOST_ATOMIC_DETAIL_MEMCPY
     (
         atomics::detail::addressof(to),
         atomics::detail::addressof(from),
-        (FromSize < sizeof(To) ? FromSize : sizeof(To))
+        (FromValueSize < sizeof(To) ? FromValueSize : sizeof(To))
     );
-    atomics::detail::clear_tail_padding_bits< FromSize >(to);
+#endif
+    atomics::detail::clear_tail_padding_bits< FromValueSize >(to);
     return to;
 }
 
