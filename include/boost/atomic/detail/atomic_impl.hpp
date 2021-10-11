@@ -45,6 +45,12 @@
 #pragma once
 #endif
 
+#if !defined(BOOST_ATOMIC_DETAIL_NO_CXX11_CONSTEXPR_UNION_INIT) && !defined(BOOST_ATOMIC_DETAIL_NO_CXX11_CONSTEXPR_BITWISE_CAST)
+#define BOOST_ATOMIC_DETAIL_CONSTEXPR_ATOMIC_CTOR BOOST_CONSTEXPR
+#else
+#define BOOST_ATOMIC_DETAIL_CONSTEXPR_ATOMIC_CTOR
+#endif
+
 /*
  * IMPLEMENTATION NOTE: All interface functions MUST be declared with BOOST_FORCEINLINE,
  *                      see comment for convert_memory_order_to_gcc in gcc_atomic_memory_order_utils.hpp.
@@ -141,7 +147,7 @@ protected:
 
 public:
     BOOST_DEFAULTED_FUNCTION(base_atomic_generic() BOOST_ATOMIC_DETAIL_DEF_NOEXCEPT_DECL, BOOST_ATOMIC_DETAIL_DEF_NOEXCEPT_IMPL {})
-    BOOST_FORCEINLINE explicit base_atomic_generic(value_arg_type v) BOOST_NOEXCEPT :
+    BOOST_FORCEINLINE BOOST_ATOMIC_DETAIL_CONSTEXPR_ATOMIC_CTOR explicit base_atomic_generic(value_arg_type v) BOOST_NOEXCEPT :
         base_type(atomics::detail::bitwise_cast< storage_type >(v))
     {
     }
@@ -162,7 +168,7 @@ protected:
     typedef typename base_type::value_arg_type value_arg_type;
 
 public:
-    BOOST_FORCEINLINE explicit base_atomic_generic(value_arg_type v = value_type()) BOOST_NOEXCEPT :
+    BOOST_FORCEINLINE BOOST_ATOMIC_DETAIL_CONSTEXPR_ATOMIC_CTOR explicit base_atomic_generic(value_arg_type v = value_type()) BOOST_NOEXCEPT :
         base_type(atomics::detail::bitwise_cast< storage_type >(v))
     {
     }
@@ -198,7 +204,7 @@ private:
 
 public:
     BOOST_DEFAULTED_FUNCTION(base_atomic() BOOST_ATOMIC_DETAIL_DEF_NOEXCEPT_DECL, BOOST_ATOMIC_DETAIL_DEF_NOEXCEPT_IMPL {})
-    BOOST_FORCEINLINE explicit base_atomic(value_arg_type v) BOOST_NOEXCEPT : base_type(v)
+    BOOST_FORCEINLINE BOOST_ATOMIC_DETAIL_CONSTEXPR_ATOMIC_CTOR explicit base_atomic(value_arg_type v) BOOST_NOEXCEPT : base_type(v)
     {
     }
 
@@ -884,13 +890,13 @@ private:
     typedef atomics::detail::true_type cxchg_use_bitwise_cast;
 #else
     typedef atomics::detail::integral_constant< bool,
-        atomics::detail::value_sizeof< value_type >::value != sizeof(storage_type) || atomics::detail::alignment_of< value_type >::value <= core_operations::storage_alignment
+        atomics::detail::value_size_of< value_type >::value != sizeof(storage_type) || atomics::detail::alignment_of< value_type >::value <= core_operations::storage_alignment
     > cxchg_use_bitwise_cast;
 #endif
 
 public:
     BOOST_DEFAULTED_FUNCTION(base_atomic() BOOST_ATOMIC_DETAIL_DEF_NOEXCEPT_DECL, BOOST_ATOMIC_DETAIL_DEF_NOEXCEPT_IMPL {})
-    BOOST_FORCEINLINE explicit base_atomic(value_arg_type v) BOOST_NOEXCEPT :
+    BOOST_FORCEINLINE BOOST_ATOMIC_DETAIL_CONSTEXPR_ATOMIC_CTOR explicit base_atomic(value_arg_type v) BOOST_NOEXCEPT :
         base_type(atomics::detail::bitwise_fp_cast< storage_type >(v))
     {
     }
@@ -1076,7 +1082,7 @@ private:
 
 public:
     BOOST_DEFAULTED_FUNCTION(base_atomic() BOOST_ATOMIC_DETAIL_DEF_NOEXCEPT_DECL, BOOST_ATOMIC_DETAIL_DEF_NOEXCEPT_IMPL {})
-    BOOST_FORCEINLINE explicit base_atomic(value_arg_type v) BOOST_NOEXCEPT :
+    BOOST_FORCEINLINE BOOST_ATOMIC_DETAIL_CONSTEXPR_ATOMIC_CTOR explicit base_atomic(value_arg_type v) BOOST_NOEXCEPT :
         base_type(atomics::detail::bitwise_cast< uintptr_storage_type >(v))
     {
     }

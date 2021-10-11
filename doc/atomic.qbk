@@ -1486,8 +1486,9 @@ limitations that cannot be lifted without compiler support:
   [*Advice]: Always use direct initialization (`atomic<int> a(10)`) or unified
   initialization (`atomic<int> a{10}`) syntax.
 * [*Initializing constructor is not `constexpr` for some types]: For value types
-  other than integral types, `bool` and enums, `atomic<>` initializing constructor needs
-  to perform runtime conversion to the storage type. This limitation may be
+  other than integral types, `bool`, enums, floating point types and classes without
+  padding, `atomic<>` initializing constructor needs to perform runtime conversion
+  to the storage type and potentially clear padding bits. This limitation may be
   lifted for more categories of types in the future.
 * [*Default constructor is not trivial in C++03]: Because the initializing
   constructor has to be defined in `atomic<>`, the default constructor

@@ -41,14 +41,23 @@ int main(int, char *[])
     test_integral_api< atomic_wrapper, boost::uint128_type >();
 #endif
 
+    test_constexpr_ctor< bool >();
     test_constexpr_ctor< char >();
     test_constexpr_ctor< short >();
     test_constexpr_ctor< int >();
     test_constexpr_ctor< long >();
+    test_constexpr_ctor< long long >();
     test_constexpr_ctor< test_enum >();
-    // For pointers and structs we're not offering a constexpr constructor because of bitwise_cast
+#if !defined(BOOST_ATOMIC_DETAIL_NO_CXX11_CONSTEXPR_BITWISE_CAST)
+    // As of gcc 11, clang 12 and MSVC 19.27, compilers don't support __builtin_bit_cast from pointers in constant expressions.
     // test_constexpr_ctor< int* >();
-    // test_constexpr_ctor< test_struct< int > >();
+    test_constexpr_ctor< test_struct< int > >();
+#if !defined(BOOST_ATOMIC_NO_FLOATING_POINT)
+    test_constexpr_ctor< float >();
+    test_constexpr_ctor< double >();
+    // We don't test long double as it may include padding bits, which will make the constructor non-constexpr
+#endif
+#endif
 
 #if !defined(BOOST_ATOMIC_NO_FLOATING_POINT)
     test_floating_point_api< atomic_wrapper, float >();

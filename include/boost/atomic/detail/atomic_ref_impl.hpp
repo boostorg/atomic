@@ -846,7 +846,7 @@ protected:
 
 private:
 #if defined(BOOST_ATOMIC_DETAIL_STORAGE_TYPE_MAY_ALIAS) || defined(BOOST_ATOMIC_NO_CLEAR_PADDING)
-    typedef atomics::detail::integral_constant< bool, atomics::detail::value_sizeof< value_type >::value != sizeof(storage_type) > has_padding_bits;
+    typedef atomics::detail::integral_constant< bool, atomics::detail::value_size_of< value_type >::value != sizeof(storage_type) > has_padding_bits;
 #endif
 #if !defined(BOOST_ATOMIC_DETAIL_STORAGE_TYPE_MAY_ALIAS) || !defined(BOOST_ATOMIC_NO_CLEAR_PADDING)
     typedef atomics::detail::true_type cxchg_use_bitwise_cast;
@@ -990,7 +990,7 @@ private:
 
     BOOST_FORCEINLINE void clear_padding_bits(atomics::detail::true_type) const BOOST_NOEXCEPT
     {
-        atomics::detail::clear_tail_padding_bits< atomics::detail::value_sizeof< value_type >::value >(this->storage());
+        atomics::detail::clear_tail_padding_bits< atomics::detail::value_size_of< value_type >::value >(this->storage());
     }
 #endif // defined(BOOST_ATOMIC_NO_CLEAR_PADDING)
 
