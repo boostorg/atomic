@@ -531,13 +531,14 @@ following operations:
 
 Waiting and notifying operations are described in detail in [link atomic.interface.interface_wait_notify_ops this] section.
 
-Note that the default constructor `atomic_flag()` is unlike `std::atomic_flag`, which
-leaves the default-constructed object uninitialized. This potentially requires dynamic
-initialization during the program startup to perform the object initialization, which
-makes it unsafe to create global `boost::atomic_flag` objects that can be used before
-entring `main()`. Some compilers though (especially those supporting C++11 `constexpr`)
-may be smart enough to perform flag initialization statically (which is, in C++11 terms,
-a constant initialization).
+Note that the default constructor `atomic_flag()` is unlike C++11 `std::atomic_flag`,
+which leaves the default-constructed object uninitialized. C++20 changes `std::atomic_flag`
+default constructor to initialize the flag to the clear state, similar to [*Boost.Atomic].
+This potentially requires dynamic initialization during the program startup to perform
+the object initialization, which makes it unsafe to create global `boost::atomic_flag`
+objects that can be used before entring `main()`. Some compilers though (especially those
+supporting C++11 `constexpr`) may be smart enough to perform flag initialization statically
+(which is, in C++11 terms, a constant initialization).
 
 This difference is deliberate and is done to support C++03 compilers. C++11 defines the
 `ATOMIC_FLAG_INIT` macro which can be used to statically initialize `std::atomic_flag`
@@ -609,7 +610,7 @@ All atomic objects support the following operations and properties:
     [[Syntax] [Description]]
     [
       [`atomic()`]
-      [Initialize to an unspecified value]
+      [Initialize to a value of `T()`. See the discussion below.]
     ]
     [
       [`atomic(T initial_value)`]
@@ -688,6 +689,11 @@ All atomic objects support the following operations and properties:
 ]
 
 `order` always has `memory_order_seq_cst` as default parameter.
+
+The default constructor of [^boost::atomic<['T]>] is different from C++11 [^std::atomic<['T]>] and is in line with C++20.
+In C++11 (and older [*Boost.Atomic] releases), the default constructor performed default initialization of the
+contained object of type [^['T]], which results in unspecified value if [^['T]] does not have a user-defined constructor.
+C++20 and the current [*Boost.Atomic] version performs value initialization, which means zero initialization in this case.
 
 Waiting and notifying operations are described in detail in [link atomic.interface.interface_wait_notify_ops this] section.
 

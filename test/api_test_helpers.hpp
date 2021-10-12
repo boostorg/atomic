@@ -114,6 +114,14 @@ void test_base_operators(T value1, T value2, T value3)
 {
     test_atomic_type_traits(boost::type< typename Wrapper<T>::atomic_type >());
 
+    if (is_atomic< typename Wrapper<T>::atomic_type >::value)
+    {
+        // default constructor must value-initialize the contained object
+        Wrapper<T> wrapper;
+        typename Wrapper<T>::atomic_reference_type a = wrapper.a;
+        BOOST_TEST_EQ( a.load(), T() );
+    }
+
     // explicit load/store
     {
         Wrapper<T> wrapper(value1);
@@ -216,8 +224,12 @@ void test_constexpr_ctor()
 {
 #ifndef BOOST_ATOMIC_DETAIL_NO_CXX11_CONSTEXPR_UNION_INIT
     static constexpr T value = T();
-    constexpr boost::atomic<T> tester(value);
-    BOOST_TEST_EQ(tester.load(boost::memory_order_relaxed), value);
+
+    constexpr boost::atomic<T> tester_default;
+    BOOST_TEST_EQ(tester_default.load(boost::memory_order_relaxed), value);
+
+    constexpr boost::atomic<T> tester_init(value);
+    BOOST_TEST_EQ(tester_init.load(boost::memory_order_relaxed), value);
 #endif
 }
 
@@ -1506,14 +1518,6 @@ inline std::basic_ostream< Char, Traits >& operator<< (std::basic_ostream< Char,
 template< template< typename > class Wrapper >
 void test_struct_with_ctor_api(void)
 {
-    {
-        test_struct_with_ctor s;
-        Wrapper<test_struct_with_ctor> wrapper_sa;
-        typename Wrapper<test_struct_with_ctor>::atomic_reference_type sa = wrapper_sa.a;
-        // Check that the default constructor was called
-        BOOST_TEST( sa.load() == s );
-    }
-
     test_struct_with_ctor a, b, c;
     a.i = 1;
     b.i = 2;
