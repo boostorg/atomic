@@ -593,14 +593,16 @@ attempts to support some floating point types where the location of the padding 
 (one notable example is [@https://en.wikipedia.org/wiki/Extended_precision#x86_extended_precision_format 80-bit extended precision]
 `long double` type on x86 targets), but otherwise types with padding bits are not supported.
 
-[note Even on compilers that support clearing the padding bits, unions with padding are not
-supported. Compiler behavior varies with respect to unions (e.g. gcc 11 clears bytes that constitute
-padding across all union members and MSVC 19.27 does not clear any padding at all), and neither may
-result in an expected behavior. Consider that some bits of the union representation may constitute
-padding in one member of the union but contribute to value of another. Current compilers cannot
-reliably track the active member of a union and therefore cannot implement a reasonable behavior
-with respect to clearing those bits. As a result, padding bits of the currently active union member
-may be left uninitialized, which will prevent atomic operations from working reliably.]
+[note Even on compilers that support clearing the padding bits, unions with padding may not
+work as expected. Compiler behavior varies with respect to unions. In particular, gcc 11 clears
+bytes that constitute padding across all union members (which is what is required by C++20 in
+\[atomics.types.operations\]/28) and MSVC 19.27 [@https://developercommunity.visualstudio.com/t/__builtin_zero_non_value_bits-does-not-c/1551510
+does not clear any padding at all]. Also, consider that some bits of the union representation may
+constitute padding in one member of the union but contribute to value of another. Current compilers
+cannot reliably track the active member of a union and therefore cannot implement a reasonable
+behavior with respect to clearing those bits. As a result, padding bits of the currently active
+union member may be left uninitialized, which will prevent atomic operations from working reliably.
+The C++20 standard explicitly allows `compare_exchange_*` operations to always fail in this case.]
 
 [section:interface_atomic_generic [^boost::atomic<['T]>] template class]
 

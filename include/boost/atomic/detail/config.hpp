@@ -128,6 +128,8 @@
 #endif
 
 #if !defined(BOOST_ATOMIC_DETAIL_CLEAR_PADDING) && defined(BOOST_MSVC) && BOOST_MSVC >= 1927
+// Note that as of MSVC 19.29 this intrinsic does not clear padding in unions:
+// https://developercommunity.visualstudio.com/t/__builtin_zero_non_value_bits-does-not-c/1551510
 #define BOOST_ATOMIC_DETAIL_CLEAR_PADDING(x) __builtin_zero_non_value_bits(x)
 #endif
 
