@@ -28,6 +28,14 @@
 #pragma once
 #endif
 
+#if !defined(_AIX)
+#define BOOST_ATOMIC_DETAIL_PPC_ASM_LABEL(label) label ":\n\t"
+#define BOOST_ATOMIC_DETAIL_PPC_ASM_JUMP(insn, label, offset) insn " " label "\n\t"
+#else
+#define BOOST_ATOMIC_DETAIL_PPC_ASM_LABEL(label)
+#define BOOST_ATOMIC_DETAIL_PPC_ASM_JUMP(insn, label, offset) insn " $" offset "\n\t"
+#endif
+
 namespace boost {
 namespace atomics {
 namespace detail {
@@ -103,11 +111,11 @@ struct extra_operations_gcc_ppc< Base, 1u, Signed > :
         storage_type original, result;
         __asm__ __volatile__
         (
-            "1:\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_LABEL("1")
             "lbarx %0,%y2\n\t"
             "neg %1,%0\n\t"
             "stbcx. %1,%y2\n\t"
-            "bne- 1b\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_JUMP("bne-", "1b", "-12")
             : "=&b" (original), "=&b" (result), "+Z" (storage)
             :
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -122,11 +130,11 @@ struct extra_operations_gcc_ppc< Base, 1u, Signed > :
         storage_type original, result;
         __asm__ __volatile__
         (
-            "1:\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_LABEL("1")
             "lbarx %0,%y2\n\t"
             "neg %1,%0\n\t"
             "stbcx. %1,%y2\n\t"
-            "bne- 1b\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_JUMP("bne-", "1b", "-12")
             : "=&b" (original), "=&b" (result), "+Z" (storage)
             :
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -141,11 +149,11 @@ struct extra_operations_gcc_ppc< Base, 1u, Signed > :
         core_arch_operations_gcc_ppc_base::fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_LABEL("1")
             "lbarx %0,%y2\n\t"
             "add %1,%0,%3\n\t"
             "stbcx. %1,%y2\n\t"
-            "bne- 1b\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_JUMP("bne-", "1b", "-12")
             : "=&b" (original), "=&b" (result), "+Z" (storage)
             : "b" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -160,11 +168,11 @@ struct extra_operations_gcc_ppc< Base, 1u, Signed > :
         core_arch_operations_gcc_ppc_base::fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_LABEL("1")
             "lbarx %0,%y2\n\t"
             "sub %1,%0,%3\n\t"
             "stbcx. %1,%y2\n\t"
-            "bne- 1b\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_JUMP("bne-", "1b", "-12")
             : "=&b" (original), "=&b" (result), "+Z" (storage)
             : "b" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -179,11 +187,11 @@ struct extra_operations_gcc_ppc< Base, 1u, Signed > :
         core_arch_operations_gcc_ppc_base::fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_LABEL("1")
             "lbarx %0,%y2\n\t"
             "and %1,%0,%3\n\t"
             "stbcx. %1,%y2\n\t"
-            "bne- 1b\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_JUMP("bne-", "1b", "-12")
             : "=&b" (original), "=&b" (result), "+Z" (storage)
             : "b" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -198,11 +206,11 @@ struct extra_operations_gcc_ppc< Base, 1u, Signed > :
         core_arch_operations_gcc_ppc_base::fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_LABEL("1")
             "lbarx %0,%y2\n\t"
             "or %1,%0,%3\n\t"
             "stbcx. %1,%y2\n\t"
-            "bne- 1b\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_JUMP("bne-", "1b", "-12")
             : "=&b" (original), "=&b" (result), "+Z" (storage)
             : "b" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -217,11 +225,11 @@ struct extra_operations_gcc_ppc< Base, 1u, Signed > :
         core_arch_operations_gcc_ppc_base::fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_LABEL("1")
             "lbarx %0,%y2\n\t"
             "xor %1,%0,%3\n\t"
             "stbcx. %1,%y2\n\t"
-            "bne- 1b\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_JUMP("bne-", "1b", "-12")
             : "=&b" (original), "=&b" (result), "+Z" (storage)
             : "b" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -236,11 +244,11 @@ struct extra_operations_gcc_ppc< Base, 1u, Signed > :
         storage_type original, result;
         __asm__ __volatile__
         (
-            "1:\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_LABEL("1")
             "lbarx %0,%y2\n\t"
             "nor %1,%0,%0\n\t"
             "stbcx. %1,%y2\n\t"
-            "bne- 1b\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_JUMP("bne-", "1b", "-12")
             : "=&b" (original), "=&b" (result), "+Z" (storage)
             :
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -255,11 +263,11 @@ struct extra_operations_gcc_ppc< Base, 1u, Signed > :
         storage_type original, result;
         __asm__ __volatile__
         (
-            "1:\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_LABEL("1")
             "lbarx %0,%y2\n\t"
             "nor %1,%0,%0\n\t"
             "stbcx. %1,%y2\n\t"
-            "bne- 1b\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_JUMP("bne-", "1b", "-12")
             : "=&b" (original), "=&b" (result), "+Z" (storage)
             :
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -292,11 +300,11 @@ struct extra_operations_gcc_ppc< Base, 2u, Signed > :
         storage_type original, result;
         __asm__ __volatile__
         (
-            "1:\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_LABEL("1")
             "lharx %0,%y2\n\t"
             "neg %1,%0\n\t"
             "sthcx. %1,%y2\n\t"
-            "bne- 1b\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_JUMP("bne-", "1b", "-12")
             : "=&b" (original), "=&b" (result), "+Z" (storage)
             :
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -311,11 +319,11 @@ struct extra_operations_gcc_ppc< Base, 2u, Signed > :
         storage_type original, result;
         __asm__ __volatile__
         (
-            "1:\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_LABEL("1")
             "lharx %0,%y2\n\t"
             "neg %1,%0\n\t"
             "sthcx. %1,%y2\n\t"
-            "bne- 1b\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_JUMP("bne-", "1b", "-12")
             : "=&b" (original), "=&b" (result), "+Z" (storage)
             :
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -330,11 +338,11 @@ struct extra_operations_gcc_ppc< Base, 2u, Signed > :
         core_arch_operations_gcc_ppc_base::fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_LABEL("1")
             "lharx %0,%y2\n\t"
             "add %1,%0,%3\n\t"
             "sthcx. %1,%y2\n\t"
-            "bne- 1b\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_JUMP("bne-", "1b", "-12")
             : "=&b" (original), "=&b" (result), "+Z" (storage)
             : "b" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -349,11 +357,11 @@ struct extra_operations_gcc_ppc< Base, 2u, Signed > :
         core_arch_operations_gcc_ppc_base::fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_LABEL("1")
             "lharx %0,%y2\n\t"
             "sub %1,%0,%3\n\t"
             "sthcx. %1,%y2\n\t"
-            "bne- 1b\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_JUMP("bne-", "1b", "-12")
             : "=&b" (original), "=&b" (result), "+Z" (storage)
             : "b" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -368,11 +376,11 @@ struct extra_operations_gcc_ppc< Base, 2u, Signed > :
         core_arch_operations_gcc_ppc_base::fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_LABEL("1")
             "lharx %0,%y2\n\t"
             "and %1,%0,%3\n\t"
             "sthcx. %1,%y2\n\t"
-            "bne- 1b\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_JUMP("bne-", "1b", "-12")
             : "=&b" (original), "=&b" (result), "+Z" (storage)
             : "b" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -387,11 +395,11 @@ struct extra_operations_gcc_ppc< Base, 2u, Signed > :
         core_arch_operations_gcc_ppc_base::fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_LABEL("1")
             "lharx %0,%y2\n\t"
             "or %1,%0,%3\n\t"
             "sthcx. %1,%y2\n\t"
-            "bne- 1b\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_JUMP("bne-", "1b", "-12")
             : "=&b" (original), "=&b" (result), "+Z" (storage)
             : "b" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -406,11 +414,11 @@ struct extra_operations_gcc_ppc< Base, 2u, Signed > :
         core_arch_operations_gcc_ppc_base::fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_LABEL("1")
             "lharx %0,%y2\n\t"
             "xor %1,%0,%3\n\t"
             "sthcx. %1,%y2\n\t"
-            "bne- 1b\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_JUMP("bne-", "1b", "-12")
             : "=&b" (original), "=&b" (result), "+Z" (storage)
             : "b" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -425,11 +433,11 @@ struct extra_operations_gcc_ppc< Base, 2u, Signed > :
         storage_type original, result;
         __asm__ __volatile__
         (
-            "1:\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_LABEL("1")
             "lharx %0,%y2\n\t"
             "nor %1,%0,%0\n\t"
             "sthcx. %1,%y2\n\t"
-            "bne- 1b\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_JUMP("bne-", "1b", "-12")
             : "=&b" (original), "=&b" (result), "+Z" (storage)
             :
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -444,11 +452,11 @@ struct extra_operations_gcc_ppc< Base, 2u, Signed > :
         storage_type original, result;
         __asm__ __volatile__
         (
-            "1:\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_LABEL("1")
             "lharx %0,%y2\n\t"
             "nor %1,%0,%0\n\t"
             "sthcx. %1,%y2\n\t"
-            "bne- 1b\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_JUMP("bne-", "1b", "-12")
             : "=&b" (original), "=&b" (result), "+Z" (storage)
             :
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -473,11 +481,11 @@ struct extra_operations_gcc_ppc< Base, 4u, Signed > :
         storage_type original, result;
         __asm__ __volatile__
         (
-            "1:\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_LABEL("1")
             "lwarx %0,%y2\n\t"
             "neg %1,%0\n\t"
             "stwcx. %1,%y2\n\t"
-            "bne- 1b\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_JUMP("bne-", "1b", "-12")
             : "=&b" (original), "=&b" (result), "+Z" (storage)
             :
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -492,11 +500,11 @@ struct extra_operations_gcc_ppc< Base, 4u, Signed > :
         storage_type original, result;
         __asm__ __volatile__
         (
-            "1:\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_LABEL("1")
             "lwarx %0,%y2\n\t"
             "neg %1,%0\n\t"
             "stwcx. %1,%y2\n\t"
-            "bne- 1b\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_JUMP("bne-", "1b", "-12")
             : "=&b" (original), "=&b" (result), "+Z" (storage)
             :
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -511,11 +519,11 @@ struct extra_operations_gcc_ppc< Base, 4u, Signed > :
         core_arch_operations_gcc_ppc_base::fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_LABEL("1")
             "lwarx %0,%y2\n\t"
             "add %1,%0,%3\n\t"
             "stwcx. %1,%y2\n\t"
-            "bne- 1b\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_JUMP("bne-", "1b", "-12")
             : "=&b" (original), "=&b" (result), "+Z" (storage)
             : "b" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -530,11 +538,11 @@ struct extra_operations_gcc_ppc< Base, 4u, Signed > :
         core_arch_operations_gcc_ppc_base::fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_LABEL("1")
             "lwarx %0,%y2\n\t"
             "sub %1,%0,%3\n\t"
             "stwcx. %1,%y2\n\t"
-            "bne- 1b\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_JUMP("bne-", "1b", "-12")
             : "=&b" (original), "=&b" (result), "+Z" (storage)
             : "b" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -549,11 +557,11 @@ struct extra_operations_gcc_ppc< Base, 4u, Signed > :
         core_arch_operations_gcc_ppc_base::fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_LABEL("1")
             "lwarx %0,%y2\n\t"
             "and %1,%0,%3\n\t"
             "stwcx. %1,%y2\n\t"
-            "bne- 1b\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_JUMP("bne-", "1b", "-12")
             : "=&b" (original), "=&b" (result), "+Z" (storage)
             : "b" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -568,11 +576,11 @@ struct extra_operations_gcc_ppc< Base, 4u, Signed > :
         core_arch_operations_gcc_ppc_base::fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_LABEL("1")
             "lwarx %0,%y2\n\t"
             "or %1,%0,%3\n\t"
             "stwcx. %1,%y2\n\t"
-            "bne- 1b\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_JUMP("bne-", "1b", "-12")
             : "=&b" (original), "=&b" (result), "+Z" (storage)
             : "b" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -587,11 +595,11 @@ struct extra_operations_gcc_ppc< Base, 4u, Signed > :
         core_arch_operations_gcc_ppc_base::fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_LABEL("1")
             "lwarx %0,%y2\n\t"
             "xor %1,%0,%3\n\t"
             "stwcx. %1,%y2\n\t"
-            "bne- 1b\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_JUMP("bne-", "1b", "-12")
             : "=&b" (original), "=&b" (result), "+Z" (storage)
             : "b" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -606,11 +614,11 @@ struct extra_operations_gcc_ppc< Base, 4u, Signed > :
         storage_type original, result;
         __asm__ __volatile__
         (
-            "1:\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_LABEL("1")
             "lwarx %0,%y2\n\t"
             "nor %1,%0,%0\n\t"
             "stwcx. %1,%y2\n\t"
-            "bne- 1b\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_JUMP("bne-", "1b", "-12")
             : "=&b" (original), "=&b" (result), "+Z" (storage)
             :
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -625,11 +633,11 @@ struct extra_operations_gcc_ppc< Base, 4u, Signed > :
         storage_type original, result;
         __asm__ __volatile__
         (
-            "1:\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_LABEL("1")
             "lwarx %0,%y2\n\t"
             "nor %1,%0,%0\n\t"
             "stwcx. %1,%y2\n\t"
-            "bne- 1b\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_JUMP("bne-", "1b", "-12")
             : "=&b" (original), "=&b" (result), "+Z" (storage)
             :
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -660,11 +668,11 @@ struct extra_operations_gcc_ppc< Base, 8u, Signed > :
         storage_type original, result;
         __asm__ __volatile__
         (
-            "1:\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_LABEL("1")
             "ldarx %0,%y2\n\t"
             "neg %1,%0\n\t"
             "stdcx. %1,%y2\n\t"
-            "bne- 1b\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_JUMP("bne-", "1b", "-12")
             : "=&b" (original), "=&b" (result), "+Z" (storage)
             :
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -679,11 +687,11 @@ struct extra_operations_gcc_ppc< Base, 8u, Signed > :
         storage_type original, result;
         __asm__ __volatile__
         (
-            "1:\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_LABEL("1")
             "ldarx %0,%y2\n\t"
             "neg %1,%0\n\t"
             "stdcx. %1,%y2\n\t"
-            "bne- 1b\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_JUMP("bne-", "1b", "-12")
             : "=&b" (original), "=&b" (result), "+Z" (storage)
             :
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -698,11 +706,11 @@ struct extra_operations_gcc_ppc< Base, 8u, Signed > :
         core_arch_operations_gcc_ppc_base::fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_LABEL("1")
             "ldarx %0,%y2\n\t"
             "add %1,%0,%3\n\t"
             "stdcx. %1,%y2\n\t"
-            "bne- 1b\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_JUMP("bne-", "1b", "-12")
             : "=&b" (original), "=&b" (result), "+Z" (storage)
             : "b" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -717,11 +725,11 @@ struct extra_operations_gcc_ppc< Base, 8u, Signed > :
         core_arch_operations_gcc_ppc_base::fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_LABEL("1")
             "ldarx %0,%y2\n\t"
             "sub %1,%0,%3\n\t"
             "stdcx. %1,%y2\n\t"
-            "bne- 1b\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_JUMP("bne-", "1b", "-12")
             : "=&b" (original), "=&b" (result), "+Z" (storage)
             : "b" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -736,11 +744,11 @@ struct extra_operations_gcc_ppc< Base, 8u, Signed > :
         core_arch_operations_gcc_ppc_base::fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_LABEL("1")
             "ldarx %0,%y2\n\t"
             "and %1,%0,%3\n\t"
             "stdcx. %1,%y2\n\t"
-            "bne- 1b\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_JUMP("bne-", "1b", "-12")
             : "=&b" (original), "=&b" (result), "+Z" (storage)
             : "b" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -755,11 +763,11 @@ struct extra_operations_gcc_ppc< Base, 8u, Signed > :
         core_arch_operations_gcc_ppc_base::fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_LABEL("1")
             "ldarx %0,%y2\n\t"
             "or %1,%0,%3\n\t"
             "stdcx. %1,%y2\n\t"
-            "bne- 1b\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_JUMP("bne-", "1b", "-12")
             : "=&b" (original), "=&b" (result), "+Z" (storage)
             : "b" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -774,11 +782,11 @@ struct extra_operations_gcc_ppc< Base, 8u, Signed > :
         core_arch_operations_gcc_ppc_base::fence_before(order);
         __asm__ __volatile__
         (
-            "1:\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_LABEL("1")
             "ldarx %0,%y2\n\t"
             "xor %1,%0,%3\n\t"
             "stdcx. %1,%y2\n\t"
-            "bne- 1b\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_JUMP("bne-", "1b", "-12")
             : "=&b" (original), "=&b" (result), "+Z" (storage)
             : "b" (v)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -793,11 +801,11 @@ struct extra_operations_gcc_ppc< Base, 8u, Signed > :
         storage_type original, result;
         __asm__ __volatile__
         (
-            "1:\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_LABEL("1")
             "ldarx %0,%y2\n\t"
             "nor %1,%0,%0\n\t"
             "stdcx. %1,%y2\n\t"
-            "bne- 1b\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_JUMP("bne-", "1b", "-12")
             : "=&b" (original), "=&b" (result), "+Z" (storage)
             :
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
@@ -812,11 +820,11 @@ struct extra_operations_gcc_ppc< Base, 8u, Signed > :
         storage_type original, result;
         __asm__ __volatile__
         (
-            "1:\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_LABEL("1")
             "ldarx %0,%y2\n\t"
             "nor %1,%0,%0\n\t"
             "stdcx. %1,%y2\n\t"
-            "bne- 1b\n\t"
+            BOOST_ATOMIC_DETAIL_PPC_ASM_JUMP("bne-", "1b", "-12")
             : "=&b" (original), "=&b" (result), "+Z" (storage)
             :
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC
