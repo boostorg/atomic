@@ -297,7 +297,7 @@ void test_wait_notify_api_impl(T value1, T value2, T value3, boost::true_type)
 }
 
 template< template< typename > class Wrapper, typename T >
-inline void test_wait_notify_api_impl(T value1, T value2, T value3, boost::false_type)
+inline void test_wait_notify_api_impl(T, T, T, boost::false_type)
 {
 }
 
