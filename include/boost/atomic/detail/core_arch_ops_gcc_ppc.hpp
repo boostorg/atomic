@@ -22,19 +22,12 @@
 #include <boost/atomic/detail/storage_traits.hpp>
 #include <boost/atomic/detail/core_arch_operations_fwd.hpp>
 #include <boost/atomic/detail/ops_gcc_ppc_common.hpp>
+#include <boost/atomic/detail/gcc_ppc_asm_common.hpp>
 #include <boost/atomic/detail/capabilities.hpp>
 #include <boost/atomic/detail/header.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once
-#endif
-
-#if !defined(_AIX)
-#define BOOST_ATOMIC_DETAIL_PPC_ASM_LABEL(label) label ":\n\t"
-#define BOOST_ATOMIC_DETAIL_PPC_ASM_JUMP(insn, label, offset) insn " " label "\n\t"
-#else
-#define BOOST_ATOMIC_DETAIL_PPC_ASM_LABEL(label)
-#define BOOST_ATOMIC_DETAIL_PPC_ASM_JUMP(insn, label, offset) insn " $" offset "\n\t"
 #endif
 
 namespace boost {
