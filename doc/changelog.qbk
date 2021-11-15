@@ -19,6 +19,7 @@
 * Initializing constructors of `atomic` and `ipc_atomic` are now `constexpr` for enums, classes and floating point types. For classes and floating point types, the constructors are `constexpr` if the compiler supports `constexpr` `std::bit_cast`, the type has no padding bytes and no padding is required to implement native atomic operations (i.e., for [^atomic<['T]>], the object of type [^['T]] fits exactly in the internal storage of the atomic).
 * In accordance with C++20, default constructors of `atomic` and `ipc_atomic` now perform value initialization of the contained object. For types without a user-defined default constructor, this means the default-constructed atomic will be zero-initialized.
 * Added a workaround for compilation error on AIX caused by the assembler tool not supporting numeric labels. ([github_pr 50])
+* Added a workaround for compilation error with Visual Studio 2015 prior to Update 3. ([github_issue 52])
 
 [heading Boost 1.77]
 
