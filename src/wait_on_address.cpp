@@ -25,6 +25,8 @@
 #include <boost/atomic/detail/once_flag.hpp>
 #include <boost/atomic/detail/wait_on_address.hpp>
 
+#if BOOST_WINAPI_PARTITION_DESKTOP || BOOST_WINAPI_PARTITION_SYSTEM
+
 #include <boost/static_assert.hpp>
 #include <boost/memory_order.hpp>
 #include <boost/winapi/thread.hpp>
@@ -32,6 +34,8 @@
 #include <boost/winapi/dll.hpp>
 
 #include <boost/atomic/detail/core_operations.hpp>
+
+#endif // BOOST_WINAPI_PARTITION_DESKTOP || BOOST_WINAPI_PARTITION_SYSTEM
 
 #include <boost/atomic/detail/header.hpp>
 
@@ -42,6 +46,8 @@ namespace detail {
 BOOST_ATOMIC_DECL wait_on_address_t* wait_on_address = NULL;
 BOOST_ATOMIC_DECL wake_by_address_t* wake_by_address_single = NULL;
 BOOST_ATOMIC_DECL wake_by_address_t* wake_by_address_all = NULL;
+
+#if BOOST_WINAPI_PARTITION_DESKTOP || BOOST_WINAPI_PARTITION_SYSTEM
 
 BOOST_ATOMIC_DECL once_flag wait_functions_once_flag = { 2u };
 
@@ -89,6 +95,16 @@ BOOST_ATOMIC_DECL void initialize_wait_functions() BOOST_NOEXCEPT
         }
     }
 }
+
+#else // BOOST_WINAPI_PARTITION_DESKTOP || BOOST_WINAPI_PARTITION_SYSTEM
+
+BOOST_ATOMIC_DECL once_flag wait_functions_once_flag = { 0u };
+
+BOOST_ATOMIC_DECL void initialize_wait_functions() BOOST_NOEXCEPT
+{
+}
+
+#endif // BOOST_WINAPI_PARTITION_DESKTOP || BOOST_WINAPI_PARTITION_SYSTEM
 
 } // namespace detail
 } // namespace atomics

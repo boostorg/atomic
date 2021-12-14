@@ -7,6 +7,10 @@
 
 [section:changelog Changelog]
 
+[heading Boost 1.79]
+
+* Fixed compilation for Universal Windows Platform (UWP). ([github_issue 54])
+
 [heading Boost 1.78]
 
 * Use process-local futex operations on Android for non-IPC waiting and notifying operations.
