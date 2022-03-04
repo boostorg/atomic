@@ -10,6 +10,7 @@
 [heading Boost 1.79]
 
 * Fixed compilation for Universal Windows Platform (UWP). ([github_issue 54])
+* Added `BOOST_ATOMIC_NO_DARWIN_ULOCK` configuration macro. The macto affects compilation on Darwin systems and disables `ulock`-based implementation of waiting and notifying operations. This may be useful to comply with Apple App Store requirements. ([github_issue 55])
 
 [heading Boost 1.78]
 

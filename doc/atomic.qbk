@@ -1,6 +1,6 @@
 [/
  / Copyright (c) 2009 Helge Bahmann
- / Copyright (c) 2014, 2017, 2018, 2020, 2021 Andrey Semashev
+ / Copyright (c) 2014, 2017, 2018, 2020-2022 Andrey Semashev
  /
  / Distributed under the Boost Software License, Version 1.0. (See accompanying
  / file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -11,7 +11,7 @@
     [authors [Bahmann, Helge][Semashev, Andrey]]
     [copyright 2011 Helge Bahmann]
     [copyright 2012 Tim Blechmann]
-    [copyright 2013, 2017, 2018, 2020, 2021 Andrey Semashev]
+    [copyright 2013, 2017, 2018, 2020-2022 Andrey Semashev]
     [id atomic]
     [dirname atomic]
     [purpose Atomic operations]
@@ -386,6 +386,9 @@ The following macros affect library behavior:
     [[`BOOST_ATOMIC_NO_FLOATING_POINT`] [When defined, support for floating point operations is disabled.
       Floating point types shall be treated similar to trivially copyable structs and no capability macros
       will be defined.]]
+    [[`BOOST_ATOMIC_NO_DARWIN_ULOCK`] [Affects compilation on Darwin systems (Mac OS, iOS, tvOS, watchOS).
+      When defined, disables use of `ulock` API to implement waiting and notifying operations. This may
+      be useful to comply with Apple App Store requirements.]]
     [[`BOOST_ATOMIC_FORCE_FALLBACK`] [When defined, all operations are implemented with locks.
       This is mostly used for testing and should not be used in real world projects.]]
     [[`BOOST_ATOMIC_DYN_LINK` and `BOOST_ALL_DYN_LINK`] [Control library linking. If defined,
