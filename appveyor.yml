@@ -57,7 +57,15 @@ environment:
       CXXSTD: 03,11,03-gnu,11-gnu
       ADDPATH: C:\cygwin64\bin
       B2_ARGS: instruction-set=core2
+      # Cygwin 3.0.7
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+    - TOOLSET: gcc
+      ADDRESS_MODEL: 64
+      CXXSTD: 03,11,03-gnu,11-gnu
+      ADDPATH: C:\cygwin64\bin
+      B2_ARGS: instruction-set=core2
+      # Cygwin 3.1.7
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2022
     - TOOLSET: gcc
       ADDRESS_MODEL: 64
       CXXSTD: 03,11,14,03-gnu,11-gnu,14-gnu
