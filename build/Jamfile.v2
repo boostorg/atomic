@@ -74,6 +74,7 @@ for local src in $(BOOST_ATOMIC_SOURCES_SSE2)
             <link>shared:<define>BOOST_ATOMIC_DYN_LINK=1
             <link>static:<define>BOOST_ATOMIC_STATIC_LINK=1
             <define>BOOST_ATOMIC_SOURCE
+            <include>../src
         ;
 
     explicit $(src) ;
@@ -89,6 +90,7 @@ for local src in $(BOOST_ATOMIC_SOURCES_SSE41)
             <link>shared:<define>BOOST_ATOMIC_DYN_LINK=1
             <link>static:<define>BOOST_ATOMIC_STATIC_LINK=1
             <define>BOOST_ATOMIC_SOURCE
+            <include>../src
         ;
 
     explicit $(src) ;
