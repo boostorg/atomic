@@ -44,6 +44,7 @@ rule check-synchronization-lib ( properties * )
 
 project boost/atomic
     : requirements
+      <include>../src
       <threading>multi
       <link>shared:<define>BOOST_ATOMIC_DYN_LINK=1
       <link>static:<define>BOOST_ATOMIC_STATIC_LINK=1

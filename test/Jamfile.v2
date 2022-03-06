@@ -12,6 +12,7 @@ import testing ;
 
 project boost/atomic/test
     : requirements
+      <include>.
       <threading>multi
       <library>/boost/chrono//boost_chrono
       <library>/boost/thread//boost_thread
