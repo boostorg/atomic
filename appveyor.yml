@@ -34,21 +34,22 @@ environment:
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     - TOOLSET: msvc-14.0
       ADDRESS_MODEL: 64
+      CXXSTD: 14,latest
       B2_ARGS: instruction-set=core2
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     - TOOLSET: msvc-14.1
       ADDRESS_MODEL: 64
-      CXXSTD: 14,17
+      CXXSTD: 14,17,latest
       B2_ARGS: instruction-set=core2
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
     - TOOLSET: msvc-14.2
       ADDRESS_MODEL: 64
-      CXXSTD: 14,17
+      CXXSTD: 14,17,latest
       B2_ARGS: instruction-set=core2 define=_WIN32_WINNT=0x0602
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
     - TOOLSET: clang-win
       ADDRESS_MODEL: 64
-      CXXSTD: 14,17
+      CXXSTD: 14,17,latest
       B2_ARGS: instruction-set=core2 cxxflags="-mcx16"
       ENV_SCRIPT: C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
@@ -95,21 +96,22 @@ environment:
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     - TOOLSET: msvc-14.0
       ADDRESS_MODEL: 32
+      CXXSTD: 14,latest
       B2_ARGS: instruction-set=core2
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     - TOOLSET: msvc-14.1
       ADDRESS_MODEL: 32
-      CXXSTD: 14,17
+      CXXSTD: 14,17,latest
       B2_ARGS: instruction-set=core2
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
     - TOOLSET: msvc-14.2
       ADDRESS_MODEL: 32
-      CXXSTD: 14,17
+      CXXSTD: 14,17,latest
       B2_ARGS: instruction-set=core2
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
     - TOOLSET: clang-win
       ADDRESS_MODEL: 32
-      CXXSTD: 14,17
+      CXXSTD: 14,17,latest
       B2_ARGS: instruction-set=core2
       ENV_SCRIPT: C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars32.bat
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
