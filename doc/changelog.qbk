@@ -10,6 +10,7 @@
 [heading Boost 1.80]
 
 * Improved portability of endianness checks on ARM, AArch32 and AArch64 targets. ([github_issue 59])
+* Fixed compilation with MSVC 14.0 (Visual Studio 2015) in C++17 mode. ([github_issue 61])
 
 [heading Boost 1.79]
 
