@@ -44,7 +44,7 @@ environment:
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
     - TOOLSET: msvc-14.2
       ADDRESS_MODEL: 64
-      CXXSTD: 14,17,latest
+      CXXSTD: 14,17,20,latest
       B2_ARGS: instruction-set=core2 define=_WIN32_WINNT=0x0602
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
     - TOOLSET: msvc-14.3
@@ -111,7 +111,7 @@ environment:
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
     - TOOLSET: msvc-14.2
       ADDRESS_MODEL: 32
-      CXXSTD: 14,17,latest
+      CXXSTD: 14,17,20,latest
       B2_ARGS: instruction-set=core2
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
     - TOOLSET: clang-win
