@@ -34,7 +34,7 @@ jobs:
       matrix:
         include:
           # Note: In the matrix below, we always use a Docker container when we test 32-bit targets since the host runner
-          # does have permissions to configure dpkg/apt, which prevents adding i386 target architecture.
+          # does not have permissions to configure dpkg/apt, which prevents adding i386 target architecture.
           # Linux, gcc
           - toolset: gcc-4.4
             cxxstd64: "98,0x"
