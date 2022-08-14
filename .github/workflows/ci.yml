@@ -39,7 +39,7 @@ jobs:
           - toolset: gcc-4.4
             cxxstd64: "98,0x"
             cxxstd32: "98,0x"
-            os: ubuntu-20.04
+            os: ubuntu-latest
             container: ubuntu:16.04
             install:
               - g++-4.4
@@ -50,7 +50,7 @@ jobs:
           - toolset: gcc-4.6
             cxxstd64: "03,0x"
             cxxstd32: "03,0x"
-            os: ubuntu-20.04
+            os: ubuntu-latest
             container: ubuntu:16.04
             install:
               - g++-4.6
@@ -61,7 +61,7 @@ jobs:
           - toolset: gcc-4.7
             cxxstd64: "03,11"
             cxxstd32: "03,11"
-            os: ubuntu-20.04
+            os: ubuntu-latest
             container: ubuntu:16.04
             install:
               - g++-4.7
@@ -70,7 +70,7 @@ jobs:
           - toolset: gcc-4.8
             cxxstd64: "03,11"
             cxxstd32: "03,11"
-            os: ubuntu-20.04
+            os: ubuntu-latest
             container: ubuntu:18.04
             install:
               - g++-4.8
@@ -79,7 +79,7 @@ jobs:
           - toolset: gcc-4.9
             cxxstd64: "03,11"
             cxxstd32: "03,11"
-            os: ubuntu-20.04
+            os: ubuntu-latest
             container: ubuntu:16.04
             install:
               - g++-4.9
@@ -88,7 +88,7 @@ jobs:
           - toolset: gcc-5
             cxxstd64: "03,11,14,1z"
             cxxstd32: "03,11"
-            os: ubuntu-20.04
+            os: ubuntu-latest
             container: ubuntu:18.04
             install:
               - g++-5
@@ -97,7 +97,7 @@ jobs:
           - toolset: gcc-6
             cxxstd64: "03,11,14,1z"
             cxxstd32: "03,11"
-            os: ubuntu-20.04
+            os: ubuntu-latest
             container: ubuntu:18.04
             install:
               - g++-6
@@ -106,7 +106,7 @@ jobs:
           - toolset: gcc-7
             cxxstd64: "03,11,14,17"
             cxxstd32: "03,11"
-            os: ubuntu-20.04
+            os: ubuntu-latest
             container: ubuntu:20.04
             install:
               - g++-7
@@ -115,7 +115,7 @@ jobs:
           - toolset: gcc-8
             cxxstd64: "03,11,14,17,2a,03-gnu,11-gnu,14-gnu,17-gnu,2a-gnu"
             cxxstd32: "03,11,03-gnu,11-gnu"
-            os: ubuntu-20.04
+            os: ubuntu-latest
             container: ubuntu:20.04
             install:
               - g++-8
@@ -124,7 +124,7 @@ jobs:
           - toolset: gcc-9
             cxxstd64: "03,11,14,17,2a,03-gnu,11-gnu,14-gnu,17-gnu,2a-gnu"
             cxxstd32: "03,11,03-gnu,11-gnu"
-            os: ubuntu-20.04
+            os: ubuntu-latest
             container: ubuntu:20.04
             install:
               - g++-9
@@ -133,7 +133,7 @@ jobs:
           - toolset: gcc-10
             cxxstd64: "03,11,14,17,20,03-gnu,11-gnu,14-gnu,17-gnu,20-gnu"
             cxxstd32: "03,11,03-gnu,11-gnu"
-            os: ubuntu-20.04
+            os: ubuntu-latest
             container: ubuntu:20.04
             install:
               - g++-10
@@ -142,7 +142,7 @@ jobs:
           - toolset: gcc-11
             cxxstd64: "03,11,14,17,20,03-gnu,11-gnu,14-gnu,17-gnu,20-gnu"
             cxxstd32: "03,11,03-gnu,11-gnu"
-            os: ubuntu-20.04
+            os: ubuntu-latest
             container: ubuntu:20.04
             install:
               - g++-11
@@ -156,7 +156,7 @@ jobs:
             cxxstd32: "03,11,03-gnu,11-gnu"
             ubsan: 1
             build_variant: debug
-            os: ubuntu-20.04
+            os: ubuntu-latest
             container: ubuntu:20.04
             install:
               - g++-11
@@ -170,7 +170,7 @@ jobs:
             compiler: clang++-3.5
             cxxstd64: "03,11"
             cxxstd32: "03,11"
-            os: ubuntu-20.04
+            os: ubuntu-latest
             container: ubuntu:16.04
             install:
               - clang-3.5
@@ -182,7 +182,7 @@ jobs:
             compiler: clang++-3.6
             cxxstd64: "03,11,14"
             cxxstd32: "03,11"
-            os: ubuntu-20.04
+            os: ubuntu-latest
             container: ubuntu:16.04
             install:
               - clang-3.6
@@ -194,7 +194,7 @@ jobs:
             compiler: clang++-3.7
             cxxstd64: "03,11,14"
             cxxstd32: "03,11"
-            os: ubuntu-20.04
+            os: ubuntu-latest
             container: ubuntu:16.04
             install:
               - clang-3.7
@@ -206,7 +206,7 @@ jobs:
             compiler: clang++-3.8
             cxxstd64: "03,11,14"
             cxxstd32: "03,11"
-            os: ubuntu-20.04
+            os: ubuntu-latest
             container: ubuntu:16.04
             install:
               - clang-3.8
@@ -218,7 +218,7 @@ jobs:
             compiler: clang++-3.9
             cxxstd64: "03,11,14"
             cxxstd32: "03,11"
-            os: ubuntu-20.04
+            os: ubuntu-latest
             container: ubuntu:18.04
             install:
               - clang-3.9
@@ -230,7 +230,7 @@ jobs:
             compiler: clang++-4.0
             cxxstd64: "03,11,14"
             cxxstd32: "03,11"
-            os: ubuntu-20.04
+            os: ubuntu-latest
             container: ubuntu:18.04
             install:
               - clang-4.0
@@ -244,7 +244,7 @@ jobs:
             cxxstd64: "03,11,14,1z"
             cxxstd32: "03,11"
             cxxflags: -DBOOST_ATOMIC_TESTS_NO_INT128 -DBOOST_ATOMIC_TESTS_NO_FLOAT128
-            os: ubuntu-20.04
+            os: ubuntu-latest
             container: ubuntu:18.04
             install:
               - clang-5.0
@@ -256,7 +256,7 @@ jobs:
             compiler: clang++-6.0
             cxxstd64: "03,11,14,17"
             cxxstd32: "03,11"
-            os: ubuntu-20.04
+            os: ubuntu-latest
             container: ubuntu:18.04
             install:
               - clang-6.0
@@ -268,7 +268,7 @@ jobs:
             compiler: clang++-7
             cxxstd64: "03,11,14,17"
             cxxstd32: "03,11"
-            os: ubuntu-20.04
+            os: ubuntu-latest
             container: ubuntu:18.04
             install:
               - clang-7
@@ -281,7 +281,7 @@ jobs:
             compiler: clang++-8
             cxxstd64: "03,11,14,17,2a"
             cxxstd32: "03,11"
-            os: ubuntu-20.04
+            os: ubuntu-latest
             container: ubuntu:18.04
             install:
               - clang-8
@@ -293,7 +293,7 @@ jobs:
             compiler: clang++-9
             cxxstd64: "03,11,14,17,2a"
             cxxstd32: "03,11"
-            os: ubuntu-20.04
+            os: ubuntu-latest
             container: ubuntu:20.04
             install:
               - clang-9
@@ -305,7 +305,7 @@ jobs:
             compiler: clang++-10
             cxxstd64: "03,11,14,17,20,03-gnu,11-gnu,14-gnu,17-gnu,20-gnu"
             cxxstd32: "03,11,03-gnu,11-gnu"
-            os: ubuntu-20.04
+            os: ubuntu-latest
             container: ubuntu:20.04
             install:
               - clang-10
@@ -317,7 +317,7 @@ jobs:
             compiler: clang++-11
             cxxstd64: "03,11,14,17,20,03-gnu,11-gnu,14-gnu,17-gnu,20-gnu"
             cxxstd32: "03,11,03-gnu,11-gnu"
-            os: ubuntu-20.04
+            os: ubuntu-latest
             container: ubuntu:20.04
             install:
               - clang-11
@@ -329,7 +329,7 @@ jobs:
             compiler: clang++-12
             cxxstd64: "03,11,14,17,20,03-gnu,11-gnu,14-gnu,17-gnu,20-gnu"
             cxxstd32: "03,11,03-gnu,11-gnu"
-            os: ubuntu-20.04
+            os: ubuntu-latest
             container: ubuntu:20.04
             install:
               - clang-12
