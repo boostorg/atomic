@@ -140,30 +140,35 @@ jobs:
               - g++-10-multilib
               - linux-libc-dev:i386
           - toolset: gcc-11
-            cxxstd64: "03,11,14,17,20,03-gnu,11-gnu,14-gnu,17-gnu,20-gnu"
+            cxxstd64: "03,11,14,17,20,23,03-gnu,11-gnu,14-gnu,17-gnu,20-gnu,23-gnu"
             cxxstd32: "03,11,03-gnu,11-gnu"
             os: ubuntu-latest
-            container: ubuntu:20.04
+            container: ubuntu:22.04
             install:
               - g++-11
               - g++-11-multilib
               - linux-libc-dev:i386
-            sources:
-              - "ppa:ubuntu-toolchain-r/test"
+          - toolset: gcc-12
+            cxxstd64: "03,11,14,17,20,23,03-gnu,11-gnu,14-gnu,17-gnu,20-gnu,23-gnu"
+            cxxstd32: "03,11,03-gnu,11-gnu"
+            os: ubuntu-latest
+            container: ubuntu:22.04
+            install:
+              - g++-12
+              - g++-12-multilib
+              - linux-libc-dev:i386
           - name: UBSAN
             toolset: gcc-11
-            cxxstd64: "03,11,14,17,20,03-gnu,11-gnu,14-gnu,17-gnu,20-gnu"
+            cxxstd64: "03,11,14,17,20,23,03-gnu,11-gnu,14-gnu,17-gnu,20-gnu,23-gnu"
             cxxstd32: "03,11,03-gnu,11-gnu"
             ubsan: 1
             build_variant: debug
             os: ubuntu-latest
-            container: ubuntu:20.04
+            container: ubuntu:22.04
             install:
               - g++-11
               - g++-11-multilib
               - linux-libc-dev:i386
-            sources:
-              - "ppa:ubuntu-toolchain-r/test"
 
           # Linux, clang
           - toolset: clang
@@ -318,7 +323,7 @@ jobs:
             cxxstd64: "03,11,14,17,20,03-gnu,11-gnu,14-gnu,17-gnu,20-gnu"
             cxxstd32: "03,11,03-gnu,11-gnu"
             os: ubuntu-latest
-            container: ubuntu:20.04
+            container: ubuntu:22.04
             install:
               - clang-11
               - g++-10
@@ -327,39 +332,83 @@ jobs:
             gcc_toolchain: 10
           - toolset: clang
             compiler: clang++-12
-            cxxstd64: "03,11,14,17,20,03-gnu,11-gnu,14-gnu,17-gnu,20-gnu"
+            cxxstd64: "03,11,14,17,20,2b,03-gnu,11-gnu,14-gnu,17-gnu,20-gnu,2b-gnu"
             cxxstd32: "03,11,03-gnu,11-gnu"
             os: ubuntu-latest
-            container: ubuntu:20.04
+            container: ubuntu:22.04
             install:
               - clang-12
-              - g++-10
-              - g++-10-multilib
+              - g++-11
+              - g++-11-multilib
               - linux-libc-dev:i386
-            gcc_toolchain: 10
+            gcc_toolchain: 11
           - toolset: clang
-            compiler: clang++-12
-            cxxstd64: "03,11,14,17,20"
+            compiler: clang++-13
+            cxxstd64: "03,11,14,17,20,2b,03-gnu,11-gnu,14-gnu,17-gnu,20-gnu,2b-gnu"
+            cxxstd32: "03,11,03-gnu,11-gnu"
+            os: ubuntu-latest
+            container: ubuntu:22.04
+            install:
+              - clang-13
+              - g++-11
+              - g++-11-multilib
+              - linux-libc-dev:i386
+            gcc_toolchain: 11
+          - toolset: clang
+            compiler: clang++-14
+            cxxstd64: "03,11,14,17,20,2b,03-gnu,11-gnu,14-gnu,17-gnu,20-gnu,2b-gnu"
+            cxxstd32: "03,11,03-gnu,11-gnu"
+            os: ubuntu-latest
+            container: ubuntu:22.04
+            install:
+              - clang-14
+              - g++-11
+              - g++-11-multilib
+              - linux-libc-dev:i386
+            gcc_toolchain: 11
+          - toolset: clang
+            compiler: clang++-15
+            cxxstd64: "03,11,14,17,20,2b,03-gnu,11-gnu,14-gnu,17-gnu,20-gnu,2b-gnu"
+            cxxstd32: "03,11,03-gnu,11-gnu"
+            os: ubuntu-latest
+            container: ubuntu:22.04
+            install:
+              - clang-15
+              - g++-11
+              - g++-11-multilib
+              - linux-libc-dev:i386
+            gcc_toolchain: 11
+            sources:
+              - "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-15 main"
+            source_keys:
+              - "https://apt.llvm.org/llvm-snapshot.gpg.key"
+          - toolset: clang
+            compiler: clang++-15
+            cxxstd64: "03,11,14,17,20,2b"
             cxxflags: -stdlib=libc++
             linkflags: -stdlib=libc++
-            os: ubuntu-20.04
+            os: ubuntu-22.04
             install:
-              - clang-12
-              - libc++-12-dev
-              - libc++abi-12-dev
+              - clang-15
+              - libc++-15-dev
+              - libc++abi-15-dev
+            sources:
+              - "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-15 main"
+            source_keys:
+              - "https://apt.llvm.org/llvm-snapshot.gpg.key"
           - name: UBSAN
             toolset: clang
-            compiler: clang++-12
-            cxxstd64: "03,11,14,17,20,03-gnu,11-gnu,14-gnu,17-gnu,20-gnu"
+            compiler: clang++-14
+            cxxstd64: "03,11,14,17,20,2b,03-gnu,11-gnu,14-gnu,17-gnu,20-gnu,2b-gnu"
             cxxflags: -stdlib=libc++
             linkflags: -stdlib=libc++
             ubsan: 1
             build_variant: debug
-            os: ubuntu-20.04
+            os: ubuntu-22.04
             install:
-              - clang-12
-              - libc++-12-dev
-              - libc++abi-12-dev
+              - clang-14
+              - libc++-14-dev
+              - libc++abi-14-dev
 
           - toolset: clang
             cxxstd64: "03,11,14,17,2a"
