@@ -860,6 +860,9 @@ struct gcc_dcas_x86_64
 {
     typedef typename storage_traits< 16u >::type storage_type;
     typedef uint64_t BOOST_ATOMIC_DETAIL_MAY_ALIAS aliasing_uint64_t;
+#if defined(__AVX__)
+    typedef uint64_t __attribute__((__vector_size__(16))) xmm_t;
+#endif
 
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 16u;
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_alignment = 16u;
@@ -870,6 +873,29 @@ struct gcc_dcas_x86_64
 
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
     {
+#if defined(__AVX__)
+        if (BOOST_LIKELY((((uintptr_t)&storage) & 15u) == 0u))
+        {
+            // According to SDM Volume 3, 8.1.1 Guaranteed Atomic Operations, processors supporting AVX guarantee
+            // aligned vector moves to be atomic.
+#if defined(BOOST_HAS_INT128)
+            xmm_t value = { static_cast< uint64_t >(v), static_cast< uint64_t >(v >> 64u) };
+#else
+            xmm_t value;
+            BOOST_ATOMIC_DETAIL_MEMCPY(&value, &v, sizeof(v));
+#endif
+            __asm__ __volatile__
+            (
+                "vmovdqa %[value], %[storage]\n\t"
+                : [storage] "=m" (storage)
+                : [value] "x" (value)
+                : "memory"
+            );
+
+            return;
+        }
+#endif // defined(__AVX__)
+
         __asm__ __volatile__
         (
             "movq %[dest_lo], %%rax\n\t"
@@ -885,6 +911,31 @@ struct gcc_dcas_x86_64
 
     static BOOST_FORCEINLINE storage_type load(storage_type const volatile& storage, memory_order) BOOST_NOEXCEPT
     {
+#if defined(__AVX__)
+        if (BOOST_LIKELY((((uintptr_t)&storage) & 15u) == 0u))
+        {
+            // According to SDM Volume 3, 8.1.1 Guaranteed Atomic Operations, processors supporting AVX guarantee
+            // aligned vector moves to be atomic.
+            xmm_t v;
+            __asm__ __volatile__
+            (
+                "vmovdqa %[storage], %[value]\n\t"
+                : [value] "=x" (v)
+                : [storage] "m" (storage)
+                : "memory"
+            );
+
+#if defined(BOOST_HAS_INT128) && (!defined(BOOST_GCC) || BOOST_GCC >= 40800)
+            // gcc prior to 4.8 don't support subscript operator for vector types
+            storage_type value = static_cast< storage_type >(v[0]) | (static_cast< storage_type >(v[1]) << 64u);
+#else
+            storage_type value;
+            BOOST_ATOMIC_DETAIL_MEMCPY(&value, &v, sizeof(v));
+#endif
+            return value;
+        }
+#endif // defined(__AVX__)
+
         // Note that despite const qualification cmpxchg16b below may issue a store to the storage. The storage value
         // will not change, but this prevents the storage to reside in read-only memory.
 
@@ -904,8 +955,12 @@ struct gcc_dcas_x86_64
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
 
+#if defined(BOOST_HAS_INT128)
+        storage_type value = static_cast< storage_type >(value_bits[0]) | (static_cast< storage_type >(value_bits[1]) << 64u);
+#else
         storage_type value;
         BOOST_ATOMIC_DETAIL_MEMCPY(&value, value_bits, sizeof(value));
+#endif
         return value;
 
 #else // defined(BOOST_ATOMIC_DETAIL_X86_NO_ASM_AX_DX_PAIRS)
@@ -1004,8 +1059,12 @@ struct gcc_dcas_x86_64
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
 
+#if defined(BOOST_HAS_INT128)
+        storage_type old_value = static_cast< storage_type >(old_bits[0]) | (static_cast< storage_type >(old_bits[1]) << 64u);
+#else
         storage_type old_value;
         BOOST_ATOMIC_DETAIL_MEMCPY(&old_value, old_bits, sizeof(old_value));
+#endif
         return old_value;
 #else // defined(BOOST_ATOMIC_DETAIL_X86_NO_ASM_AX_DX_PAIRS)
         storage_type old_value;
