@@ -10,6 +10,7 @@
 [heading Boost 1.82]
 
 * When compiled for x86 targets supporting AVX, vector instructions are now used for 128-bit atomic loads and stores.
+* For 32-bit x86 targets, 64-bit atomic loads and stores with `memory_order_seq_cst` semantics will now issue a memory ordering instruction.
 
 [heading Boost 1.80]
 

@@ -591,12 +591,12 @@ struct msvc_dcas_x86
     // Luckily, the memory is almost always 8-byte aligned in our case because atomic<> uses 64 bit native types for storage and dynamic memory allocations
     // have at least 8 byte alignment. The only unfortunate case is when atomic is placed on the stack and it is not 8-byte aligned (like on 32 bit Windows).
 
-    static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
         BOOST_ATOMIC_DETAIL_COMPILER_BARRIER();
 
         storage_type volatile* p = &storage;
-        if (BOOST_LIKELY(((uintptr_t)p & 0x00000007) == 0u))
+        if (BOOST_LIKELY(order != memory_order_seq_cst && ((uintptr_t)p & 7u) == 0u))
         {
 #if defined(_M_IX86_FP) && _M_IX86_FP >= 2
 #if defined(__AVX__)
@@ -652,7 +652,7 @@ struct msvc_dcas_x86
         storage_type const volatile* p = &storage;
         storage_type value;
 
-        if (BOOST_LIKELY(((uintptr_t)p & 0x00000007) == 0u))
+        if (BOOST_LIKELY(((uintptr_t)p & 7u) == 0u))
         {
 #if defined(_M_IX86_FP) && _M_IX86_FP >= 2
 #if defined(__AVX__)
@@ -837,10 +837,10 @@ struct msvc_dcas_x86_64
     static BOOST_CONSTEXPR_OR_CONST std::size_t storage_alignment = 16u;
     static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
 
-    static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
 #if defined(__AVX__)
-        if (BOOST_LIKELY((((uintptr_t)&storage) & 15u) == 0u))
+        if (BOOST_LIKELY(order != memory_order_seq_cst && (((uintptr_t)&storage) & 15u) == 0u))
         {
             BOOST_ATOMIC_DETAIL_COMPILER_BARRIER();
             __m128i value;
