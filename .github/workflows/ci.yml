@@ -21,7 +21,8 @@ env:
   GIT_FETCH_JOBS: 8
   NET_RETRY_COUNT: 5
   DEFAULT_BUILD_VARIANT: debug,release
-  DEFAULT_INSTRUCTION_SET: core2
+  # Note: Various clang versions exhibit problems like ICEs, code miscompiles and timeouts if we use "native" here.
+  DEFAULT_INSTRUCTION_SET: sandy-bridge
 
 jobs:
   posix:
@@ -39,6 +40,7 @@ jobs:
           - toolset: gcc-4.4
             cxxstd64: "98,0x"
             cxxstd32: "98,0x"
+            instruction_set: core2
             os: ubuntu-latest
             container: ubuntu:16.04
             install:
