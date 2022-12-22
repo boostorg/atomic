@@ -11,6 +11,7 @@
 
 * When compiled for x86 targets supporting AVX, vector instructions are now used for 128-bit atomic loads and stores.
 * For 32-bit x86 targets, 64-bit atomic loads and stores with `memory_order_seq_cst` semantics will now issue a memory ordering instruction.
+* Removed `atomic<T>::storage()` accessors and `atomic<T>::storage_type` types that were deprecated in Boost.Atomic 1.73. Users are recommended to use `atomic<T>::value()` and `atomic<T>::value_type` instead.
 
 [heading Boost 1.80]
 
