@@ -380,10 +380,6 @@ jobs:
               - g++-11-multilib
               - linux-libc-dev:i386
             gcc_toolchain: 11
-            sources:
-              - "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-15 main"
-            source_keys:
-              - "https://apt.llvm.org/llvm-snapshot.gpg.key"
           - toolset: clang
             compiler: clang++-15
             cxxstd64: "03,11,14,17,20,2b"
@@ -394,13 +390,39 @@ jobs:
               - clang-15
               - libc++-15-dev
               - libc++abi-15-dev
+          - toolset: clang
+            compiler: clang++-16
+            cxxstd64: "03,11,14,17,20,2b,03-gnu,11-gnu,14-gnu,17-gnu,20-gnu,2b-gnu"
+            cxxstd32: "03,11,03-gnu,11-gnu"
+            os: ubuntu-latest
+            container: ubuntu:22.04
+            install:
+              - clang-16
+              - g++-11
+              - g++-11-multilib
+              - linux-libc-dev:i386
+            gcc_toolchain: 11
             sources:
-              - "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-15 main"
+              - "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-16 main"
+            source_keys:
+              - "https://apt.llvm.org/llvm-snapshot.gpg.key"
+          - toolset: clang
+            compiler: clang++-16
+            cxxstd64: "03,11,14,17,20,2b"
+            cxxflags: -stdlib=libc++
+            linkflags: -stdlib=libc++
+            os: ubuntu-22.04
+            install:
+              - clang-16
+              - libc++-16-dev
+              - libc++abi-16-dev
+            sources:
+              - "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-16 main"
             source_keys:
               - "https://apt.llvm.org/llvm-snapshot.gpg.key"
           - name: UBSAN
             toolset: clang
-            compiler: clang++-14
+            compiler: clang++-15
             cxxstd64: "03,11,14,17,20,2b,03-gnu,11-gnu,14-gnu,17-gnu,20-gnu,2b-gnu"
             cxxflags: -stdlib=libc++
             linkflags: -stdlib=libc++
@@ -408,9 +430,9 @@ jobs:
             build_variant: debug
             os: ubuntu-22.04
             install:
-              - clang-14
-              - libc++-14-dev
-              - libc++abi-14-dev
+              - clang-15
+              - libc++-15-dev
+              - libc++abi-15-dev
 
           - toolset: clang
             cxxstd64: "03,11,14,17,2a"
