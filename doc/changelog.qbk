@@ -9,6 +9,7 @@
 
 [heading Boost 1.84]
 
+* C++03 is no longer supported, the minimum required language version is C++11.
 * Added support for x87 extended double with reduced precision, which is used on FreeBSD and OpenBSD. ([github_issue 14])
 
 [heading Boost 1.83]

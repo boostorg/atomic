@@ -37,21 +37,9 @@ jobs:
           # Note: In the matrix below, we always use a Docker container when we test 32-bit targets since the host runner
           # does not have permissions to configure dpkg/apt, which prevents adding i386 target architecture.
           # Linux, gcc
-          - toolset: gcc-4.4
-            cxxstd64: "98,0x"
-            cxxstd32: "98,0x"
-            instruction_set: core2
-            os: ubuntu-latest
-            container: ubuntu:16.04
-            install:
-              - g++-4.4
-              - g++-4.4-multilib
-              - linux-libc-dev:i386
-            sources:
-              - "ppa:ubuntu-toolchain-r/test"
           - toolset: gcc-4.6
-            cxxstd64: "03,0x"
-            cxxstd32: "03,0x"
+            cxxstd64: "0x"
+            cxxstd32: "0x"
             os: ubuntu-latest
             container: ubuntu:16.04
             install:
@@ -61,8 +49,8 @@ jobs:
             sources:
               - "ppa:ubuntu-toolchain-r/test"
           - toolset: gcc-4.7
-            cxxstd64: "03,11"
-            cxxstd32: "03,11"
+            cxxstd64: "11"
+            cxxstd32: "11"
             os: ubuntu-latest
             container: ubuntu:16.04
             install:
@@ -70,8 +58,8 @@ jobs:
               - g++-4.7-multilib
               - linux-libc-dev:i386
           - toolset: gcc-4.8
-            cxxstd64: "03,11"
-            cxxstd32: "03,11"
+            cxxstd64: "11"
+            cxxstd32: "11"
             os: ubuntu-latest
             container: ubuntu:18.04
             install:
@@ -79,8 +67,8 @@ jobs:
               - g++-4.8-multilib
               - linux-libc-dev:i386
           - toolset: gcc-4.9
-            cxxstd64: "03,11"
-            cxxstd32: "03,11"
+            cxxstd64: "11"
+            cxxstd32: "11"
             os: ubuntu-latest
             container: ubuntu:16.04
             install:
@@ -88,8 +76,8 @@ jobs:
               - g++-4.9-multilib
               - linux-libc-dev:i386
           - toolset: gcc-5
-            cxxstd64: "03,11,14,1z"
-            cxxstd32: "03,11"
+            cxxstd64: "11,14,1z"
+            cxxstd32: "11"
             os: ubuntu-latest
             container: ubuntu:18.04
             install:
@@ -97,8 +85,8 @@ jobs:
               - g++-5-multilib
               - linux-libc-dev:i386
           - toolset: gcc-6
-            cxxstd64: "03,11,14,1z"
-            cxxstd32: "03,11"
+            cxxstd64: "11,14,1z"
+            cxxstd32: "11"
             os: ubuntu-latest
             container: ubuntu:18.04
             install:
@@ -106,8 +94,8 @@ jobs:
               - g++-6-multilib
               - linux-libc-dev:i386
           - toolset: gcc-7
-            cxxstd64: "03,11,14,17"
-            cxxstd32: "03,11"
+            cxxstd64: "11,14,17"
+            cxxstd32: "11"
             os: ubuntu-latest
             container: ubuntu:20.04
             install:
@@ -115,8 +103,8 @@ jobs:
               - g++-7-multilib
               - linux-libc-dev:i386
           - toolset: gcc-8
-            cxxstd64: "03,11,14,17,2a,03-gnu,11-gnu,14-gnu,17-gnu,2a-gnu"
-            cxxstd32: "03,11,03-gnu,11-gnu"
+            cxxstd64: "11,14,17,2a,11-gnu,14-gnu,17-gnu,2a-gnu"
+            cxxstd32: "11,11-gnu"
             os: ubuntu-latest
             container: ubuntu:20.04
             install:
@@ -124,8 +112,8 @@ jobs:
               - g++-8-multilib
               - linux-libc-dev:i386
           - toolset: gcc-9
-            cxxstd64: "03,11,14,17,2a,03-gnu,11-gnu,14-gnu,17-gnu,2a-gnu"
-            cxxstd32: "03,11,03-gnu,11-gnu"
+            cxxstd64: "11,14,17,2a,11-gnu,14-gnu,17-gnu,2a-gnu"
+            cxxstd32: "11,11-gnu"
             os: ubuntu-latest
             container: ubuntu:20.04
             install:
@@ -133,8 +121,8 @@ jobs:
               - g++-9-multilib
               - linux-libc-dev:i386
           - toolset: gcc-10
-            cxxstd64: "03,11,14,17,20,03-gnu,11-gnu,14-gnu,17-gnu,20-gnu"
-            cxxstd32: "03,11,03-gnu,11-gnu"
+            cxxstd64: "11,14,17,20,11-gnu,14-gnu,17-gnu,20-gnu"
+            cxxstd32: "11,11-gnu"
             os: ubuntu-latest
             container: ubuntu:20.04
             install:
@@ -142,8 +130,8 @@ jobs:
               - g++-10-multilib
               - linux-libc-dev:i386
           - toolset: gcc-11
-            cxxstd64: "03,11,14,17,20,23,03-gnu,11-gnu,14-gnu,17-gnu,20-gnu,23-gnu"
-            cxxstd32: "03,11,03-gnu,11-gnu"
+            cxxstd64: "11,14,17,20,23,11-gnu,14-gnu,17-gnu,20-gnu,23-gnu"
+            cxxstd32: "11,11-gnu"
             os: ubuntu-latest
             container: ubuntu:22.04
             install:
@@ -151,8 +139,8 @@ jobs:
               - g++-11-multilib
               - linux-libc-dev:i386
           - toolset: gcc-12
-            cxxstd64: "03,11,14,17,20,23,03-gnu,11-gnu,14-gnu,17-gnu,20-gnu,23-gnu"
-            cxxstd32: "03,11,03-gnu,11-gnu"
+            cxxstd64: "11,14,17,20,23,11-gnu,14-gnu,17-gnu,20-gnu,23-gnu"
+            cxxstd32: "11,11-gnu"
             os: ubuntu-latest
             container: ubuntu:22.04
             install:
@@ -161,8 +149,8 @@ jobs:
               - linux-libc-dev:i386
           - name: UBSAN
             toolset: gcc-11
-            cxxstd64: "03,11,14,17,20,23,03-gnu,11-gnu,14-gnu,17-gnu,20-gnu,23-gnu"
-            cxxstd32: "03,11,03-gnu,11-gnu"
+            cxxstd64: "11,14,17,20,23,11-gnu,14-gnu,17-gnu,20-gnu,23-gnu"
+            cxxstd32: "11,11-gnu"
             ubsan: 1
             build_variant: debug
             os: ubuntu-latest
@@ -175,8 +163,8 @@ jobs:
           # Linux, clang
           - toolset: clang
             compiler: clang++-3.5
-            cxxstd64: "03,11"
-            cxxstd32: "03,11"
+            cxxstd64: "11"
+            cxxstd32: "11"
             os: ubuntu-latest
             container: ubuntu:16.04
             install:
@@ -187,8 +175,8 @@ jobs:
             gcc_toolchain: 4.9
           - toolset: clang
             compiler: clang++-3.6
-            cxxstd64: "03,11,14"
-            cxxstd32: "03,11"
+            cxxstd64: "11,14"
+            cxxstd32: "11"
             os: ubuntu-latest
             container: ubuntu:16.04
             install:
@@ -199,8 +187,8 @@ jobs:
             gcc_toolchain: 4.9
           - toolset: clang
             compiler: clang++-3.7
-            cxxstd64: "03,11,14"
-            cxxstd32: "03,11"
+            cxxstd64: "11,14"
+            cxxstd32: "11"
             os: ubuntu-latest
             container: ubuntu:16.04
             install:
@@ -211,8 +199,8 @@ jobs:
             gcc_toolchain: 4.9
           - toolset: clang
             compiler: clang++-3.8
-            cxxstd64: "03,11,14"
-            cxxstd32: "03,11"
+            cxxstd64: "11,14"
+            cxxstd32: "11"
             os: ubuntu-latest
             container: ubuntu:16.04
             install:
@@ -223,8 +211,8 @@ jobs:
             gcc_toolchain: 4.9
           - toolset: clang
             compiler: clang++-3.9
-            cxxstd64: "03,11,14"
-            cxxstd32: "03,11"
+            cxxstd64: "11,14"
+            cxxstd32: "11"
             os: ubuntu-latest
             container: ubuntu:18.04
             install:
@@ -235,8 +223,8 @@ jobs:
             gcc_toolchain: 6
           - toolset: clang
             compiler: clang++-4.0
-            cxxstd64: "03,11,14"
-            cxxstd32: "03,11"
+            cxxstd64: "11,14"
+            cxxstd32: "11"
             os: ubuntu-latest
             container: ubuntu:18.04
             install:
@@ -248,8 +236,8 @@ jobs:
           # Note: clang-5 fails int128 tests on 64-bit x86 target and float128 tests on 32-bit x86 target for some unknown reason. Does not reproduce locally.
           - toolset: clang
             compiler: clang++-5.0
-            cxxstd64: "03,11,14,1z"
-            cxxstd32: "03,11"
+            cxxstd64: "11,14,1z"
+            cxxstd32: "11"
             cxxflags: -DBOOST_ATOMIC_TESTS_NO_INT128 -DBOOST_ATOMIC_TESTS_NO_FLOAT128
             os: ubuntu-latest
             container: ubuntu:18.04
@@ -261,8 +249,8 @@ jobs:
             gcc_toolchain: 7
           - toolset: clang
             compiler: clang++-6.0
-            cxxstd64: "03,11,14,17"
-            cxxstd32: "03,11"
+            cxxstd64: "11,14,17"
+            cxxstd32: "11"
             os: ubuntu-latest
             container: ubuntu:18.04
             install:
@@ -273,8 +261,8 @@ jobs:
             gcc_toolchain: 8
           - toolset: clang
             compiler: clang++-7
-            cxxstd64: "03,11,14,17"
-            cxxstd32: "03,11"
+            cxxstd64: "11,14,17"
+            cxxstd32: "11"
             os: ubuntu-latest
             container: ubuntu:18.04
             install:
@@ -286,8 +274,8 @@ jobs:
           # Note: clang-8 does not fully support C++20, so it is not compatible with libstdc++-8 in this mode
           - toolset: clang
             compiler: clang++-8
-            cxxstd64: "03,11,14,17,2a"
-            cxxstd32: "03,11"
+            cxxstd64: "11,14,17,2a"
+            cxxstd32: "11"
             os: ubuntu-latest
             container: ubuntu:18.04
             install:
@@ -298,8 +286,8 @@ jobs:
             gcc_toolchain: 7
           - toolset: clang
             compiler: clang++-9
-            cxxstd64: "03,11,14,17,2a"
-            cxxstd32: "03,11"
+            cxxstd64: "11,14,17,2a"
+            cxxstd32: "11"
             os: ubuntu-latest
             container: ubuntu:20.04
             install:
@@ -310,8 +298,8 @@ jobs:
             gcc_toolchain: 9
           - toolset: clang
             compiler: clang++-10
-            cxxstd64: "03,11,14,17,20,03-gnu,11-gnu,14-gnu,17-gnu,20-gnu"
-            cxxstd32: "03,11,03-gnu,11-gnu"
+            cxxstd64: "11,14,17,20,11-gnu,14-gnu,17-gnu,20-gnu"
+            cxxstd32: "11,11-gnu"
             os: ubuntu-latest
             container: ubuntu:20.04
             install:
@@ -322,8 +310,8 @@ jobs:
             gcc_toolchain: 10
           - toolset: clang
             compiler: clang++-11
-            cxxstd64: "03,11,14,17,20,03-gnu,11-gnu,14-gnu,17-gnu,20-gnu"
-            cxxstd32: "03,11,03-gnu,11-gnu"
+            cxxstd64: "11,14,17,20,11-gnu,14-gnu,17-gnu,20-gnu"
+            cxxstd32: "11,11-gnu"
             os: ubuntu-latest
             container: ubuntu:22.04
             install:
@@ -334,8 +322,8 @@ jobs:
             gcc_toolchain: 10
           - toolset: clang
             compiler: clang++-12
-            cxxstd64: "03,11,14,17,20,2b,03-gnu,11-gnu,14-gnu,17-gnu,20-gnu,2b-gnu"
-            cxxstd32: "03,11,03-gnu,11-gnu"
+            cxxstd64: "11,14,17,20,2b,11-gnu,14-gnu,17-gnu,20-gnu,2b-gnu"
+            cxxstd32: "11,11-gnu"
             os: ubuntu-latest
             container: ubuntu:22.04
             install:
@@ -346,8 +334,8 @@ jobs:
             gcc_toolchain: 11
           - toolset: clang
             compiler: clang++-13
-            cxxstd64: "03,11,14,17,20,2b,03-gnu,11-gnu,14-gnu,17-gnu,20-gnu,2b-gnu"
-            cxxstd32: "03,11,03-gnu,11-gnu"
+            cxxstd64: "11,14,17,20,2b,11-gnu,14-gnu,17-gnu,20-gnu,2b-gnu"
+            cxxstd32: "11,11-gnu"
             os: ubuntu-latest
             container: ubuntu:22.04
             install:
@@ -358,8 +346,8 @@ jobs:
             gcc_toolchain: 11
           - toolset: clang
             compiler: clang++-14
-            cxxstd64: "03,11,14,17,20,2b,03-gnu,11-gnu,14-gnu,17-gnu,20-gnu,2b-gnu"
-            cxxstd32: "03,11,03-gnu,11-gnu"
+            cxxstd64: "11,14,17,20,2b,11-gnu,14-gnu,17-gnu,20-gnu,2b-gnu"
+            cxxstd32: "11,11-gnu"
             os: ubuntu-latest
             container: ubuntu:22.04
             install:
@@ -370,8 +358,8 @@ jobs:
             gcc_toolchain: 11
           - toolset: clang
             compiler: clang++-15
-            cxxstd64: "03,11,14,17,20,2b,03-gnu,11-gnu,14-gnu,17-gnu,20-gnu,2b-gnu"
-            cxxstd32: "03,11,03-gnu,11-gnu"
+            cxxstd64: "11,14,17,20,2b,11-gnu,14-gnu,17-gnu,20-gnu,2b-gnu"
+            cxxstd32: "11,11-gnu"
             os: ubuntu-latest
             container: ubuntu:22.04
             install:
@@ -382,7 +370,7 @@ jobs:
             gcc_toolchain: 11
           - toolset: clang
             compiler: clang++-15
-            cxxstd64: "03,11,14,17,20,2b"
+            cxxstd64: "11,14,17,20,2b"
             cxxflags: -stdlib=libc++
             linkflags: -stdlib=libc++
             os: ubuntu-22.04
@@ -392,8 +380,8 @@ jobs:
               - libc++abi-15-dev
           - toolset: clang
             compiler: clang++-16
-            cxxstd64: "03,11,14,17,20,2b,03-gnu,11-gnu,14-gnu,17-gnu,20-gnu,2b-gnu"
-            cxxstd32: "03,11,03-gnu,11-gnu"
+            cxxstd64: "11,14,17,20,2b,11-gnu,14-gnu,17-gnu,20-gnu,2b-gnu"
+            cxxstd32: "11,11-gnu"
             os: ubuntu-latest
             container: ubuntu:22.04
             install:
@@ -408,7 +396,7 @@ jobs:
               - "https://apt.llvm.org/llvm-snapshot.gpg.key"
           - toolset: clang
             compiler: clang++-16
-            cxxstd64: "03,11,14,17,20,2b"
+            cxxstd64: "11,14,17,20,2b"
             cxxflags: -stdlib=libc++
             linkflags: -stdlib=libc++
             os: ubuntu-22.04
@@ -423,7 +411,7 @@ jobs:
           - name: UBSAN
             toolset: clang
             compiler: clang++-15
-            cxxstd64: "03,11,14,17,20,2b,03-gnu,11-gnu,14-gnu,17-gnu,20-gnu,2b-gnu"
+            cxxstd64: "11,14,17,20,2b,11-gnu,14-gnu,17-gnu,20-gnu,2b-gnu"
             cxxflags: -stdlib=libc++
             linkflags: -stdlib=libc++
             ubsan: 1
@@ -435,11 +423,11 @@ jobs:
               - libc++abi-15-dev
 
           - toolset: clang
-            cxxstd64: "03,11,14,17,2a"
+            cxxstd64: "11,14,17,2a"
             os: macos-11
 
           - toolset: clang
-            cxxstd64: "03,11,14,17,2a"
+            cxxstd64: "11,14,17,2a"
             os: macos-11
             macosx_version_min: 11
 
