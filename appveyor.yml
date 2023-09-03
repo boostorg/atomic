@@ -95,12 +95,6 @@ environment:
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     - TOOLSET: gcc
       ADDRESS_MODEL: 32
-      CXXSTD: 11,11-gnu
-      ADDPATH: C:\mingw\bin
-      B2_ARGS: instruction-set=native
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-    - TOOLSET: gcc
-      ADDRESS_MODEL: 32
       CXXSTD: 11,14,11-gnu,14-gnu
       ADDPATH: C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1\mingw32\bin
       B2_ARGS: instruction-set=native
