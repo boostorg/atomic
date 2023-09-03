@@ -93,7 +93,6 @@ target_link_libraries(boost_atomic
     PUBLIC
         Boost::assert
         Boost::config
-        Boost::static_assert
         Boost::type_traits
     PRIVATE
         Boost::align
