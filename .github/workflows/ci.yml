@@ -1,4 +1,4 @@
-# Copyright 2021-2022 Andrey Semashev
+# Copyright 2021-2023 Andrey Semashev
 #
 # Distributed under the Boost Software License, Version 1.0.
 # (See accompanying file LICENSE_1_0.txt or copy at http://boost.org/LICENSE_1_0.txt)
@@ -682,3 +682,84 @@ jobs:
             mkdir __build_shared__ && cd __build_shared__
             cmake -DBUILD_SHARED_LIBS=On ../libs/$LIBRARY/test/test_cmake
             cmake --build . --target boost_${LIBRARY}_cmake_self_test -j $BUILD_JOBS
+
+  windows:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - toolset: msvc-14.0
+            cxxstd64: "14"
+            cxxstd32: "14"
+            cxxflags: "/arch:AVX"
+            os: windows-2019
+          - toolset: msvc-14.2
+            cxxstd64: "14,17,20,latest"
+            cxxstd32: "14"
+            cxxflags: "/arch:AVX"
+            os: windows-2019
+          - toolset: msvc-14.3
+            cxxstd64: "14,17,20,latest"
+            cxxstd32: "14"
+            cxxflags: "/arch:AVX"
+            os: windows-2022
+          - toolset: clang-win
+            cxxstd64: "14,17,latest"
+            cxxstd32: "14"
+            cxxflags: "-mavx -mcx16"
+            os: windows-2022
+          - toolset: gcc
+            cxxstd64: "11-gnu,14-gnu,17-gnu,2a-gnu"
+            os: windows-2019
+
+    timeout-minutes: 120
+    runs-on: ${{matrix.os}}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Boost
+        shell: cmd
+        run: |
+            echo GITHUB_REPOSITORY: %GITHUB_REPOSITORY%
+            for /f %%i in ("%GITHUB_REPOSITORY%") do set LIBRARY=%%~nxi
+            echo LIBRARY: %LIBRARY%
+            echo LIBRARY=%LIBRARY%>>%GITHUB_ENV%
+            echo GITHUB_BASE_REF: %GITHUB_BASE_REF%
+            echo GITHUB_REF: %GITHUB_REF%
+            if "%GITHUB_BASE_REF%" == "" set GITHUB_BASE_REF=%GITHUB_REF%
+            set BOOST_BRANCH=develop
+            for /f %%i in ("%GITHUB_BASE_REF%") do if "%%~nxi" == "master" set BOOST_BRANCH=master
+            echo BOOST_BRANCH: %BOOST_BRANCH%
+            cd ..
+            git clone -b %BOOST_BRANCH% --depth 1 https://github.com/boostorg/boost.git boost-root
+            cd boost-root
+            xcopy /s /e /q %GITHUB_WORKSPACE% libs\%LIBRARY%\
+            git submodule update --init tools/boostdep
+            python tools/boostdep/depinst/depinst.py --git_args "--jobs %GIT_FETCH_JOBS%" %LIBRARY%
+            cmd /c bootstrap
+            b2 -d0 headers
+
+      - name: Run tests
+        shell: cmd
+        run: |
+            cd ../boost-root
+            set "B2_ARGS=-j %NUMBER_OF_PROCESSORS% toolset=${{matrix.toolset}} embed-manifest-via=linker"
+            if not "${{matrix.build_variant}}" == "" ( set "B2_ARGS=%B2_ARGS% variant=${{matrix.build_variant}}" ) else ( set "B2_ARGS=%B2_ARGS% variant=%DEFAULT_BUILD_VARIANT%" )
+            if not "${{matrix.instruction_set}}" == "" ( set "B2_ARGS=%B2_ARGS% instruction-set=${{matrix.instruction_set}}" ) else ( set "B2_ARGS=%B2_ARGS% instruction-set=%DEFAULT_INSTRUCTION_SET%" )
+            if not "${{matrix.cxxflags}}" == "" set "B2_ARGS=%B2_ARGS% ^"cxxflags=${{matrix.cxxflags}}^""
+            if not "${{matrix.linkflags}}" == "" set "B2_ARGS=%B2_ARGS% ^"linkflags=${{matrix.linkflags}}^""
+            if not "${{matrix.cxxstd64}}" == "" (
+                echo;
+                echo Running 64-bit tests...
+                echo =======================
+                echo;
+                b2 %B2_ARGS% cxxstd=${{matrix.cxxstd64}} address-model=64 libs/%LIBRARY%/test
+            )
+            if not "${{matrix.cxxstd32}}" == "" (
+                echo;
+                echo Running 32-bit tests...
+                echo =======================
+                echo;
+                b2 %B2_ARGS% cxxstd=${{matrix.cxxstd32}} address-model=32 libs/%LIBRARY%/test
+            )
