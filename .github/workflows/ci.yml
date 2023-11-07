@@ -684,6 +684,10 @@ jobs:
             cmake --build . --target boost_${LIBRARY}_cmake_self_test -j $BUILD_JOBS
 
   windows:
+    defaults:
+      run:
+        shell: cmd
+
     strategy:
       fail-fast: false
       matrix:
@@ -723,7 +727,6 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Setup Boost
-        shell: cmd
         run: |
             echo GITHUB_REPOSITORY: %GITHUB_REPOSITORY%
             for /f %%i in ("%GITHUB_REPOSITORY%") do set LIBRARY=%%~nxi
@@ -748,7 +751,6 @@ jobs:
 
       - name: Run tests
         if: matrix.cmake_tests == ''
-        shell: cmd
         run: |
             cd ../boost-root
             set "B2_ARGS=-j %NUMBER_OF_PROCESSORS% toolset=${{matrix.toolset}} embed-manifest-via=linker"
@@ -773,7 +775,6 @@ jobs:
 
       - name: Run CMake tests
         if: matrix.cmake_tests
-        shell: cmd
         run: |
             cd ../boost-root
             mkdir __build_static__
