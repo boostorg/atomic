@@ -405,7 +405,7 @@ jobs:
             os: ubuntu-latest
             container: ubuntu:22.04
             install:
-              - clang-16
+              - clang-17
               - g++-11
               - g++-11-multilib
               - linux-libc-dev:i386
