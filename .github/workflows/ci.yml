@@ -399,17 +399,33 @@ jobs:
             source_keys:
               - "https://apt.llvm.org/llvm-snapshot.gpg.key"
           - toolset: clang
-            compiler: clang++-16
-            cxxstd64: "11,14,17,20,2b"
+            compiler: clang++-17
+            cxxstd64: "11,14,17,20,23,11-gnu,14-gnu,17-gnu,20-gnu,23-gnu"
+            cxxstd32: "11,11-gnu"
+            os: ubuntu-latest
+            container: ubuntu:22.04
+            install:
+              - clang-16
+              - g++-11
+              - g++-11-multilib
+              - linux-libc-dev:i386
+            gcc_toolchain: 11
+            sources:
+              - "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-17 main"
+            source_keys:
+              - "https://apt.llvm.org/llvm-snapshot.gpg.key"
+          - toolset: clang
+            compiler: clang++-17
+            cxxstd64: "11,14,17,20,23"
             cxxflags: -stdlib=libc++
             linkflags: -stdlib=libc++
             os: ubuntu-22.04
             install:
-              - clang-16
-              - libc++-16-dev
-              - libc++abi-16-dev
+              - clang-17
+              - libc++-17-dev
+              - libc++abi-17-dev
             sources:
-              - "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-16 main"
+              - "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-17 main"
             source_keys:
               - "https://apt.llvm.org/llvm-snapshot.gpg.key"
           - name: UBSAN
