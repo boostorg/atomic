@@ -51,9 +51,6 @@ BOOST_FORCEINLINE void pause() BOOST_NOEXCEPT
 #elif defined(__riscv) && __riscv_xlen == 64
 #if defined(__riscv_zihintpause)
     __asm__ __volatile__("pause" : : : "memory");
-#elif defined(__riscv_muldiv)
-    /* In lieu of a halt instruction, induce a long-latency stall. */
-    __asm__ __volatile__("div %0, %0, zero" : "=r" (dummy));
 #else
     /* Encoding of the pause instruction */
     __asm__ __volatile__ (".4byte 0x100000F");
