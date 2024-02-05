@@ -151,6 +151,15 @@ jobs:
               - g++-12
               - g++-12-multilib
               - linux-libc-dev:i386
+          - toolset: gcc-13
+            cxxstd64: "11,14,17,20,23,11-gnu,14-gnu,17-gnu,20-gnu,23-gnu"
+            cxxstd32: "11,11-gnu"
+            os: ubuntu-latest
+            container: ubuntu:23.04
+            install:
+              - g++-13
+              - g++-13-multilib
+              - linux-libc-dev:i386
           - name: UBSAN
             toolset: gcc-11
             cxxstd64: "11,14,17,20,23,11-gnu,14-gnu,17-gnu,20-gnu,23-gnu"
