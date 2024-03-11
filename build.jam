@@ -1,0 +1,28 @@
+# Copyright René Ferdinand Rivera Morell 2023
+# Distributed under the Boost Software License, Version 1.0.
+# (See accompanying file LICENSE_1_0.txt or copy at
+# http://www.boost.org/LICENSE_1_0.txt)
+
+import project ;
+
+project /boost/atomic
+    : common-requirements
+        <include>include
+        <source>/boost/align//boost_align
+        <source>/boost/assert//boost_assert
+        <source>/boost/config//boost_config
+        <source>/boost/predef//boost_predef
+        <source>/boost/preprocessor//boost_preprocessor
+        <source>/boost/static_assert//boost_static_assert
+        <source>/boost/type_traits//boost_type_traits
+        <source>/boost/winapi//boost_winapi
+    ;
+
+explicit
+    [ alias boost_atomic : build//boost_atomic ]
+    [ alias all : boost_atomic test ]
+    ;
+
+call-if : boost-library atomic
+    : install boost_atomic
+    ;
