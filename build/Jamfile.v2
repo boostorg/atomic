@@ -44,6 +44,7 @@ local cxx_requirements = [ requires
     ] ;
 
 project
+    : common-requirements <library>$(boost_dependencies)
     : requirements
       <include>../src
       <threading>multi

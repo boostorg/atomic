@@ -5,16 +5,18 @@
 
 require-b2 5.2 ;
 
+constant boost_dependencies :
+    /boost/align//boost_align
+    /boost/assert//boost_assert
+    /boost/config//boost_config
+    /boost/predef//boost_predef
+    /boost/preprocessor//boost_preprocessor
+    /boost/type_traits//boost_type_traits
+    /boost/winapi//boost_winapi ;
+
 project /boost/atomic
     : common-requirements
         <include>include
-        <library>/boost/align//boost_align
-        <library>/boost/assert//boost_assert
-        <library>/boost/config//boost_config
-        <library>/boost/predef//boost_predef
-        <library>/boost/preprocessor//boost_preprocessor
-        <library>/boost/type_traits//boost_type_traits
-        <library>/boost/winapi//boost_winapi
     ;
 
 explicit
@@ -25,3 +27,4 @@ explicit
 call-if : boost-library atomic
     : install boost_atomic
     ;
+
