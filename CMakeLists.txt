@@ -97,10 +97,10 @@ target_link_libraries(boost_atomic
     PUBLIC
         Boost::assert
         Boost::config
+        Boost::predef
         Boost::type_traits
     PRIVATE
         Boost::align
-        Boost::predef
         Boost::preprocessor
 
         Threads::Threads
