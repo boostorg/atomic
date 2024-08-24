@@ -43,15 +43,13 @@ local cxx_requirements = [ requires
       cxx11_static_assert
     ] ;
 
-constant boost_dependencies_private :
-    /boost/align//boost_align
-    /boost/preprocessor//boost_preprocessor
-    ;
-
 project
-    : common-requirements <library>$(boost_dependencies)
+    : common-requirements
+      <include>../include
+      $(boost_dependencies)
     : requirements
-      <library>$(boost_dependencies_private)
+      <library>/boost/align//boost_align
+      <library>/boost/preprocessor//boost_preprocessor
       <include>../src
       <threading>multi
       <link>shared:<define>BOOST_ATOMIC_DYN_LINK=1

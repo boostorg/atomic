@@ -6,16 +6,13 @@
 require-b2 5.2 ;
 
 constant boost_dependencies :
-    /boost/assert//boost_assert
-    /boost/config//boost_config
-    /boost/predef//boost_predef
-    /boost/type_traits//boost_type_traits
-    /boost/winapi//boost_winapi ;
+    <library>/boost/assert//boost_assert
+    <library>/boost/config//boost_config
+    <library>/boost/predef//boost_predef
+    <library>/boost/type_traits//boost_type_traits
+    <target-os>windows:<library>/boost/winapi//boost_winapi ;
 
-project /boost/atomic
-    : common-requirements
-        <include>include
-    ;
+project /boost/atomic ;
 
 explicit
     [ alias boost_atomic : build//boost_atomic ]
@@ -25,4 +22,3 @@ explicit
 call-if : boost-library atomic
     : install boost_atomic
     ;
-
