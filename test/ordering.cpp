@@ -37,6 +37,7 @@
 #include <thread>
 #include <mutex>
 #include <condition_variable>
+#include <boost/config.hpp>
 #include <boost/core/lightweight_test.hpp>
 #include "test_clock.hpp"
 #include "test_barrier.hpp"
@@ -123,11 +124,11 @@ void total_store_order_test<store_order, load_order>::run(steady_clock::duration
         timeout = duration;
 }
 
-volatile int backoff_dummy;
-
 template<boost::memory_order store_order, boost::memory_order load_order>
 void total_store_order_test<store_order, load_order>::thread1fn(void)
 {
+    BOOST_ATTRIBUTE_UNUSED volatile int backoff_dummy;
+
     while (true)
     {
         a_.store(1, store_order);
@@ -172,6 +173,8 @@ void total_store_order_test<store_order, load_order>::thread1fn(void)
 template<boost::memory_order store_order, boost::memory_order load_order>
 void total_store_order_test<store_order, load_order>::thread2fn(void)
 {
+    BOOST_ATTRIBUTE_UNUSED volatile int backoff_dummy;
+
     while (true)
     {
         b_.store(1, store_order);
