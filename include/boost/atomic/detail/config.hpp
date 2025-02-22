@@ -4,7 +4,7 @@
  * http://www.boost.org/LICENSE_1_0.txt)
  *
  * Copyright (c) 2012 Hartmut Kaiser
- * Copyright (c) 2014-2018, 2020-2021 Andrey Semashev
+ * Copyright (c) 2014-2018, 2020-2025 Andrey Semashev
  */
 /*!
  * \file   atomic/detail/config.hpp
@@ -20,6 +20,29 @@
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once
 #endif
+
+#if defined(__SANITIZE_THREAD__)
+#define BOOST_ATOMIC_DETAIL_TSAN
+#elif defined(__has_feature)
+#if __has_feature(thread_sanitizer)
+#define BOOST_ATOMIC_DETAIL_TSAN
+#endif
+#endif
+
+// Instrumentation macros to make TSan aware of the memory order semantics of asm blocks
+#if defined(BOOST_ATOMIC_DETAIL_TSAN)
+extern "C" {
+void __tsan_acquire(void*);
+void __tsan_release(void*);
+} // extern "C"
+#define BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(ptr, mo) \
+    { if ((static_cast< unsigned int >(mo) & static_cast< unsigned int >(memory_order_acquire)) != 0u) __tsan_acquire((void*)(ptr)); }
+#define BOOST_ATOMIC_DETAIL_TSAN_RELEASE(ptr, mo) \
+    { if ((static_cast< unsigned int >(mo) & static_cast< unsigned int >(memory_order_release)) != 0u) __tsan_release((void*)(ptr)); }
+#else // defined(BOOST_ATOMIC_DETAIL_TSAN)
+#define BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(ptr, mo)
+#define BOOST_ATOMIC_DETAIL_TSAN_RELEASE(ptr, mo)
+#endif // defined(BOOST_ATOMIC_DETAIL_TSAN)
 
 #if defined(__CUDACC__)
 // nvcc does not support alternatives ("q,m") in asm statement constraints
