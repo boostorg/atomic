@@ -69,6 +69,7 @@ struct core_arch_operations_gcc_x86 :
 
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         if (order != memory_order_seq_cst)
         {
             fence_before(order);
@@ -85,6 +86,7 @@ struct core_arch_operations_gcc_x86 :
     {
         storage_type v = storage;
         fence_after(order);
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
         return v;
     }
 
@@ -118,8 +120,9 @@ struct core_arch_operations< 1u, Signed, Interprocess > :
     typedef typename base_type::storage_type storage_type;
     typedef typename storage_traits< 4u >::type temp_storage_type;
 
-    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         __asm__ __volatile__
         (
             "lock; xaddb %0, %1"
@@ -127,11 +130,13 @@ struct core_arch_operations< 1u, Signed, Interprocess > :
             :
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
         return v;
     }
 
-    static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         __asm__ __volatile__
         (
             "xchgb %0, %1"
@@ -139,12 +144,14 @@ struct core_arch_operations< 1u, Signed, Interprocess > :
             :
             : "memory"
         );
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
         return v;
     }
 
     static BOOST_FORCEINLINE bool compare_exchange_strong(
-        storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order, memory_order) BOOST_NOEXCEPT
+        storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order success_order, memory_order failure_order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, success_order);
         storage_type previous = expected;
         bool success;
 #if defined(BOOST_ATOMIC_DETAIL_ASM_HAS_FLAG_OUTPUTS)
@@ -166,6 +173,7 @@ struct core_arch_operations< 1u, Signed, Interprocess > :
         );
 #endif // defined(BOOST_ATOMIC_DETAIL_ASM_HAS_FLAG_OUTPUTS)
         expected = previous;
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, (success ? success_order : failure_order));
         return success;
     }
 
@@ -183,24 +191,30 @@ struct core_arch_operations< 1u, Signed, Interprocess > :
         : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"\
     )
 
-    static BOOST_FORCEINLINE storage_type fetch_and(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_and(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type res = storage;
         BOOST_ATOMIC_DETAIL_CAS_LOOP("andb", v, res);
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
         return res;
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_or(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_or(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type res = storage;
         BOOST_ATOMIC_DETAIL_CAS_LOOP("orb", v, res);
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
         return res;
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_xor(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_xor(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type res = storage;
         BOOST_ATOMIC_DETAIL_CAS_LOOP("xorb", v, res);
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
         return res;
     }
 
@@ -215,8 +229,9 @@ struct core_arch_operations< 2u, Signed, Interprocess > :
     typedef typename base_type::storage_type storage_type;
     typedef typename storage_traits< 4u >::type temp_storage_type;
 
-    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         __asm__ __volatile__
         (
             "lock; xaddw %0, %1"
@@ -224,11 +239,13 @@ struct core_arch_operations< 2u, Signed, Interprocess > :
             :
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
         return v;
     }
 
-    static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         __asm__ __volatile__
         (
             "xchgw %0, %1"
@@ -236,12 +253,14 @@ struct core_arch_operations< 2u, Signed, Interprocess > :
             :
             : "memory"
         );
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
         return v;
     }
 
     static BOOST_FORCEINLINE bool compare_exchange_strong(
-        storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order, memory_order) BOOST_NOEXCEPT
+        storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order success_order, memory_order failure_order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, success_order);
         storage_type previous = expected;
         bool success;
 #if defined(BOOST_ATOMIC_DETAIL_ASM_HAS_FLAG_OUTPUTS)
@@ -263,6 +282,7 @@ struct core_arch_operations< 2u, Signed, Interprocess > :
         );
 #endif // defined(BOOST_ATOMIC_DETAIL_ASM_HAS_FLAG_OUTPUTS)
         expected = previous;
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, (success ? success_order : failure_order));
         return success;
     }
 
@@ -280,24 +300,30 @@ struct core_arch_operations< 2u, Signed, Interprocess > :
         : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"\
     )
 
-    static BOOST_FORCEINLINE storage_type fetch_and(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_and(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type res = storage;
         BOOST_ATOMIC_DETAIL_CAS_LOOP("andw", v, res);
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
         return res;
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_or(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_or(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type res = storage;
         BOOST_ATOMIC_DETAIL_CAS_LOOP("orw", v, res);
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
         return res;
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_xor(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_xor(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type res = storage;
         BOOST_ATOMIC_DETAIL_CAS_LOOP("xorw", v, res);
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
         return res;
     }
 
@@ -311,8 +337,9 @@ struct core_arch_operations< 4u, Signed, Interprocess > :
     typedef core_arch_operations_gcc_x86< 4u, Signed, Interprocess, core_arch_operations< 4u, Signed, Interprocess > > base_type;
     typedef typename base_type::storage_type storage_type;
 
-    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         __asm__ __volatile__
         (
             "lock; xaddl %0, %1"
@@ -320,11 +347,13 @@ struct core_arch_operations< 4u, Signed, Interprocess > :
             :
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
         return v;
     }
 
-    static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         __asm__ __volatile__
         (
             "xchgl %0, %1"
@@ -332,12 +361,14 @@ struct core_arch_operations< 4u, Signed, Interprocess > :
             :
             : "memory"
         );
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
         return v;
     }
 
     static BOOST_FORCEINLINE bool compare_exchange_strong(
-        storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order, memory_order) BOOST_NOEXCEPT
+        storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order success_order, memory_order failure_order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, success_order);
         storage_type previous = expected;
         bool success;
 #if defined(BOOST_ATOMIC_DETAIL_ASM_HAS_FLAG_OUTPUTS)
@@ -359,6 +390,7 @@ struct core_arch_operations< 4u, Signed, Interprocess > :
         );
 #endif // defined(BOOST_ATOMIC_DETAIL_ASM_HAS_FLAG_OUTPUTS)
         expected = previous;
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, (success ? success_order : failure_order));
         return success;
     }
 
@@ -376,24 +408,30 @@ struct core_arch_operations< 4u, Signed, Interprocess > :
         : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"\
     )
 
-    static BOOST_FORCEINLINE storage_type fetch_and(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_and(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type res = storage;
         BOOST_ATOMIC_DETAIL_CAS_LOOP("andl", v, res);
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
         return res;
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_or(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_or(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type res = storage;
         BOOST_ATOMIC_DETAIL_CAS_LOOP("orl", v, res);
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
         return res;
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_xor(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_xor(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type res = storage;
         BOOST_ATOMIC_DETAIL_CAS_LOOP("xorl", v, res);
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
         return res;
     }
 
@@ -430,6 +468,8 @@ struct gcc_dcas_x86
 
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
+
         if (BOOST_LIKELY(order != memory_order_seq_cst && (((uintptr_t)&storage) & 7u) == 0u))
         {
 #if defined(__SSE__)
@@ -497,7 +537,7 @@ struct gcc_dcas_x86
         }
     }
 
-    static BOOST_FORCEINLINE storage_type load(storage_type const volatile& storage, memory_order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type load(storage_type const volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
         storage_type value;
 
@@ -575,12 +615,16 @@ struct gcc_dcas_x86
 #endif // defined(BOOST_ATOMIC_DETAIL_X86_NO_ASM_AX_DX_PAIRS)
         }
 
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
+
         return value;
     }
 
     static BOOST_FORCEINLINE bool compare_exchange_strong(
-        storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order, memory_order) BOOST_NOEXCEPT
+        storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order success_order, memory_order failure_order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, success_order);
+
 #if defined(__clang__)
 
         // Clang cannot allocate eax:edx register pairs but it has sync intrinsics
@@ -640,6 +684,8 @@ struct gcc_dcas_x86
         );
 #endif // defined(BOOST_ATOMIC_DETAIL_ASM_HAS_FLAG_OUTPUTS)
 
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, (success ? success_order : failure_order));
+
         return success;
 
 #endif // defined(BOOST_ATOMIC_DETAIL_X86_ASM_PRESERVE_EBX)
@@ -651,8 +697,12 @@ struct gcc_dcas_x86
         return compare_exchange_strong(storage, expected, desired, success_order, failure_order);
     }
 
-    static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
+
+        storage_type old_value;
+
 #if defined(BOOST_ATOMIC_DETAIL_X86_ASM_PRESERVE_EBX)
 #if defined(BOOST_ATOMIC_DETAIL_X86_NO_ASM_AX_DX_PAIRS)
 
@@ -671,13 +721,10 @@ struct gcc_dcas_x86
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
 
-        storage_type old_value;
         BOOST_ATOMIC_DETAIL_MEMCPY(&old_value, old_bits, sizeof(old_value));
-        return old_value;
 
 #else // defined(BOOST_ATOMIC_DETAIL_X86_NO_ASM_AX_DX_PAIRS)
 
-        storage_type old_value;
         __asm__ __volatile__
         (
             "xchgl %%ebx, %%esi\n\t"
@@ -691,7 +738,6 @@ struct gcc_dcas_x86
             : "S" ((uint32_t)v), "c" ((uint32_t)(v >> 32u)), [dest] "D" (&storage)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
-        return old_value;
 
 #endif // defined(BOOST_ATOMIC_DETAIL_X86_NO_ASM_AX_DX_PAIRS)
 #else // defined(BOOST_ATOMIC_DETAIL_X86_ASM_PRESERVE_EBX)
@@ -711,9 +757,7 @@ struct gcc_dcas_x86
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
 
-        storage_type old_value;
         BOOST_ATOMIC_DETAIL_MEMCPY(&old_value, old_bits, sizeof(old_value));
-        return old_value;
 
 #elif defined(BOOST_ATOMIC_DETAIL_X86_NO_ASM_AX_DX_PAIRS)
 
@@ -730,13 +774,10 @@ struct gcc_dcas_x86
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
 
-        storage_type old_value;
         BOOST_ATOMIC_DETAIL_MEMCPY(&old_value, old_bits, sizeof(old_value));
-        return old_value;
 
 #else // defined(BOOST_ATOMIC_DETAIL_X86_NO_ASM_AX_DX_PAIRS)
 
-        storage_type old_value;
         __asm__ __volatile__
         (
             "movl %[dest_lo], %%eax\n\t"
@@ -748,10 +789,13 @@ struct gcc_dcas_x86
             : "b" ((uint32_t)v), "c" ((uint32_t)(v >> 32u))
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
-        return old_value;
 
 #endif // defined(BOOST_ATOMIC_DETAIL_X86_NO_ASM_AX_DX_PAIRS)
 #endif // defined(BOOST_ATOMIC_DETAIL_X86_ASM_PRESERVE_EBX)
+
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
+
+        return old_value;
     }
 };
 
@@ -770,8 +814,9 @@ struct core_arch_operations< 8u, Signed, Interprocess > :
     typedef core_arch_operations_gcc_x86< 8u, Signed, Interprocess, core_arch_operations< 8u, Signed, Interprocess > > base_type;
     typedef typename base_type::storage_type storage_type;
 
-    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         __asm__ __volatile__
         (
             "lock; xaddq %0, %1"
@@ -779,11 +824,13 @@ struct core_arch_operations< 8u, Signed, Interprocess > :
             :
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
         return v;
     }
 
-    static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         __asm__ __volatile__
         (
             "xchgq %0, %1"
@@ -791,12 +838,14 @@ struct core_arch_operations< 8u, Signed, Interprocess > :
             :
             : "memory"
         );
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
         return v;
     }
 
     static BOOST_FORCEINLINE bool compare_exchange_strong(
-        storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order, memory_order) BOOST_NOEXCEPT
+        storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order success_order, memory_order failure_order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, success_order);
         storage_type previous = expected;
         bool success;
 #if defined(BOOST_ATOMIC_DETAIL_ASM_HAS_FLAG_OUTPUTS)
@@ -818,6 +867,7 @@ struct core_arch_operations< 8u, Signed, Interprocess > :
         );
 #endif // defined(BOOST_ATOMIC_DETAIL_ASM_HAS_FLAG_OUTPUTS)
         expected = previous;
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, (success ? success_order : failure_order));
         return success;
     }
 
@@ -835,24 +885,30 @@ struct core_arch_operations< 8u, Signed, Interprocess > :
         : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"\
     )
 
-    static BOOST_FORCEINLINE storage_type fetch_and(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_and(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type res = storage;
         BOOST_ATOMIC_DETAIL_CAS_LOOP("andq", v, res);
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
         return res;
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_or(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_or(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type res = storage;
         BOOST_ATOMIC_DETAIL_CAS_LOOP("orq", v, res);
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
         return res;
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_xor(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_xor(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type res = storage;
         BOOST_ATOMIC_DETAIL_CAS_LOOP("xorq", v, res);
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
         return res;
     }
 
@@ -881,6 +937,8 @@ struct gcc_dcas_x86_64
 
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
+
 #if defined(__AVX__)
         if (BOOST_LIKELY(order != memory_order_seq_cst && (((uintptr_t)&storage) & 15u) == 0u))
         {
@@ -917,7 +975,7 @@ struct gcc_dcas_x86_64
         );
     }
 
-    static BOOST_FORCEINLINE storage_type load(storage_type const volatile& storage, memory_order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type load(storage_type const volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
 #if defined(__AVX__)
         if (BOOST_LIKELY((((uintptr_t)&storage) & 15u) == 0u))
@@ -940,12 +998,15 @@ struct gcc_dcas_x86_64
             storage_type value;
             BOOST_ATOMIC_DETAIL_MEMCPY(&value, &v, sizeof(v));
 #endif
+            BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
             return value;
         }
 #endif // defined(__AVX__)
 
         // Note that despite const qualification cmpxchg16b below may issue a store to the storage. The storage value
         // will not change, but this prevents the storage to reside in read-only memory.
+
+        storage_type value;
 
 #if defined(BOOST_ATOMIC_DETAIL_X86_NO_ASM_AX_DX_PAIRS)
 
@@ -964,16 +1025,12 @@ struct gcc_dcas_x86_64
         );
 
 #if defined(BOOST_HAS_INT128)
-        storage_type value = static_cast< storage_type >(value_bits[0]) | (static_cast< storage_type >(value_bits[1]) << 64u);
+        value = static_cast< storage_type >(value_bits[0]) | (static_cast< storage_type >(value_bits[1]) << 64u);
 #else
-        storage_type value;
         BOOST_ATOMIC_DETAIL_MEMCPY(&value, value_bits, sizeof(value));
 #endif
-        return value;
 
 #else // defined(BOOST_ATOMIC_DETAIL_X86_NO_ASM_AX_DX_PAIRS)
-
-        storage_type value;
 
         // We don't care for comparison result here; the previous value will be stored into value anyway.
         // Also we don't care for rbx and rcx values, they just have to be equal to rax and rdx before cmpxchg16b.
@@ -987,20 +1044,24 @@ struct gcc_dcas_x86_64
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
 
-        return value;
-
 #endif // defined(BOOST_ATOMIC_DETAIL_X86_NO_ASM_AX_DX_PAIRS)
+
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
+
+        return value;
     }
 
     static BOOST_FORCEINLINE bool compare_exchange_strong(
-        storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order, memory_order) BOOST_NOEXCEPT
+        storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order success_order, memory_order failure_order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, success_order);
+
 #if defined(__clang__)
 
         // Clang cannot allocate rax:rdx register pairs but it has sync intrinsics
         storage_type old_expected = expected;
         expected = __sync_val_compare_and_swap(&storage, old_expected, desired);
-        return expected == old_expected;
+        const bool success = expected == old_expected;
 
 #elif defined(BOOST_ATOMIC_DETAIL_X86_NO_ASM_AX_DX_PAIRS)
 
@@ -1014,8 +1075,6 @@ struct gcc_dcas_x86_64
             : "b" (reinterpret_cast< const aliasing_uint64_t* >(&desired)[0]), "c" (reinterpret_cast< const aliasing_uint64_t* >(&desired)[1])
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
-
-        return success;
 
 #else // defined(BOOST_ATOMIC_DETAIL_X86_NO_ASM_AX_DX_PAIRS)
 
@@ -1040,9 +1099,11 @@ struct gcc_dcas_x86_64
         );
 #endif // defined(BOOST_ATOMIC_DETAIL_ASM_HAS_FLAG_OUTPUTS)
 
-        return success;
-
 #endif // defined(BOOST_ATOMIC_DETAIL_X86_NO_ASM_AX_DX_PAIRS)
+
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, (success ? success_order : failure_order));
+
+        return success;
     }
 
     static BOOST_FORCEINLINE bool compare_exchange_weak(
@@ -1051,8 +1112,12 @@ struct gcc_dcas_x86_64
         return compare_exchange_strong(storage, expected, desired, success_order, failure_order);
     }
 
-    static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
+
+        storage_type old_value;
+
 #if defined(BOOST_ATOMIC_DETAIL_X86_NO_ASM_AX_DX_PAIRS)
         uint64_t old_bits[2];
         __asm__ __volatile__
@@ -1068,14 +1133,13 @@ struct gcc_dcas_x86_64
         );
 
 #if defined(BOOST_HAS_INT128)
-        storage_type old_value = static_cast< storage_type >(old_bits[0]) | (static_cast< storage_type >(old_bits[1]) << 64u);
+        old_value = static_cast< storage_type >(old_bits[0]) | (static_cast< storage_type >(old_bits[1]) << 64u);
 #else
-        storage_type old_value;
         BOOST_ATOMIC_DETAIL_MEMCPY(&old_value, old_bits, sizeof(old_value));
 #endif
-        return old_value;
+
 #else // defined(BOOST_ATOMIC_DETAIL_X86_NO_ASM_AX_DX_PAIRS)
-        storage_type old_value;
+
         __asm__ __volatile__
         (
             "movq %[dest_lo], %%rax\n\t"
@@ -1088,8 +1152,11 @@ struct gcc_dcas_x86_64
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
 
-        return old_value;
 #endif // defined(BOOST_ATOMIC_DETAIL_X86_NO_ASM_AX_DX_PAIRS)
+
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
+
+        return old_value;
     }
 };
 
