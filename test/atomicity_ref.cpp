@@ -39,6 +39,7 @@
 #include <functional>
 #include <boost/config.hpp>
 #include <boost/core/lightweight_test.hpp>
+#include "test_config.hpp"
 #include "test_clock.hpp"
 
 /* helper class to let two instances of a function race against each
@@ -124,6 +125,7 @@ private:
     std::thread second_thread_;
 };
 
+BOOST_ATOMIC_TEST_NO_SANITIZE_THREAD
 bool racy_add(unsigned int volatile& value, std::size_t instance)
 {
     std::size_t shift = instance * 8;
@@ -146,6 +148,7 @@ bool racy_add(unsigned int volatile& value, std::size_t instance)
 }
 
 /* compute estimate for average time between races being observable, in usecs */
+BOOST_ATOMIC_TEST_NO_SANITIZE_THREAD
 double estimate_avg_race_time(void)
 {
     double sum = 0.0;
