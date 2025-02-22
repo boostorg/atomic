@@ -1,4 +1,4 @@
-# Copyright 2021-2024 Andrey Semashev
+# Copyright 2021-2025 Andrey Semashev
 #
 # Distributed under the Boost Software License, Version 1.0.
 # (See accompanying file LICENSE_1_0.txt or copy at http://boost.org/LICENSE_1_0.txt)
@@ -181,6 +181,16 @@ jobs:
               - g++-13
               - g++-13-multilib
               - linux-libc-dev:i386
+          - name: TSAN
+            toolset: gcc-13
+            cxxstd64: "11,14,17,20,23,11-gnu,14-gnu,17-gnu,20-gnu,23-gnu"
+            tsan: 1
+            build_variant: debug
+            os: ubuntu-latest
+            container: ubuntu:24.04
+            install:
+              - g++-13
+              - g++-13-multilib
 
           # Linux, clang
           - toolset: clang
@@ -477,6 +487,19 @@ jobs:
               - clang-18
               - libc++-18-dev
               - libc++abi-18-dev
+          - name: TSAN
+            toolset: clang
+            compiler: clang++-18
+            cxxstd64: "11,14,17,20,23,26,11-gnu,14-gnu,17-gnu,20-gnu,23-gnu,26-gnu"
+            cxxflags: -stdlib=libc++
+            linkflags: -stdlib=libc++
+            tsan: 1
+            build_variant: debug
+            os: ubuntu-24.04
+            install:
+              - clang-18
+              - libc++-18-dev
+              - libc++abi-18-dev
 
           - toolset: clang
             cxxstd64: "11,14,17,20,2b"
@@ -698,6 +721,10 @@ jobs:
             then
                 export UBSAN_OPTIONS="print_stacktrace=1"
                 B2_ARGS+=("cxxflags=-fsanitize=undefined -fno-sanitize-recover=undefined" "linkflags=-fsanitize=undefined -fuse-ld=gold" "define=UBSAN=1" "debug-symbols=on" "visibility=global")
+            fi
+            if [ -n "${{matrix.tsan}}" ]
+            then
+                B2_ARGS+=("cxxflags=-fsanitize=thread" "linkflags=-fsanitize=thread -fuse-ld=gold" "define=TSAN=1" "debug-symbols=on" "visibility=global")
             fi
             if [ -n "${{matrix.cxxflags}}" ]
             then
