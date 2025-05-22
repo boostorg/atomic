@@ -58,6 +58,7 @@ struct core_arch_operations< 1u, Signed, Interprocess > :
 
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         if ((static_cast< unsigned int >(order) & static_cast< unsigned int >(memory_order_release)) != 0u)
         {
             __asm__ __volatile__
@@ -106,12 +107,14 @@ struct core_arch_operations< 1u, Signed, Interprocess > :
         {
             v = storage;
         }
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return v;
     }
 
     static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original;
 #if defined(BOOST_ATOMIC_DETAIL_AARCH64_HAS_LSE)
 #define BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN(ld_mo, st_mo)\
@@ -140,6 +143,7 @@ struct core_arch_operations< 1u, Signed, Interprocess > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return original;
     }
@@ -147,6 +151,7 @@ struct core_arch_operations< 1u, Signed, Interprocess > :
     static BOOST_FORCEINLINE bool compare_exchange_weak(
         storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order success_order, memory_order failure_order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, success_order);
         storage_type original;
 #if defined(BOOST_ATOMIC_DETAIL_AARCH64_HAS_LSE)
         original = expected;
@@ -186,12 +191,15 @@ struct core_arch_operations< 1u, Signed, Interprocess > :
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
 
         expected = original;
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, (success ? success_order : failure_order));
+
         return success;
     }
 
     static BOOST_FORCEINLINE bool compare_exchange_strong(
         storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order success_order, memory_order failure_order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, success_order);
         storage_type original;
 #if defined(BOOST_ATOMIC_DETAIL_AARCH64_HAS_LSE)
         original = expected;
@@ -232,11 +240,14 @@ struct core_arch_operations< 1u, Signed, Interprocess > :
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
 
         expected = original;
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, (success ? success_order : failure_order));
+
         return success;
     }
 
     static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original;
 #if defined(BOOST_ATOMIC_DETAIL_AARCH64_HAS_LSE)
 #define BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN(ld_mo, st_mo)\
@@ -267,12 +278,14 @@ struct core_arch_operations< 1u, Signed, Interprocess > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return original;
     }
 
     static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original;
 #if defined(BOOST_ATOMIC_DETAIL_AARCH64_HAS_LSE)
         v = -v;
@@ -306,12 +319,14 @@ struct core_arch_operations< 1u, Signed, Interprocess > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return original;
     }
 
     static BOOST_FORCEINLINE storage_type fetch_and(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original;
 #if defined(BOOST_ATOMIC_DETAIL_AARCH64_HAS_LSE)
         v = ~v;
@@ -344,12 +359,14 @@ struct core_arch_operations< 1u, Signed, Interprocess > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return original;
     }
 
     static BOOST_FORCEINLINE storage_type fetch_or(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original;
 #if defined(BOOST_ATOMIC_DETAIL_AARCH64_HAS_LSE)
 #define BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN(ld_mo, st_mo)\
@@ -380,12 +397,14 @@ struct core_arch_operations< 1u, Signed, Interprocess > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return original;
     }
 
     static BOOST_FORCEINLINE storage_type fetch_xor(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original;
 #if defined(BOOST_ATOMIC_DETAIL_AARCH64_HAS_LSE)
 #define BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN(ld_mo, st_mo)\
@@ -416,6 +435,7 @@ struct core_arch_operations< 1u, Signed, Interprocess > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return original;
     }
@@ -444,6 +464,7 @@ struct core_arch_operations< 2u, Signed, Interprocess > :
 
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         if ((static_cast< unsigned int >(order) & static_cast< unsigned int >(memory_order_release)) != 0u)
         {
             __asm__ __volatile__
@@ -492,12 +513,14 @@ struct core_arch_operations< 2u, Signed, Interprocess > :
         {
             v = storage;
         }
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return v;
     }
 
     static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original;
 #if defined(BOOST_ATOMIC_DETAIL_AARCH64_HAS_LSE)
 #define BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN(ld_mo, st_mo)\
@@ -526,6 +549,7 @@ struct core_arch_operations< 2u, Signed, Interprocess > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return original;
     }
@@ -533,6 +557,7 @@ struct core_arch_operations< 2u, Signed, Interprocess > :
     static BOOST_FORCEINLINE bool compare_exchange_weak(
         storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order success_order, memory_order failure_order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, success_order);
         storage_type original;
 #if defined(BOOST_ATOMIC_DETAIL_AARCH64_HAS_LSE)
         original = expected;
@@ -572,12 +597,15 @@ struct core_arch_operations< 2u, Signed, Interprocess > :
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
 
         expected = original;
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, (success ? success_order : failure_order));
+
         return success;
     }
 
     static BOOST_FORCEINLINE bool compare_exchange_strong(
         storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order success_order, memory_order failure_order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, success_order);
         storage_type original;
 #if defined(BOOST_ATOMIC_DETAIL_AARCH64_HAS_LSE)
         original = expected;
@@ -618,11 +646,14 @@ struct core_arch_operations< 2u, Signed, Interprocess > :
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
 
         expected = original;
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, (success ? success_order : failure_order));
+
         return success;
     }
 
     static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original;
 #if defined(BOOST_ATOMIC_DETAIL_AARCH64_HAS_LSE)
 #define BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN(ld_mo, st_mo)\
@@ -653,12 +684,14 @@ struct core_arch_operations< 2u, Signed, Interprocess > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return original;
     }
 
     static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original;
 #if defined(BOOST_ATOMIC_DETAIL_AARCH64_HAS_LSE)
         v = -v;
@@ -692,12 +725,14 @@ struct core_arch_operations< 2u, Signed, Interprocess > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return original;
     }
 
     static BOOST_FORCEINLINE storage_type fetch_and(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original;
 #if defined(BOOST_ATOMIC_DETAIL_AARCH64_HAS_LSE)
         v = ~v;
@@ -730,12 +765,14 @@ struct core_arch_operations< 2u, Signed, Interprocess > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return original;
     }
 
     static BOOST_FORCEINLINE storage_type fetch_or(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original;
 #if defined(BOOST_ATOMIC_DETAIL_AARCH64_HAS_LSE)
 #define BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN(ld_mo, st_mo)\
@@ -766,12 +803,14 @@ struct core_arch_operations< 2u, Signed, Interprocess > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return original;
     }
 
     static BOOST_FORCEINLINE storage_type fetch_xor(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original;
 #if defined(BOOST_ATOMIC_DETAIL_AARCH64_HAS_LSE)
 #define BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN(ld_mo, st_mo)\
@@ -802,6 +841,7 @@ struct core_arch_operations< 2u, Signed, Interprocess > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return original;
     }
@@ -830,6 +870,7 @@ struct core_arch_operations< 4u, Signed, Interprocess > :
 
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         if ((static_cast< unsigned int >(order) & static_cast< unsigned int >(memory_order_release)) != 0u)
         {
             __asm__ __volatile__
@@ -878,12 +919,14 @@ struct core_arch_operations< 4u, Signed, Interprocess > :
         {
             v = storage;
         }
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return v;
     }
 
     static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original;
 #if defined(BOOST_ATOMIC_DETAIL_AARCH64_HAS_LSE)
 #define BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN(ld_mo, st_mo)\
@@ -912,6 +955,7 @@ struct core_arch_operations< 4u, Signed, Interprocess > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return original;
     }
@@ -919,6 +963,7 @@ struct core_arch_operations< 4u, Signed, Interprocess > :
     static BOOST_FORCEINLINE bool compare_exchange_weak(
         storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order success_order, memory_order failure_order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, success_order);
         storage_type original;
 #if defined(BOOST_ATOMIC_DETAIL_AARCH64_HAS_LSE)
         original = expected;
@@ -957,12 +1002,15 @@ struct core_arch_operations< 4u, Signed, Interprocess > :
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
 
         expected = original;
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, (success ? success_order : failure_order));
+
         return success;
     }
 
     static BOOST_FORCEINLINE bool compare_exchange_strong(
         storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order success_order, memory_order failure_order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, success_order);
         storage_type original;
 #if defined(BOOST_ATOMIC_DETAIL_AARCH64_HAS_LSE)
         original = expected;
@@ -1002,11 +1050,14 @@ struct core_arch_operations< 4u, Signed, Interprocess > :
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
 
         expected = original;
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, (success ? success_order : failure_order));
+
         return success;
     }
 
     static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original;
 #if defined(BOOST_ATOMIC_DETAIL_AARCH64_HAS_LSE)
 #define BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN(ld_mo, st_mo)\
@@ -1037,12 +1088,14 @@ struct core_arch_operations< 4u, Signed, Interprocess > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return original;
     }
 
     static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original;
 #if defined(BOOST_ATOMIC_DETAIL_AARCH64_HAS_LSE)
         v = -v;
@@ -1076,12 +1129,14 @@ struct core_arch_operations< 4u, Signed, Interprocess > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return original;
     }
 
     static BOOST_FORCEINLINE storage_type fetch_and(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original;
 #if defined(BOOST_ATOMIC_DETAIL_AARCH64_HAS_LSE)
         v = ~v;
@@ -1114,12 +1169,14 @@ struct core_arch_operations< 4u, Signed, Interprocess > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return original;
     }
 
     static BOOST_FORCEINLINE storage_type fetch_or(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original;
 #if defined(BOOST_ATOMIC_DETAIL_AARCH64_HAS_LSE)
 #define BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN(ld_mo, st_mo)\
@@ -1150,12 +1207,14 @@ struct core_arch_operations< 4u, Signed, Interprocess > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return original;
     }
 
     static BOOST_FORCEINLINE storage_type fetch_xor(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original;
 #if defined(BOOST_ATOMIC_DETAIL_AARCH64_HAS_LSE)
 #define BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN(ld_mo, st_mo)\
@@ -1186,6 +1245,7 @@ struct core_arch_operations< 4u, Signed, Interprocess > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return original;
     }
@@ -1214,6 +1274,7 @@ struct core_arch_operations< 8u, Signed, Interprocess > :
 
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         if ((static_cast< unsigned int >(order) & static_cast< unsigned int >(memory_order_release)) != 0u)
         {
             __asm__ __volatile__
@@ -1262,12 +1323,14 @@ struct core_arch_operations< 8u, Signed, Interprocess > :
         {
             v = storage;
         }
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return v;
     }
 
     static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original;
 #if defined(BOOST_ATOMIC_DETAIL_AARCH64_HAS_LSE)
 #define BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN(ld_mo, st_mo)\
@@ -1296,6 +1359,7 @@ struct core_arch_operations< 8u, Signed, Interprocess > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return original;
     }
@@ -1303,6 +1367,7 @@ struct core_arch_operations< 8u, Signed, Interprocess > :
     static BOOST_FORCEINLINE bool compare_exchange_weak(
         storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order success_order, memory_order failure_order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, success_order);
         storage_type original;
 #if defined(BOOST_ATOMIC_DETAIL_AARCH64_HAS_LSE)
         original = expected;
@@ -1341,12 +1406,15 @@ struct core_arch_operations< 8u, Signed, Interprocess > :
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
 
         expected = original;
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, (success ? success_order : failure_order));
+
         return success;
     }
 
     static BOOST_FORCEINLINE bool compare_exchange_strong(
         storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order success_order, memory_order failure_order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, success_order);
         storage_type original;
 #if defined(BOOST_ATOMIC_DETAIL_AARCH64_HAS_LSE)
         original = expected;
@@ -1386,11 +1454,14 @@ struct core_arch_operations< 8u, Signed, Interprocess > :
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
 
         expected = original;
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, (success ? success_order : failure_order));
+
         return success;
     }
 
     static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original;
 #if defined(BOOST_ATOMIC_DETAIL_AARCH64_HAS_LSE)
 #define BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN(ld_mo, st_mo)\
@@ -1421,12 +1492,14 @@ struct core_arch_operations< 8u, Signed, Interprocess > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return original;
     }
 
     static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original;
 #if defined(BOOST_ATOMIC_DETAIL_AARCH64_HAS_LSE)
         v = -v;
@@ -1460,12 +1533,14 @@ struct core_arch_operations< 8u, Signed, Interprocess > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return original;
     }
 
     static BOOST_FORCEINLINE storage_type fetch_and(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original;
 #if defined(BOOST_ATOMIC_DETAIL_AARCH64_HAS_LSE)
         v = ~v;
@@ -1498,12 +1573,14 @@ struct core_arch_operations< 8u, Signed, Interprocess > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return original;
     }
 
     static BOOST_FORCEINLINE storage_type fetch_or(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original;
 #if defined(BOOST_ATOMIC_DETAIL_AARCH64_HAS_LSE)
 #define BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN(ld_mo, st_mo)\
@@ -1534,12 +1611,14 @@ struct core_arch_operations< 8u, Signed, Interprocess > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return original;
     }
 
     static BOOST_FORCEINLINE storage_type fetch_xor(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original;
 #if defined(BOOST_ATOMIC_DETAIL_AARCH64_HAS_LSE)
 #define BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN(ld_mo, st_mo)\
@@ -1570,6 +1649,7 @@ struct core_arch_operations< 8u, Signed, Interprocess > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return original;
     }
@@ -1620,7 +1700,37 @@ struct core_arch_operations< 16u, Signed, Interprocess > :
 
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
-        exchange(storage, v, order);
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
+        storage_union original;
+        storage_union value = { v };
+        uint32_t tmp;
+
+        if ((static_cast< unsigned int >(order) & static_cast< unsigned int >(memory_order_release)) != 0u)
+        {
+            __asm__ __volatile__
+            (
+                "1:\n\t"
+                "ldxp %x[original_0], %x[original_1], %[storage]\n\t"
+                "stlxp %w[tmp], %x[value_0], %x[value_1], %[storage]\n\t"
+                "cbnz %w[tmp], 1b\n\t"
+                : [tmp] "=&r" (tmp), [storage] "+Q" (storage), [original_0] "=&r" (original.as_uint64[0u]), [original_1] "=&r" (original.as_uint64[1u])
+                : [value_0] "r" (value.as_uint64[0u]), [value_1] "r" (value.as_uint64[1u])
+                : "memory"
+            );
+        }
+        else
+        {
+            __asm__ __volatile__
+            (
+                "1:\n\t"
+                "ldxp %x[original_0], %x[original_1], %[storage]\n\t"
+                "stxp %w[tmp], %x[value_0], %x[value_1], %[storage]\n\t"
+                "cbnz %w[tmp], 1b\n\t"
+                : [tmp] "=&r" (tmp), [storage] "+Q" (storage), [original_0] "=&r" (original.as_uint64[0u]), [original_1] "=&r" (original.as_uint64[1u])
+                : [value_0] "r" (value.as_uint64[0u]), [value_1] "r" (value.as_uint64[1u])
+                : "memory"
+            );
+        }
     }
 
     static BOOST_FORCEINLINE storage_type load(storage_type const volatile& storage, memory_order order) BOOST_NOEXCEPT
@@ -1653,12 +1763,14 @@ struct core_arch_operations< 16u, Signed, Interprocess > :
                 : "memory"
             );
         }
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return v.as_storage;
     }
 
     static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_union original;
         storage_union value = { v };
         uint32_t tmp;
@@ -1677,6 +1789,7 @@ struct core_arch_operations< 16u, Signed, Interprocess > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return original.as_storage;
     }
@@ -1684,6 +1797,7 @@ struct core_arch_operations< 16u, Signed, Interprocess > :
     static BOOST_FORCEINLINE bool compare_exchange_weak(
         storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order success_order, memory_order failure_order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, success_order);
         storage_union original;
         storage_union e = { expected };
         storage_union d = { desired };
@@ -1709,12 +1823,15 @@ struct core_arch_operations< 16u, Signed, Interprocess > :
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
 
         expected = original.as_storage;
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, (success ? success_order : failure_order));
+
         return success;
     }
 
     static BOOST_FORCEINLINE bool compare_exchange_strong(
         storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order success_order, memory_order failure_order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, success_order);
         storage_union original;
         storage_union e = { expected };
         storage_union d = { desired };
@@ -1741,11 +1858,14 @@ struct core_arch_operations< 16u, Signed, Interprocess > :
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
 
         expected = original.as_storage;
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, (success ? success_order : failure_order));
+
         return success;
     }
 
     static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_union original;
         storage_union value = { v };
         storage_union result;
@@ -1769,12 +1889,14 @@ struct core_arch_operations< 16u, Signed, Interprocess > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return original.as_storage;
     }
 
     static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_union original;
         storage_union value = { v };
         storage_union result;
@@ -1798,12 +1920,14 @@ struct core_arch_operations< 16u, Signed, Interprocess > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return original.as_storage;
     }
 
     static BOOST_FORCEINLINE storage_type fetch_and(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_union original;
         storage_union value = { v };
         storage_union result;
@@ -1827,12 +1951,14 @@ struct core_arch_operations< 16u, Signed, Interprocess > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return original.as_storage;
     }
 
     static BOOST_FORCEINLINE storage_type fetch_or(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_union original;
         storage_union value = { v };
         storage_union result;
@@ -1856,12 +1982,14 @@ struct core_arch_operations< 16u, Signed, Interprocess > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return original.as_storage;
     }
 
     static BOOST_FORCEINLINE storage_type fetch_xor(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_union original;
         storage_union value = { v };
         storage_union result;
@@ -1885,6 +2013,7 @@ struct core_arch_operations< 16u, Signed, Interprocess > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return original.as_storage;
     }

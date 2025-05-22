@@ -128,6 +128,7 @@ struct extra_operations_gcc_aarch64< Base, 1u, Signed > :
 
     static BOOST_FORCEINLINE storage_type fetch_negate(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original, result;
         uint32_t tmp;
 
@@ -146,12 +147,14 @@ struct extra_operations_gcc_aarch64< Base, 1u, Signed > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return original;
     }
 
     static BOOST_FORCEINLINE storage_type negate(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type result;
         uint32_t tmp;
 
@@ -170,6 +173,7 @@ struct extra_operations_gcc_aarch64< Base, 1u, Signed > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return result;
     }
@@ -178,6 +182,7 @@ struct extra_operations_gcc_aarch64< Base, 1u, Signed > :
 
     static BOOST_FORCEINLINE storage_type add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type result;
         uint32_t tmp;
 
@@ -196,12 +201,14 @@ struct extra_operations_gcc_aarch64< Base, 1u, Signed > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return result;
     }
 
     static BOOST_FORCEINLINE storage_type sub(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type result;
         uint32_t tmp;
 
@@ -220,12 +227,14 @@ struct extra_operations_gcc_aarch64< Base, 1u, Signed > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return result;
     }
 
     static BOOST_FORCEINLINE storage_type bitwise_and(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type result;
         uint32_t tmp;
 
@@ -244,12 +253,14 @@ struct extra_operations_gcc_aarch64< Base, 1u, Signed > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return result;
     }
 
     static BOOST_FORCEINLINE storage_type bitwise_or(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type result;
         uint32_t tmp;
 
@@ -268,12 +279,14 @@ struct extra_operations_gcc_aarch64< Base, 1u, Signed > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return result;
     }
 
     static BOOST_FORCEINLINE storage_type bitwise_xor(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type result;
         uint32_t tmp;
 
@@ -292,12 +305,14 @@ struct extra_operations_gcc_aarch64< Base, 1u, Signed > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return result;
     }
 
     static BOOST_FORCEINLINE storage_type fetch_complement(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original, result;
         uint32_t tmp;
 
@@ -316,12 +331,14 @@ struct extra_operations_gcc_aarch64< Base, 1u, Signed > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return original;
     }
 
     static BOOST_FORCEINLINE storage_type bitwise_complement(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type result;
         uint32_t tmp;
 
@@ -340,6 +357,7 @@ struct extra_operations_gcc_aarch64< Base, 1u, Signed > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return result;
     }
@@ -363,6 +381,7 @@ struct extra_operations_gcc_aarch64< Base, 2u, Signed > :
 
     static BOOST_FORCEINLINE storage_type fetch_negate(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original, result;
         uint32_t tmp;
 
@@ -381,12 +400,14 @@ struct extra_operations_gcc_aarch64< Base, 2u, Signed > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return original;
     }
 
     static BOOST_FORCEINLINE storage_type negate(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type result;
         uint32_t tmp;
 
@@ -405,6 +426,7 @@ struct extra_operations_gcc_aarch64< Base, 2u, Signed > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return result;
     }
@@ -413,6 +435,7 @@ struct extra_operations_gcc_aarch64< Base, 2u, Signed > :
 
     static BOOST_FORCEINLINE storage_type add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type result;
         uint32_t tmp;
 
@@ -431,12 +454,14 @@ struct extra_operations_gcc_aarch64< Base, 2u, Signed > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return result;
     }
 
     static BOOST_FORCEINLINE storage_type sub(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type result;
         uint32_t tmp;
 
@@ -455,12 +480,14 @@ struct extra_operations_gcc_aarch64< Base, 2u, Signed > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return result;
     }
 
     static BOOST_FORCEINLINE storage_type bitwise_and(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type result;
         uint32_t tmp;
 
@@ -479,12 +506,14 @@ struct extra_operations_gcc_aarch64< Base, 2u, Signed > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return result;
     }
 
     static BOOST_FORCEINLINE storage_type bitwise_or(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type result;
         uint32_t tmp;
 
@@ -503,12 +532,14 @@ struct extra_operations_gcc_aarch64< Base, 2u, Signed > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return result;
     }
 
     static BOOST_FORCEINLINE storage_type bitwise_xor(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type result;
         uint32_t tmp;
 
@@ -527,12 +558,14 @@ struct extra_operations_gcc_aarch64< Base, 2u, Signed > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return result;
     }
 
     static BOOST_FORCEINLINE storage_type fetch_complement(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original, result;
         uint32_t tmp;
 
@@ -551,12 +584,14 @@ struct extra_operations_gcc_aarch64< Base, 2u, Signed > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return original;
     }
 
     static BOOST_FORCEINLINE storage_type bitwise_complement(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type result;
         uint32_t tmp;
 
@@ -575,6 +610,7 @@ struct extra_operations_gcc_aarch64< Base, 2u, Signed > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return result;
     }
@@ -598,6 +634,7 @@ struct extra_operations_gcc_aarch64< Base, 4u, Signed > :
 
     static BOOST_FORCEINLINE storage_type fetch_negate(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original, result;
         uint32_t tmp;
 
@@ -616,12 +653,14 @@ struct extra_operations_gcc_aarch64< Base, 4u, Signed > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return original;
     }
 
     static BOOST_FORCEINLINE storage_type negate(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type result;
         uint32_t tmp;
 
@@ -640,6 +679,7 @@ struct extra_operations_gcc_aarch64< Base, 4u, Signed > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return result;
     }
@@ -648,6 +688,7 @@ struct extra_operations_gcc_aarch64< Base, 4u, Signed > :
 
     static BOOST_FORCEINLINE storage_type add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type result;
         uint32_t tmp;
 
@@ -666,12 +707,14 @@ struct extra_operations_gcc_aarch64< Base, 4u, Signed > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return result;
     }
 
     static BOOST_FORCEINLINE storage_type sub(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type result;
         uint32_t tmp;
 
@@ -690,12 +733,14 @@ struct extra_operations_gcc_aarch64< Base, 4u, Signed > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return result;
     }
 
     static BOOST_FORCEINLINE storage_type bitwise_and(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type result;
         uint32_t tmp;
 
@@ -714,12 +759,14 @@ struct extra_operations_gcc_aarch64< Base, 4u, Signed > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return result;
     }
 
     static BOOST_FORCEINLINE storage_type bitwise_or(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type result;
         uint32_t tmp;
 
@@ -738,12 +785,14 @@ struct extra_operations_gcc_aarch64< Base, 4u, Signed > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return result;
     }
 
     static BOOST_FORCEINLINE storage_type bitwise_xor(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type result;
         uint32_t tmp;
 
@@ -762,12 +811,14 @@ struct extra_operations_gcc_aarch64< Base, 4u, Signed > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return result;
     }
 
     static BOOST_FORCEINLINE storage_type fetch_complement(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original, result;
         uint32_t tmp;
 
@@ -786,12 +837,14 @@ struct extra_operations_gcc_aarch64< Base, 4u, Signed > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return original;
     }
 
     static BOOST_FORCEINLINE storage_type bitwise_complement(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type result;
         uint32_t tmp;
 
@@ -810,6 +863,7 @@ struct extra_operations_gcc_aarch64< Base, 4u, Signed > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return result;
     }
@@ -833,6 +887,7 @@ struct extra_operations_gcc_aarch64< Base, 8u, Signed > :
 
     static BOOST_FORCEINLINE storage_type fetch_negate(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original, result;
         uint32_t tmp;
 
@@ -851,12 +906,14 @@ struct extra_operations_gcc_aarch64< Base, 8u, Signed > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return original;
     }
 
     static BOOST_FORCEINLINE storage_type negate(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type result;
         uint32_t tmp;
 
@@ -875,6 +932,7 @@ struct extra_operations_gcc_aarch64< Base, 8u, Signed > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return result;
     }
@@ -883,6 +941,7 @@ struct extra_operations_gcc_aarch64< Base, 8u, Signed > :
 
     static BOOST_FORCEINLINE storage_type add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type result;
         uint32_t tmp;
 
@@ -901,12 +960,14 @@ struct extra_operations_gcc_aarch64< Base, 8u, Signed > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return result;
     }
 
     static BOOST_FORCEINLINE storage_type sub(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type result;
         uint32_t tmp;
 
@@ -925,12 +986,14 @@ struct extra_operations_gcc_aarch64< Base, 8u, Signed > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return result;
     }
 
     static BOOST_FORCEINLINE storage_type bitwise_and(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type result;
         uint32_t tmp;
 
@@ -949,12 +1012,14 @@ struct extra_operations_gcc_aarch64< Base, 8u, Signed > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return result;
     }
 
     static BOOST_FORCEINLINE storage_type bitwise_or(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type result;
         uint32_t tmp;
 
@@ -973,12 +1038,14 @@ struct extra_operations_gcc_aarch64< Base, 8u, Signed > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return result;
     }
 
     static BOOST_FORCEINLINE storage_type bitwise_xor(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type result;
         uint32_t tmp;
 
@@ -997,12 +1064,14 @@ struct extra_operations_gcc_aarch64< Base, 8u, Signed > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return result;
     }
 
     static BOOST_FORCEINLINE storage_type fetch_complement(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original, result;
         uint32_t tmp;
 
@@ -1021,12 +1090,14 @@ struct extra_operations_gcc_aarch64< Base, 8u, Signed > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return original;
     }
 
     static BOOST_FORCEINLINE storage_type bitwise_complement(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type result;
         uint32_t tmp;
 
@@ -1045,6 +1116,7 @@ struct extra_operations_gcc_aarch64< Base, 8u, Signed > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return result;
     }
@@ -1069,6 +1141,7 @@ struct extra_operations_gcc_aarch64< Base, 16u, Signed > :
 
     static BOOST_FORCEINLINE storage_type fetch_negate(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_union original;
         storage_union result;
         uint32_t tmp;
@@ -1093,12 +1166,14 @@ struct extra_operations_gcc_aarch64< Base, 16u, Signed > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return original.as_storage;
     }
 
     static BOOST_FORCEINLINE storage_type negate(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_union result;
         uint32_t tmp;
 
@@ -1121,12 +1196,14 @@ struct extra_operations_gcc_aarch64< Base, 16u, Signed > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return result.as_storage;
     }
 
     static BOOST_FORCEINLINE storage_type add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_union result;
         storage_union value = { v };
         uint32_t tmp;
@@ -1148,12 +1225,14 @@ struct extra_operations_gcc_aarch64< Base, 16u, Signed > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return result.as_storage;
     }
 
     static BOOST_FORCEINLINE storage_type sub(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_union result;
         storage_union value = { v };
         uint32_t tmp;
@@ -1175,12 +1254,14 @@ struct extra_operations_gcc_aarch64< Base, 16u, Signed > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return result.as_storage;
     }
 
     static BOOST_FORCEINLINE storage_type bitwise_and(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_union result;
         storage_union value = { v };
         uint32_t tmp;
@@ -1202,12 +1283,14 @@ struct extra_operations_gcc_aarch64< Base, 16u, Signed > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return result.as_storage;
     }
 
     static BOOST_FORCEINLINE storage_type bitwise_or(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_union result;
         storage_union value = { v };
         uint32_t tmp;
@@ -1229,12 +1312,14 @@ struct extra_operations_gcc_aarch64< Base, 16u, Signed > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return result.as_storage;
     }
 
     static BOOST_FORCEINLINE storage_type bitwise_xor(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_union result;
         storage_union value = { v };
         uint32_t tmp;
@@ -1256,12 +1341,14 @@ struct extra_operations_gcc_aarch64< Base, 16u, Signed > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return result.as_storage;
     }
 
     static BOOST_FORCEINLINE storage_type fetch_complement(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_union original;
         storage_union result;
         uint32_t tmp;
@@ -1284,12 +1371,14 @@ struct extra_operations_gcc_aarch64< Base, 16u, Signed > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return original.as_storage;
     }
 
     static BOOST_FORCEINLINE storage_type bitwise_complement(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
     {
+        BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_union result;
         uint32_t tmp;
 
@@ -1310,6 +1399,7 @@ struct extra_operations_gcc_aarch64< Base, 16u, Signed > :
 
         BOOST_ATOMIC_DETAIL_AARCH64_MO_SWITCH(order)
 #undef BOOST_ATOMIC_DETAIL_AARCH64_MO_INSN
+        BOOST_ATOMIC_DETAIL_TSAN_ACQUIRE(&storage, order);
 
         return result.as_storage;
     }
