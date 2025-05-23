@@ -504,13 +504,16 @@ jobs:
           - toolset: clang
             cxxstd64: "11,14,17,20,2b"
             os: macos-13
+            instruction_set: "-"
           - toolset: clang
             cxxstd64: "11,14,17,20,2b"
             os: macos-14
+            instruction_set: "-"
 
           - toolset: clang
             cxxstd64: "11,14,17,20,2b"
             os: macos-latest
+            instruction_set: "-"
             macosx_version_min: 11
 
           - name: CMake tests
@@ -736,8 +739,12 @@ jobs:
             fi
             if [ -n "${{matrix.instruction_set}}" ]
             then
-                B2_ARGS+=("instruction-set=${{matrix.instruction_set}}")
-            else
+                if [ "${{matrix.instruction_set}}" != "-" ]
+                then
+                    B2_ARGS+=("instruction-set=${{matrix.instruction_set}}")
+                fi
+            elif [ -n "$DEFAULT_INSTRUCTION_SET" ]
+            then
                 B2_ARGS+=("instruction-set=$DEFAULT_INSTRUCTION_SET")
             fi
             if [ -n "${{matrix.macosx_version_min}}" ]
