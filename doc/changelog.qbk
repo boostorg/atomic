@@ -1,11 +1,15 @@
 [/
- / Copyright (c) 2021-2024 Andrey Semashev
+ / Copyright (c) 2021-2025 Andrey Semashev
  /
  / Distributed under the Boost Software License, Version 1.0. (See accompanying
  / file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
  /]
 
 [section:changelog Changelog]
+
+[heading Boost 1.89]
+
+* Added TSAN instrumentation in asm-based x86, AArch32, AArch64 and PPC backends. This silences TSAN false errors for code using Boost.Atomic for thread synchronization.
 
 [heading Boost 1.87]
 
