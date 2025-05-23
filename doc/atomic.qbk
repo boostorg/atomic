@@ -706,10 +706,15 @@ atomic references]. Doing so does not guarantee atomicity or memory ordering.
 [note Even if `boost::atomic` for a given type is lock-free, an atomic reference for that type may not be. Therefore, `boost::atomic`
 and `boost::atomic_ref` operating on the same object may use different thread synchronization primitives incompatible with each other.]
 
-The `compare_exchange_weak`/`compare_exchange_strong` variants
-taking four parameters differ from the three parameter variants
-in that they allow a different memory ordering constraint to
-be specified in case the operation fails.
+The `compare_exchange_weak`/`compare_exchange_strong` variants taking four parameters differ from the three parameter variants
+in that they allow a different memory ordering constraint to be specified in case the operation fails.
+
+It must be noted that `compare_exchange_weak`/`compare_exchange_strong` in [*Boost.Atomic] differ from C++11 [^std::atomic<['T]>]
+in that [^boost::atomic<['T]>] is allowed to write to the `expected` argument even if the operation returns `true` while
+[^std::atomic<['T]>] writes to that argument only if the operation returns `false`. The difference may be significant
+if the caller passes in the `expected` argument a reference to data that must be protected by the `compare_exchange_*`
+operation, because the write to `expected` may happen after the atomic update with the `success_order` constraint and constitute
+a data race. Users are advised to avoid passing references to protected data as `expected` arguments.
 
 In addition to these explicit operations, each
 [^atomic<['T]>] object also supports
