@@ -7,7 +7,7 @@
 
 [section:changelog Changelog]
 
-[heading Boost 1.89]
+[heading Boost 1.88]
 
 * Added TSAN instrumentation in asm-based x86, AArch32, AArch64 and PPC backends. This silences TSAN false errors for code using Boost.Atomic for thread synchronization.
 
