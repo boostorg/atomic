@@ -395,9 +395,9 @@ namespace mutex_bits {
 //! The bit indicates a locked mutex
 BOOST_CONSTEXPR_OR_CONST futex_operations::storage_type locked = 1u;
 //! The bit indicates that there is at least one thread blocked waiting for the mutex to be released
-BOOST_CONSTEXPR_OR_CONST futex_operations::storage_type contended = 1u << 1;
+BOOST_CONSTEXPR_OR_CONST futex_operations::storage_type contended = 1u << 1u;
 //! The lowest bit of the counter bits used to mitigate ABA problem. This and any higher bits in the mutex state constitute the counter.
-BOOST_CONSTEXPR_OR_CONST futex_operations::storage_type counter_one = 1u << 2;
+BOOST_CONSTEXPR_OR_CONST futex_operations::storage_type counter_one = 1u << 2u;
 
 } // namespace mutex_bits
 
@@ -476,7 +476,7 @@ struct lock_state
                 futex_operations::storage_type new_state = prev_state | mutex_bits::contended;
                 if (BOOST_LIKELY(futex_operations::compare_exchange_weak(m_mutex, prev_state, new_state, boost::memory_order_relaxed, boost::memory_order_relaxed)))
                 {
-                    atomics::detail::futex_wait_private(&m_mutex, new_state);
+                    atomics::detail::futex_wait(&m_mutex, new_state, BOOST_ATOMIC_DETAIL_FUTEX_PRIVATE_FLAG);
                     prev_state = futex_operations::load(m_mutex, boost::memory_order_relaxed);
                 }
             }
@@ -497,7 +497,7 @@ struct lock_state
 
         if ((prev_state & mutex_bits::contended) != 0u)
         {
-            int woken_count = atomics::detail::futex_signal_private(&m_mutex);
+            int woken_count = atomics::detail::futex_signal(&m_mutex, BOOST_ATOMIC_DETAIL_FUTEX_PRIVATE_FLAG);
             if (woken_count == 0)
             {
                 prev_state = new_state;
@@ -524,9 +524,15 @@ inline void wait_state::wait(lock_state& state) BOOST_NOEXCEPT
 
     while (true)
     {
-        int err = atomics::detail::futex_wait_private(&m_cond, prev_cond);
-        if (BOOST_LIKELY(err != EINTR))
-            break;
+        int err = atomics::detail::futex_wait(&m_cond, prev_cond, BOOST_ATOMIC_DETAIL_FUTEX_PRIVATE_FLAG);
+        if (err < 0)
+        {
+            err = errno;
+            if (BOOST_UNLIKELY(err == EINTR))
+                continue;
+        }
+
+        break;
     }
 
     state.long_lock();
@@ -542,7 +548,7 @@ inline void wait_state::notify_one(lock_state& state) BOOST_NOEXCEPT
     if (BOOST_LIKELY(m_waiter_count > 0u))
     {
         // Move one blocked thread to the mutex futex and mark the mutex contended so that the thread is unblocked on unlock()
-        atomics::detail::futex_requeue_private(&m_cond, &state.m_mutex, 0u, 1u);
+        atomics::detail::futex_requeue(&m_cond, &state.m_mutex, BOOST_ATOMIC_DETAIL_FUTEX_PRIVATE_FLAG, 0u, 1u);
         futex_extra_operations::opaque_or(state.m_mutex, mutex_bits::contended, boost::memory_order_relaxed);
     }
 }
@@ -555,7 +561,7 @@ inline void wait_state::notify_all(lock_state& state) BOOST_NOEXCEPT
     if (BOOST_LIKELY(m_waiter_count > 0u))
     {
         // Move blocked threads to the mutex futex and mark the mutex contended so that a thread is unblocked on unlock()
-        atomics::detail::futex_requeue_private(&m_cond, &state.m_mutex, 0u);
+        atomics::detail::futex_requeue(&m_cond, &state.m_mutex, BOOST_ATOMIC_DETAIL_FUTEX_PRIVATE_FLAG, 0u);
         futex_extra_operations::opaque_or(state.m_mutex, mutex_bits::contended, boost::memory_order_relaxed);
     }
 }
