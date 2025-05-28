@@ -824,6 +824,7 @@ jobs:
             os: windows-2022
           - toolset: gcc
             cxxstd64: "11-gnu,14-gnu,17-gnu,2a-gnu"
+            cxxflags: "-D_WIN32_WINNT=0x0A00"
             os: windows-2019
 
           - name: CMake MSVC tests

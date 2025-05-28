@@ -71,19 +71,6 @@ if (BOOST_ATOMIC_TARGET_X86)
     endif()
 endif()
 
-if (WIN32)
-    set(boost_atomic_sources ${boost_atomic_sources} src/wait_on_address.cpp)
-endif()
-
-if (WIN32)
-    # Note: We can't use the Boost::library targets here as they may not yet be included by the superproject when this CMakeLists.txt is included.
-    set(CMAKE_REQUIRED_INCLUDES ${BOOST_LIBRARY_INCLUDES})
-    set(CMAKE_REQUIRED_LIBRARIES synchronization)
-    check_cxx_source_compiles("#include <${CMAKE_CURRENT_SOURCE_DIR}/config/has_synchronization_lib.cpp>" BOOST_ATOMIC_HAS_SYNCHRONIZATION_LIB)
-    unset(CMAKE_REQUIRED_LIBRARIES)
-    unset(CMAKE_REQUIRED_INCLUDES)
-endif()
-
 add_library(boost_atomic ${boost_atomic_sources})
 add_library(Boost::atomic ALIAS boost_atomic)
 
@@ -111,13 +98,9 @@ if (WIN32)
     target_link_libraries(boost_atomic
         PUBLIC
             Boost::winapi
-    )
 
-    if (BOOST_ATOMIC_HAS_SYNCHRONIZATION_LIB)
-        target_link_libraries(boost_atomic PUBLIC synchronization)
-    else()
-        target_compile_definitions(boost_atomic PUBLIC BOOST_ATOMIC_NO_SYNCHRONIZATION_LIB)
-    endif()
+            synchronization
+    )
 endif()
 
 target_compile_definitions(boost_atomic

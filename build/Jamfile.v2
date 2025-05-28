@@ -1,7 +1,7 @@
 #  Boost.Atomic Library Jamfile
 #
 #  Copyright Helge Bahmann 2011.
-#  Copyright Andrey Semashev 2018, 2020-2021.
+#  Copyright Andrey Semashev 2018, 2020-2025.
 #
 #  Distributed under the Boost Software License, Version 1.0.
 #  (See accompanying file LICENSE_1_0.txt or copy at
@@ -17,27 +17,8 @@ import feature ;
 import configure ;
 import atomic-arch-config ;
 
-lib synchronization ;
+searched-lib synchronization ;
 explicit synchronization ;
-
-rule check-synchronization-lib ( properties * )
-{
-    local result ;
-
-    if <target-os>windows in $(properties)
-    {
-        if [ configure.builds ../config//has_synchronization_lib : $(properties) : "has synchronization.lib" ]
-        {
-            result += <library>synchronization ;
-        }
-        else
-        {
-            result += <define>BOOST_ATOMIC_NO_SYNCHRONIZATION_LIB ;
-        }
-    }
-
-    return $(result) ;
-}
 
 local cxx_requirements = [ requires
       cxx11_static_assert
@@ -126,29 +107,15 @@ rule select-arch-specific-sources ( properties * )
     return $(result) ;
 }
 
-rule select-platform-specific-sources ( properties * )
-{
-    local result ;
-
-    if <target-os>windows in $(properties)
-    {
-        result += <source>wait_on_address.cpp ;
-    }
-
-#    ECHO Platform sources: $(result) ;
-
-    return $(result) ;
-}
-
 lib boost_atomic
     : ## sources ##
       lock_pool.cpp
     : ## requirements ##
       <include>../src
       <conditional>@select-arch-specific-sources
-      <conditional>@select-platform-specific-sources
+      <target-os>windows:<library>synchronization
       $(cxx_requirements)
     : usage-requirements
-      <conditional>@check-synchronization-lib
+      <target-os>windows:<library>synchronization
       $(cxx_requirements)
    ;
