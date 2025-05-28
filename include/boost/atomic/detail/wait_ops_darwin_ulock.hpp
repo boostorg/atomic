@@ -3,7 +3,7 @@
  * (See accompanying file LICENSE_1_0.txt or copy at
  * http://www.boost.org/LICENSE_1_0.txt)
  *
- * Copyright (c) 2021 Andrey Semashev
+ * Copyright (c) 2021-2025 Andrey Semashev
  */
 /*!
  * \file   atomic/detail/wait_ops_darwin_ulock.hpp
@@ -19,8 +19,11 @@
 
 #include <stdint.h>
 #include <cerrno>
+#include <chrono>
 #include <boost/memory_order.hpp>
+#include <boost/atomic/wait_result.hpp>
 #include <boost/atomic/detail/config.hpp>
+#include <boost/atomic/detail/chrono.hpp>
 #include <boost/atomic/detail/wait_capabilities.hpp>
 #include <boost/atomic/detail/wait_operations_fwd.hpp>
 #include <boost/atomic/detail/header.hpp>
@@ -91,6 +94,70 @@ struct wait_operations_darwin_ulock_common :
         }
 
         return new_val;
+    }
+
+private:
+    template< typename Clock >
+    static BOOST_FORCEINLINE wait_result< storage_type > wait_until_impl
+    (
+        storage_type const volatile& storage,
+        storage_type old_val,
+        memory_order order,
+        typename Clock::time_point timeout,
+        typename Clock::time_point now
+    ) noexcept(noexcept(Clock::now()))
+    {
+        wait_result< storage_type > res{ base_type::load(storage, order), false };
+        while (res.value == old_val)
+        {
+#if defined(BOOST_ATOMIC_DETAIL_HAS_DARWIN_ULOCK_WAIT2)
+            const int64_t rel_timeout = atomics::detail::chrono::ceil< std::chrono::nanoseconds >(timeout - now).count();
+#else
+            const int64_t rel_timeout = atomics::detail::chrono::ceil< std::chrono::microseconds >(timeout - now).count();
+#endif
+            if (rel_timeout <= 0)
+            {
+                res.timeout = true;
+                break;
+            }
+
+#if defined(BOOST_ATOMIC_DETAIL_HAS_DARWIN_ULOCK_WAIT2)
+            __ulock_wait2(Opcode | ulock_flag_no_errno, const_cast< storage_type* >(&storage), old_val, static_cast< uint64_t >(rel_timeout), 0u);
+#else
+            __ulock_wait
+            (
+                Opcode | ulock_flag_no_errno,
+                const_cast< storage_type* >(&storage),
+                old_val,
+                rel_timeout <= static_cast< int64_t >(~static_cast< uint32_t >(0u)) ? static_cast< uint32_t >(rel_timeout) : ~static_cast< uint32_t >(0u)
+            );
+#endif
+            now = Clock::now();
+            res.value = base_type::load(storage, order);
+        }
+
+        return res;
+    }
+
+public:
+    template< typename Clock, typename Duration >
+    static BOOST_FORCEINLINE wait_result< storage_type > wait_until
+    (
+        storage_type const volatile& storage,
+        storage_type old_val,
+        memory_order order,
+        std::chrono::time_point< Clock, Duration > timeout
+    ) noexcept(noexcept(Clock::now()))
+    {
+        return wait_until_impl< Clock >(storage, old_val, order, timeout, Clock::now());
+    }
+
+    template< typename Rep, typename Period >
+    static BOOST_FORCEINLINE wait_result< storage_type >
+    wait_for(storage_type const volatile& storage, storage_type old_val, memory_order order, std::chrono::duration< Rep, Period > timeout) noexcept
+    {
+        const std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
+        return wait_until_impl< std::chrono::steady_clock >(storage, old_val, order, now + timeout, now);
     }
 
     static BOOST_FORCEINLINE void notify_one(storage_type volatile& storage) BOOST_NOEXCEPT
