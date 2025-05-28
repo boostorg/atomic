@@ -14,8 +14,11 @@
 #ifndef BOOST_ATOMIC_DETAIL_WAIT_OPS_WINDOWS_HPP_INCLUDED_
 #define BOOST_ATOMIC_DETAIL_WAIT_OPS_WINDOWS_HPP_INCLUDED_
 
+#include <chrono>
+#include <boost/cstdint.hpp>
 #include <boost/memory_order.hpp>
 #include <boost/atomic/detail/config.hpp>
+#include <boost/atomic/detail/chrono.hpp>
 #include <boost/atomic/detail/wait_operations_fwd.hpp>
 #include <boost/atomic/detail/wait_capabilities.hpp>
 #include <boost/winapi/wait_constants.hpp>
@@ -44,17 +47,17 @@ template< typename Base, std::size_t Size >
 struct wait_operations_windows :
     public Base
 {
-    typedef Base base_type;
-    typedef typename base_type::storage_type storage_type;
+    using base_type = Base;
+    using storage_type = typename base_type::storage_type;
 
-    static BOOST_CONSTEXPR_OR_CONST bool always_has_native_wait_notify = true;
+    static constexpr bool always_has_native_wait_notify = true;
 
-    static BOOST_FORCEINLINE bool has_native_wait_notify(storage_type const volatile&) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE bool has_native_wait_notify(storage_type const volatile&) noexcept
     {
         return true;
     }
 
-    static BOOST_FORCEINLINE storage_type wait(storage_type const volatile& storage, storage_type old_val, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type wait(storage_type const volatile& storage, storage_type old_val, memory_order order) noexcept
     {
         storage_type new_val = base_type::load(storage, order);
         while (new_val == old_val)
@@ -66,12 +69,77 @@ struct wait_operations_windows :
         return new_val;
     }
 
-    static BOOST_FORCEINLINE void notify_one(storage_type volatile& storage) BOOST_NOEXCEPT
+private:
+    template< typename Clock >
+    static BOOST_FORCEINLINE storage_type wait_until_impl
+    (
+        storage_type const volatile& storage,
+        storage_type old_val,
+        typename Clock::time_point timeout,
+        typename Clock::time_point now,
+        memory_order order,
+        bool& timed_out
+    ) noexcept(noexcept(Clock::now()))
+    {
+        storage_type new_val = base_type::load(storage, order);
+        while (new_val == old_val)
+        {
+            const int64_t msec = atomics::detail::chrono::ceil< std::chrono::milliseconds >(timeout - now).count();
+            if (msec <= 0)
+            {
+                timed_out = true;
+                break;
+            }
+
+            boost::winapi::WaitOnAddress
+            (
+                const_cast< storage_type* >(&storage),
+                &old_val,
+                Size,
+                msec <= static_cast< int64_t >(boost::winapi::max_non_infinite_wait) ? static_cast< boost::winapi::DWORD_ >(msec) : boost::winapi::max_non_infinite_wait
+            );
+
+            now = Clock::now();
+            new_val = base_type::load(storage, order);
+        }
+
+        return new_val;
+    }
+
+public:
+    template< typename Clock, typename Duration >
+    static BOOST_FORCEINLINE storage_type wait_until
+    (
+        storage_type const volatile& storage,
+        storage_type old_val,
+        std::chrono::time_point< Clock, Duration > timeout,
+        memory_order order,
+        bool& timed_out
+    ) noexcept(noexcept(Clock::now()))
+    {
+        return wait_until_impl< Clock >(storage, old_val, timeout, Clock::now(), order, timed_out);
+    }
+
+    template< typename Rep, typename Period >
+    static BOOST_FORCEINLINE storage_type wait_for
+    (
+        storage_type const volatile& storage,
+        storage_type old_val,
+        std::chrono::duration< Rep, Period > timeout,
+        memory_order order,
+        bool& timed_out
+    ) noexcept
+    {
+        const std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
+        return wait_until_impl< std::chrono::steady_clock >(storage, old_val, now + timeout, now, order, timed_out);
+    }
+
+    static BOOST_FORCEINLINE void notify_one(storage_type volatile& storage) noexcept
     {
         boost::winapi::WakeByAddressSingle(const_cast< storage_type* >(&storage));
     }
 
-    static BOOST_FORCEINLINE void notify_all(storage_type volatile& storage) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE void notify_all(storage_type volatile& storage) noexcept
     {
         boost::winapi::WakeByAddressAll(const_cast< storage_type* >(&storage));
     }
