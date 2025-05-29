@@ -52,8 +52,8 @@ BOOST_FORCEINLINE void pause() BOOST_NOEXCEPT
 #if defined(__riscv_zihintpause)
     __asm__ __volatile__("pause" : : : "memory");
 #else
-    /* Encoding of the pause instruction */
-    __asm__ __volatile__ (".4byte 0x100000F");
+    // Encoding of the pause instruction
+    __asm__ __volatile__ (".4byte 0x100000F" : : : "memory");
 #endif
 #endif
 #endif
