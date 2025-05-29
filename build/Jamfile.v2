@@ -21,7 +21,7 @@ searched-lib synchronization ;
 explicit synchronization ;
 
 local cxx_requirements = [ requires
-      cxx11_static_assert
+      cxx11
     ] ;
 
 project
