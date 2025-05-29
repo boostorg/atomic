@@ -37,48 +37,6 @@ jobs:
           # Note: In the matrix below, we always use a Docker container when we test 32-bit targets since the host runner
           # does not have permissions to configure dpkg/apt, which prevents adding i386 target architecture.
           # Linux, gcc
-          - toolset: gcc-4.6
-            cxxstd64: "0x"
-            cxxstd32: "0x"
-            # Workaround for missing std::this_thread::sleep_* functions
-            cxxflags: -D_GLIBCXX_USE_NANOSLEEP
-            os: ubuntu-latest
-            container: ubuntu:16.04
-            install:
-              - g++-4.6
-              - g++-4.6-multilib
-              - linux-libc-dev:i386
-            sources:
-              - "ppa:ubuntu-toolchain-r/test"
-          - toolset: gcc-4.7
-            cxxstd64: "11"
-            cxxstd32: "11"
-            # Workaround for missing std::this_thread::sleep_* functions
-            cxxflags: -D_GLIBCXX_USE_NANOSLEEP
-            os: ubuntu-latest
-            container: ubuntu:16.04
-            install:
-              - g++-4.7
-              - g++-4.7-multilib
-              - linux-libc-dev:i386
-          - toolset: gcc-4.8
-            cxxstd64: "11"
-            cxxstd32: "11"
-            os: ubuntu-latest
-            container: ubuntu:18.04
-            install:
-              - g++-4.8
-              - g++-4.8-multilib
-              - linux-libc-dev:i386
-          - toolset: gcc-4.9
-            cxxstd64: "11"
-            cxxstd32: "11"
-            os: ubuntu-latest
-            container: ubuntu:16.04
-            install:
-              - g++-4.9
-              - g++-4.9-multilib
-              - linux-libc-dev:i386
           - toolset: gcc-5
             cxxstd64: "11,14,1z"
             cxxstd32: "11"
@@ -193,54 +151,6 @@ jobs:
               - g++-13-multilib
 
           # Linux, clang
-          - toolset: clang
-            compiler: clang++-3.5
-            cxxstd64: "11"
-            cxxstd32: "11"
-            os: ubuntu-latest
-            container: ubuntu:16.04
-            install:
-              - clang-3.5
-              - g++-4.9
-              - g++-4.9-multilib
-              - linux-libc-dev:i386
-            gcc_toolchain: 4.9
-          - toolset: clang
-            compiler: clang++-3.6
-            cxxstd64: "11,14"
-            cxxstd32: "11"
-            os: ubuntu-latest
-            container: ubuntu:16.04
-            install:
-              - clang-3.6
-              - g++-4.9
-              - g++-4.9-multilib
-              - linux-libc-dev:i386
-            gcc_toolchain: 4.9
-          - toolset: clang
-            compiler: clang++-3.7
-            cxxstd64: "11,14"
-            cxxstd32: "11"
-            os: ubuntu-latest
-            container: ubuntu:16.04
-            install:
-              - clang-3.7
-              - g++-4.9
-              - g++-4.9-multilib
-              - linux-libc-dev:i386
-            gcc_toolchain: 4.9
-          - toolset: clang
-            compiler: clang++-3.8
-            cxxstd64: "11,14"
-            cxxstd32: "11"
-            os: ubuntu-latest
-            container: ubuntu:16.04
-            install:
-              - clang-3.8
-              - g++-4.9
-              - g++-4.9-multilib
-              - linux-libc-dev:i386
-            gcc_toolchain: 4.9
           - toolset: clang
             compiler: clang++-3.9
             cxxstd64: "11,14"
