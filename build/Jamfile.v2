@@ -21,7 +21,22 @@ searched-lib synchronization ;
 explicit synchronization ;
 
 local cxx_requirements = [ requires
+      cxx11_alignas
+      cxx11_alignof
+      cxx11_constexpr
+      cxx11_noexcept
+      cxx11_nullptr
+      cxx11_decltype
+      cxx11_decltype_n3276
+      cxx11_template_aliases
       cxx11_static_assert
+      cxx11_rvalue_references
+      cxx11_scoped_enums
+      cxx11_defaulted_functions
+      cxx11_deleted_functions
+      cxx11_unrestricted_union
+      cxx11_hdr_chrono
+      cxx11_hdr_type_traits
     ] ;
 
 project

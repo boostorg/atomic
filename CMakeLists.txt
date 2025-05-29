@@ -74,9 +74,7 @@ endif()
 add_library(boost_atomic ${boost_atomic_sources})
 add_library(Boost::atomic ALIAS boost_atomic)
 
-target_compile_features(boost_atomic PUBLIC
-    cxx_static_assert
-)
+target_compile_features(boost_atomic PUBLIC cxx_std_11)
 
 target_include_directories(boost_atomic PUBLIC include)
 target_include_directories(boost_atomic PRIVATE src)

@@ -1,4 +1,4 @@
-# Copyright 2024 Andrey Semashev
+# Copyright 2024-2025 Andrey Semashev
 #
 # Distributed under the Boost Software License, Version 1.0.
 # See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt
@@ -11,12 +11,7 @@ endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
-set(BOOST_TEST_COMPILE_FEATURES
-    cxx_lambdas
-    cxx_static_assert
-    cxx_deleted_functions
-    cxx_defaulted_functions
-)
+set(BOOST_TEST_COMPILE_FEATURES cxx_std_11)
 
 set(BOOST_TEST_LINK_LIBRARIES
     Boost::atomic
