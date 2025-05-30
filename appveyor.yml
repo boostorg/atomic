@@ -51,13 +51,13 @@ environment:
       ADDRESS_MODEL: 64
       CXXSTD: 11,14,17,11-gnu,14-gnu,17-gnu
       ADDPATH: C:\mingw-w64\x86_64-7.3.0-posix-seh-rt_v5-rev0\mingw64\bin
-      B2_ARGS: instruction-set=native define=_WIN32_WINNT=0x0A00
+      B2_ARGS: instruction-set=native
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     - TOOLSET: gcc
       ADDRESS_MODEL: 64
       CXXSTD: 11,14,17,2a,11-gnu,14-gnu,17-gnu,2a-gnu
       ADDPATH: C:\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\bin
-      B2_ARGS: instruction-set=native define=_WIN32_WINNT=0x0A00
+      B2_ARGS: instruction-set=native
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
 
     - TOOLSET: msvc-14.0
@@ -91,7 +91,7 @@ environment:
       ADDRESS_MODEL: 32
       CXXSTD: 11,14,11-gnu,14-gnu
       ADDPATH: C:\mingw-w64\i686-8.1.0-posix-dwarf-rt_v6-rev0\mingw32\bin
-      B2_ARGS: instruction-set=native define=_WIN32_WINNT=0x0A00
+      B2_ARGS: instruction-set=native
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
     - TEST_CMAKE: 1
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2022
