@@ -101,6 +101,13 @@ if (WIN32)
 
             synchronization
     )
+
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        # MinGW-w64 defines _WIN32_WINNT to _WIN32_WINNT_WS03 by default, which disables WaitOnAddress API that is required by Boost.Atomic.
+        # Define the macro ourselves to the Windows version required by Boost.Atomic.
+        # https://github.com/boostorg/atomic/issues/73
+        target_compile_definitions(boost_atomic PUBLIC _WIN32_WINNT=0x0A00)
+    endif()
 endif()
 
 target_compile_definitions(boost_atomic
