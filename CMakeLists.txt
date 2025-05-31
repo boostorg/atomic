@@ -1,6 +1,6 @@
 # Copyright 2018 Mike Dev
 # Copyright 2019 Peter Dimov
-# Copyright 2020-2024 Andrey Semashev
+# Copyright 2020-2025 Andrey Semashev
 #
 # Distributed under the Boost Software License, Version 1.0.
 # See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt
@@ -71,6 +71,10 @@ if (BOOST_ATOMIC_TARGET_X86)
     endif()
 endif()
 
+set(CMAKE_REQUIRED_INCLUDES ${BOOST_LIBRARY_INCLUDES})
+check_cxx_source_compiles("#include <${CMAKE_CURRENT_SOURCE_DIR}/config/pthread_cond_clockwait.cpp>" BOOST_ATOMIC_HAS_PTHREAD_COND_CLOCKWAIT)
+unset(CMAKE_REQUIRED_INCLUDES)
+
 add_library(boost_atomic ${boost_atomic_sources})
 add_library(Boost::atomic ALIAS boost_atomic)
 
@@ -119,6 +123,10 @@ if (BUILD_SHARED_LIBS)
     target_compile_definitions(boost_atomic PUBLIC BOOST_ATOMIC_DYN_LINK)
 else()
     target_compile_definitions(boost_atomic PUBLIC BOOST_ATOMIC_STATIC_LINK)
+endif()
+
+if (BOOST_ATOMIC_HAS_PTHREAD_COND_CLOCKWAIT)
+    target_compile_definitions(boost_atomic PRIVATE BOOST_ATOMIC_HAS_PTHREAD_COND_CLOCKWAIT)
 endif()
 
 if (BOOST_ATOMIC_COMPILER_HAS_SSE2)
