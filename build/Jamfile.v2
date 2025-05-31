@@ -98,6 +98,19 @@ for local src in $(BOOST_ATOMIC_SOURCES_SSE41)
     explicit $(src) ;
 }
 
+rule check-pthread-cond-clockwait ( properties * )
+{
+    local result ;
+
+    local has_pthread_cond_clockwait = [ configure.builds ../config//has_pthread_cond_clockwait : $(properties) : "pthread_cond_clockwait supported" ] ;
+    if $(has_pthread_cond_clockwait)
+    {
+        result = <define>BOOST_ATOMIC_HAS_PTHREAD_COND_CLOCKWAIT ;
+    }
+
+    return $(result) ;
+}
+
 rule select-arch-specific-sources ( properties * )
 {
     local result ;
@@ -127,6 +140,7 @@ lib boost_atomic
       lock_pool.cpp
     : ## requirements ##
       <include>../src
+      <conditional>@check-pthread-cond-clockwait
       <conditional>@select-arch-specific-sources
       <target-os>windows:<library>synchronization
       # MinGW-w64 defines _WIN32_WINNT to _WIN32_WINNT_WS03 by default, which disables WaitOnAddress API that is required by Boost.Atomic.

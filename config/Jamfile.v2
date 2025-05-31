@@ -12,3 +12,6 @@ explicit has_sse2 ;
 
 obj has_sse41 : has_sse41.cpp : <conditional>@atomic-arch-config.sse41-flags ;
 explicit has_sse41 ;
+
+obj has_pthread_cond_clockwait : has_pthread_cond_clockwait.cpp  ;
+explicit has_pthread_cond_clockwait ;
