@@ -502,17 +502,23 @@ jobs:
               - libc++abi-18-dev
 
           - toolset: clang
-            cxxstd64: "11,14,17,20,2b"
+            vm: freebsd
+            version: "15.0"
+            cxxstd64: "11,14,17,20,23,26"
+            os: ubuntu-latest
+
+          - toolset: clang
             os: macos-13
+            cxxstd64: "11,14,17,20,2b"
             instruction_set: "-"
           - toolset: clang
-            cxxstd64: "11,14,17,20,2b"
             os: macos-14
+            cxxstd64: "11,14,17,20,2b"
             instruction_set: "-"
 
           - toolset: clang
-            cxxstd64: "11,14,17,20,2b"
             os: macos-latest
+            cxxstd64: "11,14,17,20,2b"
             instruction_set: "-"
             macosx_version_min: 11
 
@@ -710,25 +716,23 @@ jobs:
             git submodule update --init tools/boostdep
             DEPINST_ARGS+=("$LIBRARY")
             python tools/boostdep/depinst/depinst.py "${DEPINST_ARGS[@]}"
-            if [ -z "${{matrix.cmake_tests}}" ]
-            then
-                ./bootstrap.sh
-                ./b2 headers
-                if [ -n "${{matrix.compiler}}" -o -n "$GCC_TOOLCHAIN_ROOT" ]
-                then
-                    echo -n "using ${{matrix.toolset}} : : ${{matrix.compiler}}" > ~/user-config.jam
-                    if [ -n "$GCC_TOOLCHAIN_ROOT" ]
-                    then
-                        echo -n " : <compileflags>\"--gcc-toolchain=$GCC_TOOLCHAIN_ROOT\" <linkflags>\"--gcc-toolchain=$GCC_TOOLCHAIN_ROOT\"" >> ~/user-config.jam
-                    fi
-                    echo " ;" >> ~/user-config.jam
-                fi
-            fi
-
-      - name: Run tests
-        if: matrix.cmake_tests == ''
-        run: |
+            rm -rf ".git"
+            cd ..
+            cat > b2-run-tests.sh << "EOF"
+            #!/usr/bin/env bash
+            set -e
             cd boost-root
+            ./bootstrap.sh
+            ./b2 headers
+            if [ -n "${{matrix.compiler}}" -o -n "$GCC_TOOLCHAIN_ROOT" ]
+            then
+                echo -n "using ${{matrix.toolset}} : : ${{matrix.compiler}}" > ~/user-config.jam
+                if [ -n "$GCC_TOOLCHAIN_ROOT" ]
+                then
+                    echo -n " : <compileflags>\"--gcc-toolchain=$GCC_TOOLCHAIN_ROOT\" <linkflags>\"--gcc-toolchain=$GCC_TOOLCHAIN_ROOT\"" >> ~/user-config.jam
+                fi
+                echo " ;" >> ~/user-config.jam
+            fi
             B2_ARGS=("-j" "$BUILD_JOBS" "toolset=${{matrix.toolset}}")
             if [ -n "${{matrix.build_variant}}" ]
             then
@@ -783,6 +787,41 @@ jobs:
                 echo ""
                 ./b2 "${B2_ARGS[@]}" "address-model=32" "cxxstd=${{matrix.cxxstd32}}" "libs/$LIBRARY/test"
             fi
+            EOF
+            chmod +x b2-run-tests.sh
+
+      # Note: The VM must be created after the workspace is fully prepared, as it will be copied to the VM only once
+      - name: Setup FreeBSD VM
+        if: matrix.vm == 'freebsd'
+        uses: vmactions/freebsd-vm@v1
+        with:
+          release: "${{matrix.version}}"
+          usesh: true
+          sync: rsync
+          copyback: false
+          envs: "LIBRARY DEFAULT_BUILD_VARIANT DEFAULT_INSTRUCTION_SET BUILD_JOBS GCC_TOOLCHAIN_ROOT"
+          prepare: |
+              pkg install -y bash
+          run: |
+              uname -mrs
+              sysctl hw.model
+              sysctl hw.ncpu
+              sysctl hw.physmem
+              sysctl hw.usermem
+              pwd
+              ls -la
+
+      - name: Run tests (native)
+        if: matrix.cmake_tests == '' && matrix.vm == ''
+        run: |
+            bash ./b2-run-tests.sh
+
+      - name: Run tests (FreeBSD VM)
+        if: matrix.cmake_tests == '' && matrix.vm == 'freebsd'
+        shell: freebsd {0}
+        run: |
+            cd "$GITHUB_WORKSPACE"
+            bash ./b2-run-tests.sh
 
       - name: Build CMake tests
         if: matrix.cmake_tests
