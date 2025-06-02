@@ -525,6 +525,12 @@ jobs:
             cxxstd64: "11,14,17,2a"
             os: ubuntu-latest
 
+          - toolset: gcc
+            vm: solaris
+            version: "11.4-gcc"
+            cxxstd64: "11,14,17,20,23,26"
+            os: ubuntu-latest
+
           - toolset: clang
             os: macos-13
             cxxstd64: "11,14,17,20,2b"
@@ -887,6 +893,20 @@ jobs:
               pwd
               ls -la
 
+      - name: Setup Solaris VM
+        if: matrix.vm == 'solaris'
+        uses: vmactions/solaris-vm@v1
+        with:
+          release: "${{matrix.version}}"
+          usesh: true
+          sync: rsync
+          copyback: false
+          envs: "LIBRARY DEFAULT_BUILD_VARIANT DEFAULT_INSTRUCTION_SET BUILD_JOBS GCC_TOOLCHAIN_ROOT"
+          run: |
+              uname -mrs
+              pwd
+              ls -la
+
       - name: Run tests (native)
         if: matrix.cmake_tests == '' && matrix.vm == ''
         run: |
@@ -916,6 +936,13 @@ jobs:
       - name: Run tests (DragonFlyBSD VM)
         if: matrix.cmake_tests == '' && matrix.vm == 'dragonflybsd'
         shell: dragonflybsd {0}
+        run: |
+            cd "$GITHUB_WORKSPACE"
+            bash ./b2-run-tests.sh
+
+      - name: Run tests (Solaris VM)
+        if: matrix.cmake_tests == '' && matrix.vm == 'solaris'
+        shell: solaris {0}
         run: |
             cd "$GITHUB_WORKSPACE"
             bash ./b2-run-tests.sh
