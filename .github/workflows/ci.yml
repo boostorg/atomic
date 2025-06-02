@@ -513,6 +513,12 @@ jobs:
             cxxstd64: "11,14,17,20,2b"
             os: ubuntu-latest
 
+          - toolset: gcc
+            vm: netbsd
+            version: "10.1"
+            cxxstd64: "11,14,17,20"
+            os: ubuntu-latest
+
           - toolset: clang
             os: macos-13
             cxxstd64: "11,14,17,20,2b"
@@ -837,6 +843,24 @@ jobs:
               pwd
               ls -la
 
+      - name: Setup NetBSD VM
+        if: matrix.vm == 'netbsd'
+        uses: vmactions/netbsd-vm@v1
+        with:
+          release: "${{matrix.version}}"
+          usesh: true
+          sync: rsync
+          copyback: false
+          envs: "LIBRARY DEFAULT_BUILD_VARIANT DEFAULT_INSTRUCTION_SET BUILD_JOBS GCC_TOOLCHAIN_ROOT"
+          run: |
+              uname -mrs
+              /sbin/sysctl hw.model
+              /sbin/sysctl hw.ncpu
+              /sbin/sysctl hw.physmem64
+              /sbin/sysctl hw.usermem64
+              pwd
+              ls -la
+
       - name: Run tests (native)
         if: matrix.cmake_tests == '' && matrix.vm == ''
         run: |
@@ -852,6 +876,13 @@ jobs:
       - name: Run tests (OpenBSD VM)
         if: matrix.cmake_tests == '' && matrix.vm == 'openbsd'
         shell: openbsd {0}
+        run: |
+            cd "$GITHUB_WORKSPACE"
+            bash ./b2-run-tests.sh
+
+      - name: Run tests (NetBSD VM)
+        if: matrix.cmake_tests == '' && matrix.vm == 'netbsd'
+        shell: netbsd {0}
         run: |
             cd "$GITHUB_WORKSPACE"
             bash ./b2-run-tests.sh
