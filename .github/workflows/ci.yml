@@ -161,7 +161,7 @@ jobs:
               - g++-13-multilib
               - linux-libc-dev:i386
           - toolset: gcc-14
-            cxxstd64: "11,14,17,20,23,11-gnu,14-gnu,17-gnu,20-gnu,23-gnu,26-gnu"
+            cxxstd64: "11,14,17,20,23,26,11-gnu,14-gnu,17-gnu,20-gnu,23-gnu,26-gnu"
             cxxstd32: "11,11-gnu"
             os: ubuntu-latest
             container: ubuntu:24.04
@@ -436,7 +436,7 @@ jobs:
             gcc_toolchain: 11
           - toolset: clang
             compiler: clang++-18
-            cxxstd64: "11,14,17,20,23,11-gnu,14-gnu,17-gnu,20-gnu,23-gnu,26-gnu"
+            cxxstd64: "11,14,17,20,23,26,11-gnu,14-gnu,17-gnu,20-gnu,23-gnu,26-gnu"
             cxxstd32: "11,11-gnu"
             os: ubuntu-latest
             container: ubuntu:24.04
@@ -447,7 +447,7 @@ jobs:
               - linux-libc-dev:i386
           - toolset: clang
             compiler: clang++-19
-            cxxstd64: "11,14,17,20,23,11-gnu,14-gnu,17-gnu,20-gnu,23-gnu,26-gnu"
+            cxxstd64: "11,14,17,20,23,26,11-gnu,14-gnu,17-gnu,20-gnu,23-gnu,26-gnu"
             cxxstd32: "11,11-gnu"
             os: ubuntu-latest
             container: ubuntu:24.04
@@ -814,7 +814,7 @@ jobs:
             EOF
             chmod +x b2-run-tests.sh
 
-      # Note: The VM must be created after the workspace is fully prepared, as it will be copied to the VM only once
+      # Note: The VMs must be created after the workspace is fully prepared, as it will be copied to the VM only once
       - name: Setup FreeBSD VM
         if: matrix.vm == 'freebsd'
         uses: vmactions/freebsd-vm@v1
