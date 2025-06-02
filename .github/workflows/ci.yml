@@ -508,6 +508,12 @@ jobs:
             os: ubuntu-latest
 
           - toolset: clang
+            vm: openbsd
+            version: "7.7"
+            cxxstd64: "11,14,17,20,2b"
+            os: ubuntu-latest
+
+          - toolset: clang
             os: macos-13
             cxxstd64: "11,14,17,20,2b"
             instruction_set: "-"
@@ -811,6 +817,26 @@ jobs:
               pwd
               ls -la
 
+      - name: Setup OpenBSD VM
+        if: matrix.vm == 'openbsd'
+        uses: vmactions/openbsd-vm@v1
+        with:
+          release: "${{matrix.version}}"
+          usesh: true
+          sync: rsync
+          copyback: false
+          envs: "LIBRARY DEFAULT_BUILD_VARIANT DEFAULT_INSTRUCTION_SET BUILD_JOBS GCC_TOOLCHAIN_ROOT"
+          prepare: |
+              pkg_add bash
+          run: |
+              uname -mrs
+              sysctl hw.model
+              sysctl hw.ncpu
+              sysctl hw.physmem
+              sysctl hw.usermem
+              pwd
+              ls -la
+
       - name: Run tests (native)
         if: matrix.cmake_tests == '' && matrix.vm == ''
         run: |
@@ -819,6 +845,13 @@ jobs:
       - name: Run tests (FreeBSD VM)
         if: matrix.cmake_tests == '' && matrix.vm == 'freebsd'
         shell: freebsd {0}
+        run: |
+            cd "$GITHUB_WORKSPACE"
+            bash ./b2-run-tests.sh
+
+      - name: Run tests (OpenBSD VM)
+        if: matrix.cmake_tests == '' && matrix.vm == 'openbsd'
+        shell: openbsd {0}
         run: |
             cd "$GITHUB_WORKSPACE"
             bash ./b2-run-tests.sh
