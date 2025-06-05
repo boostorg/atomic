@@ -1,4 +1,4 @@
-//  Copyright (c) 2020 Andrey Semashev
+//  Copyright (c) 2020-2025 Andrey Semashev
 //
 //  Distributed under the Boost Software License, Version 1.0.
 //  See accompanying file LICENSE_1_0.txt or copy at
@@ -16,14 +16,6 @@
 #endif
 #include <chrono>
 
-namespace chrono = std::chrono;
-
-#if defined(BOOST_LIBSTDCXX_VERSION) && BOOST_LIBSTDCXX_VERSION < 40700
-using steady_clock = chrono::monotonic_clock;
-#else
-using steady_clock = chrono::steady_clock;
-#endif
-
 #if defined(BOOST_WINDOWS)
 
 // On Windows high precision clocks tend to cause spurious test failures because threads wake up earlier than expected.
@@ -32,8 +24,8 @@ struct test_clock
 {
     using rep = long long;
     using period = std::milli;
-    using duration = chrono::duration< rep, period >;
-    using time_point = chrono::time_point< test_clock, duration >;
+    using duration = std::chrono::duration< rep, period >;
+    using time_point = std::chrono::time_point< test_clock, duration >;
 
     static constexpr bool is_steady = true;
 
@@ -45,7 +37,7 @@ struct test_clock
 };
 
 #else
-using test_clock = steady_clock;
+using test_clock = std::chrono::steady_clock;
 #endif
 
 #endif // BOOST_ATOMIC_TEST_TEST_CLOCK_HPP_INCLUDED_
