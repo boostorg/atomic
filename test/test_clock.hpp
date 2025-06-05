@@ -19,9 +19,9 @@
 namespace chrono = std::chrono;
 
 #if defined(BOOST_LIBSTDCXX_VERSION) && BOOST_LIBSTDCXX_VERSION < 40700
-typedef chrono::monotonic_clock steady_clock;
+using steady_clock = chrono::monotonic_clock;
 #else
-typedef chrono::steady_clock steady_clock;
+using steady_clock = chrono::steady_clock;
 #endif
 
 #if defined(BOOST_WINDOWS)
@@ -30,30 +30,22 @@ typedef chrono::steady_clock steady_clock;
 // Use a lower precision steady clock for tests.
 struct test_clock
 {
-#if BOOST_USE_WINAPI_VERSION >= BOOST_WINAPI_VERSION_WIN6
-    typedef boost::winapi::ULONGLONG_ rep;
-#else
-    typedef boost::winapi::DWORD_ rep;
-#endif
-    typedef std::milli period;
-    typedef chrono::duration< rep, period > duration;
-    typedef chrono::time_point< test_clock, duration > time_point;
+    using rep = long long;
+    using period = std::milli;
+    using duration = chrono::duration< rep, period >;
+    using time_point = chrono::time_point< test_clock, duration >;
 
-    static BOOST_CONSTEXPR_OR_CONST bool is_steady = true;
+    static constexpr bool is_steady = true;
 
-    static time_point now() BOOST_NOEXCEPT
+    static time_point now() noexcept
     {
-#if BOOST_USE_WINAPI_VERSION >= BOOST_WINAPI_VERSION_WIN6
-        rep ticks = boost::winapi::GetTickCount64();
-#else
-        rep ticks = boost::winapi::GetTickCount();
-#endif
+        rep ticks = static_cast< rep >(boost::winapi::GetTickCount64());
         return time_point(duration(ticks));
     }
 };
 
 #else
-typedef steady_clock test_clock;
+using test_clock = steady_clock;
 #endif
 
 #endif // BOOST_ATOMIC_TEST_TEST_CLOCK_HPP_INCLUDED_
