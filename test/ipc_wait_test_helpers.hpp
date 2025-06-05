@@ -92,12 +92,12 @@ public:
 
         test_clock::time_point start_time = test_clock::now();
 
-        std::this_thread::sleep_for(chrono::milliseconds(200));
+        std::this_thread::sleep_until(start_time + chrono::milliseconds(200));
 
         m_wrapper.a.store(m_value2, boost::memory_order_release);
         m_wrapper.a.notify_one();
 
-        std::this_thread::sleep_for(chrono::milliseconds(200));
+        std::this_thread::sleep_until(start_time + chrono::milliseconds(400));
 
         m_wrapper.a.store(m_value3, boost::memory_order_release);
         m_wrapper.a.notify_one();
@@ -226,7 +226,7 @@ public:
 
         test_clock::time_point start_time = test_clock::now();
 
-        std::this_thread::sleep_for(chrono::milliseconds(200));
+        std::this_thread::sleep_until(start_time + chrono::milliseconds(200));
 
         m_wrapper.a.store(m_value2, boost::memory_order_release);
         m_wrapper.a.notify_all();
