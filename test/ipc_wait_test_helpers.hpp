@@ -1,4 +1,4 @@
-//  Copyright (c) 2020-2023 Andrey Semashev
+//  Copyright (c) 2020-2025 Andrey Semashev
 //
 //  Distributed under the Boost Software License, Version 1.0.
 //  See accompanying file LICENSE_1_0.txt or copy at
@@ -17,10 +17,10 @@
 #include <memory>
 #include <utility>
 #include <iostream>
+#include <type_traits>
 #include <boost/config.hpp>
 #include <boost/atomic/capabilities.hpp>
 #include <boost/atomic/ipc_atomic_flag.hpp>
-#include <boost/type_traits/integral_constant.hpp>
 #include "atomic_wrapper.hpp"
 #include "lightweight_test_stream.hpp"
 #include "test_clock.hpp"
@@ -28,7 +28,7 @@
 #include "test_barrier.hpp"
 
 //! Since some of the tests below are allowed to fail, we retry up to this many times to pass the test
-BOOST_CONSTEXPR_OR_CONST unsigned int test_retry_count = 5u;
+constexpr unsigned int test_retry_count = 5u;
 
 //! The test verifies that the wait operation returns immediately if the passed value does not match the atomic value
 template< template< typename > class Wrapper, typename T >
@@ -92,22 +92,22 @@ public:
 
         test_clock::time_point start_time = test_clock::now();
 
-        std::this_thread::sleep_until(start_time + chrono::milliseconds(200));
+        std::this_thread::sleep_until(start_time + std::chrono::milliseconds(200));
 
         m_wrapper.a.store(m_value2, boost::memory_order_release);
         m_wrapper.a.notify_one();
 
-        std::this_thread::sleep_until(start_time + chrono::milliseconds(400));
+        std::this_thread::sleep_until(start_time + std::chrono::milliseconds(400));
 
         m_wrapper.a.store(m_value3, boost::memory_order_release);
         m_wrapper.a.notify_one();
 
-        if (!thread1.try_join_for(chrono::seconds(3)))
+        if (!thread1.try_join_for(std::chrono::seconds(3)))
         {
             BOOST_ERROR("Thread 1 failed to join");
             std::abort();
         }
-        if (!thread2.try_join_for(chrono::seconds(3)))
+        if (!thread2.try_join_for(std::chrono::seconds(3)))
         {
             BOOST_ERROR("Thread 2 failed to join");
             std::abort();
@@ -120,21 +120,24 @@ public:
 
         if (m_wrapper.a.has_native_wait_notify())
         {
-            if ((first_state->m_wakeup_time - start_time) < chrono::milliseconds(200))
+            if ((first_state->m_wakeup_time - start_time) < std::chrono::milliseconds(200))
             {
-                std::cout << "notify_one_test: first thread woke up too soon: " << chrono::duration_cast< chrono::milliseconds >(first_state->m_wakeup_time - start_time).count() << " ms" << std::endl;
+                std::cout << "notify_one_test: first thread woke up too soon: "
+                    << std::chrono::duration_cast< std::chrono::milliseconds >(first_state->m_wakeup_time - start_time).count() << " ms" << std::endl;
                 return false;
             }
 
-            if ((first_state->m_wakeup_time - start_time) >= chrono::milliseconds(400))
+            if ((first_state->m_wakeup_time - start_time) >= std::chrono::milliseconds(400))
             {
-                std::cout << "notify_one_test: first thread woke up too late: " << chrono::duration_cast< chrono::milliseconds >(first_state->m_wakeup_time - start_time).count() << " ms" << std::endl;
+                std::cout << "notify_one_test: first thread woke up too late: "
+                    << std::chrono::duration_cast< std::chrono::milliseconds >(first_state->m_wakeup_time - start_time).count() << " ms" << std::endl;
                 return false;
             }
 
-            if ((second_state->m_wakeup_time - start_time) < chrono::milliseconds(400))
+            if ((second_state->m_wakeup_time - start_time) < std::chrono::milliseconds(400))
             {
-                std::cout << "notify_one_test: second thread woke up too soon: " << chrono::duration_cast< chrono::milliseconds >(second_state->m_wakeup_time - start_time).count() << " ms" << std::endl;
+                std::cout << "notify_one_test: second thread woke up too soon: "
+                    << std::chrono::duration_cast< std::chrono::milliseconds >(second_state->m_wakeup_time - start_time).count() << " ms" << std::endl;
                 return false;
             }
 
@@ -226,17 +229,17 @@ public:
 
         test_clock::time_point start_time = test_clock::now();
 
-        std::this_thread::sleep_until(start_time + chrono::milliseconds(200));
+        std::this_thread::sleep_until(start_time + std::chrono::milliseconds(200));
 
         m_wrapper.a.store(m_value2, boost::memory_order_release);
         m_wrapper.a.notify_all();
 
-        if (!thread1.try_join_for(chrono::seconds(3)))
+        if (!thread1.try_join_for(std::chrono::seconds(3)))
         {
             BOOST_ERROR("Thread 1 failed to join");
             std::abort();
         }
-        if (!thread2.try_join_for(chrono::seconds(3)))
+        if (!thread2.try_join_for(std::chrono::seconds(3)))
         {
             BOOST_ERROR("Thread 2 failed to join");
             std::abort();
@@ -244,15 +247,17 @@ public:
 
         if (m_wrapper.a.has_native_wait_notify())
         {
-            if ((m_thread1_state.m_wakeup_time - start_time) < chrono::milliseconds(200))
+            if ((m_thread1_state.m_wakeup_time - start_time) < std::chrono::milliseconds(200))
             {
-                std::cout << "notify_all_test: first thread woke up too soon: " << chrono::duration_cast< chrono::milliseconds >(m_thread1_state.m_wakeup_time - start_time).count() << " ms" << std::endl;
+                std::cout << "notify_all_test: first thread woke up too soon: "
+                    << std::chrono::duration_cast< std::chrono::milliseconds >(m_thread1_state.m_wakeup_time - start_time).count() << " ms" << std::endl;
                 return false;
             }
 
-            if ((m_thread2_state.m_wakeup_time - start_time) < chrono::milliseconds(200))
+            if ((m_thread2_state.m_wakeup_time - start_time) < std::chrono::milliseconds(200))
             {
-                std::cout << "notify_all_test: second thread woke up too soon: " << chrono::duration_cast< chrono::milliseconds >(m_thread2_state.m_wakeup_time - start_time).count() << " ms" << std::endl;
+                std::cout << "notify_all_test: second thread woke up too soon: "
+                    << std::chrono::duration_cast< std::chrono::milliseconds >(m_thread2_state.m_wakeup_time - start_time).count() << " ms" << std::endl;
                 return false;
             }
         }
@@ -289,7 +294,7 @@ inline void test_notify_all(T value1, T value2)
 
 //! Invokes all wait/notify tests
 template< template< typename > class Wrapper, typename T >
-void test_wait_notify_api_impl(T value1, T value2, T value3, boost::true_type)
+void test_wait_notify_api_impl(T value1, T value2, T value3, std::true_type)
 {
     test_wait_value_mismatch< Wrapper >(value1, value2);
     test_notify_one< Wrapper >(value1, value2, value3);
@@ -297,7 +302,7 @@ void test_wait_notify_api_impl(T value1, T value2, T value3, boost::true_type)
 }
 
 template< template< typename > class Wrapper, typename T >
-inline void test_wait_notify_api_impl(T, T, T, boost::false_type)
+inline void test_wait_notify_api_impl(T, T, T, std::false_type)
 {
 }
 
@@ -305,7 +310,7 @@ inline void test_wait_notify_api_impl(T, T, T, boost::false_type)
 template< template< typename > class Wrapper, typename T >
 inline void test_wait_notify_api(T value1, T value2, T value3)
 {
-    test_wait_notify_api_impl< Wrapper >(value1, value2, value3, boost::integral_constant< bool, Wrapper< T >::atomic_type::is_always_lock_free >());
+    test_wait_notify_api_impl< Wrapper >(value1, value2, value3, std::integral_constant< bool, Wrapper< T >::atomic_type::is_always_lock_free >());
 }
 
 //! Invokes all wait/notify tests, if the atomic type is lock-free

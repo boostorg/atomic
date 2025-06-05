@@ -1,6 +1,6 @@
 //  Copyright (c) 2011 Helge Bahmann
 //  Copyright (c) 2012 Tim Blechmann
-//  Copyright (c) 2023 Andrey Semashev
+//  Copyright (c) 2023-2025 Andrey Semashev
 //
 //  Distributed under the Boost Software License, Version 1.0.
 //  See accompanying file LICENSE_1_0.txt or copy at
@@ -39,7 +39,6 @@
 #include <condition_variable>
 #include <boost/config.hpp>
 #include <boost/core/lightweight_test.hpp>
-#include "test_clock.hpp"
 #include "test_barrier.hpp"
 
 // Two threads perform the following operations:
@@ -58,7 +57,7 @@ class total_store_order_test
 public:
     total_store_order_test(void);
 
-    void run(steady_clock::duration& timeout);
+    void run(std::chrono::steady_clock::duration& timeout);
     bool detected_conflict(void) const { return detected_conflict_; }
 
 private:
@@ -97,10 +96,10 @@ total_store_order_test<store_order, load_order>::total_store_order_test(void) :
 }
 
 template<boost::memory_order store_order, boost::memory_order load_order>
-void total_store_order_test<store_order, load_order>::run(steady_clock::duration& timeout)
+void total_store_order_test<store_order, load_order>::run(std::chrono::steady_clock::duration& timeout)
 {
-    steady_clock::time_point start = steady_clock::now();
-    steady_clock::time_point end = start + timeout;
+    std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
+    std::chrono::steady_clock::time_point end = start + timeout;
 
     std::thread t1([this]() { this->thread1fn(); });
     std::thread t2([this]() { this->thread2fn(); });
@@ -119,7 +118,7 @@ void total_store_order_test<store_order, load_order>::run(steady_clock::duration
     t2.join();
     t1.join();
 
-    steady_clock::duration duration = steady_clock::now() - start;
+    std::chrono::steady_clock::duration duration = std::chrono::steady_clock::now() - start;
     if (duration < timeout)
         timeout = duration;
 }
@@ -235,7 +234,7 @@ void test_seq_cst(void)
     /* take 10 samples */
     for (std::size_t n = 0; n < 10; n++)
     {
-        steady_clock::duration timeout = std::chrono::seconds(10);
+        std::chrono::steady_clock::duration timeout = std::chrono::seconds(10);
 
         total_store_order_test<boost::memory_order_relaxed, boost::memory_order_relaxed> test;
         test.run(timeout);
@@ -260,7 +259,7 @@ void test_seq_cst(void)
 
     /* 5.298 = 0.995 quantile of exponential distribution */
     std::chrono::microseconds timeout_us(static_cast< std::chrono::microseconds::rep >(5.298 * avg_race_time_995));
-    steady_clock::duration timeout = timeout_us;
+    std::chrono::steady_clock::duration timeout = timeout_us;
 
     std::cout << "run seq_cst for " << timeout_us.count() << " us\n";
 
