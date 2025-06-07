@@ -510,7 +510,20 @@ following operations:
     ]
     [
       [`bool wait(bool old_val, memory_order order)`]
-      [Potentially blocks the calling thread until unblocked by a notifying operation and `test(order)` returns value other than `old_val`. Returns the result of `test(order)`.]
+      [Potentially blocks the calling thread until unblocked by a notifying operation and `test(order)` returns value other than `old_val`. Returns the result of
+       `test(order)`.]
+    ]
+    [
+      [`template<typename Clock, typename Duration> wait_result<bool> wait_until(bool old_val, std::chrono::time_point<Clock, Duration> timeout, memory_order order)`]
+      [Potentially blocks the calling thread until either unblocked by a notifying operation and `test(order)` returns value other than `old_val`, or `timeout` expires.
+       Returns a `wait_result<bool>` object `r`, where `r.value` is the result of `test(order)` and `r.timeout` is contextually convertible to `true` if `timeout` expired
+       and `false` otherwise.]
+    ]
+    [
+      [`template<typename Rep, typename Period> wait_result<bool> wait_for(bool old_val, std::chrono::duration<Rep, Period> timeout, memory_order order)`]
+      [Potentially blocks the calling thread until either unblocked by a notifying operation and `test(order)` returns value other than `old_val`, or `timeout` expires.
+       `timeout` is tracked against an unspecified steady clock. Returns a `wait_result<bool>` object `r`, where `r.value` is the result of `test(order)` and `r.timeout`
+       is contextually convertible to `true` if `timeout` expired and `false` otherwise.]
     ]
     [
       [`void notify_one()`]
@@ -669,6 +682,18 @@ All atomic objects support the following operations and properties:
     [
       [`T wait(T old_val, memory_order order)`]
       [Potentially blocks the calling thread until unblocked by a notifying operation and `load(order)` returns value other than `old_val`. Returns the result of `load(order)`.]
+    ]
+    [
+      [`template<typename Clock, typename Duration> wait_result<T> wait_until(T old_val, std::chrono::time_point<Clock, Duration> timeout, memory_order order)`]
+      [Potentially blocks the calling thread until either unblocked by a notifying operation and `load(order)` returns value other than `old_val`, or `timeout` expires.
+       Returns a `wait_result<T>` object `r`, where `r.value` is the result of `load(order)` and `r.timeout` is contextually convertible to `true` if `timeout` expired
+       and `false` otherwise.]
+    ]
+    [
+      [`template<typename Rep, typename Period> wait_result<T> wait_for(T old_val, std::chrono::duration<Rep, Period> timeout, memory_order order)`]
+      [Potentially blocks the calling thread until either unblocked by a notifying operation and `load(order)` returns value other than `old_val`, or `timeout` expires.
+       `timeout` is tracked against an unspecified steady clock. Returns a `wait_result<T>` object `r`, where `r.value` is the result of `load(order)` and `r.timeout` is
+       contextually convertible to `true` if `timeout` expired and `false` otherwise.]
     ]
     [
       [`void notify_one()`]
@@ -1249,17 +1274,20 @@ In general, it is advised to use `boost::atomic` wherever possible, as it is eas
 
 `boost::atomic_flag`, [^boost::atomic<['T]>] and [^boost::atomic_ref<['T]>] support ['waiting] and ['notifying] operations that were introduced in C++20. Waiting operations have the following forms:
 
-* [^['T] wait(['T] old_val, memory_order order)] (where ['T] is `bool` for `boost::atomic_flag`)
+* [^['T] wait(['T] old_val, memory_order order)]
+* [^template<typename Clock, typename Duration> wait_result<['T]> wait_until(['T] old_val, std::chrono::time_point<Clock, Duration> timeout, memory_order order)]
+* [^template<typename Rep, typename Period> wait_result<['T]> wait_for(['T] old_val, std::chrono::duration<Rep, Period> timeout, memory_order order)]
 
-Here, `order` must not be `memory_order_release` or `memory_order_acq_rel`. Note that unlike C++20, the `wait` operation returns ['T] instead of `void`. This is a [*Boost.Atomic] extension.
+For `boost::atomic_flag`, ['T] is `bool`. Here, `order` must not be `memory_order_release` or `memory_order_acq_rel`. Note that unlike C++20, the `wait` operation returns ['T] instead of `void`. This is a [*Boost.Atomic] extension. `wait_until` and `wait_for` are ['timed waiting operations] and are also [*Boost.Atomic] extensions.
 
-The waiting operation performs the following steps repeatedly:
+The waiting operations perform the following steps repeatedly:
 
-* Loads the current value `new_val` of the atomic object using the memory ordering constraint `order`.
-* If the `new_val` representation is different from `old_val` (i.e. when compared as if by `memcmp`), returns `new_val`.
-* Blocks the calling thread until unblocked by a notifying operation or spuriously.
+* Loads the current value `new_val` of the atomic object using the memory ordering constraint `order`. For `boost::atomic_flag`, the load is performed as if by `test(order)`, for other atomic objects - as if by `load(order)`.
+* If the `new_val` representation is different from `old_val` (i.e. when compared as if by `memcmp`), returns. For `wait`, the returned value is `new_val`. For timed waiting operations, the returned value is a [^wait_result<['T]>] object `r`, where `r.value` is `new_val` and `t.timeout` is contextually convertible to `false`.
+* For timed waiting operations, if `timeout` has expired, returns a [^wait_result<['T]>] object `r`, where `r.value` is `new_val` and `t.timeout` is contextually convertible to `true`. `wait_for` tracks `timeout` against an unspecified steady clock.
+* Blocks the calling thread until unblocked by a notifying operation or spuriously or, for timed waiting operations, `timeout` expires.
 
-Note that a waiting operation is allowed to return spuriously, i.e. without a corresponding notifying operation. It is also allowed to ['not] return if the atomic object value is different from `old_val` only momentarily (this is known as [@https://en.wikipedia.org/wiki/ABA_problem ABA problem]).
+Note that a waiting operation is allowed to return spuriously, i.e. without a corresponding notifying operation. It is also allowed to ['not] return if the atomic object value is different from `old_val` only momentarily (this is known as [@https://en.wikipedia.org/wiki/ABA_problem ABA problem]). For timed waiting operations, the precision of tracking the timeout is dependent on hardware and the underlying operating system and may be different for different clock types. For clocks that support time adjustments, it is unspecified whether the adjustments unblock the waiting threads (for example, if the clock is adjusted forward while a thread is waiting, the thread may not get unblocked until after the timeout expires as if no adjustment happened).
 
 Notifying operations have the following forms:
 
@@ -1273,6 +1301,63 @@ Waiting and notifying operations require special support from the operating syst
 Even for atomic objects that support lock-free operations (as indicated by the `is_always_lock_free` property or the corresponding [link atomic.interface.feature_macros macro]), the waiting and notifying operations may involve locking and require linking with [*Boost.Atomic] compiled library.
 
 Waiting and notifying operations are not address-free, meaning that the implementation may use process-local state and process-local addresses of the atomic objects to implement the operations. In particular, this means these operations cannot be used for communication between processes (when the atomic object is located in shared memory) or when the atomic object is mapped at different memory addresses in the same process.
+
+[section:posix_clocks Improving performance of custom clocks on POSIX systems]
+
+Although timed waiting operations will work by default for any clock types (subject to the caveats outlined in the [link atomic.interface.interface_wait_notify_ops previous] section), the implementation will track the timout against one of the known and available clock types internally, which on POSIX systems is typically `CLOCK_MONOTONIC` or `CLOCK_REALTIME`. Coordinating between user-specified and internal clocks incurs performance overhead, as the waiting operation will have to query clock timestamps and may perform multiple blocking operations and wake ups as it tries to exhaust the alotted timeout.
+
+Users may improve performance when they use custom clock types that map onto one of the POSIX clocks (see e.g. [@https://pubs.opengroup.org/onlinepubs/9799919799/functions/clock_getres.html `clock_gettime`]) that are supported by the operating system for blocking timeouts by providing a specialization of the `posix_clock_traits` class template as follows:
+
+```
+#include <boost/atomic/posix_clock_traits_fwd.hpp>
+
+namespace boost {
+namespace atomics {
+
+template< >
+struct posix_clock_traits<my_clock>
+{
+    // POSIX clock identifier (e.g. CLOCK_MONOTONIC) onto which my_clock maps
+    static constexpr clockid_t clock_id = ...;
+
+    // Function that converts a my_clock time point to a POSIX timespec structure that corresponds to clock_id
+    static timespec to_timespec(my_clock::time_point time_point) noexcept;
+};
+
+} // namespace atomics
+} // namespace boost
+```
+
+Here, `my_clock` is the user-defined clock type that satisfies the C++11 chrono clock requirements (20.11.3, \[time.clock.req\]). Note that `posix_clock_traits` must be specialized in namespace `boost::atomics`. The `to_timespec` function must be able to convert any valid time point to the `timespec` structure, and therefore must not throw.
+
+When this specialization is provided, and `posix_clock_traits<my_clock>::clock_id` is supported by the underlying OS, the waiting operation will be able to convert the passed `my_clock` time points to the native format supported by the OS and use them directly.
+
+[note Users need not specialize the `posix_clock_traits` class template for `std::chrono` clocks. [*Boost.Atomic] already contains the necessary support for standard library clocks.]
+
+Advanced users may use the second template argument of `posix_clock_traits`, which is a type that is `void` by default, to leverage SFINAE and define partial `posix_clock_traits` template specializations that apply to subsets of clock types that satisfy certain conditions. For example, if there is a number of clock types that all derive from `my_clock_base`, it is possible to provide a single specialization for them using `std::is_base_of` as the limiting criteria.
+
+```
+#include <type_traits>
+#include <boost/atomic/posix_clock_traits_fwd.hpp>
+
+namespace boost {
+namespace atomics {
+
+template<typename MyClock>
+struct posix_clock_traits<MyClock, typename std::enable_if<std::is_base_of<my_clock_base, MyClock>::value>::type>
+{
+    // POSIX clock identifier onto which MyClock maps
+    static constexpr clockid_t clock_id = MyClock::clock_id;
+
+    // Function that converts a MyClock time point to a POSIX timespec structure that corresponds to clock_id
+    static timespec to_timespec(typename MyClock::time_point time_point) noexcept;
+};
+
+} // namespace atomics
+} // namespace boost
+```
+
+[endsect]
 
 [endsect]
 
