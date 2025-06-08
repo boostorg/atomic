@@ -39,7 +39,7 @@
 #if defined(__SIZEOF_POINTER__)
 #define BOOST_ATOMIC_DETAIL_SIZEOF_POINTER __SIZEOF_POINTER__
 #elif defined(_MSC_VER)
-#if defined(_M_AMD64) || defined(_M_ARM64) || defined(_M_IA64)
+#if defined(_M_AMD64) || defined(_M_ARM64) || defined(_M_ARM64EC) || defined(_M_IA64)
 #define BOOST_ATOMIC_DETAIL_SIZEOF_POINTER 8
 #else
 #define BOOST_ATOMIC_DETAIL_SIZEOF_POINTER 4

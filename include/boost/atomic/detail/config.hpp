@@ -158,7 +158,7 @@ void __tsan_release(void*);
 #endif
 
 #if (defined(__BYTE_ORDER__) && defined(__FLOAT_WORD_ORDER__) && __BYTE_ORDER__ == __FLOAT_WORD_ORDER__) ||\
-    defined(__i386__) || defined(__x86_64__) || defined(_M_IX86) || defined(_M_X64)
+    defined(__i386__) || defined(__x86_64__) || defined(_M_IX86) || defined(_M_AMD64) || defined(_M_ARM) || defined(_M_ARM64) || defined(_M_ARM64EC)
 // This macro indicates that integer and floating point endianness is the same
 #define BOOST_ATOMIC_DETAIL_INT_FP_ENDIAN_MATCH
 #endif
