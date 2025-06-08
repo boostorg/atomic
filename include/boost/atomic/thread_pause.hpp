@@ -28,7 +28,7 @@ extern "C" void __isb(void);
 #if defined(BOOST_MSVC)
 #pragma intrinsic(__isb)
 #endif
-#elif defined(_M_ARM) || defined(_M_ARMT)
+#elif defined(_M_ARM)
 extern "C" void __yield(void);
 #if defined(BOOST_MSVC)
 #pragma intrinsic(__yield)
@@ -57,7 +57,7 @@ BOOST_FORCEINLINE void thread_pause() noexcept
     BOOST_ATOMIC_DETAIL_COMPILER_BARRIER();
 #if defined(_M_ARM64) || defined(_M_ARM64EC)
     __isb();
-#elif defined(_M_ARM) || defined(_M_ARMT)
+#elif defined(_M_ARM)
     __yield();
 #elif defined(_M_AMD64) || defined(_M_IX86)
     _mm_pause();
