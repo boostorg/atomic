@@ -7,8 +7,8 @@
  * (C) Copyright 2013, 2020-2025 Andrey Semashev
  */
 
-#ifndef BOOST_ATOMIC_SMT_PAUSE_HPP_INCLUDED_
-#define BOOST_ATOMIC_SMT_PAUSE_HPP_INCLUDED_
+#ifndef BOOST_ATOMIC_THREAD_PAUSE_HPP_INCLUDED_
+#define BOOST_ATOMIC_THREAD_PAUSE_HPP_INCLUDED_
 
 #include <boost/atomic/detail/config.hpp>
 #if defined(_MSC_VER)
@@ -50,7 +50,7 @@ namespace boost {
 namespace atomics {
 
 //! The function pauses for a number of CPU cycles, potentially freeing CPU resources, allowing sibling threads to progress. May be a no-op.
-BOOST_FORCEINLINE void smt_pause() noexcept
+BOOST_FORCEINLINE void thread_pause() noexcept
 {
 #if defined(_MSC_VER)
 
@@ -84,12 +84,12 @@ BOOST_FORCEINLINE void smt_pause() noexcept
     __asm__ __volatile__ (".4byte 0x100000F" : : : "memory");
 #endif
 #elif defined(sun) || defined(__sun)
-    ::smt_pause();
+    smt_pause();
 #endif
 
 #elif defined(sun) || defined(__sun)
 
-    ::smt_pause();
+    smt_pause();
 
 #endif
 }
@@ -99,4 +99,4 @@ BOOST_FORCEINLINE void smt_pause() noexcept
 
 #include <boost/atomic/detail/footer.hpp>
 
-#endif // BOOST_ATOMIC_SMT_PAUSE_HPP_INCLUDED_
+#endif // BOOST_ATOMIC_THREAD_PAUSE_HPP_INCLUDED_

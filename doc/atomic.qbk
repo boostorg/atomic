@@ -1410,21 +1410,21 @@ compiler to reorder code.
 
 [endsect]
 
-[section:smt_pause SMT Pause Hint]
+[section:thread_pause SMT Pause Hint]
 
-    #include <boost/atomic/smt_pause.hpp>
+    #include <boost/atomic/thread_pause.hpp>
 
-Atomic operations are often used in tight loops, also called spin loops, where the same sequence of operations is attempted repeatedly until the atomic object is successfully updated. On modern processors with [@https://en.wikipedia.org/wiki/Simultaneous_multithreading SMT] such tight loops may result in suboptimal performance as they may be utilizing CPU core resources that could otherwise be used by a sibling thread of the same core. The `smt_pause` operation that is described in this section may help in this case:
+Atomic operations are often used in tight loops, also called spin loops, where the same sequence of operations is attempted repeatedly until the atomic object is successfully updated. On modern processors with [@https://en.wikipedia.org/wiki/Simultaneous_multithreading SMT] such tight loops may result in suboptimal performance as they may be utilizing CPU core resources that could otherwise be used by a sibling thread of the same core. The `thread_pause` operation that is described in this section may help in this case:
 
 [table
     [[Syntax] [Description]]
     [
-      [`void smt_pause()`]
+      [`void thread_pause()`]
       [Hint the CPU core to reallocate hardware resources to favor other sibling threads it is currently running.]
     ]
 ]
 
-The intended use case of `smt_pause` is to call it within a spin loop, after a failed iteration, as a backoff measure. The effects of this hint are CPU architecture dependent and may vary between CPU models and manufacturers. It may also be a no-op. When not a no-op, it will typically suspend the calling therad execution for a number of CPU clock cycles, giving the sibling threads the opportunity to use the freed hardware resources to progress further and possibly allow the calling thread to succeed on the next spin loop iteration. From the operating system perspective, `smt_pause` does not block the thread.
+The intended use case of `thread_pause` is to call it within a spin loop, after a failed iteration, as a backoff measure. The effects of this hint are CPU architecture dependent and may vary between CPU models and manufacturers. It may also be a no-op. When not a no-op, it will typically suspend the calling therad execution for a number of CPU clock cycles, giving the sibling threads the opportunity to use the freed hardware resources to progress further and possibly allow the calling thread to succeed on the next spin loop iteration. From the operating system perspective, `thread_pause` does not block the thread.
 
 [endsect]
 

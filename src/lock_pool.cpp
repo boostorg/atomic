@@ -30,7 +30,7 @@
 #include <boost/config.hpp>
 #include <boost/assert.hpp>
 #include <boost/memory_order.hpp>
-#include <boost/atomic/smt_pause.hpp>
+#include <boost/atomic/thread_pause.hpp>
 #include <boost/atomic/capabilities.hpp>
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/intptr.hpp>
@@ -421,7 +421,7 @@ struct lock_state
             if (BOOST_LIKELY(pthread_mutex_trylock(&m_mutex) == 0))
                 return;
 
-            atomics::smt_pause();
+            atomics::thread_pause();
         }
 
         BOOST_VERIFY(pthread_mutex_lock(&m_mutex) == 0);
@@ -581,7 +581,7 @@ struct lock_state
                     return;
             }
 
-            atomics::smt_pause();
+            atomics::thread_pause();
         }
 
         lock_slow_path();

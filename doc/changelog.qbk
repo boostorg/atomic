@@ -13,7 +13,7 @@
 * Following the announcement in Boost 1.84, removed support for Windows versions older than Windows 10.
   * A note to MinGW-w64 users. Since Windows SDK headers on MinGW-w64 define `_WIN32_WINNT` to an older Windows version by default, you may need to define `_WIN32_WINNT=0x0A00` or `BOOST_USE_WINAPI_VERSION=0x0A00` when compiling Boost.Atomic and the code that uses Boost.Atomic.
 * Added support for timed waiting operations.
-* Exposed `smt_pause` operation, which can be used as a backoff measure in spin loops. Added support for PowerPC and improved support for AArch64 in `smt_pause`.
+* Exposed `thread_pause` operation, which can be used as a backoff measure in spin loops. Added support for PowerPC and improved support for AArch64 in `thread_pause`.
 
 [heading Boost 1.87]
 

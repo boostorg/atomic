@@ -1,5 +1,5 @@
 //  Copyright (c) 2011 Helge Bahmann
-//  Copyright (c) 2020 Andrey Semashev
+//  Copyright (c) 2020-2025 Andrey Semashev
 //
 //  Distributed under the Boost Software License, Version 1.0.
 //  See accompanying file LICENSE_1_0.txt or copy at
@@ -99,6 +99,8 @@ int main(int, char *[])
     // Test that fences at least compile
     boost::atomic_thread_fence(boost::memory_order_seq_cst);
     boost::atomic_signal_fence(boost::memory_order_seq_cst);
+
+    boost::atomics::thread_pause();
 
     return boost::report_errors();
 }
