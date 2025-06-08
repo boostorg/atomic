@@ -19,6 +19,7 @@
 #include <cstddef>
 #include <chrono>
 #include <boost/memory_order.hpp>
+#include <boost/atomic/smt_pause.hpp>
 #include <boost/atomic/detail/config.hpp>
 #if !defined(BOOST_WINDOWS)
 #include <time.h>
@@ -27,7 +28,6 @@
 #include <boost/atomic/detail/has_posix_clock_traits.hpp>
 #endif
 #include <boost/atomic/detail/chrono.hpp>
-#include <boost/atomic/detail/pause.hpp>
 #include <boost/atomic/detail/lock_pool.hpp>
 #include <boost/atomic/detail/wait_operations_fwd.hpp>
 #include <boost/atomic/detail/header.hpp>
@@ -263,7 +263,7 @@ public:
         {
             for (unsigned int i = 0u; i < fast_loop_count; ++i)
             {
-                atomics::detail::pause();
+                atomics::smt_pause();
                 new_val = base_type::load(storage, order);
                 if (new_val != old_val)
                     goto finish;
@@ -304,7 +304,7 @@ private:
                     goto finish;
                 }
 
-                atomics::detail::pause();
+                atomics::smt_pause();
                 now = Clock::now();
 
                 new_val = base_type::load(storage, order);
