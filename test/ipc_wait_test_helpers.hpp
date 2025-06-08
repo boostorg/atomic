@@ -25,7 +25,6 @@
 #include <boost/atomic/ipc_atomic_flag.hpp>
 #include "atomic_wrapper.hpp"
 #include "lightweight_test_stream.hpp"
-#include "test_clock.hpp"
 #include "test_thread.hpp"
 #include "test_barrier.hpp"
 
@@ -76,7 +75,7 @@ private:
     struct thread_state
     {
         T m_received_value;
-        test_clock::time_point m_wakeup_time;
+        std::chrono::steady_clock::time_point m_wakeup_time;
 
         explicit thread_state(T value) : m_received_value(value)
         {
@@ -114,7 +113,7 @@ public:
 
         m_barrier.arrive_and_wait();
 
-        test_clock::time_point start_time = test_clock::now();
+        std::chrono::steady_clock::time_point start_time = std::chrono::steady_clock::now();
 
         std::this_thread::sleep_until(start_time + std::chrono::milliseconds(200));
 
@@ -184,7 +183,7 @@ private:
         m_barrier.arrive_and_wait();
 
         state->m_received_value = m_wrapper.a.wait(m_value1);
-        state->m_wakeup_time = test_clock::now();
+        state->m_wakeup_time = std::chrono::steady_clock::now();
     }
 };
 
@@ -216,7 +215,7 @@ private:
     struct thread_state
     {
         T m_received_value;
-        test_clock::time_point m_wakeup_time;
+        std::chrono::steady_clock::time_point m_wakeup_time;
 
         explicit thread_state(T value) : m_received_value(value)
         {
@@ -253,7 +252,7 @@ public:
 
         m_barrier.arrive_and_wait();
 
-        test_clock::time_point start_time = test_clock::now();
+        std::chrono::steady_clock::time_point start_time = std::chrono::steady_clock::now();
 
         std::this_thread::sleep_until(start_time + std::chrono::milliseconds(200));
 
@@ -300,7 +299,7 @@ private:
         m_barrier.arrive_and_wait();
 
         state->m_received_value = m_wrapper.a.wait(m_value1);
-        state->m_wakeup_time = test_clock::now();
+        state->m_wakeup_time = std::chrono::steady_clock::now();
     }
 };
 
@@ -394,11 +393,11 @@ public:
 
     bool run()
     {
-        test_clock::time_point start_time = test_clock::now();
+        std::chrono::steady_clock::time_point start_time = std::chrono::steady_clock::now();
 
         boost::atomics::wait_result< T > result = m_wrapper.a.wait_for(m_value1, std::chrono::milliseconds(200));
 
-        test_clock::time_point wakeup_time = test_clock::now();
+        std::chrono::steady_clock::time_point wakeup_time = std::chrono::steady_clock::now();
 
         if ((wakeup_time - start_time) < std::chrono::milliseconds(200))
         {
@@ -541,7 +540,7 @@ private:
     struct thread_state
     {
         boost::atomics::wait_result< T > m_received_result;
-        test_clock::time_point m_wakeup_time;
+        std::chrono::steady_clock::time_point m_wakeup_time;
 
         explicit thread_state(T value)
         {
@@ -577,7 +576,7 @@ public:
 
         m_barrier.arrive_and_wait();
 
-        test_clock::time_point start_time = test_clock::now();
+        std::chrono::steady_clock::time_point start_time = std::chrono::steady_clock::now();
 
         std::this_thread::sleep_until(start_time + std::chrono::milliseconds(200));
 
@@ -612,7 +611,7 @@ private:
         m_barrier.arrive_and_wait();
 
         state->m_received_result = m_wrapper.a.wait_for(m_value1, std::chrono::seconds(2));
-        state->m_wakeup_time = test_clock::now();
+        state->m_wakeup_time = std::chrono::steady_clock::now();
     }
 };
 
