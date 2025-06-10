@@ -133,7 +133,7 @@
 
 #define BOOST_ATOMIC_DETAIL_CORE_BACKEND linux_arm
 
-#elif defined(BOOST_WINDOWS) || defined(_WIN32_CE)
+#elif defined(BOOST_WINDOWS) || defined(_WIN32_WCE)
 
 #define BOOST_ATOMIC_DETAIL_CORE_BACKEND windows
 
