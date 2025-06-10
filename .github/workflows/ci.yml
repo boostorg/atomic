@@ -411,6 +411,16 @@ jobs:
               - libc++-18-dev
               - libc++abi-18-dev
 
+          - name: ARM
+            toolset: gcc-13
+            cxxstd64: "11,14,17,20,23,11-gnu,14-gnu,17-gnu,20-gnu,23-gnu"
+            cxxstd32: "11,11-gnu"
+            instruction_set: "-"
+            os: ubuntu-24.04-arm
+            container: ubuntu:24.04
+            install:
+              - g++-13
+
           - toolset: clang
             vm: freebsd
             version: "15.0"
@@ -905,6 +915,13 @@ jobs:
             cxxstd64: "11-gnu,14-gnu,17-gnu,20-gnu,23-gnu"
             os: windows-2022
 
+          # Windows SDK 32-bit ARM libs not installed in this image
+          - name: ARM
+            toolset: msvc-14.3
+            cxxstd64: "14,17,20,latest"
+            instruction_set: "-"
+            os: windows-11-arm
+
           - name: CMake MSVC tests
             cmake_tests: 1
             os: windows-2022
@@ -960,7 +977,11 @@ jobs:
             cd boost-root
             set "B2_ARGS=-j %NUMBER_OF_PROCESSORS% toolset=${{matrix.toolset}} embed-manifest-via=linker"
             if not "${{matrix.build_variant}}" == "" ( set "B2_ARGS=%B2_ARGS% variant=${{matrix.build_variant}}" ) else ( set "B2_ARGS=%B2_ARGS% variant=%DEFAULT_BUILD_VARIANT%" )
-            if not "${{matrix.instruction_set}}" == "" ( set "B2_ARGS=%B2_ARGS% instruction-set=${{matrix.instruction_set}}" ) else ( set "B2_ARGS=%B2_ARGS% instruction-set=%DEFAULT_INSTRUCTION_SET%" )
+            if not "${{matrix.instruction_set}}" == "" (
+                if not "${{matrix.instruction_set}}" == "-" set "B2_ARGS=%B2_ARGS% instruction-set=${{matrix.instruction_set}}"
+            ) else (
+                set "B2_ARGS=%B2_ARGS% instruction-set=%DEFAULT_INSTRUCTION_SET%"
+            )
             if not "${{matrix.cxxflags}}" == "" set "B2_ARGS=%B2_ARGS% ^"cxxflags=${{matrix.cxxflags}}^""
             if not "${{matrix.linkflags}}" == "" set "B2_ARGS=%B2_ARGS% ^"linkflags=${{matrix.linkflags}}^""
             if not "${{matrix.cxxstd64}}" == "" (
