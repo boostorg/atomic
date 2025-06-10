@@ -5,7 +5,7 @@
  *
  * Copyright (c) 2009 Helge Bahmann
  * Copyright (c) 2013 Tim Blechmann
- * Copyright (c) 2014, 2020 Andrey Semashev
+ * Copyright (c) 2014-2025 Andrey Semashev
  */
 /*!
  * \file   atomic/detail/core_arch_ops_gcc_arm.hpp
@@ -60,28 +60,28 @@ template< bool Signed, bool Interprocess >
 struct core_arch_operations< 4u, Signed, Interprocess > :
     public core_arch_operations_gcc_arm_base
 {
-    typedef typename storage_traits< 4u >::type storage_type;
+    using storage_type = typename storage_traits< 4u >::type;
 
-    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 4u;
-    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_alignment = 4u;
-    static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
-    static BOOST_CONSTEXPR_OR_CONST bool is_interprocess = Interprocess;
+    static constexpr std::size_t storage_size = 4u;
+    static constexpr std::size_t storage_alignment = 4u;
+    static constexpr bool is_signed = Signed;
+    static constexpr bool is_interprocess = Interprocess;
 
-    static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         fence_before(order);
         storage = v;
         fence_after_store(order);
     }
 
-    static BOOST_FORCEINLINE storage_type load(storage_type const volatile& storage, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type load(storage_type const volatile& storage, memory_order order) noexcept
     {
         storage_type v = storage;
         fence_after(order);
         return v;
     }
 
-    static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         fence_before(order);
         storage_type original;
@@ -104,7 +104,7 @@ struct core_arch_operations< 4u, Signed, Interprocess > :
     }
 
     static BOOST_FORCEINLINE bool compare_exchange_weak(
-        storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order success_order, memory_order failure_order) BOOST_NOEXCEPT
+        storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order success_order, memory_order failure_order) noexcept
     {
         fence_before(success_order);
         bool success = false;
@@ -140,7 +140,7 @@ struct core_arch_operations< 4u, Signed, Interprocess > :
     }
 
     static BOOST_FORCEINLINE bool compare_exchange_strong(
-        storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order success_order, memory_order failure_order) BOOST_NOEXCEPT
+        storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order success_order, memory_order failure_order) noexcept
     {
         fence_before(success_order);
         bool success = false;
@@ -178,7 +178,7 @@ struct core_arch_operations< 4u, Signed, Interprocess > :
         return success;
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         fence_before(order);
         uint32_t tmp;
@@ -204,7 +204,7 @@ struct core_arch_operations< 4u, Signed, Interprocess > :
         return original;
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         fence_before(order);
         uint32_t tmp;
@@ -230,7 +230,7 @@ struct core_arch_operations< 4u, Signed, Interprocess > :
         return original;
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_and(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_and(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         fence_before(order);
         uint32_t tmp;
@@ -256,7 +256,7 @@ struct core_arch_operations< 4u, Signed, Interprocess > :
         return original;
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_or(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_or(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         fence_before(order);
         uint32_t tmp;
@@ -282,7 +282,7 @@ struct core_arch_operations< 4u, Signed, Interprocess > :
         return original;
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_xor(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_xor(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         fence_before(order);
         uint32_t tmp;
@@ -308,12 +308,12 @@ struct core_arch_operations< 4u, Signed, Interprocess > :
         return original;
     }
 
-    static BOOST_FORCEINLINE bool test_and_set(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE bool test_and_set(storage_type volatile& storage, memory_order order) noexcept
     {
         return !!exchange(storage, (storage_type)1, order);
     }
 
-    static BOOST_FORCEINLINE void clear(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE void clear(storage_type volatile& storage, memory_order order) noexcept
     {
         store(storage, (storage_type)0, order);
     }
@@ -325,29 +325,29 @@ template< bool Signed, bool Interprocess >
 struct core_arch_operations< 1u, Signed, Interprocess > :
     public core_arch_operations_gcc_arm_base
 {
-    typedef typename storage_traits< 1u >::type storage_type;
-    typedef typename storage_traits< 4u >::type extended_storage_type;
+    using storage_type = typename storage_traits< 1u >::type;
+    using extended_storage_type = typename storage_traits< 4u >::type;
 
-    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 1u;
-    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_alignment = 1u;
-    static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
-    static BOOST_CONSTEXPR_OR_CONST bool is_interprocess = Interprocess;
+    static constexpr std::size_t storage_size = 1u;
+    static constexpr std::size_t storage_alignment = 1u;
+    static constexpr bool is_signed = Signed;
+    static constexpr bool is_interprocess = Interprocess;
 
-    static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         fence_before(order);
         storage = v;
         fence_after_store(order);
     }
 
-    static BOOST_FORCEINLINE storage_type load(storage_type const volatile& storage, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type load(storage_type const volatile& storage, memory_order order) noexcept
     {
         storage_type v = storage;
         fence_after(order);
         return v;
     }
 
-    static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         fence_before(order);
         extended_storage_type original;
@@ -370,7 +370,7 @@ struct core_arch_operations< 1u, Signed, Interprocess > :
     }
 
     static BOOST_FORCEINLINE bool compare_exchange_weak(
-        storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order success_order, memory_order failure_order) BOOST_NOEXCEPT
+        storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order success_order, memory_order failure_order) noexcept
     {
         fence_before(success_order);
         bool success = false;
@@ -406,7 +406,7 @@ struct core_arch_operations< 1u, Signed, Interprocess > :
     }
 
     static BOOST_FORCEINLINE bool compare_exchange_strong(
-        storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order success_order, memory_order failure_order) BOOST_NOEXCEPT
+        storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order success_order, memory_order failure_order) noexcept
     {
         fence_before(success_order);
         bool success = false;
@@ -444,7 +444,7 @@ struct core_arch_operations< 1u, Signed, Interprocess > :
         return success;
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         fence_before(order);
         uint32_t tmp;
@@ -470,7 +470,7 @@ struct core_arch_operations< 1u, Signed, Interprocess > :
         return static_cast< storage_type >(original);
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         fence_before(order);
         uint32_t tmp;
@@ -496,7 +496,7 @@ struct core_arch_operations< 1u, Signed, Interprocess > :
         return static_cast< storage_type >(original);
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_and(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_and(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         fence_before(order);
         uint32_t tmp;
@@ -522,7 +522,7 @@ struct core_arch_operations< 1u, Signed, Interprocess > :
         return static_cast< storage_type >(original);
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_or(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_or(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         fence_before(order);
         uint32_t tmp;
@@ -548,7 +548,7 @@ struct core_arch_operations< 1u, Signed, Interprocess > :
         return static_cast< storage_type >(original);
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_xor(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_xor(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         fence_before(order);
         uint32_t tmp;
@@ -574,12 +574,12 @@ struct core_arch_operations< 1u, Signed, Interprocess > :
         return static_cast< storage_type >(original);
     }
 
-    static BOOST_FORCEINLINE bool test_and_set(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE bool test_and_set(storage_type volatile& storage, memory_order order) noexcept
     {
         return !!exchange(storage, (storage_type)1, order);
     }
 
-    static BOOST_FORCEINLINE void clear(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE void clear(storage_type volatile& storage, memory_order order) noexcept
     {
         store(storage, (storage_type)0, order);
     }
@@ -591,10 +591,10 @@ template< bool Interprocess >
 struct core_arch_operations< 1u, false, Interprocess > :
     public core_arch_operations< 4u, false, Interprocess >
 {
-    typedef core_arch_operations< 4u, false, Interprocess > base_type;
-    typedef typename base_type::storage_type storage_type;
+    using base_type = core_arch_operations< 4u, false, Interprocess >;
+    using storage_type = typename base_type::storage_type;
 
-    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         base_type::fence_before(order);
         uint32_t tmp;
@@ -621,7 +621,7 @@ struct core_arch_operations< 1u, false, Interprocess > :
         return original;
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         base_type::fence_before(order);
         uint32_t tmp;
@@ -653,10 +653,10 @@ template< bool Interprocess >
 struct core_arch_operations< 1u, true, Interprocess > :
     public core_arch_operations< 4u, true, Interprocess >
 {
-    typedef core_arch_operations< 4u, true, Interprocess > base_type;
-    typedef typename base_type::storage_type storage_type;
+    using base_type = core_arch_operations< 4u, true, Interprocess >;
+    using storage_type = typename base_type::storage_type;
 
-    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         base_type::fence_before(order);
         uint32_t tmp;
@@ -683,7 +683,7 @@ struct core_arch_operations< 1u, true, Interprocess > :
         return original;
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         base_type::fence_before(order);
         uint32_t tmp;
@@ -719,29 +719,29 @@ template< bool Signed, bool Interprocess >
 struct core_arch_operations< 2u, Signed, Interprocess > :
     public core_arch_operations_gcc_arm_base
 {
-    typedef typename storage_traits< 2u >::type storage_type;
-    typedef typename storage_traits< 4u >::type extended_storage_type;
+    using storage_type = typename storage_traits< 2u >::type;
+    using extended_storage_type = typename storage_traits< 4u >::type;
 
-    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 2u;
-    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_alignment = 2u;
-    static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
-    static BOOST_CONSTEXPR_OR_CONST bool is_interprocess = Interprocess;
+    static constexpr std::size_t storage_size = 2u;
+    static constexpr std::size_t storage_alignment = 2u;
+    static constexpr bool is_signed = Signed;
+    static constexpr bool is_interprocess = Interprocess;
 
-    static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         fence_before(order);
         storage = v;
         fence_after_store(order);
     }
 
-    static BOOST_FORCEINLINE storage_type load(storage_type const volatile& storage, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type load(storage_type const volatile& storage, memory_order order) noexcept
     {
         storage_type v = storage;
         fence_after(order);
         return v;
     }
 
-    static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         fence_before(order);
         extended_storage_type original;
@@ -764,7 +764,7 @@ struct core_arch_operations< 2u, Signed, Interprocess > :
     }
 
     static BOOST_FORCEINLINE bool compare_exchange_weak(
-        storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order success_order, memory_order failure_order) BOOST_NOEXCEPT
+        storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order success_order, memory_order failure_order) noexcept
     {
         fence_before(success_order);
         bool success = false;
@@ -800,7 +800,7 @@ struct core_arch_operations< 2u, Signed, Interprocess > :
     }
 
     static BOOST_FORCEINLINE bool compare_exchange_strong(
-        storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order success_order, memory_order failure_order) BOOST_NOEXCEPT
+        storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order success_order, memory_order failure_order) noexcept
     {
         fence_before(success_order);
         bool success = false;
@@ -838,7 +838,7 @@ struct core_arch_operations< 2u, Signed, Interprocess > :
         return success;
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         fence_before(order);
         uint32_t tmp;
@@ -864,7 +864,7 @@ struct core_arch_operations< 2u, Signed, Interprocess > :
         return static_cast< storage_type >(original);
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         fence_before(order);
         uint32_t tmp;
@@ -890,7 +890,7 @@ struct core_arch_operations< 2u, Signed, Interprocess > :
         return static_cast< storage_type >(original);
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_and(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_and(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         fence_before(order);
         uint32_t tmp;
@@ -916,7 +916,7 @@ struct core_arch_operations< 2u, Signed, Interprocess > :
         return static_cast< storage_type >(original);
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_or(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_or(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         fence_before(order);
         uint32_t tmp;
@@ -942,7 +942,7 @@ struct core_arch_operations< 2u, Signed, Interprocess > :
         return static_cast< storage_type >(original);
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_xor(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_xor(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         fence_before(order);
         uint32_t tmp;
@@ -968,12 +968,12 @@ struct core_arch_operations< 2u, Signed, Interprocess > :
         return static_cast< storage_type >(original);
     }
 
-    static BOOST_FORCEINLINE bool test_and_set(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE bool test_and_set(storage_type volatile& storage, memory_order order) noexcept
     {
         return !!exchange(storage, (storage_type)1, order);
     }
 
-    static BOOST_FORCEINLINE void clear(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE void clear(storage_type volatile& storage, memory_order order) noexcept
     {
         store(storage, (storage_type)0, order);
     }
@@ -985,10 +985,10 @@ template< bool Interprocess >
 struct core_arch_operations< 2u, false, Interprocess > :
     public core_arch_operations< 4u, false, Interprocess >
 {
-    typedef core_arch_operations< 4u, false, Interprocess > base_type;
-    typedef typename base_type::storage_type storage_type;
+    using base_type = core_arch_operations< 4u, false, Interprocess >;
+    using storage_type = typename base_type::storage_type;
 
-    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         base_type::fence_before(order);
         uint32_t tmp;
@@ -1015,7 +1015,7 @@ struct core_arch_operations< 2u, false, Interprocess > :
         return original;
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         base_type::fence_before(order);
         uint32_t tmp;
@@ -1047,10 +1047,10 @@ template< bool Interprocess >
 struct core_arch_operations< 2u, true, Interprocess > :
     public core_arch_operations< 4u, true, Interprocess >
 {
-    typedef core_arch_operations< 4u, true, Interprocess > base_type;
-    typedef typename base_type::storage_type storage_type;
+    using base_type = core_arch_operations< 4u, true, Interprocess >;
+    using storage_type = typename base_type::storage_type;
 
-    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         base_type::fence_before(order);
         uint32_t tmp;
@@ -1077,7 +1077,7 @@ struct core_arch_operations< 2u, true, Interprocess > :
         return original;
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         base_type::fence_before(order);
         uint32_t tmp;
@@ -1124,19 +1124,19 @@ template< bool Signed, bool Interprocess >
 struct core_arch_operations< 8u, Signed, Interprocess > :
     public core_arch_operations_gcc_arm_base
 {
-    typedef typename storage_traits< 8u >::type storage_type;
+    using storage_type = typename storage_traits< 8u >::type;
 
-    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = 8u;
-    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_alignment = 8u;
-    static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
-    static BOOST_CONSTEXPR_OR_CONST bool is_interprocess = Interprocess;
+    static constexpr std::size_t storage_size = 8u;
+    static constexpr std::size_t storage_alignment = 8u;
+    static constexpr bool is_signed = Signed;
+    static constexpr bool is_interprocess = Interprocess;
 
-    static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         exchange(storage, v, order);
     }
 
-    static BOOST_FORCEINLINE storage_type load(storage_type const volatile& storage, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type load(storage_type const volatile& storage, memory_order order) noexcept
     {
         // ARMv7 says ldrex (and other load-exclusive instructions) can be used without a matching strex, see
         // "ARM Architecture Reference Manual ARMv7-A and ARMv7-R edition", Section A3.4.5 "Load-Exclusive and Store-Exclusive usage restrictions".
@@ -1164,7 +1164,7 @@ struct core_arch_operations< 8u, Signed, Interprocess > :
         return original;
     }
 
-    static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type exchange(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         fence_before(order);
         storage_type original;
@@ -1189,7 +1189,7 @@ struct core_arch_operations< 8u, Signed, Interprocess > :
     }
 
     static BOOST_FORCEINLINE bool compare_exchange_weak(
-        storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order success_order, memory_order failure_order) BOOST_NOEXCEPT
+        storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order success_order, memory_order failure_order) noexcept
     {
         fence_before(success_order);
         storage_type original;
@@ -1224,7 +1224,7 @@ struct core_arch_operations< 8u, Signed, Interprocess > :
     }
 
     static BOOST_FORCEINLINE bool compare_exchange_strong(
-        storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order success_order, memory_order failure_order) BOOST_NOEXCEPT
+        storage_type volatile& storage, storage_type& expected, storage_type desired, memory_order success_order, memory_order failure_order) noexcept
     {
         fence_before(success_order);
         storage_type original;
@@ -1260,7 +1260,7 @@ struct core_arch_operations< 8u, Signed, Interprocess > :
         return success;
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         fence_before(order);
         storage_type original, result;
@@ -1287,7 +1287,7 @@ struct core_arch_operations< 8u, Signed, Interprocess > :
         return original;
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         fence_before(order);
         storage_type original, result;
@@ -1314,7 +1314,7 @@ struct core_arch_operations< 8u, Signed, Interprocess > :
         return original;
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_and(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_and(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         fence_before(order);
         storage_type original, result;
@@ -1341,7 +1341,7 @@ struct core_arch_operations< 8u, Signed, Interprocess > :
         return original;
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_or(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_or(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         fence_before(order);
         storage_type original, result;
@@ -1368,7 +1368,7 @@ struct core_arch_operations< 8u, Signed, Interprocess > :
         return original;
     }
 
-    static BOOST_FORCEINLINE storage_type fetch_xor(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_type fetch_xor(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         fence_before(order);
         storage_type original, result;
@@ -1395,12 +1395,12 @@ struct core_arch_operations< 8u, Signed, Interprocess > :
         return original;
     }
 
-    static BOOST_FORCEINLINE bool test_and_set(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE bool test_and_set(storage_type volatile& storage, memory_order order) noexcept
     {
         return !!exchange(storage, (storage_type)1, order);
     }
 
-    static BOOST_FORCEINLINE void clear(storage_type volatile& storage, memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE void clear(storage_type volatile& storage, memory_order order) noexcept
     {
         store(storage, (storage_type)0, order);
     }

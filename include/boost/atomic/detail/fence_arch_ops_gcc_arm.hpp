@@ -3,7 +3,7 @@
  * (See accompanying file LICENSE_1_0.txt or copy at
  * http://www.boost.org/LICENSE_1_0.txt)
  *
- * Copyright (c) 2020 Andrey Semashev
+ * Copyright (c) 2020-2025 Andrey Semashev
  */
 /*!
  * \file   atomic/detail/fence_arch_ops_gcc_arm.hpp
@@ -32,19 +32,19 @@ namespace detail {
 //! Fence operations for legacy ARM
 struct fence_arch_operations_gcc_arm
 {
-    static BOOST_FORCEINLINE void thread_fence(memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE void thread_fence(memory_order order) noexcept
     {
         if (order != memory_order_relaxed)
             hardware_full_fence();
     }
 
-    static BOOST_FORCEINLINE void signal_fence(memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE void signal_fence(memory_order order) noexcept
     {
         if (order != memory_order_relaxed)
             __asm__ __volatile__ ("" ::: "memory");
     }
 
-    static BOOST_FORCEINLINE void hardware_full_fence() BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE void hardware_full_fence() noexcept
     {
         // A memory barrier is effected using a "co-processor 15" instruction,
         // though a separate assembler mnemonic is available for it in v7.
@@ -79,7 +79,7 @@ struct fence_arch_operations_gcc_arm
     }
 };
 
-typedef fence_arch_operations_gcc_arm fence_arch_operations;
+using fence_arch_operations = fence_arch_operations_gcc_arm;
 
 } // namespace detail
 } // namespace atomics

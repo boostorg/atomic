@@ -9,7 +9,6 @@
 
 #include <cstddef>
 #include <new>
-#include <boost/config.hpp>
 #include <boost/cstdint.hpp>
 
 //! A wrapper that creates an object that has at least the specified alignment
@@ -31,26 +30,26 @@ public:
         m_p = new (get_aligned_storage()) T(value);
     }
 
-    ~aligned_object() BOOST_NOEXCEPT
+    aligned_object(aligned_object const&) = delete;
+    aligned_object& operator= (aligned_object const&) = delete;
+
+    ~aligned_object() noexcept
     {
         m_p->~T();
     }
 
-    T& get() const BOOST_NOEXCEPT
+    T& get() const noexcept
     {
         return *m_p;
     }
-
-    BOOST_DELETED_FUNCTION(aligned_object(aligned_object const&))
-    BOOST_DELETED_FUNCTION(aligned_object& operator= (aligned_object const&))
 
 private:
     unsigned char* get_aligned_storage()
     {
 #if defined(BOOST_HAS_INTPTR_T)
-        typedef boost::uintptr_t uintptr_type;
+        using uintptr_type = boost::uintptr_t;
 #else
-        typedef std::size_t uintptr_type;
+        using uintptr_type = std::size_t;
 #endif
         unsigned char* p = m_storage;
         uintptr_type misalignment = ((uintptr_type)p) & (Alignment - 1u);

@@ -3,7 +3,7 @@
  * (See accompanying file LICENSE_1_0.txt or copy at
  * http://www.boost.org/LICENSE_1_0.txt)
  *
- * Copyright (c) 2020 Andrey Semashev
+ * Copyright (c) 2020-2025 Andrey Semashev
  */
 /*!
  * \file   atomic/detail/fence_arch_ops_msvc_x86.hpp
@@ -32,7 +32,7 @@ namespace detail {
 //! Fence operations for x86
 struct fence_arch_operations_msvc_x86
 {
-    static BOOST_FORCEINLINE void thread_fence(memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE void thread_fence(memory_order order) noexcept
     {
         if (order == memory_order_seq_cst)
         {
@@ -48,14 +48,14 @@ struct fence_arch_operations_msvc_x86
         }
     }
 
-    static BOOST_FORCEINLINE void signal_fence(memory_order order) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE void signal_fence(memory_order order) noexcept
     {
         if (order != memory_order_relaxed)
             BOOST_ATOMIC_DETAIL_COMPILER_BARRIER();
     }
 };
 
-typedef fence_arch_operations_msvc_x86 fence_arch_operations;
+using fence_arch_operations = fence_arch_operations_msvc_x86;
 
 } // namespace detail
 } // namespace atomics

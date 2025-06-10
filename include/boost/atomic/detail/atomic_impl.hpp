@@ -46,7 +46,7 @@
 #pragma once
 #endif
 
-#if !defined(BOOST_ATOMIC_DETAIL_NO_CXX11_CONSTEXPR_UNION_INIT) && !defined(BOOST_ATOMIC_DETAIL_NO_CXX11_CONSTEXPR_BITWISE_CAST)
+#if !defined(BOOST_ATOMIC_DETAIL_NO_CXX11_CONSTEXPR_BITWISE_CAST)
 #define BOOST_ATOMIC_DETAIL_CONSTEXPR_ATOMIC_CTOR constexpr
 #else
 #define BOOST_ATOMIC_DETAIL_CONSTEXPR_ATOMIC_CTOR
@@ -86,11 +86,11 @@ protected:
     BOOST_ATOMIC_DETAIL_ALIGNED_VAR_TPL(storage_alignment, storage_type, m_storage);
 
 public:
-    BOOST_FORCEINLINE BOOST_ATOMIC_DETAIL_CONSTEXPR_UNION_INIT base_atomic_common() noexcept : m_storage()
+    BOOST_FORCEINLINE constexpr base_atomic_common() noexcept : m_storage()
     {
     }
 
-    BOOST_FORCEINLINE BOOST_ATOMIC_DETAIL_CONSTEXPR_UNION_INIT explicit base_atomic_common(storage_type v) noexcept : m_storage(v)
+    BOOST_FORCEINLINE constexpr explicit base_atomic_common(storage_type v) noexcept : m_storage(v)
     {
     }
 
@@ -377,7 +377,7 @@ private:
 
 public:
     base_atomic() = default;
-    BOOST_FORCEINLINE BOOST_ATOMIC_DETAIL_CONSTEXPR_UNION_INIT explicit base_atomic(value_arg_type v) noexcept : base_type(static_cast< storage_type >(v))
+    BOOST_FORCEINLINE constexpr explicit base_atomic(value_arg_type v) noexcept : base_type(static_cast< storage_type >(v))
     {
     }
 
@@ -537,7 +537,7 @@ private:
 
 public:
     base_atomic() = default;
-    BOOST_FORCEINLINE BOOST_ATOMIC_DETAIL_CONSTEXPR_UNION_INIT explicit base_atomic(value_arg_type v) noexcept : base_type(static_cast< storage_type >(v)) {}
+    BOOST_FORCEINLINE constexpr explicit base_atomic(value_arg_type v) noexcept : base_type(static_cast< storage_type >(v)) {}
 
     base_atomic(base_atomic const&) = delete;
     base_atomic& operator=(base_atomic const&) = delete;
@@ -898,7 +898,7 @@ private:
 
 public:
     base_atomic() = default;
-    BOOST_FORCEINLINE BOOST_ATOMIC_DETAIL_CONSTEXPR_UNION_INIT explicit base_atomic(value_arg_type v) noexcept : base_type(static_cast< storage_type >(v)) {}
+    BOOST_FORCEINLINE constexpr explicit base_atomic(value_arg_type v) noexcept : base_type(static_cast< storage_type >(v)) {}
 
     base_atomic(base_atomic const&) = delete;
     base_atomic& operator=(base_atomic const&) = delete;

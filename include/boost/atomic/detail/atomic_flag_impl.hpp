@@ -41,11 +41,7 @@ namespace boost {
 namespace atomics {
 namespace detail {
 
-#if defined(BOOST_ATOMIC_DETAIL_NO_CXX11_CONSTEXPR_UNION_INIT) || defined(BOOST_NO_CXX11_UNIFIED_INITIALIZATION_SYNTAX)
-#define BOOST_ATOMIC_NO_ATOMIC_FLAG_INIT
-#else
 #define BOOST_ATOMIC_FLAG_INIT {}
-#endif
 
 //! Atomic flag implementation
 template< bool IsInterprocess >
@@ -61,7 +57,7 @@ struct atomic_flag_impl
 
     BOOST_ATOMIC_DETAIL_ALIGNED_VAR_TPL(core_operations::storage_alignment, storage_type, m_storage);
 
-    BOOST_FORCEINLINE BOOST_ATOMIC_DETAIL_CONSTEXPR_UNION_INIT atomic_flag_impl() noexcept : m_storage(0u)
+    BOOST_FORCEINLINE constexpr atomic_flag_impl() noexcept : m_storage(0u)
     {
     }
 

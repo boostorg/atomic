@@ -242,8 +242,8 @@ template< typename Base >
 struct wait_operations_generic< Base, true > :
     public Base
 {
-    typedef Base base_type;
-    typedef typename base_type::storage_type storage_type;
+    using base_type = Base;
+    using storage_type = typename base_type::storage_type;
 
     static constexpr bool always_has_native_wait_notify = false;
 
