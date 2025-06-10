@@ -17,7 +17,7 @@
 #define BOOST_ATOMIC_DETAIL_CORE_ARCH_OPS_GCC_ARM_HPP_INCLUDED_
 
 #include <cstddef>
-#include <boost/cstdint.hpp>
+#include <cstdint>
 #include <boost/memory_order.hpp>
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/storage_traits.hpp>
@@ -85,7 +85,7 @@ struct core_arch_operations< 4u, Signed, Interprocess > :
     {
         fence_before(order);
         storage_type original;
-        uint32_t tmp;
+        std::uint32_t tmp;
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%[tmp])
@@ -109,7 +109,7 @@ struct core_arch_operations< 4u, Signed, Interprocess > :
         fence_before(success_order);
         bool success = false;
 #if !defined(BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_UNUSED)
-        uint32_t tmp;
+        std::uint32_t tmp;
 #endif
         storage_type original;
         __asm__ __volatile__
@@ -145,7 +145,7 @@ struct core_arch_operations< 4u, Signed, Interprocess > :
         fence_before(success_order);
         bool success = false;
 #if !defined(BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_UNUSED)
-        uint32_t tmp;
+        std::uint32_t tmp;
 #endif
         storage_type original;
         __asm__ __volatile__
@@ -181,7 +181,7 @@ struct core_arch_operations< 4u, Signed, Interprocess > :
     static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         fence_before(order);
-        uint32_t tmp;
+        std::uint32_t tmp;
         storage_type original, result;
         __asm__ __volatile__
         (
@@ -207,7 +207,7 @@ struct core_arch_operations< 4u, Signed, Interprocess > :
     static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         fence_before(order);
-        uint32_t tmp;
+        std::uint32_t tmp;
         storage_type original, result;
         __asm__ __volatile__
         (
@@ -233,7 +233,7 @@ struct core_arch_operations< 4u, Signed, Interprocess > :
     static BOOST_FORCEINLINE storage_type fetch_and(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         fence_before(order);
-        uint32_t tmp;
+        std::uint32_t tmp;
         storage_type original, result;
         __asm__ __volatile__
         (
@@ -259,7 +259,7 @@ struct core_arch_operations< 4u, Signed, Interprocess > :
     static BOOST_FORCEINLINE storage_type fetch_or(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         fence_before(order);
-        uint32_t tmp;
+        std::uint32_t tmp;
         storage_type original, result;
         __asm__ __volatile__
         (
@@ -285,7 +285,7 @@ struct core_arch_operations< 4u, Signed, Interprocess > :
     static BOOST_FORCEINLINE storage_type fetch_xor(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         fence_before(order);
-        uint32_t tmp;
+        std::uint32_t tmp;
         storage_type original, result;
         __asm__ __volatile__
         (
@@ -351,7 +351,7 @@ struct core_arch_operations< 1u, Signed, Interprocess > :
     {
         fence_before(order);
         extended_storage_type original;
-        uint32_t tmp;
+        std::uint32_t tmp;
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%[tmp])
@@ -375,7 +375,7 @@ struct core_arch_operations< 1u, Signed, Interprocess > :
         fence_before(success_order);
         bool success = false;
 #if !defined(BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_UNUSED)
-        uint32_t tmp;
+        std::uint32_t tmp;
 #endif
         extended_storage_type original;
         __asm__ __volatile__
@@ -411,7 +411,7 @@ struct core_arch_operations< 1u, Signed, Interprocess > :
         fence_before(success_order);
         bool success = false;
 #if !defined(BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_UNUSED)
-        uint32_t tmp;
+        std::uint32_t tmp;
 #endif
         extended_storage_type original;
         __asm__ __volatile__
@@ -447,7 +447,7 @@ struct core_arch_operations< 1u, Signed, Interprocess > :
     static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         fence_before(order);
-        uint32_t tmp;
+        std::uint32_t tmp;
         extended_storage_type original, result;
         __asm__ __volatile__
         (
@@ -473,7 +473,7 @@ struct core_arch_operations< 1u, Signed, Interprocess > :
     static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         fence_before(order);
-        uint32_t tmp;
+        std::uint32_t tmp;
         extended_storage_type original, result;
         __asm__ __volatile__
         (
@@ -499,7 +499,7 @@ struct core_arch_operations< 1u, Signed, Interprocess > :
     static BOOST_FORCEINLINE storage_type fetch_and(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         fence_before(order);
-        uint32_t tmp;
+        std::uint32_t tmp;
         extended_storage_type original, result;
         __asm__ __volatile__
         (
@@ -525,7 +525,7 @@ struct core_arch_operations< 1u, Signed, Interprocess > :
     static BOOST_FORCEINLINE storage_type fetch_or(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         fence_before(order);
-        uint32_t tmp;
+        std::uint32_t tmp;
         extended_storage_type original, result;
         __asm__ __volatile__
         (
@@ -551,7 +551,7 @@ struct core_arch_operations< 1u, Signed, Interprocess > :
     static BOOST_FORCEINLINE storage_type fetch_xor(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         fence_before(order);
-        uint32_t tmp;
+        std::uint32_t tmp;
         extended_storage_type original, result;
         __asm__ __volatile__
         (
@@ -597,7 +597,7 @@ struct core_arch_operations< 1u, false, Interprocess > :
     static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         base_type::fence_before(order);
-        uint32_t tmp;
+        std::uint32_t tmp;
         storage_type original, result;
         __asm__ __volatile__
         (
@@ -624,7 +624,7 @@ struct core_arch_operations< 1u, false, Interprocess > :
     static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         base_type::fence_before(order);
-        uint32_t tmp;
+        std::uint32_t tmp;
         storage_type original, result;
         __asm__ __volatile__
         (
@@ -659,7 +659,7 @@ struct core_arch_operations< 1u, true, Interprocess > :
     static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         base_type::fence_before(order);
-        uint32_t tmp;
+        std::uint32_t tmp;
         storage_type original, result;
         __asm__ __volatile__
         (
@@ -686,7 +686,7 @@ struct core_arch_operations< 1u, true, Interprocess > :
     static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         base_type::fence_before(order);
-        uint32_t tmp;
+        std::uint32_t tmp;
         storage_type original, result;
         __asm__ __volatile__
         (
@@ -745,7 +745,7 @@ struct core_arch_operations< 2u, Signed, Interprocess > :
     {
         fence_before(order);
         extended_storage_type original;
-        uint32_t tmp;
+        std::uint32_t tmp;
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%[tmp])
@@ -769,7 +769,7 @@ struct core_arch_operations< 2u, Signed, Interprocess > :
         fence_before(success_order);
         bool success = false;
 #if !defined(BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_UNUSED)
-        uint32_t tmp;
+        std::uint32_t tmp;
 #endif
         extended_storage_type original;
         __asm__ __volatile__
@@ -805,7 +805,7 @@ struct core_arch_operations< 2u, Signed, Interprocess > :
         fence_before(success_order);
         bool success = false;
 #if !defined(BOOST_ATOMIC_DETAIL_ARM_ASM_TMPREG_UNUSED)
-        uint32_t tmp;
+        std::uint32_t tmp;
 #endif
         extended_storage_type original;
         __asm__ __volatile__
@@ -841,7 +841,7 @@ struct core_arch_operations< 2u, Signed, Interprocess > :
     static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         fence_before(order);
-        uint32_t tmp;
+        std::uint32_t tmp;
         extended_storage_type original, result;
         __asm__ __volatile__
         (
@@ -867,7 +867,7 @@ struct core_arch_operations< 2u, Signed, Interprocess > :
     static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         fence_before(order);
-        uint32_t tmp;
+        std::uint32_t tmp;
         extended_storage_type original, result;
         __asm__ __volatile__
         (
@@ -893,7 +893,7 @@ struct core_arch_operations< 2u, Signed, Interprocess > :
     static BOOST_FORCEINLINE storage_type fetch_and(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         fence_before(order);
-        uint32_t tmp;
+        std::uint32_t tmp;
         extended_storage_type original, result;
         __asm__ __volatile__
         (
@@ -919,7 +919,7 @@ struct core_arch_operations< 2u, Signed, Interprocess > :
     static BOOST_FORCEINLINE storage_type fetch_or(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         fence_before(order);
-        uint32_t tmp;
+        std::uint32_t tmp;
         extended_storage_type original, result;
         __asm__ __volatile__
         (
@@ -945,7 +945,7 @@ struct core_arch_operations< 2u, Signed, Interprocess > :
     static BOOST_FORCEINLINE storage_type fetch_xor(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         fence_before(order);
-        uint32_t tmp;
+        std::uint32_t tmp;
         extended_storage_type original, result;
         __asm__ __volatile__
         (
@@ -991,7 +991,7 @@ struct core_arch_operations< 2u, false, Interprocess > :
     static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         base_type::fence_before(order);
-        uint32_t tmp;
+        std::uint32_t tmp;
         storage_type original, result;
         __asm__ __volatile__
         (
@@ -1018,7 +1018,7 @@ struct core_arch_operations< 2u, false, Interprocess > :
     static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         base_type::fence_before(order);
-        uint32_t tmp;
+        std::uint32_t tmp;
         storage_type original, result;
         __asm__ __volatile__
         (
@@ -1053,7 +1053,7 @@ struct core_arch_operations< 2u, true, Interprocess > :
     static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         base_type::fence_before(order);
-        uint32_t tmp;
+        std::uint32_t tmp;
         storage_type original, result;
         __asm__ __volatile__
         (
@@ -1080,7 +1080,7 @@ struct core_arch_operations< 2u, true, Interprocess > :
     static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         base_type::fence_before(order);
-        uint32_t tmp;
+        std::uint32_t tmp;
         storage_type original, result;
         __asm__ __volatile__
         (
@@ -1149,7 +1149,7 @@ struct core_arch_operations< 8u, Signed, Interprocess > :
             : "Q" (storage)      // %1
         );
 #else
-        uint32_t tmp;
+        std::uint32_t tmp;
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%0)
@@ -1168,7 +1168,7 @@ struct core_arch_operations< 8u, Signed, Interprocess > :
     {
         fence_before(order);
         storage_type original;
-        uint32_t tmp;
+        std::uint32_t tmp;
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%0)
@@ -1194,7 +1194,7 @@ struct core_arch_operations< 8u, Signed, Interprocess > :
         fence_before(success_order);
         storage_type original;
         bool success = false;
-        uint32_t tmp;
+        std::uint32_t tmp;
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%0)
@@ -1229,7 +1229,7 @@ struct core_arch_operations< 8u, Signed, Interprocess > :
         fence_before(success_order);
         storage_type original;
         bool success = false;
-        uint32_t tmp;
+        std::uint32_t tmp;
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%0)
@@ -1264,7 +1264,7 @@ struct core_arch_operations< 8u, Signed, Interprocess > :
     {
         fence_before(order);
         storage_type original, result;
-        uint32_t tmp;
+        std::uint32_t tmp;
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%0)
@@ -1291,7 +1291,7 @@ struct core_arch_operations< 8u, Signed, Interprocess > :
     {
         fence_before(order);
         storage_type original, result;
-        uint32_t tmp;
+        std::uint32_t tmp;
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%0)
@@ -1318,7 +1318,7 @@ struct core_arch_operations< 8u, Signed, Interprocess > :
     {
         fence_before(order);
         storage_type original, result;
-        uint32_t tmp;
+        std::uint32_t tmp;
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%0)
@@ -1345,7 +1345,7 @@ struct core_arch_operations< 8u, Signed, Interprocess > :
     {
         fence_before(order);
         storage_type original, result;
-        uint32_t tmp;
+        std::uint32_t tmp;
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%0)
@@ -1372,7 +1372,7 @@ struct core_arch_operations< 8u, Signed, Interprocess > :
     {
         fence_before(order);
         storage_type original, result;
-        uint32_t tmp;
+        std::uint32_t tmp;
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%0)

@@ -14,8 +14,8 @@
 #ifndef BOOST_ATOMIC_DETAIL_INTPTR_HPP_INCLUDED_
 #define BOOST_ATOMIC_DETAIL_INTPTR_HPP_INCLUDED_
 
-#include <boost/cstdint.hpp>
-#if defined(BOOST_HAS_INTPTR_T)
+#include <cstdint>
+#if !defined(UINTPTR_MAX)
 #include <cstddef>
 #endif
 #include <boost/atomic/detail/config.hpp>
@@ -29,9 +29,9 @@ namespace boost {
 namespace atomics {
 namespace detail {
 
-#if !defined(BOOST_HAS_INTPTR_T)
-using boost::uintptr_t;
-using boost::intptr_t;
+#if defined(UINTPTR_MAX)
+using std::uintptr_t;
+using std::intptr_t;
 #else
 using uintptr_t = std::size_t;
 using intptr_t = std::ptrdiff_t;

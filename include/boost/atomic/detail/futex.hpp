@@ -75,7 +75,7 @@
 #include <sys/futex.h>
 #endif
 #include <time.h> // timespec
-#include <boost/cstdint.hpp>
+#include <cstdint>
 #include <boost/atomic/detail/intptr.hpp>
 #include <boost/atomic/detail/header.hpp>
 
@@ -111,8 +111,8 @@ namespace detail {
 //! An equivalent of `timespec` that uses 64-bit members when the userland `timespec` is 32-bit
 struct futex_timespec
 {
-    int64_t tv_sec;
-    int64_t tv_nsec;
+    std::int64_t tv_sec;
+    std::int64_t tv_nsec;
 
     futex_timespec() = default;
     explicit futex_timespec(::timespec ts) noexcept :
@@ -132,11 +132,11 @@ BOOST_FORCEINLINE int futex_invoke(void* addr1, int op, unsigned int val1, const
 #if defined(BOOST_ATOMIC_DETAIL_OPENBSD_FUTEX)
     return ::futex
     (
-        static_cast< volatile uint32_t* >(addr1),
+        static_cast< volatile std::uint32_t* >(addr1),
         op,
         static_cast< int >(val1),
         timeout,
-        static_cast< volatile uint32_t* >(addr2)
+        static_cast< volatile std::uint32_t* >(addr2)
     );
 #elif defined(BOOST_ATOMIC_DETAIL_NETBSD_FUTEX)
     // Pass 0 in val2.
@@ -152,11 +152,11 @@ BOOST_FORCEINLINE int futex_invoke(void* addr1, int op, unsigned int val1, unsig
 #if defined(BOOST_ATOMIC_DETAIL_OPENBSD_FUTEX)
     return ::futex
     (
-        static_cast< volatile uint32_t* >(addr1),
+        static_cast< volatile std::uint32_t* >(addr1),
         op,
         static_cast< int >(val1),
         reinterpret_cast< const futex_timespec* >(static_cast< atomics::detail::uintptr_t >(val2)),
-        static_cast< volatile uint32_t* >(addr2)
+        static_cast< volatile std::uint32_t* >(addr2)
     );
 #elif defined(BOOST_ATOMIC_DETAIL_NETBSD_FUTEX)
     // Pass nullptr in timeout.

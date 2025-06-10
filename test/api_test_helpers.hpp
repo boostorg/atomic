@@ -9,7 +9,9 @@
 #define BOOST_ATOMIC_API_TEST_HELPERS_HPP
 
 #include <boost/atomic.hpp>
+
 #include <cstddef>
+#include <cstdint>
 #include <cstring>
 #include <cstdlib>
 #include <limits>
@@ -17,7 +19,6 @@
 #include <iostream>
 #include <type_traits>
 #include <boost/config.hpp>
-#include <boost/cstdint.hpp>
 #include <boost/type.hpp>
 #include <boost/type_traits/alignment_of.hpp>
 #include <boost/type_traits/is_signed.hpp>
@@ -1385,11 +1386,11 @@ void test_pointer_api(void)
 
     test_base_operators< Wrapper, void* >(&values[0], &values[1], &values[2]);
 
-#if defined(BOOST_HAS_INTPTR_T)
-    Wrapper<void*> wrapper_ptr;
-    typename Wrapper<void*>::atomic_reference_type ptr = wrapper_ptr.a;
-    Wrapper<boost::intptr_t> wrapper_integral;
-    typename Wrapper<boost::intptr_t>::atomic_reference_type integral = wrapper_integral.a;
+#if defined(UINTPTR_MAX)
+    Wrapper< void* > wrapper_ptr;
+    typename Wrapper< void* >::atomic_reference_type ptr = wrapper_ptr.a;
+    Wrapper< std::intptr_t > wrapper_integral;
+    typename Wrapper< std::intptr_t >::atomic_reference_type integral = wrapper_integral.a;
     BOOST_TEST_EQ( ptr.is_lock_free(), integral.is_lock_free() );
 #endif
 }

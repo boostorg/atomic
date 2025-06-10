@@ -37,12 +37,12 @@ namespace detail {
 
 extern "C" {
 // Timeout is in microseconds with zero meaning no timeout
-int __ulock_wait(uint32_t operation, void* addr, uint64_t value, uint32_t timeout);
+int __ulock_wait(std::uint32_t operation, void* addr, std::uint64_t value, std::uint32_t timeout);
 #if defined(BOOST_ATOMIC_DETAIL_HAS_DARWIN_ULOCK_WAIT2)
 // Timeout is in nanoseconds with zero meaning no timeout
-int __ulock_wait2(uint32_t operation, void* addr, uint64_t value, uint64_t timeout, uint64_t value2);
+int __ulock_wait2(std::uint32_t operation, void* addr, std::uint64_t value, std::uint64_t timeout, std::uint64_t value2);
 #endif // defined(BOOST_ATOMIC_DETAIL_HAS_DARWIN_ULOCK_WAIT2)
-int __ulock_wake(uint32_t operation, void* addr, uint64_t wake_value);
+int __ulock_wake(std::uint32_t operation, void* addr, std::uint64_t wake_value);
 } // extern "C"
 
 enum ulock_op
@@ -65,7 +65,7 @@ enum ulock_op
     ulock_flag_no_errno = 0x01000000
 };
 
-template< typename Base, uint32_t Opcode >
+template< typename Base, std::uint32_t Opcode >
 struct wait_operations_darwin_ulock_common :
     public Base
 {
@@ -111,9 +111,9 @@ private:
         while (new_val == old_val)
         {
 #if defined(BOOST_ATOMIC_DETAIL_HAS_DARWIN_ULOCK_WAIT2)
-            const int64_t rel_timeout = atomics::detail::chrono::ceil< std::chrono::nanoseconds >(timeout - now).count();
+            const std::int64_t rel_timeout = atomics::detail::chrono::ceil< std::chrono::nanoseconds >(timeout - now).count();
 #else
-            const int64_t rel_timeout = atomics::detail::chrono::ceil< std::chrono::microseconds >(timeout - now).count();
+            const std::int64_t rel_timeout = atomics::detail::chrono::ceil< std::chrono::microseconds >(timeout - now).count();
 #endif
             if (rel_timeout <= 0)
             {
@@ -122,14 +122,14 @@ private:
             }
 
 #if defined(BOOST_ATOMIC_DETAIL_HAS_DARWIN_ULOCK_WAIT2)
-            __ulock_wait2(Opcode | ulock_flag_no_errno, const_cast< storage_type* >(&storage), old_val, static_cast< uint64_t >(rel_timeout), 0u);
+            __ulock_wait2(Opcode | ulock_flag_no_errno, const_cast< storage_type* >(&storage), old_val, static_cast< std::uint64_t >(rel_timeout), 0u);
 #else
             __ulock_wait
             (
                 Opcode | ulock_flag_no_errno,
                 const_cast< storage_type* >(&storage),
                 old_val,
-                rel_timeout <= static_cast< int64_t >(~static_cast< uint32_t >(0u)) ? static_cast< uint32_t >(rel_timeout) : ~static_cast< uint32_t >(0u)
+                rel_timeout <= static_cast< std::int64_t >(~static_cast< std::uint32_t >(0u)) ? static_cast< std::uint32_t >(rel_timeout) : ~static_cast< std::uint32_t >(0u)
             );
 #endif
             now = Clock::now();
@@ -189,7 +189,7 @@ public:
 };
 
 template< typename Base >
-struct wait_operations< Base, sizeof(uint32_t), true, false > :
+struct wait_operations< Base, sizeof(std::uint32_t), true, false > :
     public wait_operations_darwin_ulock_common< Base, ulock_op_compare_and_wait >
 {
 };
@@ -197,7 +197,7 @@ struct wait_operations< Base, sizeof(uint32_t), true, false > :
 #if defined(BOOST_ATOMIC_DETAIL_HAS_DARWIN_ULOCK_SHARED)
 
 template< typename Base >
-struct wait_operations< Base, sizeof(uint32_t), true, true > :
+struct wait_operations< Base, sizeof(std::uint32_t), true, true > :
     public wait_operations_darwin_ulock_common< Base, ulock_op_compare_and_wait_shared >
 {
 };
@@ -207,7 +207,7 @@ struct wait_operations< Base, sizeof(uint32_t), true, true > :
 #if defined(BOOST_ATOMIC_DETAIL_HAS_DARWIN_ULOCK64)
 
 template< typename Base >
-struct wait_operations< Base, sizeof(uint64_t), true, false > :
+struct wait_operations< Base, sizeof(std::uint64_t), true, false > :
     public wait_operations_darwin_ulock_common< Base, ulock_op_compare_and_wait64 >
 {
 };
@@ -215,7 +215,7 @@ struct wait_operations< Base, sizeof(uint64_t), true, false > :
 #if defined(BOOST_ATOMIC_DETAIL_HAS_DARWIN_ULOCK_SHARED)
 
 template< typename Base >
-struct wait_operations< Base, sizeof(uint64_t), true, true > :
+struct wait_operations< Base, sizeof(std::uint64_t), true, true > :
     public wait_operations_darwin_ulock_common< Base, ulock_op_compare_and_wait64_shared >
 {
 };

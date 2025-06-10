@@ -14,7 +14,7 @@
 #ifndef BOOST_ATOMIC_DETAIL_FENCE_ARCH_OPS_MSVC_X86_HPP_INCLUDED_
 #define BOOST_ATOMIC_DETAIL_FENCE_ARCH_OPS_MSVC_X86_HPP_INCLUDED_
 
-#include <boost/cstdint.hpp>
+#include <cstdint>
 #include <boost/memory_order.hpp>
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/interlocked.hpp>
@@ -39,7 +39,7 @@ struct fence_arch_operations_msvc_x86
             // See the comment in fence_ops_gcc_x86.hpp as to why we're not using mfence here.
             // We're not using __faststorefence() here because it generates an atomic operation
             // on [rsp]/[esp] location, which may alias valid data and cause false data dependency.
-            boost::uint32_t dummy;
+            std::uint32_t dummy;
             BOOST_ATOMIC_INTERLOCKED_INCREMENT(&dummy);
         }
         else if (order != memory_order_relaxed)

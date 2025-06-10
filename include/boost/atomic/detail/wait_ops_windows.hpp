@@ -14,8 +14,9 @@
 #ifndef BOOST_ATOMIC_DETAIL_WAIT_OPS_WINDOWS_HPP_INCLUDED_
 #define BOOST_ATOMIC_DETAIL_WAIT_OPS_WINDOWS_HPP_INCLUDED_
 
+#include <cstddef>
+#include <cstdint>
 #include <chrono>
-#include <boost/cstdint.hpp>
 #include <boost/memory_order.hpp>
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/chrono.hpp>
@@ -84,7 +85,7 @@ private:
         storage_type new_val = base_type::load(storage, order);
         while (new_val == old_val)
         {
-            const int64_t msec = atomics::detail::chrono::ceil< std::chrono::milliseconds >(timeout - now).count();
+            const std::int64_t msec = atomics::detail::chrono::ceil< std::chrono::milliseconds >(timeout - now).count();
             if (msec <= 0)
             {
                 timed_out = true;
@@ -96,7 +97,8 @@ private:
                 const_cast< storage_type* >(&storage),
                 &old_val,
                 Size,
-                msec <= static_cast< int64_t >(boost::winapi::max_non_infinite_wait) ? static_cast< boost::winapi::DWORD_ >(msec) : boost::winapi::max_non_infinite_wait
+                msec <= static_cast< std::int64_t >(boost::winapi::max_non_infinite_wait) ?
+                    static_cast< boost::winapi::DWORD_ >(msec) : boost::winapi::max_non_infinite_wait
             );
 
             now = Clock::now();

@@ -15,7 +15,7 @@
 #define BOOST_ATOMIC_DETAIL_CORE_ARCH_OPS_GCC_AARCH32_HPP_INCLUDED_
 
 #include <cstddef>
-#include <boost/cstdint.hpp>
+#include <cstdint>
 #include <boost/memory_order.hpp>
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/storage_traits.hpp>
@@ -105,7 +105,7 @@ struct core_arch_operations< 1u, Signed, Interprocess > :
     {
         BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original;
-        uint32_t tmp;
+        std::uint32_t tmp;
 #define BOOST_ATOMIC_DETAIL_AARCH32_MO_INSN(ld_mo, st_mo)\
         __asm__ __volatile__\
         (\
@@ -194,7 +194,7 @@ struct core_arch_operations< 1u, Signed, Interprocess > :
     {
         BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original, result;
-        uint32_t tmp;
+        std::uint32_t tmp;
 #define BOOST_ATOMIC_DETAIL_AARCH32_MO_INSN(ld_mo, st_mo)\
         __asm__ __volatile__\
         (\
@@ -220,7 +220,7 @@ struct core_arch_operations< 1u, Signed, Interprocess > :
     {
         BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original, result;
-        uint32_t tmp;
+        std::uint32_t tmp;
 #define BOOST_ATOMIC_DETAIL_AARCH32_MO_INSN(ld_mo, st_mo)\
         __asm__ __volatile__\
         (\
@@ -246,7 +246,7 @@ struct core_arch_operations< 1u, Signed, Interprocess > :
     {
         BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original, result;
-        uint32_t tmp;
+        std::uint32_t tmp;
 #define BOOST_ATOMIC_DETAIL_AARCH32_MO_INSN(ld_mo, st_mo)\
         __asm__ __volatile__\
         (\
@@ -272,7 +272,7 @@ struct core_arch_operations< 1u, Signed, Interprocess > :
     {
         BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original, result;
-        uint32_t tmp;
+        std::uint32_t tmp;
 #define BOOST_ATOMIC_DETAIL_AARCH32_MO_INSN(ld_mo, st_mo)\
         __asm__ __volatile__\
         (\
@@ -298,7 +298,7 @@ struct core_arch_operations< 1u, Signed, Interprocess > :
     {
         BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original, result;
-        uint32_t tmp;
+        std::uint32_t tmp;
 #define BOOST_ATOMIC_DETAIL_AARCH32_MO_INSN(ld_mo, st_mo)\
         __asm__ __volatile__\
         (\
@@ -387,7 +387,7 @@ struct core_arch_operations< 2u, Signed, Interprocess > :
     {
         BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original;
-        uint32_t tmp;
+        std::uint32_t tmp;
 #define BOOST_ATOMIC_DETAIL_AARCH32_MO_INSN(ld_mo, st_mo)\
         __asm__ __volatile__\
         (\
@@ -476,7 +476,7 @@ struct core_arch_operations< 2u, Signed, Interprocess > :
     {
         BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original, result;
-        uint32_t tmp;
+        std::uint32_t tmp;
 #define BOOST_ATOMIC_DETAIL_AARCH32_MO_INSN(ld_mo, st_mo)\
         __asm__ __volatile__\
         (\
@@ -502,7 +502,7 @@ struct core_arch_operations< 2u, Signed, Interprocess > :
     {
         BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original, result;
-        uint32_t tmp;
+        std::uint32_t tmp;
 #define BOOST_ATOMIC_DETAIL_AARCH32_MO_INSN(ld_mo, st_mo)\
         __asm__ __volatile__\
         (\
@@ -528,7 +528,7 @@ struct core_arch_operations< 2u, Signed, Interprocess > :
     {
         BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original, result;
-        uint32_t tmp;
+        std::uint32_t tmp;
 #define BOOST_ATOMIC_DETAIL_AARCH32_MO_INSN(ld_mo, st_mo)\
         __asm__ __volatile__\
         (\
@@ -554,7 +554,7 @@ struct core_arch_operations< 2u, Signed, Interprocess > :
     {
         BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original, result;
-        uint32_t tmp;
+        std::uint32_t tmp;
 #define BOOST_ATOMIC_DETAIL_AARCH32_MO_INSN(ld_mo, st_mo)\
         __asm__ __volatile__\
         (\
@@ -580,7 +580,7 @@ struct core_arch_operations< 2u, Signed, Interprocess > :
     {
         BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original, result;
-        uint32_t tmp;
+        std::uint32_t tmp;
 #define BOOST_ATOMIC_DETAIL_AARCH32_MO_INSN(ld_mo, st_mo)\
         __asm__ __volatile__\
         (\
@@ -669,7 +669,7 @@ struct core_arch_operations< 4u, Signed, Interprocess > :
     {
         BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original;
-        uint32_t tmp;
+        std::uint32_t tmp;
 #define BOOST_ATOMIC_DETAIL_AARCH32_MO_INSN(ld_mo, st_mo)\
         __asm__ __volatile__\
         (\
@@ -756,7 +756,7 @@ struct core_arch_operations< 4u, Signed, Interprocess > :
     {
         BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original, result;
-        uint32_t tmp;
+        std::uint32_t tmp;
 #define BOOST_ATOMIC_DETAIL_AARCH32_MO_INSN(ld_mo, st_mo)\
         __asm__ __volatile__\
         (\
@@ -782,7 +782,7 @@ struct core_arch_operations< 4u, Signed, Interprocess > :
     {
         BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original, result;
-        uint32_t tmp;
+        std::uint32_t tmp;
 #define BOOST_ATOMIC_DETAIL_AARCH32_MO_INSN(ld_mo, st_mo)\
         __asm__ __volatile__\
         (\
@@ -808,7 +808,7 @@ struct core_arch_operations< 4u, Signed, Interprocess > :
     {
         BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original, result;
-        uint32_t tmp;
+        std::uint32_t tmp;
 #define BOOST_ATOMIC_DETAIL_AARCH32_MO_INSN(ld_mo, st_mo)\
         __asm__ __volatile__\
         (\
@@ -834,7 +834,7 @@ struct core_arch_operations< 4u, Signed, Interprocess > :
     {
         BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original, result;
-        uint32_t tmp;
+        std::uint32_t tmp;
 #define BOOST_ATOMIC_DETAIL_AARCH32_MO_INSN(ld_mo, st_mo)\
         __asm__ __volatile__\
         (\
@@ -860,7 +860,7 @@ struct core_arch_operations< 4u, Signed, Interprocess > :
     {
         BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original, result;
-        uint32_t tmp;
+        std::uint32_t tmp;
 #define BOOST_ATOMIC_DETAIL_AARCH32_MO_INSN(ld_mo, st_mo)\
         __asm__ __volatile__\
         (\
@@ -925,7 +925,7 @@ struct core_arch_operations< 8u, Signed, Interprocess > :
     {
         BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original;
-        uint32_t tmp;
+        std::uint32_t tmp;
         if ((static_cast< unsigned int >(order) & static_cast< unsigned int >(memory_order_release)) != 0u)
         {
             __asm__ __volatile__
@@ -986,7 +986,7 @@ struct core_arch_operations< 8u, Signed, Interprocess > :
     {
         BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original;
-        uint32_t tmp;
+        std::uint32_t tmp;
 #define BOOST_ATOMIC_DETAIL_AARCH32_MO_INSN(ld_mo, st_mo)\
         __asm__ __volatile__\
         (\
@@ -1077,7 +1077,7 @@ struct core_arch_operations< 8u, Signed, Interprocess > :
     {
         BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original, result;
-        uint32_t tmp;
+        std::uint32_t tmp;
 #define BOOST_ATOMIC_DETAIL_AARCH32_MO_INSN(ld_mo, st_mo)\
         __asm__ __volatile__\
         (\
@@ -1104,7 +1104,7 @@ struct core_arch_operations< 8u, Signed, Interprocess > :
     {
         BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original, result;
-        uint32_t tmp;
+        std::uint32_t tmp;
 #define BOOST_ATOMIC_DETAIL_AARCH32_MO_INSN(ld_mo, st_mo)\
         __asm__ __volatile__\
         (\
@@ -1131,7 +1131,7 @@ struct core_arch_operations< 8u, Signed, Interprocess > :
     {
         BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original, result;
-        uint32_t tmp;
+        std::uint32_t tmp;
 #define BOOST_ATOMIC_DETAIL_AARCH32_MO_INSN(ld_mo, st_mo)\
         __asm__ __volatile__\
         (\
@@ -1158,7 +1158,7 @@ struct core_arch_operations< 8u, Signed, Interprocess > :
     {
         BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original, result;
-        uint32_t tmp;
+        std::uint32_t tmp;
 #define BOOST_ATOMIC_DETAIL_AARCH32_MO_INSN(ld_mo, st_mo)\
         __asm__ __volatile__\
         (\
@@ -1185,7 +1185,7 @@ struct core_arch_operations< 8u, Signed, Interprocess > :
     {
         BOOST_ATOMIC_DETAIL_TSAN_RELEASE(&storage, order);
         storage_type original, result;
-        uint32_t tmp;
+        std::uint32_t tmp;
 #define BOOST_ATOMIC_DETAIL_AARCH32_MO_INSN(ld_mo, st_mo)\
         __asm__ __volatile__\
         (\

@@ -17,8 +17,8 @@
 #define BOOST_ATOMIC_ATOMIC_HPP_INCLUDED_
 
 #include <cstddef>
+#include <cstdint>
 #include <type_traits>
-#include <boost/cstdint.hpp>
 #include <boost/memory_order.hpp>
 #include <boost/atomic/capabilities.hpp>
 #include <boost/atomic/detail/config.hpp>
@@ -91,38 +91,38 @@ using atomic_llong = atomic< long long >;
 using atomic_address = atomic< void* >;
 using atomic_bool = atomic< bool >;
 using atomic_wchar_t = atomic< wchar_t >;
-#if defined(__cpp_char8_t) && __cpp_char8_t >= 201811
+#if defined(__cpp_char8_t) && (__cpp_char8_t >= 201811)
 using atomic_char8_t = atomic< char8_t >;
 #endif
 using atomic_char16_t = atomic< char16_t >;
 using atomic_char32_t = atomic< char32_t >;
 
-using atomic_uint8_t = atomic< uint8_t >;
-using atomic_int8_t = atomic< int8_t >;
-using atomic_uint16_t = atomic< uint16_t >;
-using atomic_int16_t = atomic< int16_t >;
-using atomic_uint32_t = atomic< uint32_t >;
-using atomic_int32_t = atomic< int32_t >;
-using atomic_uint64_t = atomic< uint64_t >;
-using atomic_int64_t = atomic< int64_t >;
-using atomic_int_least8_t = atomic< int_least8_t >;
-using atomic_uint_least8_t = atomic< uint_least8_t >;
-using atomic_int_least16_t = atomic< int_least16_t >;
-using atomic_uint_least16_t = atomic< uint_least16_t >;
-using atomic_int_least32_t = atomic< int_least32_t >;
-using atomic_uint_least32_t = atomic< uint_least32_t >;
-using atomic_int_least64_t = atomic< int_least64_t >;
-using atomic_uint_least64_t = atomic< uint_least64_t >;
-using atomic_int_fast8_t = atomic< int_fast8_t >;
-using atomic_uint_fast8_t = atomic< uint_fast8_t >;
-using atomic_int_fast16_t = atomic< int_fast16_t >;
-using atomic_uint_fast16_t = atomic< uint_fast16_t >;
-using atomic_int_fast32_t = atomic< int_fast32_t >;
-using atomic_uint_fast32_t = atomic< uint_fast32_t >;
-using atomic_int_fast64_t = atomic< int_fast64_t >;
-using atomic_uint_fast64_t = atomic< uint_fast64_t >;
-using atomic_intmax_t = atomic< intmax_t >;
-using atomic_uintmax_t = atomic< uintmax_t >;
+using atomic_uint8_t = atomic< std::uint8_t >;
+using atomic_int8_t = atomic< std::int8_t >;
+using atomic_uint16_t = atomic< std::uint16_t >;
+using atomic_int16_t = atomic< std::int16_t >;
+using atomic_uint32_t = atomic< std::uint32_t >;
+using atomic_int32_t = atomic< std::int32_t >;
+using atomic_uint64_t = atomic< std::uint64_t >;
+using atomic_int64_t = atomic< std::int64_t >;
+using atomic_int_least8_t = atomic< std::int_least8_t >;
+using atomic_uint_least8_t = atomic< std::uint_least8_t >;
+using atomic_int_least16_t = atomic< std::int_least16_t >;
+using atomic_uint_least16_t = atomic< std::uint_least16_t >;
+using atomic_int_least32_t = atomic< std::int_least32_t >;
+using atomic_uint_least32_t = atomic< std::uint_least32_t >;
+using atomic_int_least64_t = atomic< std::int_least64_t >;
+using atomic_uint_least64_t = atomic< std::uint_least64_t >;
+using atomic_int_fast8_t = atomic< std::int_fast8_t >;
+using atomic_uint_fast8_t = atomic< std::uint_fast8_t >;
+using atomic_int_fast16_t = atomic< std::int_fast16_t >;
+using atomic_uint_fast16_t = atomic< std::uint_fast16_t >;
+using atomic_int_fast32_t = atomic< std::int_fast32_t >;
+using atomic_uint_fast32_t = atomic< std::uint_fast32_t >;
+using atomic_int_fast64_t = atomic< std::int_fast64_t >;
+using atomic_uint_fast64_t = atomic< std::uint_fast64_t >;
+using atomic_intmax_t = atomic< std::intmax_t >;
+using atomic_uintmax_t = atomic< std::uintmax_t >;
 
 #if !defined(BOOST_ATOMIC_NO_FLOATING_POINT)
 using atomic_float_t = atomic< float >;
@@ -133,37 +133,37 @@ using atomic_long_double_t = atomic< long double >;
 using atomic_size_t = atomic< std::size_t >;
 using atomic_ptrdiff_t = atomic< std::ptrdiff_t >;
 
-#if defined(BOOST_HAS_INTPTR_T)
-using atomic_intptr_t = atomic< boost::intptr_t >;
-using atomic_uintptr_t = atomic< boost::uintptr_t >;
+#if defined(UINTPTR_MAX)
+using atomic_intptr_t = atomic< std::intptr_t >;
+using atomic_uintptr_t = atomic< std::uintptr_t >;
 #endif
 
 // Select the lock-free atomic types that has natively supported waiting/notifying operations.
 // Prefer 32-bit types the most as those have the best performance on current 32 and 64-bit architectures.
 #if BOOST_ATOMIC_INT32_LOCK_FREE == 2 && BOOST_ATOMIC_HAS_NATIVE_INT32_WAIT_NOTIFY == 2
-using atomic_unsigned_lock_free = atomic< uint32_t >;
-using atomic_signed_lock_free = atomic< int32_t >;
+using atomic_unsigned_lock_free = atomic< std::uint32_t >;
+using atomic_signed_lock_free = atomic< std::int32_t >;
 #elif BOOST_ATOMIC_INT64_LOCK_FREE == 2 && BOOST_ATOMIC_HAS_NATIVE_INT64_WAIT_NOTIFY == 2
-using atomic_unsigned_lock_free = atomic< uint64_t >;
-using atomic_signed_lock_free = atomic< int64_t >;
+using atomic_unsigned_lock_free = atomic< std::uint64_t >;
+using atomic_signed_lock_free = atomic< std::int64_t >;
 #elif BOOST_ATOMIC_INT16_LOCK_FREE == 2 && BOOST_ATOMIC_HAS_NATIVE_INT16_WAIT_NOTIFY == 2
-using atomic_unsigned_lock_free = atomic< uint16_t >;
-using atomic_signed_lock_free = atomic< int16_t >;
+using atomic_unsigned_lock_free = atomic< std::uint16_t >;
+using atomic_signed_lock_free = atomic< std::int16_t >;
 #elif BOOST_ATOMIC_INT8_LOCK_FREE == 2 && BOOST_ATOMIC_HAS_NATIVE_INT8_WAIT_NOTIFY == 2
-using atomic_unsigned_lock_free = atomic< uint8_t >;
-using atomic_signed_lock_free = atomic< int8_t >;
+using atomic_unsigned_lock_free = atomic< std::uint8_t >;
+using atomic_signed_lock_free = atomic< std::int8_t >;
 #elif BOOST_ATOMIC_INT32_LOCK_FREE == 2
-using atomic_unsigned_lock_free = atomic< uint32_t >;
-using atomic_signed_lock_free = atomic< int32_t >;
+using atomic_unsigned_lock_free = atomic< std::uint32_t >;
+using atomic_signed_lock_free = atomic< std::int32_t >;
 #elif BOOST_ATOMIC_INT64_LOCK_FREE == 2
-using atomic_unsigned_lock_free = atomic< uint64_t >;
-using atomic_signed_lock_free = atomic< int64_t >;
+using atomic_unsigned_lock_free = atomic< std::uint64_t >;
+using atomic_signed_lock_free = atomic< std::int64_t >;
 #elif BOOST_ATOMIC_INT16_LOCK_FREE == 2
-using atomic_unsigned_lock_free = atomic< uint16_t >;
-using atomic_signed_lock_free = atomic< int16_t >;
+using atomic_unsigned_lock_free = atomic< std::uint16_t >;
+using atomic_signed_lock_free = atomic< std::int16_t >;
 #elif BOOST_ATOMIC_INT8_LOCK_FREE == 2
-using atomic_unsigned_lock_free = atomic< uint8_t >;
-using atomic_signed_lock_free = atomic< int8_t >;
+using atomic_unsigned_lock_free = atomic< std::uint8_t >;
+using atomic_signed_lock_free = atomic< std::int8_t >;
 #else
 #define BOOST_ATOMIC_DETAIL_NO_LOCK_FREE_TYPEDEFS
 #endif
@@ -228,7 +228,7 @@ using atomics::atomic_long_double_t;
 using atomics::atomic_size_t;
 using atomics::atomic_ptrdiff_t;
 
-#if defined(BOOST_HAS_INTPTR_T)
+#if defined(UINTPTR_MAX)
 using atomics::atomic_intptr_t;
 using atomics::atomic_uintptr_t;
 #endif

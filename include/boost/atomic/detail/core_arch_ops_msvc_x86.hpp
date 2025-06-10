@@ -17,7 +17,7 @@
 #define BOOST_ATOMIC_DETAIL_CORE_ARCH_OPS_MSVC_X86_HPP_INCLUDED_
 
 #include <cstddef>
-#include <boost/cstdint.hpp>
+#include <cstdint>
 #include <boost/memory_order.hpp>
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/intptr.hpp>
@@ -27,7 +27,6 @@
 #include <boost/atomic/detail/type_traits/make_signed.hpp>
 #include <boost/atomic/detail/capabilities.hpp>
 #if defined(BOOST_ATOMIC_DETAIL_X86_HAS_CMPXCHG8B) || defined(BOOST_ATOMIC_DETAIL_X86_HAS_CMPXCHG16B)
-#include <boost/cstdint.hpp>
 #include <boost/atomic/detail/cas_based_exchange.hpp>
 #include <boost/atomic/detail/core_ops_cas_based.hpp>
 #endif
@@ -625,7 +624,7 @@ struct msvc_dcas_x86
         }
         else
         {
-            uint32_t backup;
+            std::uint32_t backup;
             __asm
             {
                 mov backup, ebx
@@ -713,7 +712,7 @@ struct msvc_dcas_x86
         expected = old_val;
 #else
         bool result;
-        uint32_t backup;
+        std::uint32_t backup;
         __asm
         {
             mov backup, ebx
@@ -746,7 +745,7 @@ struct msvc_dcas_x86
         BOOST_ATOMIC_DETAIL_COMPILER_BARRIER();
 
         storage_type volatile* p = &storage;
-        uint32_t backup;
+        std::uint32_t backup;
         __asm
         {
             mov backup, ebx

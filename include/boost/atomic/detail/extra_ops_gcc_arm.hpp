@@ -15,7 +15,7 @@
 #define BOOST_ATOMIC_DETAIL_EXTRA_OPS_GCC_ARM_HPP_INCLUDED_
 
 #include <cstddef>
-#include <boost/cstdint.hpp>
+#include <cstdint>
 #include <boost/memory_order.hpp>
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/platform.hpp>
@@ -104,7 +104,7 @@ struct extra_operations_gcc_arm< Base, 1u, Signed > :
     static BOOST_FORCEINLINE storage_type fetch_negate(storage_type volatile& storage, memory_order order) noexcept
     {
         core_arch_operations_gcc_arm_base::fence_before(order);
-        uint32_t tmp;
+        std::uint32_t tmp;
         extended_storage_type original, result;
         __asm__ __volatile__
         (
@@ -130,7 +130,7 @@ struct extra_operations_gcc_arm< Base, 1u, Signed > :
     static BOOST_FORCEINLINE storage_type negate(storage_type volatile& storage, memory_order order) noexcept
     {
         core_arch_operations_gcc_arm_base::fence_before(order);
-        uint32_t tmp;
+        std::uint32_t tmp;
         extended_storage_type original, result;
         __asm__ __volatile__
         (
@@ -156,7 +156,7 @@ struct extra_operations_gcc_arm< Base, 1u, Signed > :
     static BOOST_FORCEINLINE storage_type add(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         core_arch_operations_gcc_arm_base::fence_before(order);
-        uint32_t tmp;
+        std::uint32_t tmp;
         extended_storage_type original, result;
         __asm__ __volatile__
         (
@@ -182,7 +182,7 @@ struct extra_operations_gcc_arm< Base, 1u, Signed > :
     static BOOST_FORCEINLINE storage_type sub(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         core_arch_operations_gcc_arm_base::fence_before(order);
-        uint32_t tmp;
+        std::uint32_t tmp;
         extended_storage_type original, result;
         __asm__ __volatile__
         (
@@ -208,7 +208,7 @@ struct extra_operations_gcc_arm< Base, 1u, Signed > :
     static BOOST_FORCEINLINE storage_type bitwise_and(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         core_arch_operations_gcc_arm_base::fence_before(order);
-        uint32_t tmp;
+        std::uint32_t tmp;
         extended_storage_type original, result;
         __asm__ __volatile__
         (
@@ -234,7 +234,7 @@ struct extra_operations_gcc_arm< Base, 1u, Signed > :
     static BOOST_FORCEINLINE storage_type bitwise_or(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         core_arch_operations_gcc_arm_base::fence_before(order);
-        uint32_t tmp;
+        std::uint32_t tmp;
         extended_storage_type original, result;
         __asm__ __volatile__
         (
@@ -260,7 +260,7 @@ struct extra_operations_gcc_arm< Base, 1u, Signed > :
     static BOOST_FORCEINLINE storage_type bitwise_xor(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         core_arch_operations_gcc_arm_base::fence_before(order);
-        uint32_t tmp;
+        std::uint32_t tmp;
         extended_storage_type original, result;
         __asm__ __volatile__
         (
@@ -286,7 +286,7 @@ struct extra_operations_gcc_arm< Base, 1u, Signed > :
     static BOOST_FORCEINLINE storage_type fetch_complement(storage_type volatile& storage, memory_order order) noexcept
     {
         core_arch_operations_gcc_arm_base::fence_before(order);
-        uint32_t tmp;
+        std::uint32_t tmp;
         extended_storage_type original, result;
         __asm__ __volatile__
         (
@@ -312,7 +312,7 @@ struct extra_operations_gcc_arm< Base, 1u, Signed > :
     static BOOST_FORCEINLINE storage_type bitwise_complement(storage_type volatile& storage, memory_order order) noexcept
     {
         core_arch_operations_gcc_arm_base::fence_before(order);
-        uint32_t tmp;
+        std::uint32_t tmp;
         extended_storage_type original, result;
         __asm__ __volatile__
         (
@@ -357,7 +357,7 @@ struct extra_operations_gcc_arm< Base, 2u, Signed > :
     static BOOST_FORCEINLINE storage_type fetch_negate(storage_type volatile& storage, memory_order order) noexcept
     {
         core_arch_operations_gcc_arm_base::fence_before(order);
-        uint32_t tmp;
+        std::uint32_t tmp;
         extended_storage_type original, result;
         __asm__ __volatile__
         (
@@ -383,7 +383,7 @@ struct extra_operations_gcc_arm< Base, 2u, Signed > :
     static BOOST_FORCEINLINE storage_type negate(storage_type volatile& storage, memory_order order) noexcept
     {
         core_arch_operations_gcc_arm_base::fence_before(order);
-        uint32_t tmp;
+        std::uint32_t tmp;
         extended_storage_type original, result;
         __asm__ __volatile__
         (
@@ -409,7 +409,7 @@ struct extra_operations_gcc_arm< Base, 2u, Signed > :
     static BOOST_FORCEINLINE storage_type add(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         core_arch_operations_gcc_arm_base::fence_before(order);
-        uint32_t tmp;
+        std::uint32_t tmp;
         extended_storage_type original, result;
         __asm__ __volatile__
         (
@@ -435,7 +435,7 @@ struct extra_operations_gcc_arm< Base, 2u, Signed > :
     static BOOST_FORCEINLINE storage_type sub(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         core_arch_operations_gcc_arm_base::fence_before(order);
-        uint32_t tmp;
+        std::uint32_t tmp;
         extended_storage_type original, result;
         __asm__ __volatile__
         (
@@ -461,7 +461,7 @@ struct extra_operations_gcc_arm< Base, 2u, Signed > :
     static BOOST_FORCEINLINE storage_type bitwise_and(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         core_arch_operations_gcc_arm_base::fence_before(order);
-        uint32_t tmp;
+        std::uint32_t tmp;
         extended_storage_type original, result;
         __asm__ __volatile__
         (
@@ -487,7 +487,7 @@ struct extra_operations_gcc_arm< Base, 2u, Signed > :
     static BOOST_FORCEINLINE storage_type bitwise_or(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         core_arch_operations_gcc_arm_base::fence_before(order);
-        uint32_t tmp;
+        std::uint32_t tmp;
         extended_storage_type original, result;
         __asm__ __volatile__
         (
@@ -513,7 +513,7 @@ struct extra_operations_gcc_arm< Base, 2u, Signed > :
     static BOOST_FORCEINLINE storage_type bitwise_xor(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         core_arch_operations_gcc_arm_base::fence_before(order);
-        uint32_t tmp;
+        std::uint32_t tmp;
         extended_storage_type original, result;
         __asm__ __volatile__
         (
@@ -539,7 +539,7 @@ struct extra_operations_gcc_arm< Base, 2u, Signed > :
     static BOOST_FORCEINLINE storage_type fetch_complement(storage_type volatile& storage, memory_order order) noexcept
     {
         core_arch_operations_gcc_arm_base::fence_before(order);
-        uint32_t tmp;
+        std::uint32_t tmp;
         extended_storage_type original, result;
         __asm__ __volatile__
         (
@@ -565,7 +565,7 @@ struct extra_operations_gcc_arm< Base, 2u, Signed > :
     static BOOST_FORCEINLINE storage_type bitwise_complement(storage_type volatile& storage, memory_order order) noexcept
     {
         core_arch_operations_gcc_arm_base::fence_before(order);
-        uint32_t tmp;
+        std::uint32_t tmp;
         extended_storage_type original, result;
         __asm__ __volatile__
         (
@@ -607,7 +607,7 @@ struct extra_operations_gcc_arm< Base, 4u, Signed > :
     static BOOST_FORCEINLINE storage_type fetch_negate(storage_type volatile& storage, memory_order order) noexcept
     {
         core_arch_operations_gcc_arm_base::fence_before(order);
-        uint32_t tmp;
+        std::uint32_t tmp;
         storage_type original, result;
         __asm__ __volatile__
         (
@@ -633,7 +633,7 @@ struct extra_operations_gcc_arm< Base, 4u, Signed > :
     static BOOST_FORCEINLINE storage_type negate(storage_type volatile& storage, memory_order order) noexcept
     {
         core_arch_operations_gcc_arm_base::fence_before(order);
-        uint32_t tmp;
+        std::uint32_t tmp;
         storage_type original, result;
         __asm__ __volatile__
         (
@@ -659,7 +659,7 @@ struct extra_operations_gcc_arm< Base, 4u, Signed > :
     static BOOST_FORCEINLINE storage_type add(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         core_arch_operations_gcc_arm_base::fence_before(order);
-        uint32_t tmp;
+        std::uint32_t tmp;
         storage_type original, result;
         __asm__ __volatile__
         (
@@ -685,7 +685,7 @@ struct extra_operations_gcc_arm< Base, 4u, Signed > :
     static BOOST_FORCEINLINE storage_type sub(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         core_arch_operations_gcc_arm_base::fence_before(order);
-        uint32_t tmp;
+        std::uint32_t tmp;
         storage_type original, result;
         __asm__ __volatile__
         (
@@ -711,7 +711,7 @@ struct extra_operations_gcc_arm< Base, 4u, Signed > :
     static BOOST_FORCEINLINE storage_type bitwise_and(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         core_arch_operations_gcc_arm_base::fence_before(order);
-        uint32_t tmp;
+        std::uint32_t tmp;
         storage_type original, result;
         __asm__ __volatile__
         (
@@ -737,7 +737,7 @@ struct extra_operations_gcc_arm< Base, 4u, Signed > :
     static BOOST_FORCEINLINE storage_type bitwise_or(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         core_arch_operations_gcc_arm_base::fence_before(order);
-        uint32_t tmp;
+        std::uint32_t tmp;
         storage_type original, result;
         __asm__ __volatile__
         (
@@ -763,7 +763,7 @@ struct extra_operations_gcc_arm< Base, 4u, Signed > :
     static BOOST_FORCEINLINE storage_type bitwise_xor(storage_type volatile& storage, storage_type v, memory_order order) noexcept
     {
         core_arch_operations_gcc_arm_base::fence_before(order);
-        uint32_t tmp;
+        std::uint32_t tmp;
         storage_type original, result;
         __asm__ __volatile__
         (
@@ -789,7 +789,7 @@ struct extra_operations_gcc_arm< Base, 4u, Signed > :
     static BOOST_FORCEINLINE storage_type fetch_complement(storage_type volatile& storage, memory_order order) noexcept
     {
         core_arch_operations_gcc_arm_base::fence_before(order);
-        uint32_t tmp;
+        std::uint32_t tmp;
         storage_type original, result;
         __asm__ __volatile__
         (
@@ -815,7 +815,7 @@ struct extra_operations_gcc_arm< Base, 4u, Signed > :
     static BOOST_FORCEINLINE storage_type bitwise_complement(storage_type volatile& storage, memory_order order) noexcept
     {
         core_arch_operations_gcc_arm_base::fence_before(order);
-        uint32_t tmp;
+        std::uint32_t tmp;
         storage_type original, result;
         __asm__ __volatile__
         (
@@ -858,7 +858,7 @@ struct extra_operations_gcc_arm< Base, 8u, Signed > :
     {
         core_arch_operations_gcc_arm_base::fence_before(order);
         storage_type original, result;
-        uint32_t tmp;
+        std::uint32_t tmp;
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%0)
@@ -887,7 +887,7 @@ struct extra_operations_gcc_arm< Base, 8u, Signed > :
     {
         core_arch_operations_gcc_arm_base::fence_before(order);
         storage_type original, result;
-        uint32_t tmp;
+        std::uint32_t tmp;
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%0)
@@ -916,7 +916,7 @@ struct extra_operations_gcc_arm< Base, 8u, Signed > :
     {
         core_arch_operations_gcc_arm_base::fence_before(order);
         storage_type original, result;
-        uint32_t tmp;
+        std::uint32_t tmp;
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%0)
@@ -943,7 +943,7 @@ struct extra_operations_gcc_arm< Base, 8u, Signed > :
     {
         core_arch_operations_gcc_arm_base::fence_before(order);
         storage_type original, result;
-        uint32_t tmp;
+        std::uint32_t tmp;
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%0)
@@ -970,7 +970,7 @@ struct extra_operations_gcc_arm< Base, 8u, Signed > :
     {
         core_arch_operations_gcc_arm_base::fence_before(order);
         storage_type original, result;
-        uint32_t tmp;
+        std::uint32_t tmp;
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%0)
@@ -997,7 +997,7 @@ struct extra_operations_gcc_arm< Base, 8u, Signed > :
     {
         core_arch_operations_gcc_arm_base::fence_before(order);
         storage_type original, result;
-        uint32_t tmp;
+        std::uint32_t tmp;
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%0)
@@ -1024,7 +1024,7 @@ struct extra_operations_gcc_arm< Base, 8u, Signed > :
     {
         core_arch_operations_gcc_arm_base::fence_before(order);
         storage_type original, result;
-        uint32_t tmp;
+        std::uint32_t tmp;
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%0)
@@ -1051,7 +1051,7 @@ struct extra_operations_gcc_arm< Base, 8u, Signed > :
     {
         core_arch_operations_gcc_arm_base::fence_before(order);
         storage_type original, result;
-        uint32_t tmp;
+        std::uint32_t tmp;
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%0)
@@ -1078,7 +1078,7 @@ struct extra_operations_gcc_arm< Base, 8u, Signed > :
     {
         core_arch_operations_gcc_arm_base::fence_before(order);
         storage_type original, result;
-        uint32_t tmp;
+        std::uint32_t tmp;
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%0)

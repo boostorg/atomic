@@ -14,7 +14,6 @@
 #ifndef BOOST_ATOMIC_DETAIL_FENCE_ARCH_OPS_GCC_AARCH32_HPP_INCLUDED_
 #define BOOST_ATOMIC_DETAIL_FENCE_ARCH_OPS_GCC_AARCH32_HPP_INCLUDED_
 
-#include <boost/cstdint.hpp>
 #include <boost/memory_order.hpp>
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/capabilities.hpp>

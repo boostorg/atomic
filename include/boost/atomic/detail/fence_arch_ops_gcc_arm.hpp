@@ -14,7 +14,7 @@
 #ifndef BOOST_ATOMIC_DETAIL_FENCE_ARCH_OPS_GCC_ARM_HPP_INCLUDED_
 #define BOOST_ATOMIC_DETAIL_FENCE_ARCH_OPS_GCC_ARM_HPP_INCLUDED_
 
-#include <boost/cstdint.hpp>
+#include <cstdint>
 #include <boost/memory_order.hpp>
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/capabilities.hpp>
@@ -51,8 +51,8 @@ struct fence_arch_operations_gcc_arm
 
 #if defined(BOOST_ATOMIC_DETAIL_ARM_HAS_DMB)
         // Older binutils (supposedly, older than 2.21.1) didn't support symbolic or numeric arguments of the "dmb" instruction such as "ish" or "#11".
-        // As a workaround we have to inject encoded bytes of the instruction. There are two encodings for the instruction: ARM and Thumb. See ARM Architecture Reference Manual, A8.8.43.
-        // Since we cannot detect binutils version at compile time, we'll have to always use this hack.
+        // As a workaround we have to inject encoded bytes of the instruction. There are two encodings for the instruction: ARM and Thumb. See
+        // ARM Architecture Reference Manual, A8.8.43. Since we cannot detect binutils version at compile time, we'll have to always use this hack.
         __asm__ __volatile__
         (
 #if defined(__thumb2__)
@@ -65,7 +65,7 @@ struct fence_arch_operations_gcc_arm
             : "memory"
         );
 #else
-        uint32_t tmp;
+        std::uint32_t tmp;
         __asm__ __volatile__
         (
             BOOST_ATOMIC_DETAIL_ARM_ASM_START(%0)

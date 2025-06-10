@@ -14,7 +14,7 @@
 #ifndef BOOST_ATOMIC_DETAIL_FENCE_OPS_WINDOWS_HPP_INCLUDED_
 #define BOOST_ATOMIC_DETAIL_FENCE_OPS_WINDOWS_HPP_INCLUDED_
 
-#include <boost/cstdint.hpp>
+#include <cstdint>
 #include <boost/memory_order.hpp>
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/interlocked.hpp>
@@ -51,7 +51,7 @@ struct fence_operations_windows
 
     static BOOST_FORCEINLINE void hardware_full_fence() noexcept
     {
-        boost::uint32_t tmp;
+        std::uint32_t tmp;
         BOOST_ATOMIC_INTERLOCKED_INCREMENT(&tmp);
     }
 };

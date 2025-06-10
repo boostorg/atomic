@@ -16,9 +16,9 @@
 #define BOOST_ATOMIC_DETAIL_WAIT_OPS_DRAGONFLY_UMTX_HPP_INCLUDED_
 
 #include <unistd.h>
+#include <cstdint>
 #include <limits>
 #include <chrono>
-#include <boost/cstdint.hpp>
 #include <boost/memory_order.hpp>
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/chrono.hpp>
@@ -75,7 +75,7 @@ private:
         storage_type new_val = base_type::load(storage, order);
         while (new_val == old_val)
         {
-            const int64_t usec = atomics::detail::chrono::ceil< std::chrono::microseconds >(timeout - now).count();
+            const std::int64_t usec = atomics::detail::chrono::ceil< std::chrono::microseconds >(timeout - now).count();
             if (usec <= 0)
             {
                 timed_out = true;

@@ -149,10 +149,10 @@ std::size_t find_address_dispatch(const volatile void* addr, const volatile void
 
 #if defined(BOOST_ATOMIC_USE_SSE2)
     // First, check the max available cpuid function
-    uint32_t eax = 0u, ebx = 0u, ecx = 0u, edx = 0u;
+    std::uint32_t eax = 0u, ebx = 0u, ecx = 0u, edx = 0u;
     atomics::detail::cpuid(eax, ebx, ecx, edx);
 
-    const uint32_t max_cpuid_function = eax;
+    const std::uint32_t max_cpuid_function = eax;
     if (max_cpuid_function >= 1u)
     {
         // Obtain CPU features

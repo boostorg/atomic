@@ -1,4 +1,4 @@
-//  Copyright (c) 2020 Andrey Semashev
+//  Copyright (c) 2020-2025 Andrey Semashev
 //
 //  Distributed under the Boost Software License, Version 1.0.
 //  See accompanying file LICENSE_1_0.txt or copy at
@@ -8,8 +8,8 @@
 #define BOOST_ATOMIC_TESTS_ALIGNED_OBJECT_HPP_INCLUDED_
 
 #include <cstddef>
+#include <cstdint>
 #include <new>
-#include <boost/cstdint.hpp>
 
 //! A wrapper that creates an object that has at least the specified alignment
 template< typename T, std::size_t Alignment >
@@ -46,8 +46,8 @@ public:
 private:
     unsigned char* get_aligned_storage()
     {
-#if defined(BOOST_HAS_INTPTR_T)
-        using uintptr_type = boost::uintptr_t;
+#if defined(UINTPTR_MAX)
+        using uintptr_type = std::uintptr_t;
 #else
         using uintptr_type = std::size_t;
 #endif

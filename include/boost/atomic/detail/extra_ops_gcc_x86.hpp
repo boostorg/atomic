@@ -15,7 +15,7 @@
 #define BOOST_ATOMIC_DETAIL_EXTRA_OPS_GCC_X86_HPP_INCLUDED_
 
 #include <cstddef>
-#include <boost/cstdint.hpp>
+#include <cstdint>
 #include <boost/memory_order.hpp>
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/storage_traits.hpp>
@@ -879,7 +879,7 @@ struct extra_operations< Base, 2u, Signed, true > :
         (
             "lock; btsw %[bit_number], %[storage]\n\t"
             : [storage] "+m" (storage), [result] "=@ccc" (res)
-            : [bit_number] "Kq" ((uint16_t)bit_number)
+            : [bit_number] "Kq" ((std::uint16_t)bit_number)
             : "memory"
         );
 #else
@@ -888,7 +888,7 @@ struct extra_operations< Base, 2u, Signed, true > :
             "lock; btsw %[bit_number], %[storage]\n\t"
             "setc %[result]\n\t"
             : [storage] "+m" (storage), [result] "=q" (res)
-            : [bit_number] "Kq" ((uint16_t)bit_number)
+            : [bit_number] "Kq" ((std::uint16_t)bit_number)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
 #endif
@@ -905,7 +905,7 @@ struct extra_operations< Base, 2u, Signed, true > :
         (
             "lock; btrw %[bit_number], %[storage]\n\t"
             : [storage] "+m" (storage), [result] "=@ccc" (res)
-            : [bit_number] "Kq" ((uint16_t)bit_number)
+            : [bit_number] "Kq" ((std::uint16_t)bit_number)
             : "memory"
         );
 #else
@@ -914,7 +914,7 @@ struct extra_operations< Base, 2u, Signed, true > :
             "lock; btrw %[bit_number], %[storage]\n\t"
             "setc %[result]\n\t"
             : [storage] "+m" (storage), [result] "=q" (res)
-            : [bit_number] "Kq" ((uint16_t)bit_number)
+            : [bit_number] "Kq" ((std::uint16_t)bit_number)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
 #endif
@@ -931,7 +931,7 @@ struct extra_operations< Base, 2u, Signed, true > :
         (
             "lock; btcw %[bit_number], %[storage]\n\t"
             : [storage] "+m" (storage), [result] "=@ccc" (res)
-            : [bit_number] "Kq" ((uint16_t)bit_number)
+            : [bit_number] "Kq" ((std::uint16_t)bit_number)
             : "memory"
         );
 #else
@@ -940,7 +940,7 @@ struct extra_operations< Base, 2u, Signed, true > :
             "lock; btcw %[bit_number], %[storage]\n\t"
             "setc %[result]\n\t"
             : [storage] "+m" (storage), [result] "=q" (res)
-            : [bit_number] "Kq" ((uint16_t)bit_number)
+            : [bit_number] "Kq" ((std::uint16_t)bit_number)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
 #endif
@@ -1376,7 +1376,7 @@ struct extra_operations< Base, 4u, Signed, true > :
         (
             "lock; btsl %[bit_number], %[storage]\n\t"
             : [storage] "+m" (storage), [result] "=@ccc" (res)
-            : [bit_number] "Kr" ((uint32_t)bit_number)
+            : [bit_number] "Kr" ((std::uint32_t)bit_number)
             : "memory"
         );
 #else
@@ -1385,7 +1385,7 @@ struct extra_operations< Base, 4u, Signed, true > :
             "lock; btsl %[bit_number], %[storage]\n\t"
             "setc %[result]\n\t"
             : [storage] "+m" (storage), [result] "=q" (res)
-            : [bit_number] "Kr" ((uint32_t)bit_number)
+            : [bit_number] "Kr" ((std::uint32_t)bit_number)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
 #endif
@@ -1402,7 +1402,7 @@ struct extra_operations< Base, 4u, Signed, true > :
         (
             "lock; btrl %[bit_number], %[storage]\n\t"
             : [storage] "+m" (storage), [result] "=@ccc" (res)
-            : [bit_number] "Kr" ((uint32_t)bit_number)
+            : [bit_number] "Kr" ((std::uint32_t)bit_number)
             : "memory"
         );
 #else
@@ -1411,7 +1411,7 @@ struct extra_operations< Base, 4u, Signed, true > :
             "lock; btrl %[bit_number], %[storage]\n\t"
             "setc %[result]\n\t"
             : [storage] "+m" (storage), [result] "=q" (res)
-            : [bit_number] "Kr" ((uint32_t)bit_number)
+            : [bit_number] "Kr" ((std::uint32_t)bit_number)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
 #endif
@@ -1428,7 +1428,7 @@ struct extra_operations< Base, 4u, Signed, true > :
         (
             "lock; btcl %[bit_number], %[storage]\n\t"
             : [storage] "+m" (storage), [result] "=@ccc" (res)
-            : [bit_number] "Kr" ((uint32_t)bit_number)
+            : [bit_number] "Kr" ((std::uint32_t)bit_number)
             : "memory"
         );
 #else
@@ -1437,7 +1437,7 @@ struct extra_operations< Base, 4u, Signed, true > :
             "lock; btcl %[bit_number], %[storage]\n\t"
             "setc %[result]\n\t"
             : [storage] "+m" (storage), [result] "=q" (res)
-            : [bit_number] "Kr" ((uint32_t)bit_number)
+            : [bit_number] "Kr" ((std::uint32_t)bit_number)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
 #endif
@@ -1875,7 +1875,7 @@ struct extra_operations< Base, 8u, Signed, true > :
         (
             "lock; btsq %[bit_number], %[storage]\n\t"
             : [storage] "+m" (storage), [result] "=@ccc" (res)
-            : [bit_number] "Kr" ((uint64_t)bit_number)
+            : [bit_number] "Kr" ((std::uint64_t)bit_number)
             : "memory"
         );
 #else
@@ -1884,7 +1884,7 @@ struct extra_operations< Base, 8u, Signed, true > :
             "lock; btsq %[bit_number], %[storage]\n\t"
             "setc %[result]\n\t"
             : [storage] "+m" (storage), [result] "=q" (res)
-            : [bit_number] "Kr" ((uint64_t)bit_number)
+            : [bit_number] "Kr" ((std::uint64_t)bit_number)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
 #endif
@@ -1901,7 +1901,7 @@ struct extra_operations< Base, 8u, Signed, true > :
         (
             "lock; btrq %[bit_number], %[storage]\n\t"
             : [storage] "+m" (storage), [result] "=@ccc" (res)
-            : [bit_number] "Kr" ((uint64_t)bit_number)
+            : [bit_number] "Kr" ((std::uint64_t)bit_number)
             : "memory"
         );
 #else
@@ -1910,7 +1910,7 @@ struct extra_operations< Base, 8u, Signed, true > :
             "lock; btrq %[bit_number], %[storage]\n\t"
             "setc %[result]\n\t"
             : [storage] "+m" (storage), [result] "=q" (res)
-            : [bit_number] "Kr" ((uint64_t)bit_number)
+            : [bit_number] "Kr" ((std::uint64_t)bit_number)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
 #endif
@@ -1927,7 +1927,7 @@ struct extra_operations< Base, 8u, Signed, true > :
         (
             "lock; btcq %[bit_number], %[storage]\n\t"
             : [storage] "+m" (storage), [result] "=@ccc" (res)
-            : [bit_number] "Kr" ((uint64_t)bit_number)
+            : [bit_number] "Kr" ((std::uint64_t)bit_number)
             : "memory"
         );
 #else
@@ -1936,7 +1936,7 @@ struct extra_operations< Base, 8u, Signed, true > :
             "lock; btcq %[bit_number], %[storage]\n\t"
             "setc %[result]\n\t"
             : [storage] "+m" (storage), [result] "=q" (res)
-            : [bit_number] "Kr" ((uint64_t)bit_number)
+            : [bit_number] "Kr" ((std::uint64_t)bit_number)
             : BOOST_ATOMIC_DETAIL_ASM_CLOBBER_CC_COMMA "memory"
         );
 #endif

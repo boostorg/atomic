@@ -17,11 +17,11 @@
 
 #include <sys/umtx.h>
 #include <time.h>
+#include <cstdint>
 #include <cerrno>
 #include <limits>
 #include <chrono>
 #include <type_traits>
-#include <boost/cstdint.hpp>
 #include <boost/memory_order.hpp>
 #include <boost/atomic/posix_clock_traits_fwd.hpp>
 #include <boost/atomic/detail/config.hpp>
@@ -112,14 +112,14 @@ private:
         storage_type new_val = base_type::load(storage, order);
         while (new_val == old_val)
         {
-            const int64_t nsec = atomics::detail::chrono::ceil< std::chrono::nanoseconds >(timeout - now).count();
+            const std::int64_t nsec = atomics::detail::chrono::ceil< std::chrono::nanoseconds >(timeout - now).count();
             if (nsec <= 0)
             {
                 timed_out = true;
                 break;
             }
 
-            const int64_t sec = nsec / 1000000000;
+            const std::int64_t sec = nsec / 1000000000;
             if (BOOST_LIKELY(sec <= (std::numeric_limits< decltype(umt._timeout.tv_sec) >::max)()))
             {
                 umt._timeout.tv_sec = static_cast< decltype(umt._timeout.tv_sec) >(sec);
@@ -255,8 +255,8 @@ public:
             _umtx_time umt{};
             if (BOOST_LIKELY(clock_gettime(CLOCK_MONOTONIC, &umt._timeout) == 0))
             {
-                const int64_t nsec = static_cast< int64_t >(umt._timeout.tv_nsec) + atomics::detail::chrono::ceil< std::chrono::nanoseconds >(timeout).count();
-                const int64_t sec = static_cast< int64_t >(umt._timeout.tv_sec) + nsec / 1000000000;
+                const std::int64_t nsec = static_cast< std::int64_t >(umt._timeout.tv_nsec) + atomics::detail::chrono::ceil< std::chrono::nanoseconds >(timeout).count();
+                const std::int64_t sec = static_cast< std::int64_t >(umt._timeout.tv_sec) + nsec / 1000000000;
                 if (BOOST_LIKELY(sec <= (std::numeric_limits< decltype(timespec::tv_sec) >::max)()))
                 {
                     umt._timeout.tv_sec = static_cast< decltype(umt._timeout.tv_sec) >(sec);
@@ -290,14 +290,14 @@ private:
         storage_type new_val = base_type::load(storage, order);
         while (new_val == old_val)
         {
-            const int64_t nsec = atomics::detail::chrono::ceil< std::chrono::nanoseconds >(timeout - now).count();
+            const std::int64_t nsec = atomics::detail::chrono::ceil< std::chrono::nanoseconds >(timeout - now).count();
             if (nsec <= 0)
             {
                 timed_out = true;
                 break;
             }
 
-            const int64_t sec = nsec / 1000000000;
+            const std::int64_t sec = nsec / 1000000000;
             if (BOOST_LIKELY(sec <= (std::numeric_limits< decltype(ts.tv_sec) >::max)()))
             {
                 ts.tv_sec = static_cast< decltype(ts.tv_sec) >(sec);

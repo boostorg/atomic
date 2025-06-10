@@ -17,7 +17,7 @@
 #define BOOST_ATOMIC_DETAIL_STORAGE_TRAITS_HPP_INCLUDED_
 
 #include <cstddef>
-#include <boost/cstdint.hpp>
+#include <cstdint>
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/string_ops.hpp>
 #include <boost/atomic/detail/aligned_variable.hpp>
@@ -80,7 +80,7 @@ struct storage_traits
 template< >
 struct storage_traits< 1u >
 {
-    using type = boost::uint8_t BOOST_ATOMIC_DETAIL_MAY_ALIAS;
+    using type = std::uint8_t BOOST_ATOMIC_DETAIL_MAY_ALIAS;
 
     static constexpr std::size_t native_alignment = 1u;
     static constexpr std::size_t alignment = 1u;
@@ -89,27 +89,27 @@ struct storage_traits< 1u >
 template< >
 struct storage_traits< 2u >
 {
-    using type = boost::uint16_t BOOST_ATOMIC_DETAIL_MAY_ALIAS;
+    using type = std::uint16_t BOOST_ATOMIC_DETAIL_MAY_ALIAS;
 
-    static constexpr std::size_t native_alignment = atomics::detail::alignment_of< boost::uint16_t >::value;
+    static constexpr std::size_t native_alignment = atomics::detail::alignment_of< std::uint16_t >::value;
     static constexpr std::size_t alignment = 2u;
 };
 
 template< >
 struct storage_traits< 4u >
 {
-    using type = boost::uint32_t BOOST_ATOMIC_DETAIL_MAY_ALIAS;
+    using type = std::uint32_t BOOST_ATOMIC_DETAIL_MAY_ALIAS;
 
-    static constexpr std::size_t native_alignment = atomics::detail::alignment_of< boost::uint32_t >::value;
+    static constexpr std::size_t native_alignment = atomics::detail::alignment_of< std::uint32_t >::value;
     static constexpr std::size_t alignment = 4u;
 };
 
 template< >
 struct storage_traits< 8u >
 {
-    using type = boost::uint64_t BOOST_ATOMIC_DETAIL_MAY_ALIAS;
+    using type = std::uint64_t BOOST_ATOMIC_DETAIL_MAY_ALIAS;
 
-    static constexpr std::size_t native_alignment = atomics::detail::alignment_of< boost::uint64_t >::value;
+    static constexpr std::size_t native_alignment = atomics::detail::alignment_of< std::uint64_t >::value;
     static constexpr std::size_t alignment = 8u;
 };
 
