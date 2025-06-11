@@ -571,9 +571,6 @@ the `BOOST_ATOMIC_FLAG_INIT` macro, which is equivalent to `ATOMIC_FLAG_INIT`:
 
     boost::atomic_flag flag = BOOST_ATOMIC_FLAG_INIT; // constant initialization
 
-This macro will only be implemented on a C++11 compiler. When this macro is not available,
-the library defines `BOOST_ATOMIC_NO_ATOMIC_FLAG_INIT`.
-
 [endsect]
 
 [section:interface_atomic_object Atomic objects]
@@ -1525,13 +1522,6 @@ which can also be useful. Like the standard ones, the `*_LOCK_FREE` macros below
     [
       [`BOOST_ATOMIC_INT128_LOCK_FREE`]
       [Indicate whether `atomic<int128_type>` is lock-free.]
-    ]
-    [
-      [`BOOST_ATOMIC_NO_ATOMIC_FLAG_INIT`]
-      [Defined after including `atomic_flag.hpp`, if the implementation
-      does not support the `BOOST_ATOMIC_FLAG_INIT` macro for static
-      initialization of `atomic_flag`. This macro is typically defined
-      for pre-C++11 compilers.]
     ]
     [
       [`BOOST_ATOMIC_NO_CLEAR_PADDING`]

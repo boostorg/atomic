@@ -677,11 +677,7 @@ inline void test_wait_notify_api(T value1, T value2, T value3, int has_native_wa
 inline void test_flag_wait_notify_api()
 {
 #if BOOST_ATOMIC_FLAG_LOCK_FREE == 2
-#ifndef BOOST_ATOMIC_NO_ATOMIC_FLAG_INIT
     boost::ipc_atomic_flag f = BOOST_ATOMIC_FLAG_INIT;
-#else
-    boost::ipc_atomic_flag f;
-#endif
 
     bool received_value = f.wait(true);
     BOOST_TEST(!received_value);

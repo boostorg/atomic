@@ -637,11 +637,7 @@ void test_wait_notify_api(T value1, T value2, T value3, int has_native_wait_noti
 
 inline void test_flag_wait_notify_api()
 {
-#ifndef BOOST_ATOMIC_NO_ATOMIC_FLAG_INIT
     boost::atomic_flag f = BOOST_ATOMIC_FLAG_INIT;
-#else
-    boost::atomic_flag f;
-#endif
 
     bool received_value = f.wait(true);
     BOOST_TEST(!received_value);

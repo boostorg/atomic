@@ -71,11 +71,7 @@ struct is_atomic_ref< boost::ipc_atomic_ref< T > > :
 template< typename Flag >
 inline void test_flag_api(void)
 {
-#ifndef BOOST_ATOMIC_NO_ATOMIC_FLAG_INIT
     Flag f = BOOST_ATOMIC_FLAG_INIT;
-#else
-    Flag f;
-#endif
 
     BOOST_TEST( !f.test() );
     BOOST_TEST( !f.test_and_set() );
