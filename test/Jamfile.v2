@@ -32,6 +32,9 @@ project boost/atomic/test
       <include>.
       <threading>multi
       <library>/boost/atomic//boost_atomic
+      <library>/boost/config//boost_config
+      <library>/boost/core//boost_core
+      <library>/boost/type_traits//boost_type_traits
       <target-os>windows:<define>BOOST_USE_WINDOWS_H
       <toolset>gcc,<target-os>windows:<linkflags>"-lkernel32"
       $(cxx_requirements)
