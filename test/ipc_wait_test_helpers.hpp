@@ -7,7 +7,6 @@
 #ifndef BOOST_ATOMIC_TEST_IPC_WAIT_TEST_HELPERS_HPP_INCLUDED_
 #define BOOST_ATOMIC_TEST_IPC_WAIT_TEST_HELPERS_HPP_INCLUDED_
 
-#include <boost/memory_order.hpp>
 #include <boost/atomic/ipc_atomic_flag.hpp>
 #include <boost/atomic/wait_result.hpp>
 
@@ -117,12 +116,12 @@ public:
 
         std::this_thread::sleep_until(start_time + std::chrono::milliseconds(200));
 
-        m_wrapper.a.store(m_value2, boost::memory_order_release);
+        m_wrapper.a.store(m_value2);
         m_wrapper.a.notify_one();
 
         std::this_thread::sleep_until(start_time + std::chrono::milliseconds(500));
 
-        m_wrapper.a.store(m_value3, boost::memory_order_release);
+        m_wrapper.a.store(m_value3);
         m_wrapper.a.notify_one();
 
         if (!thread1.try_join_for(std::chrono::seconds(5)))
@@ -164,6 +163,14 @@ public:
                 return false;
             }
 
+            // Sometimes, even with the time check above, the second thread receives value2. This mostly happens in VMs.
+            if (second_state->m_received_value == m_value2)
+            {
+                std::cout << BOOST_CURRENT_FUNCTION << ": second thread received value2 after waiting for "
+                    << std::chrono::duration_cast< std::chrono::milliseconds >(second_state->m_wakeup_time - start_time).count() << " ms" << std::endl;
+                return false;
+            }
+
             BOOST_TEST_EQ(first_state->m_received_value, m_value2);
             BOOST_TEST_EQ(second_state->m_received_value, m_value3);
         }
@@ -200,7 +207,7 @@ inline void test_notify_one(T value1, T value2, T value3)
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 
-    BOOST_ERROR("notify_one_test could not complete because blocked thread wake up too soon");
+    BOOST_ERROR("notify_one_test could not complete because of the timing issues");
 }
 
 /*!
@@ -256,7 +263,7 @@ public:
 
         std::this_thread::sleep_until(start_time + std::chrono::milliseconds(200));
 
-        m_wrapper.a.store(m_value2, boost::memory_order_release);
+        m_wrapper.a.store(m_value2);
         m_wrapper.a.notify_all();
 
         if (!thread1.try_join_for(std::chrono::seconds(5)))
@@ -479,7 +486,7 @@ public:
 
         std::this_thread::sleep_until(start_time + std::chrono::milliseconds(200));
 
-        m_wrapper.a.store(m_value2, boost::memory_order_release);
+        m_wrapper.a.store(m_value2);
         m_wrapper.a.notify_all();
 
         if (!thread1.try_join_for(std::chrono::seconds(5)))
@@ -580,7 +587,7 @@ public:
 
         std::this_thread::sleep_until(start_time + std::chrono::milliseconds(200));
 
-        m_wrapper.a.store(m_value2, boost::memory_order_release);
+        m_wrapper.a.store(m_value2);
         m_wrapper.a.notify_all();
 
         if (!thread1.try_join_for(std::chrono::seconds(5)))
