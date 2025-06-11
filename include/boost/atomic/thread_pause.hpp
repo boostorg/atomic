@@ -24,7 +24,7 @@
 // (sigh, shake head) _M_ARM64EC and _M_AMD64 may be defined both
 // https://learn.microsoft.com/en-us/windows/arm/arm64ec-abi
 #if defined(_M_ARM64) || defined(_M_ARM64EC)
-extern "C" void __isb(void);
+extern "C" void __isb(unsigned int);
 #if defined(BOOST_MSVC)
 #pragma intrinsic(__isb)
 #endif
@@ -56,7 +56,7 @@ BOOST_FORCEINLINE void thread_pause() noexcept
 
     BOOST_ATOMIC_DETAIL_COMPILER_BARRIER();
 #if defined(_M_ARM64) || defined(_M_ARM64EC)
-    __isb();
+    __isb(0xF); // ISB SY
 #elif defined(_M_ARM)
     __yield();
 #elif defined(_M_AMD64) || defined(_M_IX86)
