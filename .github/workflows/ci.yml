@@ -127,6 +127,15 @@ jobs:
               - g++-14
               - g++-14-multilib
               - linux-libc-dev:i386
+          - toolset: gcc-15
+            cxxstd64: "11,14,17,20,23,26,11-gnu,14-gnu,17-gnu,20-gnu,23-gnu,26-gnu"
+            cxxstd32: "11,11-gnu"
+            os: ubuntu-latest
+            container: ubuntu:25.04
+            install:
+              - g++-15
+              - g++-15-multilib
+              - linux-libc-dev:i386
           - name: UBSAN
             toolset: gcc-13
             cxxstd64: "11,14,17,20,23,11-gnu,14-gnu,17-gnu,20-gnu,23-gnu"
@@ -366,24 +375,27 @@ jobs:
               - g++-13
               - g++-13-multilib
               - linux-libc-dev:i386
-            sources:
-              - "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-19 main"
-            source_keys:
-              - "https://apt.llvm.org/llvm-snapshot.gpg.key"
           - toolset: clang
-            compiler: clang++-19
+            compiler: clang++-20
+            cxxstd64: "11,14,17,20,23,26,11-gnu,14-gnu,17-gnu,20-gnu,23-gnu,26-gnu"
+            cxxstd32: "11,11-gnu"
+            os: ubuntu-latest
+            container: ubuntu:25.04
+            install:
+              - clang-20
+              - g++-13
+              - g++-13-multilib
+              - linux-libc-dev:i386
+          - toolset: clang
+            compiler: clang++-20
             cxxstd64: "11,14,17,20,23,26"
             cxxflags: -stdlib=libc++
             linkflags: -stdlib=libc++
-            os: ubuntu-24.04
+            os: ubuntu-25.04
             install:
-              - clang-19
-              - libc++-19-dev
-              - libc++abi-19-dev
-            sources:
-              - "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-19 main"
-            source_keys:
-              - "https://apt.llvm.org/llvm-snapshot.gpg.key"
+              - clang-20
+              - libc++-20-dev
+              - libc++abi-20-dev
           - name: UBSAN
             toolset: clang
             compiler: clang++-18
