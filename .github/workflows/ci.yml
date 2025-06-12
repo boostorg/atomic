@@ -391,7 +391,8 @@ jobs:
             cxxstd64: "11,14,17,20,23,26"
             cxxflags: -stdlib=libc++
             linkflags: -stdlib=libc++
-            os: ubuntu-25.04
+            os: ubuntu-latest
+            container: ubuntu:25.04
             install:
               - clang-20
               - libc++-20-dev
