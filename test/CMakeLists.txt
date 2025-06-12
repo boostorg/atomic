@@ -17,6 +17,7 @@ set(BOOST_TEST_LINK_LIBRARIES
     Boost::atomic
     Boost::config
     Boost::core
+    Boost::detail
     Boost::type_traits
 )
 

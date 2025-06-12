@@ -20,6 +20,7 @@
 #include <type_traits>
 #include <boost/config.hpp>
 #include <boost/type.hpp>
+#include <boost/detail/bitmask.hpp>
 #include <boost/type_traits/alignment_of.hpp>
 #include <boost/type_traits/is_signed.hpp>
 #include <boost/type_traits/is_unsigned.hpp>
@@ -1176,7 +1177,7 @@ void do_test_integral_api(std::false_type)
 // cast truncates constant value
 #pragma warning(disable: 4310)
 #endif
-    test_bit_operators< Wrapper, T >((T)0x5f5f5f5f5f5f5f5fULL, (T)0xf5f5f5f5f5f5f5f5ULL);
+    test_bit_operators< Wrapper, T >((T)0x5f5f5f5f5f5f5f5full, (T)0xf5f5f5f5f5f5f5f5ull);
 #if defined(BOOST_MSVC)
 #pragma warning(pop)
 #endif
@@ -1391,11 +1392,6 @@ void test_pointer_api(void)
 #endif
 }
 
-enum test_enum
-{
-    foo, bar, baz
-};
-
 template< template< typename > class Wrapper, typename T >
 inline void test_lock_free_pointer_api(std::true_type)
 {
@@ -1414,10 +1410,49 @@ inline void test_lock_free_pointer_api(void)
 }
 
 
+enum test_enum
+{
+    foo, bar, baz
+};
+
+enum test_enum_bitmask : unsigned int
+{
+    test_enum_bitmask_1 = 1u, test_enum_bitmask_2 = 2u, test_enum_bitmask_4 = 4u
+};
+
+BOOST_BITMASK(test_enum_bitmask)
+
+enum class test_enum_class_bitmask : unsigned int
+{
+    one = 1u, two = 2u, four = 4u
+};
+
+BOOST_BITMASK(test_enum_class_bitmask)
+
+template< typename Char, typename Traits >
+inline std::basic_ostream< Char, Traits >& operator<< (std::basic_ostream< Char, Traits >& strm, test_enum_class_bitmask val)
+{
+    strm << static_cast< unsigned int >(val);
+    return strm;
+}
+
 template< template< typename > class Wrapper >
 void test_enum_api(void)
 {
     test_base_operators< Wrapper >(foo, bar, baz);
+    test_base_operators< Wrapper >(test_enum_bitmask_1, test_enum_bitmask_2, test_enum_bitmask_4);
+    test_base_operators< Wrapper >(test_enum_class_bitmask::one, test_enum_class_bitmask::two, test_enum_class_bitmask::four);
+
+#if defined(BOOST_MSVC)
+#pragma warning(push)
+// cast truncates constant value
+#pragma warning(disable: 4310)
+#endif
+    test_bit_operators< Wrapper, test_enum_bitmask >((test_enum_bitmask)0x5f5f5f5fu, (test_enum_bitmask)0xf5f5f5f5u);
+    test_bit_operators< Wrapper, test_enum_class_bitmask >((test_enum_class_bitmask)0x5f5f5f5fu, (test_enum_class_bitmask)0xf5f5f5f5u);
+#if defined(BOOST_MSVC)
+#pragma warning(pop)
+#endif
 }
 
 template< template< typename > class Wrapper >

@@ -312,6 +312,7 @@ public:
 protected:
     using core_operations = typename base_type::core_operations;
     using wait_operations = typename base_type::wait_operations;
+    using extra_operations = atomics::detail::extra_operations< core_operations >;
     using storage_type = typename base_type::storage_type;
     using value_arg_type = typename base_type::value_arg_type;
 
@@ -379,6 +380,119 @@ public:
     BOOST_FORCEINLINE bool compare_exchange_weak(value_type& expected, value_arg_type desired, memory_order order = memory_order_seq_cst) const noexcept
     {
         return compare_exchange_weak(expected, desired, order, atomics::detail::deduce_failure_order(order));
+    }
+
+    BOOST_FORCEINLINE value_type fetch_and(value_arg_type v, memory_order order = memory_order_seq_cst) const noexcept
+    {
+        return atomics::detail::bitwise_cast< value_type >(core_operations::fetch_and(this->storage(), static_cast< storage_type >(v), order));
+    }
+
+    BOOST_FORCEINLINE value_type fetch_or(value_arg_type v, memory_order order = memory_order_seq_cst) const noexcept
+    {
+        return atomics::detail::bitwise_cast< value_type >(core_operations::fetch_or(this->storage(), static_cast< storage_type >(v), order));
+    }
+
+    BOOST_FORCEINLINE value_type fetch_xor(value_arg_type v, memory_order order = memory_order_seq_cst) const noexcept
+    {
+        return atomics::detail::bitwise_cast< value_type >(core_operations::fetch_xor(this->storage(), static_cast< storage_type >(v), order));
+    }
+
+    BOOST_FORCEINLINE value_type fetch_complement(memory_order order = memory_order_seq_cst) const noexcept
+    {
+        return atomics::detail::bitwise_cast< value_type >(extra_operations::fetch_complement(this->storage(), order));
+    }
+
+    BOOST_FORCEINLINE value_type bitwise_and(value_arg_type v, memory_order order = memory_order_seq_cst) const noexcept
+    {
+        return atomics::detail::bitwise_cast< value_type >(extra_operations::bitwise_and(this->storage(), static_cast< storage_type >(v), order));
+    }
+
+    BOOST_FORCEINLINE value_type bitwise_or(value_arg_type v, memory_order order = memory_order_seq_cst) const noexcept
+    {
+        return atomics::detail::bitwise_cast< value_type >(extra_operations::bitwise_or(this->storage(), static_cast< storage_type >(v), order));
+    }
+
+    BOOST_FORCEINLINE value_type bitwise_xor(value_arg_type v, memory_order order = memory_order_seq_cst) const noexcept
+    {
+        return atomics::detail::bitwise_cast< value_type >(extra_operations::bitwise_xor(this->storage(), static_cast< storage_type >(v), order));
+    }
+
+    BOOST_FORCEINLINE value_type bitwise_complement(memory_order order = memory_order_seq_cst) const noexcept
+    {
+        return atomics::detail::bitwise_cast< value_type >(extra_operations::bitwise_complement(this->storage(), order));
+    }
+
+    BOOST_FORCEINLINE void opaque_and(value_arg_type v, memory_order order = memory_order_seq_cst) const noexcept
+    {
+        extra_operations::opaque_and(this->storage(), static_cast< storage_type >(v), order);
+    }
+
+    BOOST_FORCEINLINE void opaque_or(value_arg_type v, memory_order order = memory_order_seq_cst) const noexcept
+    {
+        extra_operations::opaque_or(this->storage(), static_cast< storage_type >(v), order);
+    }
+
+    BOOST_FORCEINLINE void opaque_xor(value_arg_type v, memory_order order = memory_order_seq_cst) const noexcept
+    {
+        extra_operations::opaque_xor(this->storage(), static_cast< storage_type >(v), order);
+    }
+
+    BOOST_FORCEINLINE void opaque_complement(memory_order order = memory_order_seq_cst) const noexcept
+    {
+        extra_operations::opaque_complement(this->storage(), order);
+    }
+
+    BOOST_FORCEINLINE bool and_and_test(value_arg_type v, memory_order order = memory_order_seq_cst) const noexcept
+    {
+        return extra_operations::and_and_test(this->storage(), static_cast< storage_type >(v), order);
+    }
+
+    BOOST_FORCEINLINE bool or_and_test(value_arg_type v, memory_order order = memory_order_seq_cst) const noexcept
+    {
+        return extra_operations::or_and_test(this->storage(), static_cast< storage_type >(v), order);
+    }
+
+    BOOST_FORCEINLINE bool xor_and_test(value_arg_type v, memory_order order = memory_order_seq_cst) const noexcept
+    {
+        return extra_operations::xor_and_test(this->storage(), static_cast< storage_type >(v), order);
+    }
+
+    BOOST_FORCEINLINE bool complement_and_test(memory_order order = memory_order_seq_cst) const noexcept
+    {
+        return extra_operations::complement_and_test(this->storage(), order);
+    }
+
+    BOOST_FORCEINLINE bool bit_test_and_set(unsigned int bit_number, memory_order order = memory_order_seq_cst) const noexcept
+    {
+        BOOST_ASSERT(bit_number < sizeof(value_type) * 8u);
+        return extra_operations::bit_test_and_set(this->storage(), bit_number, order);
+    }
+
+    BOOST_FORCEINLINE bool bit_test_and_reset(unsigned int bit_number, memory_order order = memory_order_seq_cst) const noexcept
+    {
+        BOOST_ASSERT(bit_number < sizeof(value_type) * 8u);
+        return extra_operations::bit_test_and_reset(this->storage(), bit_number, order);
+    }
+
+    BOOST_FORCEINLINE bool bit_test_and_complement(unsigned int bit_number, memory_order order = memory_order_seq_cst) const noexcept
+    {
+        BOOST_ASSERT(bit_number < sizeof(value_type) * 8u);
+        return extra_operations::bit_test_and_complement(this->storage(), bit_number, order);
+    }
+
+    BOOST_FORCEINLINE value_type operator&=(value_type v) const noexcept
+    {
+        return bitwise_and(v);
+    }
+
+    BOOST_FORCEINLINE value_type operator|=(value_type v) const noexcept
+    {
+        return bitwise_or(v);
+    }
+
+    BOOST_FORCEINLINE value_type operator^=(value_type v) const noexcept
+    {
+        return bitwise_xor(v);
     }
 
     BOOST_FORCEINLINE value_type wait(value_arg_type old_val, memory_order order = memory_order_seq_cst) const noexcept

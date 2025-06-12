@@ -16,6 +16,7 @@
 * Added support for timed waiting operations.
 * Exposed `thread_pause` operation, which can be used as a backoff measure in spin loops. Added support for PowerPC and improved support for AArch64 in `thread_pause`.
 * Removed `BOOST_ATOMIC_NO_ATOMIC_FLAG_INIT` macro definition. Since the library now requires C++11, `BOOST_ATOMIC_FLAG_INIT` is always supported.
+* Enabled bitwise operations for atomic enumerations. This can be useful when enumerations are used to implement bit masks.
 
 [heading Boost 1.87]
 

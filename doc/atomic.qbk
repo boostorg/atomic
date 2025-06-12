@@ -910,6 +910,159 @@ constraint which always defaults to `memory_order_seq_cst`.
 
 [endsect]
 
+[section:interface_atomic_enum [^boost::atomic<['enumeration]>] template class]
+
+In addition to the operations listed in the [link atomic.interface.interface_atomic_object.interface_atomic_generic common template], [^boost::atomic<['E]>] for
+enumeration types [^['E]], supports the following operations:
+
+[table
+    [[Syntax] [Description]]
+    [
+      [`E fetch_and(E v, memory_order order)`]
+      [Apply bit-wise "and" with `v` to variable, returning previous value]
+    ]
+    [
+      [`E fetch_or(E v, memory_order order)`]
+      [Apply bit-wise "or" with `v` to variable, returning previous value]
+    ]
+    [
+      [`E fetch_xor(E v, memory_order order)`]
+      [Apply bit-wise "xor" with `v` to variable, returning previous value]
+    ]
+    [
+      [`E fetch_complement(memory_order order)`]
+      [Set the variable to the one\'s complement of the current value, returning previous value]
+    ]
+    [
+      [`E bitwise_and(E v, memory_order order)`]
+      [Apply bit-wise "and" with `v` to variable, returning the result]
+    ]
+    [
+      [`E bitwise_or(E v, memory_order order)`]
+      [Apply bit-wise "or" with `v` to variable, returning the result]
+    ]
+    [
+      [`E bitwise_xor(E v, memory_order order)`]
+      [Apply bit-wise "xor" with `v` to variable, returning the result]
+    ]
+    [
+      [`E bitwise_complement(memory_order order)`]
+      [Set the variable to the one\'s complement of the current value, returning the result]
+    ]
+    [
+      [`void opaque_and(E v, memory_order order)`]
+      [Apply bit-wise "and" with `v` to variable, returning nothing]
+    ]
+    [
+      [`void opaque_or(E v, memory_order order)`]
+      [Apply bit-wise "or" with `v` to variable, returning nothing]
+    ]
+    [
+      [`void opaque_xor(E v, memory_order order)`]
+      [Apply bit-wise "xor" with `v` to variable, returning nothing]
+    ]
+    [
+      [`void opaque_complement(memory_order order)`]
+      [Set the variable to the one\'s complement of the current value, returning nothing]
+    ]
+    [
+      [`bool and_and_test(E v, memory_order order)`]
+      [Apply bit-wise "and" with `v` to variable, returning `true` if the result is non-zero and `false` otherwise]
+    ]
+    [
+      [`bool or_and_test(E v, memory_order order)`]
+      [Apply bit-wise "or" with `v` to variable, returning `true` if the result is non-zero and `false` otherwise]
+    ]
+    [
+      [`bool xor_and_test(E v, memory_order order)`]
+      [Apply bit-wise "xor" with `v` to variable, returning `true` if the result is non-zero and `false` otherwise]
+    ]
+    [
+      [`bool complement_and_test(memory_order order)`]
+      [Set the variable to the one\'s complement of the current value, returning `true` if the result is non-zero and `false` otherwise]
+    ]
+    [
+      [`bool bit_test_and_set(unsigned int n, memory_order order)`]
+      [Set bit number `n` in the variable to 1, returning `true` if the bit was previously set to 1 and `false` otherwise]
+    ]
+    [
+      [`bool bit_test_and_reset(unsigned int n, memory_order order)`]
+      [Set bit number `n` in the variable to 0, returning `true` if the bit was previously set to 1 and `false` otherwise]
+    ]
+    [
+      [`bool bit_test_and_complement(unsigned int n, memory_order order)`]
+      [Change bit number `n` in the variable to the opposite value, returning `true` if the bit was previously set to 1 and `false` otherwise]
+    ]
+]
+
+All operations listed above are [*Boost.Atomic] extensions. `order` always has `memory_order_seq_cst` as default parameter.
+
+[tip Bitwise operations can be useful if the enumeration is used to implement a bit mask or a set of flags.]
+
+The effect of the atomic operations is as if the input values of the enumeration type are converted to the underlying type of the enumeration, then the operation is
+performed on the values of the underlying type, then, where applicable, the result of the operation is converted back to the enumeration type.
+
+[warning Formally, some of these operations may produce values outside the range of valid values of the enumeration, as defined by the C++ standard. Specifically, for
+enumerations whose underlying type is not fixed (i.e. unscoped `enum`s without the base type specification), the C++ standard defines the range of values supported
+by the enum as the values that can fit in the minimum number of bits that are used by all named constants of the enumeration. For example, atomic complement operations
+may produce values outside this range. Although most compilers will likely handle such values as expected, users are recommended to avoid using enumerations with non-fixed
+underlying type with these operations or ensure that the operations don't produce values outside the valid range.]
+
+The above means no user-defined operators will be called to implement the atomic operations. This is similar to the `compare_exchange_weak`/`compare_exchange_strong`
+operations, which also do not invoke any user-defined `operator==` to compare the values. If user-defined operators are defined for the enumeration, their behavior may
+differ from the atomic operations. If the behavior of the user-defined operators is preferable, it can be achieved with a compare-exchange loop.
+
+```
+enum class flags : std::uint32_t
+{
+    none = 0u,
+    one = 1u,
+    two = 1u << 1u,
+    four = 1u << 2u,
+    all = (1u << 3u) - 1u
+};
+
+flags operator~ (flags value)
+{
+    // Only invert bits that are named in the enum
+    return static_cast<flags>(static_cast<std::uint32_t>(value) ^ static_cast<std::uint32_t>(flags::all));
+}
+
+atomic<flags> atomic_flags(flags::none);
+
+// bitwise_complement() operates on the value of the underlying type
+assert(atomic_flags.bitwise_complement() == (flags)0xFFFFFFFF);
+
+atomic_flags.store(flags::none);
+
+// Enforce behavior of the user-defined operator~
+{
+    flags old_val = atomic_flags.load(), new_val;
+    do
+    {
+        new_val = ~old_val;
+    }
+    while (!atomic_flags.compare_exchange_weak(old_val, new_val));
+
+    assert(new_val == flags::all);
+}
+
+atomic_flags.store(flags::none);
+
+// Achieve the behavior similar to the user-defined operator~ through other atomic operations
+assert(atomic_flags.bitwise_xor(flags::all) == flags::all);
+```
+
+The [^opaque_['op]] and [^['op]_and_test] variants of the operations may result in a more efficient code on some architectures because the original value of the atomic
+variable is not preserved. In the [^bit_test_and_['op]] operations, the bit number `n` starts from 0, which means the least significand bit, and must not exceed
+[^std::numeric_limits<std::underlying_type<['E]>::type>::digits - 1] for enumerations with fixed underlying type or the index of the most significant bit that contributes
+to the value for enumerations with non-fixed underlying type.
+
+In addition to these explicit operations, each [^boost::atomic<['E]>] object also supports the operators `&=`, `|=` and `^=`. Avoid using these operators, as they do not
+allow to specify a memory ordering constraint which always defaults to `memory_order_seq_cst`.
+
+[endsect]
+
 [section:interface_atomic_floating_point [^boost::atomic<['floating-point]>] template class]
 
 [note The support for floating point types is optional and can be disabled by defining `BOOST_ATOMIC_NO_FLOATING_POINT`.]
