@@ -102,7 +102,7 @@ rule check-pthread-cond-clockwait ( properties * )
 {
     local result ;
 
-    local has_pthread_cond_clockwait = [ configure.builds ../config//has_pthread_cond_clockwait : $(properties) : "pthread_cond_clockwait supported" ] ;
+    local has_pthread_cond_clockwait = [ configure.builds ../config//has_pthread_cond_clockwait : $(properties) : "has pthread_cond_clockwait" ] ;
     if $(has_pthread_cond_clockwait)
     {
         result = <define>BOOST_ATOMIC_HAS_PTHREAD_COND_CLOCKWAIT ;
