@@ -5,6 +5,7 @@
 #          http://www.boost.org/LICENSE_1_0.txt)
 #
 
+import-search /boost/atomic/build ;
 import atomic-arch-config ;
 
 obj has_sse2 : has_sse2.cpp : <conditional>@atomic-arch-config.sse2-flags ;

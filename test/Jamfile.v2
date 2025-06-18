@@ -25,10 +25,7 @@ local cxx_requirements = [ requires
       cxx11_hdr_condition_variable
       cxx11_hdr_thread
     ]
-    # Not checking for <type_traits> here because of the b2 bug: https://github.com/bfgroup/b2/issues/454
-    # This is fine for now, since Boost.Atomic lib already checks for a sufficient <type_traits>,
-    # and the tests themselves don't need anything beyond what is required by the library.
-    # [ check-target-builds ../config//has_sufficient_cxx11_type_traits "has sufficient <type_traits>" : : <build>no ]
+    [ check-target-builds ../config//has_sufficient_cxx11_type_traits "has sufficient <type_traits>" : : <build>no ]
     ;
 
 project boost/atomic/test
