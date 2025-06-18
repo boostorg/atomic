@@ -1,5 +1,5 @@
 #
-#             Copyright Andrey Semashev 2020.
+#           Copyright Andrey Semashev 2020-2025.
 # Distributed under the Boost Software License, Version 1.0.
 #    (See accompanying file LICENSE_1_0.txt or copy at
 #          http://www.boost.org/LICENSE_1_0.txt)
@@ -15,3 +15,9 @@ explicit has_sse41 ;
 
 obj has_pthread_cond_clockwait : has_pthread_cond_clockwait.cpp ;
 explicit has_pthread_cond_clockwait ;
+
+obj has_cxx11_nontrivial_union : has_cxx11_nontrivial_union.cpp ;
+explicit has_cxx11_nontrivial_union ;
+
+obj has_sufficient_cxx11_type_traits : has_sufficient_cxx11_type_traits.cpp : <library>/boost/config//boost_config ;
+explicit has_sufficient_cxx11_type_traits ;

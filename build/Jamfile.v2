@@ -21,8 +21,6 @@ searched-lib synchronization ;
 explicit synchronization ;
 
 local cxx_requirements = [ requires
-      cxx11_alignas
-      cxx11_alignof
       cxx11_constexpr
       cxx11_noexcept
       cxx11_nullptr
@@ -34,10 +32,11 @@ local cxx_requirements = [ requires
       cxx11_scoped_enums
       cxx11_defaulted_functions
       cxx11_deleted_functions
-      cxx11_unrestricted_union
       cxx11_hdr_chrono
-      cxx11_hdr_type_traits
-    ] ;
+    ]
+    [ check-target-builds ../config//has_cxx11_nontrivial_union "has unions with non-trivial members" : : <build>no ]
+    [ check-target-builds ../config//has_sufficient_cxx11_type_traits "has sufficient <type_traits>" : : <build>no ]
+    ;
 
 project
     : common-requirements

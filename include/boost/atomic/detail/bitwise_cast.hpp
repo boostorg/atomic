@@ -21,6 +21,7 @@
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/addressof.hpp>
 #include <boost/atomic/detail/string_ops.hpp>
+#include <boost/atomic/detail/type_traits/is_trivially_copyable.hpp>
 #include <boost/atomic/detail/type_traits/has_unique_object_representations.hpp>
 #include <boost/atomic/detail/header.hpp>
 
@@ -83,8 +84,8 @@ template< typename To, std::size_t FromValueSize, typename From >
 BOOST_FORCEINLINE To bitwise_cast_memcpy(From const& from) noexcept
 {
     using unqualified_to_t = typename std::remove_cv< To >::type;
-    static_assert(std::is_trivially_copyable< unqualified_to_t >::value, "bitwise_cast target type must be trivially copyable");
-    static_assert(std::is_trivially_copyable< From >::value, "bitwise_cast source type must be trivially copyable");
+    static_assert(atomics::detail::is_trivially_copyable< unqualified_to_t >::value, "bitwise_cast target type must be trivially copyable");
+    static_assert(atomics::detail::is_trivially_copyable< From >::value, "bitwise_cast source type must be trivially copyable");
 
     // Suppress default constructor of To as it may potentially be a non-trivial throwing constructor
     union cast_helper

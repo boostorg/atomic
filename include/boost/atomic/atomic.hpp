@@ -24,6 +24,7 @@
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/classify.hpp>
 #include <boost/atomic/detail/atomic_impl.hpp>
+#include <boost/atomic/detail/type_traits/is_trivially_copyable.hpp>
 #include <boost/atomic/detail/header.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
@@ -46,7 +47,7 @@ public:
     using value_type = typename base_type::value_type;
 
     static_assert(sizeof(value_type) > 0u, "boost::atomic<T> requires T to be a complete type");
-    static_assert(std::is_trivially_copyable< value_type >::value, "boost::atomic<T> requires T to be a trivially copyable type");
+    static_assert(atomics::detail::is_trivially_copyable< value_type >::value, "boost::atomic<T> requires T to be a trivially copyable type");
 
 public:
     atomic() = default;

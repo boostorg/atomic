@@ -35,6 +35,7 @@
 #include <boost/atomic/detail/aligned_variable.hpp>
 #include <boost/atomic/detail/type_traits/is_signed.hpp>
 #include <boost/atomic/detail/type_traits/alignment_of.hpp>
+#include <boost/atomic/detail/type_traits/is_trivially_default_constructible.hpp>
 #if !defined(BOOST_ATOMIC_NO_FLOATING_POINT)
 #include <boost/atomic/detail/bitwise_fp_cast.hpp>
 #include <boost/atomic/detail/fp_operations.hpp>
@@ -137,7 +138,7 @@ constexpr bool base_atomic_common< T, Signed, Interprocess >::always_has_native_
 #endif
 
 
-template< typename T, bool Interprocess, bool IsTriviallyDefaultConstructible = std::is_trivially_default_constructible< T >::value >
+template< typename T, bool Interprocess, bool IsTriviallyDefaultConstructible = atomics::detail::is_trivially_default_constructible< T >::value >
 class base_atomic_generic;
 
 template< typename T, bool Interprocess >
