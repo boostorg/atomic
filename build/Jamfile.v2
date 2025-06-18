@@ -17,7 +17,7 @@ import feature ;
 import configure ;
 import atomic-arch-config ;
 
-searched-lib synchronization ;
+lib synchronization ;
 explicit synchronization ;
 
 local cxx_requirements = [ requires
