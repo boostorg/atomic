@@ -20,7 +20,6 @@ local cxx_requirements = [ requires
       cxx11_static_assert
       cxx11_defaulted_functions
       cxx11_deleted_functions
-      cxx11_hdr_ratio
       cxx11_hdr_chrono
       cxx11_hdr_mutex
       cxx11_hdr_condition_variable

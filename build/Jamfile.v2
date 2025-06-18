@@ -32,6 +32,7 @@ local cxx_requirements = [ requires
       cxx11_scoped_enums
       cxx11_defaulted_functions
       cxx11_deleted_functions
+      cxx11_hdr_ratio
       cxx11_hdr_chrono
     ]
     [ check-target-builds ../config//has_cxx11_nontrivial_union "has unions with non-trivial members" : : <build>no ]
