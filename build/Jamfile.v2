@@ -36,7 +36,7 @@ local cxx_requirements = [ requires
       cxx11_hdr_chrono
     ]
     [ check-target-builds ../config//has_cxx11_nontrivial_union "has unions with non-trivial members" : : <build>no ]
-    [ check-target-builds ../config//has_sufficient_cxx11_type_traits "has sufficient <type_traits>" : : <build>no ]
+    [ check-target-builds ../config//has_sufficient_cxx11_type_traits "has <type_traits> sufficient for Boost.Atomic" : : <build>no ]
     ;
 
 project
