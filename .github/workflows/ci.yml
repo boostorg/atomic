@@ -454,7 +454,7 @@ jobs:
 
           - toolset: clang
             vm: freebsd
-            version: "15.0"
+            version: "14.3"
             cxxstd64: "11,14,17,20,23,26"
             os: ubuntu-latest
 
