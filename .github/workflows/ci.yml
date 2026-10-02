@@ -504,10 +504,6 @@ jobs:
             os: ubuntu-latest
 
           - toolset: clang
-            os: macos-14
-            cxxstd64: "11,14,17,20,2b"
-            instruction_set: "-"
-          - toolset: clang
             os: macos-15
             cxxstd64: "11,14,17,20,23"
             instruction_set: "-"
